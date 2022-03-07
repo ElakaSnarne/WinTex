@@ -1,0 +1,407 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9868A4F5-ED7B-4916-BDB0-1F9553F8B05F}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>WinTex</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(DXSDK_DIR)Include;$(IncludePath);$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;</IncludePath>
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(LibraryPath);$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(DXSDK_DIR)Include;$(IncludePath);$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
+    <LibraryPath>$(DXSDK_DIR)Lib\x64;$(LibraryPath);$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(DXSDK_DIR)Include;$(IncludePath);$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;</IncludePath>
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(LibraryPath);$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>$(DXSDK_DIR)Lib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>$(DXSDK_DIR)Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>winmm.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AmbientAudio.cpp" />
+    <ClCompile Include="AnimatedCursor.cpp" />
+    <ClCompile Include="AnimationController.cpp" />
+    <ClCompile Include="AnimBase.cpp" />
+    <ClCompile Include="AreaData.cpp" />
+    <ClCompile Include="BIC.cpp" />
+    <ClCompile Include="UAKMDMap.cpp" />
+    <ClCompile Include="UAKMMap.cpp" />
+    <ClCompile Include="PDDMap.cpp" />
+    <ClCompile Include="DXControlButton.cpp" />
+    <ClCompile Include="DXSlider.cpp" />
+    <ClCompile Include="DXTabControl.cpp" />
+    <ClCompile Include="DXTabItem.cpp" />
+    <ClCompile Include="Gamepad.cpp" />
+    <ClCompile Include="InputMapping.cpp" />
+    <ClCompile Include="LocationSprite.cpp" />
+    <ClCompile Include="PDMainMenuModule.cpp" />
+    <ClCompile Include="Picture.cpp" />
+    <ClCompile Include="PictureModule.cpp" />
+    <ClCompile Include="LocationObject.cpp" />
+    <ClCompile Include="PointList.cpp" />
+    <ClCompile Include="PDMap.cpp" />
+    <ClCompile Include="SaveGameControl.cpp" />
+    <ClCompile Include="SimpleAnimPlayer.cpp" />
+    <ClCompile Include="UAKMStasisModule.cpp" />
+    <ClCompile Include="FullScreenModule.cpp" />
+    <ClCompile Include="UAKMGRSComputerModule.cpp" />
+    <ClCompile Include="UAKMPusShellGameModule.cpp" />
+    <ClCompile Include="UAKMCodePanelModule.cpp" />
+    <ClCompile Include="UAKMColonelsComputerModule.cpp" />
+    <ClCompile Include="UAKMColonelsSafeModule.cpp" />
+    <ClCompile Include="UAKMEncodedMessageModule.cpp" />
+    <ClCompile Include="MIDIPlayer.cpp" />
+    <ClCompile Include="PDScript.cpp" />
+    <ClCompile Include="UAKMSafeModule.cpp" />
+    <ClCompile Include="Image.cpp" />
+    <ClCompile Include="Configuration.cpp" />
+    <ClCompile Include="ConstantBuffers.cpp" />
+    <ClCompile Include="UAKMCrimeLinkModule.cpp" />
+    <ClCompile Include="DirectX.cpp" />
+    <ClCompile Include="DXAdapter.cpp" />
+    <ClCompile Include="DXBase.cpp" />
+    <ClCompile Include="DXBitmap.cpp" />
+    <ClCompile Include="DXButton.cpp" />
+    <ClCompile Include="DXCheckBox.cpp" />
+    <ClCompile Include="DXContainer.cpp" />
+    <ClCompile Include="DXControl.cpp" />
+    <ClCompile Include="DXControls.cpp" />
+    <ClCompile Include="DXDialogueOption.cpp" />
+    <ClCompile Include="DXFont.cpp" />
+    <ClCompile Include="DXFrame.cpp" />
+    <ClCompile Include="DXImageButton.cpp" />
+    <ClCompile Include="DXLabel.cpp" />
+    <ClCompile Include="DXListBox.cpp" />
+    <ClCompile Include="DXScreen.cpp" />
+    <ClCompile Include="DXShader.cpp" />
+    <ClCompile Include="DXSound.cpp" />
+    <ClCompile Include="DXText.cpp" />
+    <ClCompile Include="File.cpp" />
+    <ClCompile Include="GameBase.cpp" />
+    <ClCompile Include="GameController.cpp" />
+    <ClCompile Include="Globals.cpp" />
+    <ClCompile Include="H2O.cpp" />
+    <ClCompile Include="InventoryModule.cpp" />
+    <ClCompile Include="Items.cpp" />
+    <ClCompile Include="Location.cpp" />
+    <ClCompile Include="LocationModule.cpp" />
+    <ClCompile Include="LZ.cpp" />
+    <ClCompile Include="MainMenuModule.cpp" />
+    <ClCompile Include="Map.cpp" />
+    <ClCompile Include="ModuleBase.cpp" />
+    <ClCompile Include="ModuleController.cpp" />
+    <ClCompile Include="UAKMNewsPaperModule.cpp" />
+    <ClCompile Include="PDGame.cpp" />
+    <ClCompile Include="PTF.cpp" />
+    <ClCompile Include="ScriptBase.cpp" />
+    <ClCompile Include="ScriptState.cpp" />
+    <ClCompile Include="Shaders.cpp" />
+    <ClCompile Include="SilentBIC.cpp" />
+    <ClCompile Include="SQZ.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="UAKMTornNoteModule.cpp" />
+    <ClCompile Include="UAKMTravelModule.cpp" />
+    <ClCompile Include="UAKMGame.cpp" />
+    <ClCompile Include="UAKMMainMenuModule.cpp" />
+    <ClCompile Include="UAKMScript.cpp" />
+    <ClCompile Include="Utilities.cpp" />
+    <ClCompile Include="VideoModule.cpp" />
+    <ClCompile Include="VideoPlayer.cpp" />
+    <ClCompile Include="Wave.cpp" />
+    <ClCompile Include="WinTex.cpp" />
+    <ClCompile Include="Mutex.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\Font9.bin" />
+    <None Include="shaders.shader">
+      <FileType>Document</FileType>
+      <DeploymentContent>false</DeploymentContent>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AmbientAudio.h" />
+    <ClInclude Include="AnimatedCursor.h" />
+    <ClInclude Include="AnimationController.h" />
+    <ClInclude Include="AnimBase.h" />
+    <ClInclude Include="AreaData.h" />
+    <ClInclude Include="BIC.h" />
+    <ClInclude Include="BinaryData.h" />
+    <ClInclude Include="Elevation.h" />
+    <ClInclude Include="PDExamStruct.h" />
+    <ClInclude Include="PDLocationModule.h" />
+    <ClInclude Include="MediaIdentifiers.h" />
+    <ClInclude Include="PDScriptState.h" />
+    <ClInclude Include="UAKMExamStruct.h" />
+    <ClInclude Include="UAKMScriptState.h" />
+    <ClInclude Include="DoubleData.h" />
+    <ClInclude Include="DXControlButton.h" />
+    <ClInclude Include="DXSlider.h" />
+    <ClInclude Include="DXTabControl.h" />
+    <ClInclude Include="DXTabItem.h" />
+    <ClInclude Include="FileMap.h" />
+    <ClInclude Include="Gamepad.h" />
+    <ClInclude Include="InputMapping.h" />
+    <ClInclude Include="LocationSprite.h" />
+    <ClInclude Include="LocationStructs.h" />
+    <ClInclude Include="MapData.h" />
+    <ClInclude Include="PDDMap.h" />
+    <ClInclude Include="PDMainMenuModule.h" />
+    <ClInclude Include="Picture.h" />
+    <ClInclude Include="PictureModule.h" />
+    <ClInclude Include="LocationObject.h" />
+    <ClInclude Include="PointList.h" />
+    <ClInclude Include="PDMap.h" />
+    <ClInclude Include="SaveGameControl.h" />
+    <ClInclude Include="SaveGameInfo.h" />
+    <ClInclude Include="SimpleAnimPlayer.h" />
+    <ClInclude Include="StartupPosition.h" />
+    <ClInclude Include="UAKMDMap.h" />
+    <ClInclude Include="UAKMMap.h" />
+    <ClInclude Include="UAKMStasisModule.h" />
+    <ClInclude Include="FullScreenModule.h" />
+    <ClInclude Include="UAKMGRSComputerModule.h" />
+    <ClInclude Include="UAKMPusShellGameModule.h" />
+    <ClInclude Include="UAKMCodePanelModule.h" />
+    <ClInclude Include="UAKMColonelsComputerModule.h" />
+    <ClInclude Include="UAKMColonelsSafeModule.h" />
+    <ClInclude Include="UAKMEncodedMessageModule.h" />
+    <ClInclude Include="MIDIPlayer.h" />
+    <ClInclude Include="PDScript.h" />
+    <ClInclude Include="UAKMSafeModule.h" />
+    <ClInclude Include="Image.h" />
+    <ClInclude Include="ColourTranslationTable.h" />
+    <ClInclude Include="Configuration.h" />
+    <ClInclude Include="ConstantBuffers.h" />
+    <ClInclude Include="UAKMCrimeLinkModule.h" />
+    <ClInclude Include="DirectX.h" />
+    <ClInclude Include="DXAdapter.h" />
+    <ClInclude Include="DXBase.h" />
+    <ClInclude Include="DXBitmap.h" />
+    <ClInclude Include="DXButton.h" />
+    <ClInclude Include="DXCheckBox.h" />
+    <ClInclude Include="DXContainer.h" />
+    <ClInclude Include="DXControl.h" />
+    <ClInclude Include="DXControls.h" />
+    <ClInclude Include="DXDialogueOption.h" />
+    <ClInclude Include="DXFont.h" />
+    <ClInclude Include="DXFrame.h" />
+    <ClInclude Include="DXImageButton.h" />
+    <ClInclude Include="DXLabel.h" />
+    <ClInclude Include="DXListBox.h" />
+    <ClInclude Include="DXScreen.h" />
+    <ClInclude Include="DXShader.h" />
+    <ClInclude Include="DXSound.h" />
+    <ClInclude Include="DXText.h" />
+    <ClInclude Include="File.h" />
+    <ClInclude Include="GameBase.h" />
+    <ClInclude Include="GameController.h" />
+    <ClInclude Include="Globals.h" />
+    <ClInclude Include="H2O.h" />
+    <ClInclude Include="InventoryModule.h" />
+    <ClInclude Include="Items.h" />
+    <ClInclude Include="Location.h" />
+    <ClInclude Include="LocationModule.h" />
+    <ClInclude Include="LZ.h" />
+    <ClInclude Include="MainMenuModule.h" />
+    <ClInclude Include="Map.h" />
+    <ClInclude Include="ModuleBase.h" />
+    <ClInclude Include="ModuleController.h" />
+    <ClInclude Include="UAKMNewsPaperModule.h" />
+    <ClInclude Include="PDGame.h" />
+    <ClInclude Include="PTF.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="ScriptBase.h" />
+    <ClInclude Include="ScriptState.h" />
+    <ClInclude Include="Shaders.h" />
+    <ClInclude Include="SilentBIC.h" />
+    <ClInclude Include="SQZ.h" />
+    <ClInclude Include="Structs.h" />
+    <ClInclude Include="Caption.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="UAKMTornNoteModule.h" />
+    <ClInclude Include="UAKMTravelModule.h" />
+    <ClInclude Include="UAKMGame.h" />
+    <ClInclude Include="UAKMMainMenuModule.h" />
+    <ClInclude Include="UAKMScript.h" />
+    <ClInclude Include="Utilities.h" />
+    <ClInclude Include="VideoModule.h" />
+    <ClInclude Include="VideoPlayer.h" />
+    <ClInclude Include="Wave.h" />
+    <ClInclude Include="Mutex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="WinTex.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\icon2.ico" />
+    <Image Include="images\icon3.ico" />
+    <Image Include="Images\PandoraFont.png" />
+    <Image Include="Images\PD-Title.jpg" />
+    <Image Include="Images\PD.ico" />
+    <Image Include="Images\SaveGameBox.png" />
+    <Image Include="images\Bubble.png" />
+    <Image Include="Images\Button.png" />
+    <Image Include="Images\Button_MouseOver.png" />
+    <Image Include="Images\CheckMark.png" />
+    <Image Include="Images\Font4.png" />
+    <Image Include="Images\Frame.png" />
+    <Image Include="Images\Icon.ico" />
+    <Image Include="Images\ImageButton.png" />
+    <Image Include="Images\ImageButton_MouseOver.png" />
+    <Image Include="Images\ListBox.png" />
+    <Image Include="Images\SaveGameBox_MouseOver.png" />
+    <Image Include="Images\Slider.png" />
+    <Image Include="Images\TabHeader.png" />
+    <Image Include="Images\UAKM-Title.jpg" />
+    <Image Include="Images\UAKM-Title3.png" />
+    <Image Include="Images\UAKM.ico" />
+    <Image Include="Images\WinTex.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Sounds\ButtonClick.wav" />
+    <Media Include="Sounds\ButtonMouseOver.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="UAKM.xml" />
+    <Xml Include="PD.xml" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

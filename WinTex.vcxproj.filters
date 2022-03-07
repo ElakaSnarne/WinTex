@@ -1,0 +1,750 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Controls">
+      <UniqueIdentifier>{4f32ee88-e3a8-484f-b2d7-8f291d9db5b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UAKM">
+      <UniqueIdentifier>{2e0fb351-9fd7-4689-ad68-4551ca8d2968}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PD">
+      <UniqueIdentifier>{985621af-0c23-4653-8b7c-c081002f991e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shared">
+      <UniqueIdentifier>{834e7573-7e5b-4f28-a5a0-f007d222cbfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules">
+      <UniqueIdentifier>{cd2d1073-0699-474e-9a42-9fba408724e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Controllers">
+      <UniqueIdentifier>{7ec0db69-2c41-4388-81dc-e89835f718e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DirectX">
+      <UniqueIdentifier>{c695e57b-08ca-40c7-9d31-e122f18d6718}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\UAKM">
+      <UniqueIdentifier>{718579c2-3c32-43bd-a70c-ea7139ffc504}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\PD">
+      <UniqueIdentifier>{d894f063-1350-4fc3-9747-491f4aab9c2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Structs">
+      <UniqueIdentifier>{288b8ec3-396b-41fc-be56-deeb5edb7cbe}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DXButton.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="DXBitmap.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="DXFrame.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="BIC.cpp">
+      <Filter>UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMGame.cpp">
+      <Filter>UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="PTF.cpp">
+      <Filter>UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="DXScreen.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="H2O.cpp">
+      <Filter>PD</Filter>
+    </ClCompile>
+    <ClCompile Include="DXCheckBox.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="DXControl.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="PDGame.cpp">
+      <Filter>PD</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimBase.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="GameBase.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="LZ.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Location.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Map.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptBase.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="SQZ.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="DXControls.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="LocationModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="SilentBIC.cpp">
+      <Filter>UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMScript.cpp">
+      <Filter>UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationController.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="GameController.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleController.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleBase.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Items.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="DXAdapter.cpp">
+      <Filter>DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="DXBase.cpp">
+      <Filter>DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="DXDialogueOption.cpp">
+      <Filter>DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="DXFont.cpp">
+      <Filter>DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="DXImageButton.cpp">
+      <Filter>DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="DXShader.cpp">
+      <Filter>DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="DXSound.cpp">
+      <Filter>DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="AmbientAudio.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimatedCursor.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="File.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Mutex.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptState.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Wave.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectX.cpp">
+      <Filter>DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantBuffers.cpp">
+      <Filter>DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders.cpp">
+      <Filter>DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="PDScript.cpp">
+      <Filter>PD</Filter>
+    </ClCompile>
+    <ClCompile Include="MIDIPlayer.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="FullScreenModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMCodePanelModule.cpp">
+      <Filter>Modules\UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMColonelsComputerModule.cpp">
+      <Filter>Modules\UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMColonelsSafeModule.cpp">
+      <Filter>Modules\UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMCrimeLinkModule.cpp">
+      <Filter>Modules\UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMEncodedMessageModule.cpp">
+      <Filter>Modules\UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMGRSComputerModule.cpp">
+      <Filter>Modules\UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMNewsPaperModule.cpp">
+      <Filter>Modules\UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMPusShellGameModule.cpp">
+      <Filter>Modules\UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMSafeModule.cpp">
+      <Filter>Modules\UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMTornNoteModule.cpp">
+      <Filter>Modules\UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMTravelModule.cpp">
+      <Filter>Modules\UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMMainMenuModule.cpp">
+      <Filter>Modules\UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMStasisModule.cpp">
+      <Filter>Modules\UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="DXContainer.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="DXLabel.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="DXListBox.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="DXText.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="SaveGameControl.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="PictureModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="DXSlider.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoPlayer.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="PDMainMenuModule.cpp">
+      <Filter>Modules\PD</Filter>
+    </ClCompile>
+    <ClCompile Include="DXTabControl.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="DXTabItem.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="DXControlButton.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Gamepad.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="InputMapping.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="AreaData.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Configuration.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Globals.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="LocationObject.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="LocationSprite.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Picture.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="PointList.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleAnimPlayer.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="WinTex.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="PDDMap.cpp">
+      <Filter>PD</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMMap.cpp">
+      <Filter>UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="UAKMDMap.cpp">
+      <Filter>UAKM</Filter>
+    </ClCompile>
+    <ClCompile Include="PDMap.cpp">
+      <Filter>PD</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DXFrame.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="DXBitmap.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="DXButton.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="BIC.h">
+      <Filter>UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="PTF.h">
+      <Filter>UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMGame.h">
+      <Filter>UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="DXScreen.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="H2O.h">
+      <Filter>PD</Filter>
+    </ClInclude>
+    <ClInclude Include="DXCheckBox.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="DXControl.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="PDGame.h">
+      <Filter>PD</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimBase.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="GameBase.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="LZ.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Location.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptBase.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="SQZ.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="DXControls.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="ColourTranslationTable.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Caption.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="LocationModule.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleBase.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoModule.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="SilentBIC.h">
+      <Filter>UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryModule.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMScript.h">
+      <Filter>UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationController.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="GameController.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleController.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuModule.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Items.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBuffers.h">
+      <Filter>DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectX.h">
+      <Filter>DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="DXAdapter.h">
+      <Filter>DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="DXBase.h">
+      <Filter>DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="DXDialogueOption.h">
+      <Filter>DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="DXFont.h">
+      <Filter>DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="DXImageButton.h">
+      <Filter>DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="DXShader.h">
+      <Filter>DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="DXSound.h">
+      <Filter>DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders.h">
+      <Filter>DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Wave.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="AmbientAudio.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimatedCursor.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Mutex.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptState.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="PDScript.h">
+      <Filter>PD</Filter>
+    </ClInclude>
+    <ClInclude Include="MIDIPlayer.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="FullScreenModule.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMCodePanelModule.h">
+      <Filter>Modules\UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMColonelsComputerModule.h">
+      <Filter>Modules\UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMColonelsSafeModule.h">
+      <Filter>Modules\UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMCrimeLinkModule.h">
+      <Filter>Modules\UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMEncodedMessageModule.h">
+      <Filter>Modules\UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMGRSComputerModule.h">
+      <Filter>Modules\UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMNewsPaperModule.h">
+      <Filter>Modules\UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMPusShellGameModule.h">
+      <Filter>Modules\UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMSafeModule.h">
+      <Filter>Modules\UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMTornNoteModule.h">
+      <Filter>Modules\UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMTravelModule.h">
+      <Filter>Modules\UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMMainMenuModule.h">
+      <Filter>Modules\UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMStasisModule.h">
+      <Filter>Modules\UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="DXContainer.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="DXLabel.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="DXListBox.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="DXText.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="SaveGameControl.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="PictureModule.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="DXSlider.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoPlayer.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="PDMainMenuModule.h">
+      <Filter>Modules\PD</Filter>
+    </ClInclude>
+    <ClInclude Include="DXTabControl.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="DXTabItem.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="DXControlButton.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Gamepad.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="InputMapping.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="AreaData.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Configuration.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="LocationObject.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="LocationSprite.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="LocationStructs.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Picture.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="PointList.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="SaveGameInfo.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleAnimPlayer.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Structs.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="FileMap.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="StartupPosition.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMMap.h">
+      <Filter>UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMDMap.h">
+      <Filter>UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="PDDMap.h">
+      <Filter>PD</Filter>
+    </ClInclude>
+    <ClInclude Include="PDMap.h">
+      <Filter>PD</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryData.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="DoubleData.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMScriptState.h">
+      <Filter>UAKM</Filter>
+    </ClInclude>
+    <ClInclude Include="PDScriptState.h">
+      <Filter>PD</Filter>
+    </ClInclude>
+    <ClInclude Include="MediaIdentifiers.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="PDLocationModule.h">
+      <Filter>Modules\PD</Filter>
+    </ClInclude>
+    <ClInclude Include="Elevation.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="UAKMExamStruct.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="PDExamStruct.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="WinTex.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Images\Button.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\Button_MouseOver.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\Frame.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\Icon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\ImageButton.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\ImageButton_MouseOver.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\CheckMark.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\Bubble.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\ListBox.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\UAKM-Title3.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\Font4.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\SaveGameBox.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\PD-Title.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\TabHeader.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\UAKM-Title.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\icon2.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\UAKM.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\icon3.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\SaveGameBox_MouseOver.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\PD.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\Slider.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\WinTex.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\PandoraFont.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders.shader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Images\Font9.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Sounds\ButtonMouseOver.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Sounds\ButtonClick.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="PD.xml" />
+    <Xml Include="UAKM.xml" />
+  </ItemGroup>
+</Project>
