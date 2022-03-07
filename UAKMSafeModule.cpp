@@ -274,7 +274,7 @@ void CUAKMSafeModule::Render()
 				// Render key pressed
 				PartialRender(19 + _keyDown * 2, keyLocations[_keyDown * 2 + 0], keyLocations[_keyDown * 2 + 1] - 30, TRUE);
 
-				if (_keyDown >= 0 && _keyDown <= 12)
+				if (_keyDown >= 0 && _keyDown < 12)
 				{
 					Number(_keyDown);
 					_keyDown = -1;
@@ -533,6 +533,7 @@ void CUAKMSafeModule::BeginAction()
 					int key = i;
 					if (key == 11) key = 0;
 					else if (key > 11) key--;
+					// Is this the Start button bug???
 					Press(key, i - 1);
 				}
 

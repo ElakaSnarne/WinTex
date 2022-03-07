@@ -305,6 +305,9 @@ void CUAKMScript::Function_94(CScriptState* pState)
 
 	CGameController::SetData(UAKM_SAVE_DMAP_ENTRY, ix);
 	CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 1);
+	CGameController::SetData(UAKM_SAVE_SCRIPT_ID, 0);
+
+	CGameController::AutoSave();
 
 	CModuleController::Push(new CVideoModule(VideoType::Scripted, ix));
 
@@ -511,9 +514,9 @@ void CUAKMScript::Function_AE(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_AE - If AskAboutState[x]=y go to z");
 
-	int ix = GetInt(pState->Script, 0, 2);
-	int val = GetInt(pState->Script, 2, 2);
-	int id = GetInt(pState->Script, 4, 2);
+	int ix = GetInt(pState->Script, pState->ExecutionPointer, 2);
+	int val = GetInt(pState->Script, pState->ExecutionPointer + 2, 2);
+	int id = GetInt(pState->Script, pState->ExecutionPointer + 4, 2);
 
 	pState->ExecutionPointer = (CGameController::GetAskAboutState(ix) == val) ? pState->GetScript(id) : pState->ExecutionPointer + 6;
 }
@@ -528,225 +531,225 @@ void CUAKMScript::Function_AF(CScriptState* pState)
 
 	switch (i1)
 	{
-		case 0:
+	case 0:
+	{
+		// Nothing?
+		int debug = 0;
+		break;
+	}
+	case 1:
+	{
+		if (CGameController::GetData(UAKM_SAVE_AF_ACTIONS + i3) == 0)
 		{
-			// Nothing?
 			int debug = 0;
-			break;
 		}
-		case 1:
-		{
-			if (CGameController::GetData(UAKM_SAVE_AF_ACTIONS + i3) == 0)
-			{
-				int debug = 0;
-			}
 
-			break;
-		}
-		case 2:
+		break;
+	}
+	case 2:
+	{
+		// In warehouse (palette functions only)
+		break;
+	}
+	case 3:
+	{
+		// Colonel's Computer
+		CModuleController::Push(new CUAKMColonelsComputerModule());
+		pState->WaitingForInput = TRUE;
+		break;
+	}
+	case 4:
+	{
+		// Pus' Shell game
+		CModuleController::Push(new CUAKMPusShellGameModule(i2, i3));
+		pState->WaitingForInput = TRUE;
+		break;
+	}
+	case 5:
+	{
+		// Crime Link computer
+		CModuleBase* pModule = new CUAKMCrimeLinkModule(i2);
+		CModuleController::Push(pModule);
+		pState->WaitingForInput = TRUE;
+		break;
+	}
+	case 6:
+	{
+		int debug = 0;
+		break;
+	}
+	case 7:
+	{
+		// Eddie Ching's safe
+		CModuleController::Push(new CUAKMSafeModule(i2, i3 == 0));
+		pState->WaitingForInput = TRUE;
+		break;
+	}
+	case 8:
+	{
+		// Colonel's safe
+		CModuleController::Push(new CUAKMColonelsSafeModule(i2));
+		pState->WaitingForInput = TRUE;
+		break;
+	}
+	case 9:
+	{
+		// Stasis chamber
+		CModuleController::Push(new CUAKMStasisModule(i2));
+		pState->WaitingForInput = TRUE;
+		pState->WaitingForMediaToFinish = TRUE;
+		break;
+	}
+	case 10:
+	{
+		// Looping sound
+		CAmbientAudio::Loop(_mapEntry, i2, i3);
+		break;
+	}
+	case 11:
+	{
+		// Hotel door code
+		CModuleController::Push(new CUAKMCodePanelModule(i2));
+		pState->WaitingForInput = TRUE;
+		break;
+	}
+	case 12:
+	{
+		// GRS, Paul Dubois' computer
+		CModuleController::Push(new CUAKMGRSComputerModule());
+		pState->WaitingForInput = TRUE;
+		break;
+	}
+	case 13:
+	{
+		if (i2 == 1)
 		{
-			// In warehouse (palette functions only)
-			break;
-		}
-		case 3:
-		{
-			// Colonel's Computer
-			CModuleController::Push(new CUAKMColonelsComputerModule());
-			pState->WaitingForInput = TRUE;
-			break;
-		}
-		case 4:
-		{
-			// Pus' Shell game
-			CModuleController::Push(new CUAKMPusShellGameModule(i2, i3));
-			pState->WaitingForInput = TRUE;
-			break;
-		}
-		case 5:
-		{
-			// Crime Link computer
-			CModuleBase* pModule = new CUAKMCrimeLinkModule(i2);
-			CModuleController::Push(pModule);
-			pState->WaitingForInput = TRUE;
-			break;
-		}
-		case 6:
-		{
-			int debug = 0;
-			break;
-		}
-		case 7:
-		{
-			// Eddie Ching's safe
-			CModuleController::Push(new CUAKMSafeModule(i2, i3 == 0));
-			pState->WaitingForInput = TRUE;
-			break;
-		}
-		case 8:
-		{
-			// Colonel's safe
-			CModuleController::Push(new CUAKMColonelsSafeModule(i2));
-			pState->WaitingForInput = TRUE;
-			break;
-		}
-		case 9:
-		{
-			// Stasis chamber
-			CModuleController::Push(new CUAKMStasisModule(i2));
-			pState->WaitingForInput = TRUE;
-			pState->WaitingForMediaToFinish = TRUE;
-			break;
-		}
-		case 10:
-		{
-			// Looping sound
-			CAmbientAudio::Loop(_mapEntry, i2, i3);
-			break;
-		}
-		case 11:
-		{
-			// Hotel door code
-			CModuleController::Push(new CUAKMCodePanelModule(i2));
-			pState->WaitingForInput = TRUE;
-			break;
-		}
-		case 12:
-		{
-			// GRS, Paul Dubois' computer
-			CModuleController::Push(new CUAKMGRSComputerModule());
-			pState->WaitingForInput = TRUE;
-			break;
-		}
-		case 13:
-		{
-			if (i2 == 1)
+			// Restore travelable locations
+			for (int i = 0; i < 40; i++)
 			{
-				// Restore travelable locations
-				for (int i = 0; i < 40; i++)
+				CGameController::SetData(UAKM_SAVE_TRAVEL + i, CGameController::GetData(UAKM_SAVE_TRAVEL_BACKUP + i));
+			}
+		}
+		else
+		{
+			// Reset travelable locations
+			for (int i = 0; i < 40; i++)
+			{
+				CGameController::SetData(UAKM_SAVE_TRAVEL_BACKUP + i, CGameController::GetData(UAKM_SAVE_TRAVEL + i));
+				CGameController::SetData(UAKM_SAVE_TRAVEL + i, 0);
+			}
+			CGameController::SetData(UAKM_SAVE_TRAVEL + 5, 1);	// Enable travel to Tex' office
+		}
+
+		break;
+	}
+	case 14:
+	{
+		CGameController::SetParameter(i2, CGameController::GetParameter(i2) + 1);	// Used for checking hint categories in Tex' office, possibly other places...
+		break;
+	}
+	case 15:
+	{
+		// Moon Child computer hack? Looks like just fade palette out and in
+		break;
+	}
+	case 16:
+	{
+		int debug = 0;
+		break;
+	}
+	case 17:
+	{
+		// After intro
+		//TraceLine(L"After Intro");	// Probably flags the intro has been played so it doesn't auto play again next time a new game is started
+		break;
+	}
+	case 18:
+	{
+		int debug = 0;
+		break;
+	}
+	case 19:
+	{
+		// Select held item
+		//TraceLine(L"Select held item");
+
+		// TODO: Location module, select current item? Only if Location Module is current (or have to make held item static in Game Controller)...
+
+		break;
+	}
+	case 20:
+	{
+		//TraceLine(L"Set text and background colour");	// Indexes in the active palette
+		break;
+	}
+	case 21:
+	{
+		int debug = 0;
+		break;
+	}
+	case 22:
+	{
+		// Arrive at GRS, get pointer to probe position?
+		break;
+	}
+	case 23:
+	{
+		// Check distance from probe, set A205 to 1 if too close
+		CGameController::SetParameter(205, 0);
+
+		// Location item 0x10-0x16 (whichever is visible)
+		Point player = _pLoc->GetPlayerPosition();
+		double distance = -1.0;
+		for (int i = 0x10; i <= 0x16; i++)
+		{
+			SpritePosInfo info = _pLoc->GetSpriteInfo(i);
+			if (info.Visible)
+			{
+				_lastKnownEyeBotPosition = info.Position;
+
+				double x = player.X - info.Position.X;
+				double z = player.Z - info.Position.Z;
+				double distance = sqrt(x * x + z * z);
+				if (distance < 35)
 				{
-					CGameController::SetData(UAKM_SAVE_TRAVEL + i, CGameController::GetData(UAKM_SAVE_TRAVEL_BACKUP + i));
+					CGameController::SetParameter(205, 1);
 				}
+
+				break;
 			}
-			else
-			{
-				// Reset travelable locations
-				for (int i = 0; i < 40; i++)
-				{
-					CGameController::SetData(UAKM_SAVE_TRAVEL_BACKUP + i, CGameController::GetData(UAKM_SAVE_TRAVEL + i));
-					CGameController::SetData(UAKM_SAVE_TRAVEL + i, 0);
-				}
-				CGameController::SetData(UAKM_SAVE_TRAVEL + 5, 1);	// Enable travel to Tex' office
-			}
+		}
 
-			break;
-		}
-		case 14:
+		if (distance < 0.0)
 		{
-			CGameController::SetParameter(i2, CGameController::GetParameter(i2) + 1);	// Used for checking hint categories in Tex' office, possibly other places...
-			break;
+			double x = player.X - _lastKnownEyeBotPosition.X;
+			double z = player.Z - _lastKnownEyeBotPosition.Z;
+			distance = sqrt(x * x + z * z);
 		}
-		case 15:
-		{
-			// Moon Child computer hack? Looks like just fade palette out and in
-			break;
-		}
-		case 16:
-		{
-			int debug = 0;
-			break;
-		}
-		case 17:
-		{
-			// After intro
-			//TraceLine(L"After Intro");	// Probably flags the intro has been played so it doesn't auto play again next time a new game is started
-			break;
-		}
-		case 18:
-		{
-			int debug = 0;
-			break;
-		}
-		case 19:
-		{
-			// Select held item
-			//TraceLine(L"Select held item");
 
-			// TODO: Location module, select current item? Only if Location Module is current (or have to make held item static in Game Controller)...
+		// Set volume of probe audio
+		CAmbientAudio::SetVolume(0, (100.0f - (float)min(100.0f, max(0, distance - 35))) / 100.0f);
 
-			break;
-		}
-		case 20:
-		{
-			//TraceLine(L"Set text and background colour");	// Indexes in the active palette
-			break;
-		}
-		case 21:
-		{
-			int debug = 0;
-			break;
-		}
-		case 22:
-		{
-			// Arrive at GRS, get pointer to probe position?
-			break;
-		}
-		case 23:
-		{
-			// Check distance from probe, set A205 to 1 if too close
-			CGameController::SetParameter(205, 0);
-
-			// Location item 0x10-0x16 (whichever is visible)
-			Point player = _pLoc->GetPlayerPosition();
-			double distance = -1.0;
-			for (int i = 0x10; i <= 0x16; i++)
-			{
-				SpritePosInfo info = _pLoc->GetSpriteInfo(i);
-				if (info.Visible)
-				{
-					_lastKnownEyeBotPosition = info.Position;
-
-					double x = player.X - info.Position.X;
-					double z = player.Z - info.Position.Z;
-					double distance = sqrt(x * x + z * z);
-					if (distance < 35)
-					{
-						CGameController::SetParameter(205, 1);
-					}
-
-					break;
-				}
-			}
-
-			if (distance < 0.0)
-			{
-				double x = player.X - _lastKnownEyeBotPosition.X;
-				double z = player.Z - _lastKnownEyeBotPosition.Z;
-				distance = sqrt(x * x + z * z);
-			}
-
-			// Set volume of probe audio
-			CAmbientAudio::SetVolume(0, (100.0f - (float)min(100.0f, max(0, distance - 35))) / 100.0f);
-
-			break;
-		}
-		case 24:
-		{
-			// Play security probe looping sound (with correct volume)
-			CAmbientAudio::Loop(_mapEntry, i2, i3);
-			break;
-		}
-		case 25:
-		{
-			int debug = 0;
-			// GRS related?
-			break;
-		}
-		default:
-		{
-			// Illegal
-			//TraceLine(L"Illegal!");
-			break;
-		}
+		break;
+	}
+	case 24:
+	{
+		// Play security probe looping sound (with correct volume)
+		CAmbientAudio::Loop(_mapEntry, i2, i3);
+		break;
+	}
+	case 25:
+	{
+		int debug = 0;
+		// GRS related?
+		break;
+	}
+	default:
+	{
+		// Illegal
+		//TraceLine(L"Illegal!");
+		break;
+	}
 	}
 
 	pState->ExecutionPointer += 6;
@@ -958,6 +961,9 @@ void CUAKMScript::Function_C6(CScriptState* pState)
 
 			// Clear all modules except the main menu
 			CModuleController::ClearExcept(pMMM);
+
+			// Delete the autosave (which will only reload the death scene)
+			DeleteFile(L"GAMES\\SAVEGAME.000");
 		}
 	}
 }
@@ -998,13 +1004,10 @@ void CUAKMScript::Function_CC(CScriptState* pState)
 	if (val >= 1000)
 	{
 		val -= 1000;
-		//Set dword_2198D8 bit val * 2, score not affected
 		CGameController::SetHintState(val, 1, 0);
 	}
 	else
 	{
-		// If dword_2198D8 bit val * 2 is set, add 1 to score
-		// Set dword_2198D8 bit val * 2
 		int currentState = CGameController::GetHintState(val);
 		CGameController::SetHintState(val, currentState | 1, 0);
 		if (currentState == 0)
@@ -1280,7 +1283,7 @@ void CUAKMScript::Function_91(CScriptState* pState)
 void CUAKMScript::Function_93(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_93 - Load Location");
-	// TODO: Load files from MAP.LZ
+	// Load files from MAP.LZ
 
 	CAmbientAudio::Clear();
 	CGameController::SetParameter(252, 0);
@@ -1288,6 +1291,8 @@ void CUAKMScript::Function_93(CScriptState* pState)
 	int locationId = pState->Script[pState->ExecutionPointer];
 	CGameController::SetData(UAKM_SAVE_MAP_ENTRY, locationId);
 	CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 0);
+
+	CGameController::AutoSave();
 
 	CModuleController::Push(new CLocationModule(locationId, CGameController::GetParameter(249)));
 	pState->ExecutionPointer = -1;	// This should be the end of the script, but check anyway...

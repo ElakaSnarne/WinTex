@@ -51,7 +51,7 @@ CDXTabItem* CMainMenuModule::_pConfigControlJoystick = NULL;
 
 CDXButton* CMainMenuModule::_btnMainResume = NULL;
 CDXButton* CMainMenuModule::_btnMainSave = NULL;
-CModuleBase* CMainMenuModule::MainMenuModule = NULL;
+CMainMenuModule* CMainMenuModule::MainMenuModule = NULL;
 
 CDXButton* CMainMenuModule::_pConfigCancelBtn = NULL;
 CDXButton* CMainMenuModule::_pConfigAcceptBtn = NULL;
@@ -258,8 +258,7 @@ void CMainMenuModule::NewGame(LPVOID data)
 	pMIDI->Stop();
 	CurrentGameInfo.Player = "TEX";
 	CurrentGameInfo.FileName = L"GAMES\\TEX___00.000";
-	_btnMainSave->SetEnabled(TRUE);
-	_btnMainResume->SetVisible(TRUE);
+	EnableSaveAndResume(TRUE);
 	CGameController::NewGame();
 }
 
@@ -465,8 +464,7 @@ void CMainMenuModule::Resize(int width, int height)
 
 void CMainMenuModule::GameOver()
 {
-	_btnMainSave->SetEnabled(FALSE);
-	_btnMainResume->SetVisible(FALSE);
+	EnableSaveAndResume(FALSE);
 }
 
 void CMainMenuModule::LoadCancel(LPVOID data)
@@ -491,8 +489,7 @@ void CMainMenuModule::LoadGame(SaveGameInfo info)
 	SetCursorPos(pt.x, pt.y);
 	CAmbientAudio::Clear();
 	CGameController::LoadGame((LPWSTR)info.FileName.c_str());
-	_btnMainSave->SetEnabled(TRUE);
-	_btnMainResume->SetVisible(TRUE);
+	EnableSaveAndResume(TRUE);
 }
 
 void CMainMenuModule::LoadSetup()
@@ -612,7 +609,7 @@ void CMainMenuModule::SaveSetup()
 	info.FileName += L"00.";
 	// Append 3 digit number (from current savegame)
 	int lastDot = CurrentGameInfo.FileName.find_last_of('.');
-	int fileIndex = min(999, std::stoi(CurrentGameInfo.FileName.c_str() + lastDot + 1));
+	int fileIndex = lastDot > 0 ? min(999, std::stoi(CurrentGameInfo.FileName.c_str() + lastDot + 1)) : 1;
 	if (fileIndex < 100)
 	{
 		info.FileName += L"0";
@@ -969,7 +966,7 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 				SaveMode = SaveMode::Comment;
 				SaveGameInfo info = _saveControl->GetInfo();
 				SaveTypedChars = info.Comment.length();
-				_caretPos = _saveControl->GetX() + 68;
+				_caretPos = _saveControl->GetX() + 68 * pConfig->FontScale;
 			}
 		}
 		else if (SaveMode == SaveMode::Comment)
@@ -981,7 +978,7 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 				{
 					_commentBuffer[--SaveTypedChars] = 0;
 					_saveControl->SetComment(_commentBuffer);
-					_caretPos = _saveControl->GetX() + 68 + ceil(TexFont.PixelWidth(_commentBuffer));
+					_caretPos = _saveControl->GetX() + 68 * pConfig->FontScale + ceil(TexFont.PixelWidth(_commentBuffer));
 				}
 			}
 			else if (key == VK_RETURN)
@@ -1004,7 +1001,7 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 						{
 							_commentBuffer[SaveTypedChars++] = (char)ascii;
 							_saveControl->SetComment(_commentBuffer);
-							_caretPos = _saveControl->GetX() + 68 + ceil(TexFont.PixelWidth(_commentBuffer));
+							_caretPos = _saveControl->GetX() + 68 * pConfig->FontScale + ceil(TexFont.PixelWidth(_commentBuffer));
 						}
 					}
 				}
@@ -1168,6 +1165,7 @@ void CMainMenuModule::SetupConfigFrame()
 	_mouseKeyControls[InputAction::MoveRight] = new CDXControlButton("Move right", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveRight);
 	_mouseKeyControls[InputAction::MoveUp] = new CDXControlButton("Move up", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveUp);
 	_mouseKeyControls[InputAction::MoveDown] = new CDXControlButton("Move down", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveDown);
+	_mouseKeyControls[InputAction::Hints] = new CDXControlButton("Hints", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Hints);
 
 	_mouseKeyControls[InputAction::Cursor]->SetEnabled(FALSE);	// Should not be possible to reconfigure this one
 
@@ -1184,6 +1182,7 @@ void CMainMenuModule::SetupConfigFrame()
 	_joystickControls[InputAction::MoveForward] = new CDXControlButton("Movement", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveForward);
 	_joystickControls[InputAction::MoveUp] = new CDXControlButton("Move up", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveUp);
 	_joystickControls[InputAction::MoveDown] = new CDXControlButton("Move down", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveDown);
+	_joystickControls[InputAction::Hints] = new CDXControlButton("Hints", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Hints);
 
 	float x = 22.0f;
 
@@ -1229,6 +1228,8 @@ void CMainMenuModule::SetupConfigFrame()
 	_pConfigControlKeyMouse->AddChild(_mouseKeyControls[InputAction::Inventory], x, y);
 	y += fontHeight;
 	_pConfigControlKeyMouse->AddChild(_mouseKeyControls[InputAction::Travel], x, y);
+	y += fontHeight;
+	_pConfigControlKeyMouse->AddChild(_mouseKeyControls[InputAction::Hints], x, y);
 	y += fontHeight;
 
 	/*
@@ -1286,4 +1287,18 @@ void CMainMenuModule::SetupSaveFrame()
 	// Increment and Save button
 	CDXButton* pIncrementAndSaveBtn = new CDXButton("Increment", 64.0f * pConfig->FontScale, 32.0f * pConfig->FontScale, SaveIncrementSave);
 	_pSave->AddChild(pIncrementAndSaveBtn, w / 2 - 32.0f, h - 64.0f * pConfig->FontScale);
+}
+
+void CMainMenuModule::EnableSaveAndResume(BOOL enable)
+{
+	_btnMainResume->SetVisible(enable);
+	_btnMainSave->SetEnabled(enable);
+}
+
+void CMainMenuModule::UpdateSaveGameData()
+{
+	// TODO: Copy player name from savegame
+	// TODO: Find last save index for player
+	CurrentGameInfo.Player = "TEX";
+	CurrentGameInfo.FileName = L"GAMES\\TEX___00.000";
 }

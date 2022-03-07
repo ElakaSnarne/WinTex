@@ -22,7 +22,7 @@ public:
 	void SetColours(int colour1, int colour2);
 	void SetColours(int colour1, int colour2, int colour3, int colour4);
 
-	void Render(float x, float y);
+	virtual void Render(float x, float y);
 
 	void SetText(char* text, Alignment alignment = Alignment::Left);
 	void SetText(char* text, Rect rect, Alignment alignment = Alignment::Left);
@@ -47,6 +47,8 @@ public:
 		float Pixels();
 		char* Text();
 		int Chars();
+
+		void SetNext(CWordList* pNext) { _next = pNext; }
 
 	protected:
 		CWordList(char* text, int chars, float pixels);

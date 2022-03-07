@@ -210,14 +210,14 @@ void CVideoModule::Resize(int width, int height)
 
 void CVideoModule::Resume()
 {
-	if (_scriptState->WaitingForMediaToFinish)
-	{
-		//_scriptEngine->Resume(_scriptState, TRUE);
-	}
-	else if (_scriptState->WaitingForInput)
-	{
-		_scriptEngine->Resume(_scriptState, TRUE);
-	}
+	//if (_scriptState->WaitingForMediaToFinish)
+	//{
+	//	//_scriptEngine->Resume(_scriptState, TRUE);
+	//}
+	//else if (_scriptState->WaitingForInput)
+	//{
+	//	_scriptEngine->Resume(_scriptState, TRUE);
+	//}
 }
 
 void CVideoModule::Cursor(float x, float y, BOOL relative)

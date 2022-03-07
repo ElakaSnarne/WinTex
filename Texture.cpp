@@ -94,7 +94,7 @@ CTexture::~CTexture()
 	_texture = NULL;
 }
 
-BOOL CTexture::Init(int width, int height)
+BOOL CTexture::Init(int width, int height, D3D11_USAGE usageFlags, DWORD miscFlags, ID3D11Device* pD3D)
 {
 	Dispose();
 
@@ -113,18 +113,32 @@ BOOL CTexture::Init(int width, int height)
 		desc.MipLevels = desc.ArraySize = 1;
 		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 		desc.SampleDesc.Count = 1;
-		desc.Usage = D3D11_USAGE_DYNAMIC;
+		desc.Usage = usageFlags;
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		desc.MiscFlags = 0;
+		desc.MiscFlags = miscFlags;
 
-		if (SUCCEEDED(dx.CreateTexture2D(&desc, NULL, &_texture)))
+		if (pD3D == NULL)
 		{
-			SetDebugName(_texture, "Texture 2");
-			if (SUCCEEDED(dx.CreateShaderResourceView(_texture, NULL, &_textureRV)))
+			if (SUCCEEDED(dx.CreateTexture2D(&desc, NULL, &_texture)))
 			{
-				SetDebugName(_textureRV, "TextureRV 2");
-				ret = TRUE;
+				SetDebugName(_texture, "Texture 2");
+				if (SUCCEEDED(dx.CreateShaderResourceView(_texture, NULL, &_textureRV)))
+				{
+					SetDebugName(_textureRV, "TextureRV 2");
+					ret = TRUE;
+				}
+			}
+		}
+		else
+		{
+			if (SUCCEEDED(pD3D->CreateTexture2D(&desc, NULL, &_texture)))
+			{
+				if (SUCCEEDED(dx.CreateShaderResourceView(_texture, NULL, &_textureRV)))
+				{
+					SetDebugName(_textureRV, "TextureRV 2");
+					ret = TRUE;
+				}
 			}
 		}
 	}
@@ -190,15 +204,16 @@ BOOL CTexture::Init(PBYTE pImage, DWORD size, char* name)
 	return ret;
 }
 
-BOOL CTexture::Init(PBYTE pData, DWORD size, DWORD offset, PINT pPalette, int transparentIndex, char* name)
+BOOL CTexture::Init(PBYTE pData, DWORD size, DWORD offset, PINT pPalette, int transparentIndex, char* name, int sx, int sy, int sw, int sh, bool rawImage, int rawWidth, int rawHeight)
 {
 	Dispose();
 
 	BOOL ret = FALSE;
 	PBYTE pImage = pData + offset;
 
-	int width = GetInt(pImage, 2, 2);
-	int height = GetInt(pImage, 4, 2);
+	int imageHeight = rawImage ? rawHeight : GetInt(pImage, 4, 2);
+	int width = sw < 0 ? rawImage ? rawWidth : GetInt(pImage, 2, 2) : sw;
+	int height = sh < 0 ? rawImage ? rawHeight : imageHeight : sh;
 
 	_width = width;
 	_height = height;
@@ -229,18 +244,38 @@ BOOL CTexture::Init(PBYTE pData, DWORD size, DWORD offset, PINT pPalette, int tr
 				int* pTex = (int*)subRes.pData;
 				ZeroMemory(pTex, height * subRes.RowPitch);
 
-				for (int y = 0; y < height; y++)
+				if (rawImage)
 				{
-					int c1 = GetInt(pImage, inPtr, 2);
-					int c2 = GetInt(pImage, inPtr + 2, 2);
-
-					for (int x = 0; x < width; x++)
+					inPtr += rawWidth * sy - 16;
+					for (int y = 0; y < height; y++)
 					{
-						int pix = (x >= c1 && x < (c1 + c2)) ? pImage[inPtr + 4 + x - c1] : 0;
-						pTex[y * subRes.RowPitch / 4 + x] = (pix != transparentIndex) ? pPalette[pix] : 0;
-					}
+						for (int x = 0; x < width; x++)
+						{
+							int pix = pImage[inPtr + sx + x];
+							pTex[y * subRes.RowPitch / 4 + x] = (pix != transparentIndex) ? pPalette[pix] : 0;
+						}
 
-					inPtr += 4 + c2;
+						inPtr += rawWidth;
+					}
+				}
+				else
+				{
+					for (int y = 0; y < imageHeight; y++)
+					{
+						int c1 = GetInt(pImage, inPtr, 2);
+						int c2 = GetInt(pImage, inPtr + 2, 2);
+
+						if (y >= sy && y < (sy + height))
+						{
+							for (int x = 0; x < width; x++)
+							{
+								int pix = (x >= c1 && x < (c1 + c2)) ? pImage[inPtr + 4 + x - c1] : 0;
+								pTex[(y - sy) * subRes.RowPitch / 4 + x + sx] = (pix != transparentIndex) ? pPalette[pix] : 0;
+							}
+						}
+
+						inPtr += 4 + c2;
+					}
 				}
 
 				dx.Unmap(_texture, 0);

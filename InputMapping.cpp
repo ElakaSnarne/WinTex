@@ -37,12 +37,13 @@ void CInputMapping::LoadControlsMap()
 	ControlsMap[InputAction::Prev] = { InputSource::Unknown,0,InputSource::MouseWheel,1, InputSource::MouseWheel | InputSource::Key | InputSource::JoystickButton,0,InputSource::Unknown,FALSE,0 };
 	ControlsMap[InputAction::Inventory] = { InputSource::Unknown,0,InputSource::Key,0x170000, InputSource::MouseButton | InputSource::Key | InputSource::JoystickButton,0,InputSource::Unknown,FALSE,0 };
 	ControlsMap[InputAction::Travel] = { InputSource::Unknown,0,InputSource::Key,0x140000, InputSource::MouseButton | InputSource::Key | InputSource::JoystickButton,0,InputSource::Unknown,FALSE,0 };
+	ControlsMap[InputAction::Hints] = { InputSource::Unknown,0,InputSource::Key,0x230000, InputSource::MouseButton | InputSource::Key | InputSource::JoystickButton,0,InputSource::Unknown,FALSE,0 };
 
 	HKEY hk;
 	std::wstring key = L"SOFTWARE\\Access Software\\" + pConfig->GetGameName();
 	if (RegOpenKeyEx(HKEY_CURRENT_USER, key.c_str(), 0, KEY_READ, &hk) == 0)
 	{
-		int config[15 * 4];
+		int config[16 * 4];
 		// Load blob from registry
 
 		DWORD size = sizeof(config);
@@ -64,6 +65,10 @@ void CInputMapping::LoadControlsMap()
 			ReadConfig(config, ix++, InputAction::Prev);
 			ReadConfig(config, ix++, InputAction::Inventory);
 			ReadConfig(config, ix++, InputAction::Travel);
+			if (size >= 16 * 4)
+			{
+				ReadConfig(config, ix++, InputAction::Hints);
+			}
 		}
 
 		RegCloseKey(hk);
@@ -85,7 +90,7 @@ void CInputMapping::SaveControlsMap()
 	if (RegCreateKeyEx(HKEY_CURRENT_USER, key.c_str(), 0, 0, 0, KEY_WRITE, NULL, &hk, NULL) == 0)
 	{
 		// Save controls map to registry
-		int config[15 * 4];
+		int config[16 * 4];
 		int ix = 0;
 		WriteConfig(config, ix++, InputAction::Cursor);
 		WriteConfig(config, ix++, InputAction::Action);
@@ -102,6 +107,7 @@ void CInputMapping::SaveControlsMap()
 		WriteConfig(config, ix++, InputAction::Prev);
 		WriteConfig(config, ix++, InputAction::Inventory);
 		WriteConfig(config, ix++, InputAction::Travel);
+		WriteConfig(config, ix++, InputAction::Hints);
 
 		// Save blob to registry
 		DWORD size = sizeof(config);
@@ -142,7 +148,7 @@ void CInputMapping::Input(InputSource source, int identifier, int value)
 	for (auto bind : ControlsMap)
 	{
 		InputAction action = bind.first;
-			
+
 		if ((bind.second.JoystickSource == source && (bind.second.JoystickIdentifier == identifier || bind.second.JoystickIdentifier == pairedXAxis)) ||
 			(bind.second.MouseKeySource == source && bind.second.MouseKeyIdentifier == identifier))
 		{

@@ -165,6 +165,12 @@ BOOL CPTF::ProcessFLCFrame(int inPtr, int chunkSize)
 						int r = _colourTranslationTable[_pInputBuffer[inPtr++]];
 						int g = _colourTranslationTable[_pInputBuffer[inPtr++]];
 						int b = _colourTranslationTable[_pInputBuffer[inPtr++]];
+
+						if (videoMode == VideoMode::Embedded && j < 32)
+						{
+							r = g = b = 0;
+						}
+
 						int c = 0xff000000 | b | (g << 8) | (r << 16);
 						_pPalette[currentIndex++] = c;
 					}

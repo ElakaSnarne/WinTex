@@ -3,8 +3,8 @@
 
 ID3D11Buffer* CConstantBuffers::_vop = NULL;
 ID3D11Buffer* CConstantBuffers::_world = NULL;
-ID3D11Buffer* CConstantBuffers::_font = NULL;
 ID3D11Buffer* CConstantBuffers::_texFont = NULL;
+ID3D11Buffer* CConstantBuffers::_multiColouredFont = NULL;
 ID3D11Buffer* CConstantBuffers::_visibility = NULL;
 ID3D11Buffer* CConstantBuffers::_translation = NULL;
 
@@ -64,28 +64,33 @@ void CConstantBuffers::SetWorld(CDirectX& dx, XMMATRIX* world)
 	}
 }
 
-void CConstantBuffers::SetFont(CDirectX& dx, XMVECTOR* colour)
+void CConstantBuffers::SetMultiColouredFont(CDirectX& dx, XMVECTOR* colour1, XMVECTOR* colour2, XMVECTOR* colour3, XMVECTOR* colour4, XMVECTOR* colour5, XMVECTOR* colour6)
 {
-	if (_font == NULL)
+	if (_multiColouredFont == NULL)
 	{
 		// Create constant buffer
 		D3D11_BUFFER_DESC matrixBufferDesc;
 		matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-		matrixBufferDesc.ByteWidth = sizeof(FontBufferType);
+		matrixBufferDesc.ByteWidth = sizeof(MultiColouredFontBufferType);
 		matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		matrixBufferDesc.MiscFlags = 0;
 		matrixBufferDesc.StructureByteStride = 0;
-		dx.CreateBuffer(&matrixBufferDesc, NULL, &_font, "Font");
+		dx.CreateBuffer(&matrixBufferDesc, NULL, &_multiColouredFont, "Font");
 	}
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	dx.GetDeviceContext()->Map(_font, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	FontBufferType* dataPtr = (FontBufferType*)mappedResource.pData;
-	dataPtr->colour = *colour;
-	dx.GetDeviceContext()->Unmap(_font, 0);
-	dx.GetDeviceContext()->VSSetConstantBuffers(2, 1, &_font);
-	dx.GetDeviceContext()->PSSetConstantBuffers(2, 1, &_font);
+	dx.GetDeviceContext()->Map(_multiColouredFont, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	MultiColouredFontBufferType* dataPtr = (MultiColouredFontBufferType*)mappedResource.pData;
+	dataPtr->colour1 = *colour1;
+	dataPtr->colour2 = *colour2;
+	dataPtr->colour3 = *colour3;
+	dataPtr->colour4 = *colour4;
+	dataPtr->colour5 = *colour5;
+	dataPtr->colour6 = *colour6;
+	dx.GetDeviceContext()->Unmap(_multiColouredFont, 0);
+	dx.GetDeviceContext()->VSSetConstantBuffers(2, 1, &_multiColouredFont);
+	dx.GetDeviceContext()->PSSetConstantBuffers(2, 1, &_multiColouredFont);
 }
 
 void CConstantBuffers::SetTexFont(CDirectX& dx, XMVECTOR* colour1, XMVECTOR* colour2, XMVECTOR* colour3, XMVECTOR* colour4)
@@ -177,10 +182,10 @@ void CConstantBuffers::Dispose()
 		_world = NULL;
 	}
 
-	if (_font != NULL)
+	if (_multiColouredFont != NULL)
 	{
-		_font->Release();
-		_font = NULL;
+		_multiColouredFont->Release();
+		_multiColouredFont = NULL;
 	}
 
 	if (_visibility != NULL)

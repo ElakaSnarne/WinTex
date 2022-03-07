@@ -31,7 +31,9 @@ enum class ModuleType
 	ColonelsComputer = 15,
 	GRSComputer = 16,
 	Ferrelette = 17,
-	Stasis = 18
+	Stasis = 18,
+	ResumeGame = 19,
+	Hints = 20,
 };
 
 class CModuleBase
@@ -75,6 +77,7 @@ public:
 	virtual void Prev() {}
 	virtual void Inventory() {}
 	virtual void Travel() {}
+	virtual void Hints() {}
 
 	float _cursorPosX = 0.0f;
 	float _cursorPosY = 0.0f;

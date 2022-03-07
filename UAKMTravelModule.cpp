@@ -504,6 +504,7 @@ void CUAKMTravelModule::BeginAction()
 			CGameController::SetData(UAKM_SAVE_MAP_ENTRY, locationId);
 			CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 0);
 			CGameController::SetParameter(249, 0);
+			CGameController::AutoSave();
 			CModuleController::Push(new CLocationModule(locationId, 0));
 		}
 		else
@@ -512,6 +513,7 @@ void CUAKMTravelModule::BeginAction()
 			int id = resultTable[ix * 2 + 1];
 			CGameController::SetData(UAKM_SAVE_DMAP_ENTRY, id);
 			CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 1);
+			CGameController::AutoSave();
 			CModuleController::Push(new CVideoModule(VideoType::Scripted, id));
 		}
 

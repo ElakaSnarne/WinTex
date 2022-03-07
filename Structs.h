@@ -23,6 +23,13 @@ struct TEXTURED_VERTEX
 	XMFLOAT2 object; // Use for visibility, then create a visibility buffer for the objects and lookup in the shader
 };
 
+struct MULTICOLOURED_FONT_VERTEX
+{
+	XMFLOAT3 position;
+	XMFLOAT2 texture;
+	XMFLOAT4 colour;
+};
+
 struct COLOURED_VERTEX
 {
 	XMFLOAT4 position;
@@ -48,9 +55,14 @@ struct WorldBufferType
 	XMMATRIX  world;
 };
 
-struct FontBufferType
+struct MultiColouredFontBufferType
 {
-	XMVECTOR colour;
+	XMVECTOR colour1;
+	XMVECTOR colour2;
+	XMVECTOR colour3;
+	XMVECTOR colour4;
+	XMVECTOR colour5;
+	XMVECTOR colour6;
 };
 
 struct TexFontBufferType

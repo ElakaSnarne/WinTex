@@ -133,7 +133,7 @@ public:
 	virtual int GetLocationEnvironmentScriptId() { return 1; }
 
 protected:
-	virtual int GetWord(int offset);
+	virtual int GetWord(int offset, BOOL signExtend = FALSE);
 	virtual void SetWord(int offset, int value);
 
 	int _lastDialoguePoint;

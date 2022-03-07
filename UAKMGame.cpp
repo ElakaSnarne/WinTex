@@ -45,9 +45,6 @@ BOOL CUAKMGame::Init()
 
 		CModuleController::Push(new CUAKMMainMenuModule());
 
-		// Play title animation
-		CModuleController::Push(new CVideoModule(VideoType::Single, L"TITLE.AP", 0));
-
 		return TRUE;
 	}
 
@@ -62,7 +59,7 @@ CUAKMGame::CUAKMGame()
 	_lastDialoguePoint = -1;
 	_frameTrigger = -1;
 
-	BuildFileList(IDR_UAKM_XML);
+	ReadGameXMLInfo(IDR_UAKM_XML);
 
 	SetGamePath(L".\\");
 }
@@ -136,18 +133,23 @@ void CUAKMGame::NewGame()
 
 	//UAKM_SAVE_SCRIPT_ID				0x4c9
 
-	SetAskAboutState(0, 1);		// Rook Garner
-	SetAskAboutState(1, 1);		// Chelsee Bando
-	SetAskAboutState(2, 1);		// Louie Lamintz
-	SetAskAboutState(3, 1);		// Francesca Lucido
-	SetAskAboutState(4, 1);		// Sal Lucido
-	SetAskAboutState(5, 1);		// Ardo Newpop
-	SetAskAboutState(17, 1);	// Colonel
+	SetAskAboutState(0, 1);							// Rook Garner
+	SetAskAboutState(1, 1);							// Chelsee Bando
+	SetAskAboutState(2, 1);							// Louie Lamintz
+	SetAskAboutState(3, 1);							// Francesca Lucido
+	SetAskAboutState(4, 1);							// Sal Lucido
+	SetAskAboutState(5, 1);							// Ardo Newpop
+	SetAskAboutState(17, 1);						// Colonel
 
-	SetData(UAKM_SAVE_TRAVEL + 5, 1);	// Allow travel to Tex's Office
+	SetData(UAKM_SAVE_TRAVEL + 5, 1);				// Allow travel to Tex's Office
 
-	_gameData[UAKM_SAVE_CURRENT_ITEM] = -1;
+	_gameData[UAKM_SAVE_CURRENT_ASK] = -1;			// No ask about selected
+	_gameData[UAKM_SAVE_CURRENT_ITEM] = -1;			// No selected item
 	_gameData[UAKM_SAVE_CHAPTER] = 1;
+	_gameData[UAKM_SAVE_PARAMETERS + 99] = -1;
+	_gameData[UAKM_SAVE_PARAMETERS + 251] = 2;
+	_gameData[UAKM_SAVE_PARAMETERS + 250] = 1;		// Game day
+	_gameData[UAKM_SAVE_HINT_CATEGORY_STATES + 1] = 1;
 
 	BinaryData bd = LoadEntry(L"GRAPHICS.AP", 23);
 	if (bd.Data != NULL && bd.Length == 0x1fe)
@@ -259,9 +261,15 @@ void CUAKMGame::SetParameter(int index, BYTE value)
 	}
 }
 
-int CUAKMGame::GetWord(int offset)
+int CUAKMGame::GetWord(int offset, BOOL signExtend)
 {
-	return (offset >= 0 && offset < (UAKM_SAVE_SIZE - 1)) ? (_gameData[offset + 1] << 8) | _gameData[offset] : 0;
+	int result = (offset >= 0 && offset < (UAKM_SAVE_SIZE - 1)) ? (_gameData[offset + 1] << 8) | _gameData[offset] : 0;
+	if (signExtend && result & 0x8000)
+	{
+		result |= ~0xffff;
+	}
+
+	return result;
 }
 
 void CUAKMGame::SetWord(int offset, int value)
@@ -342,7 +350,7 @@ int CUAKMGame::GetAskAboutId(int index)
 
 int CUAKMGame::GetScore()
 {
-	return GetWord(UAKM_SAVE_SCORE);
+	return GetWord(UAKM_SAVE_SCORE, TRUE);
 }
 
 void CUAKMGame::AddScore(int value)
@@ -476,7 +484,7 @@ int CUAKMGame::IndexOfItemId(int item)
 BYTE CUAKMGame::GetHintState(int index)
 {
 	int val = 0;
-	if (index >= 0 && index < 1024)
+	if (index >= 0 && index < 1352)
 	{
 		int byte = index / 4;
 		int shift = (index & 3) * 2;
@@ -489,7 +497,7 @@ BYTE CUAKMGame::GetHintState(int index)
 int HintStatePairs[] = { 3, 21, 56, 61, 263, 289, 12, 11, 264, 290, 434, 440, 434, 446, 234, 186, 343, 342 };
 void CUAKMGame::SetHintState(int index, BYTE state, int score)
 {
-	if (index >= 0 && index < 1024)
+	if (index >= 0 && index < 1352)
 	{
 		int byte = index / 4;
 		int shift = (index & 3) * 2;

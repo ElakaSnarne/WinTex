@@ -497,4 +497,633 @@
 			<DD Name="Talking to Beek Nariz"/>
 		</D>
 	</SaveSituations>
+
+	<Hints>
+		<HintCategory Index="1" Title="Getting Started in Tex's Office">
+			<Hint Index="1">Get all the &lt;MAIL&gt; by the door. &lt;(Sales Flyer, Gift Certificate, Application)&gt;</Hint>
+			<Hint Index="2">Look at the &lt; FAX MACHINE&gt; on top of the file cabinet.</Hint>
+			<Hint Index="3">Look at the &lt;CRIME LINK COMPUTER&gt; on the table behind Tex's desk.</Hint>
+			<Hint Index="4">To leave Tex's office, open the office door and walk down to the street.</Hint>
+		</HintCategory>
+		<HintCategory Index="2" Title="Mailing the Credit Card Application for the Electronics Shop">
+			<Hint Index="5">Get the &lt;CREDIT CARD APPLICATION&gt; for the Electronics Shop from Tex's office.</Hint>
+			<Hint Index="6">EXAMINE the &lt;CREDIT CARD APPLICATION.&gt;</Hint>
+			<Hint Index="7">Open the &lt;DESK DRAWER.&gt;</Hint>
+			<Hint Index="8">Get the &lt;STAMP.&gt;</Hint>
+			<Hint Index="9">Open the &lt;DESK DRAWER.&gt;</Hint>
+			<Hint Index="10">Get the &lt;PEN.&gt;</Hint>
+			<Hint Index="11">COMBINE the &lt;PEN&gt; and the &lt;APPLICATION&gt; to create a &lt;SIGNED APPLICATION.&gt;</Hint>
+			<Hint Index="12">COMBINE the &lt;STAMP&gt; and the &lt;SIGNED APPLICATION&gt; to create a &lt;READY TO MAIL APPLICATION.&gt;</Hint>
+			<Hint Index="13">Go down to the &lt;STREET&gt; and find the &lt;MAILBOX.&gt;</Hint>
+			<Hint Index="14">Use the &lt;READY TO MAIL APPLICATION&gt; on the &lt;MAILBOX.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="3" Title="Getting a New Fax Machine">
+			<Hint Index="15">In &lt;TEX'S OFFICE,&gt; look at the &lt;FAX MACHINE&gt; on top of the file cabinet.</Hint>
+			<Hint Index="16">Mail the &lt;CREDIT CARD APPLICATION&gt; for the Electronic Shop.  (See DIRECTORY)</Hint>
+			<Hint Index="17">Get the &lt;CREDIT CARD&gt; in the mail.  Card will arrive in the mail on &lt;DAY 2.&gt;</Hint>
+			<Hint Index="18">Go to the Electronics Shop and use the &lt;CREDIT CARD&gt; on the &lt;FRONT DOOR.&gt;</Hint>
+			<Hint Index="19">Use the &lt;CREDIT CARD&gt;  on the &lt;BLUE LIGHT SPECIAL BOX&gt; in the Electronics Shop.</Hint>
+			<Hint Index="20">Get the &lt;NEW FAX MACHINE.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="4" Title="Using the Crime Link Computer">
+			<Hint Index="21">Look at the &lt;COMPUTER&gt; on the table behind Tex's desk.</Hint>
+			<Hint Index="22">Turn on the &lt;COMPUTER.&gt;</Hint>
+			<Hint Index="23">Enter information ~(CLUES)@ on who robbed the Pawnshop.  (See DIRECTORY)</Hint>
+			<Hint Index="24">Click the appropriate trait in each category.</Hint>
+		</HintCategory>
+		<HintCategory Index="5" Title="Finding Out Who Robbed the Pawnshop">
+			<Hint Index="25">Talk to ROOK, the Pawnshop owner, and take the case.</Hint>
+			<Hint Index="26">Get the &lt;GLASS SHARD&gt; from the alley behind the Pawnshop.</Hint>
+			<Hint Index="27">EXAMINE the &lt;GLASS SHARD&gt;.  ~Remember the clue for use later.@</Hint>
+			<Hint Index="28">Look at the &lt;FOOTPRINT&gt; in the alley.  ~Remember the clue for use later.@</Hint>
+			<Hint Index="29">Go to the &lt;NEWSSTAND&gt; in the street and talk to &lt;CHELSEE.&gt;</Hint>
+			<Hint Index="30">Ask &lt;CHELSEE&gt; about the &lt;BURGLARY&gt;.  ~Remember the clues for use later.@</Hint>
+			<Hint Index="471">GET the &lt;NEWSPAPER&gt; in front of the door at the &lt;BREW &amp; STEW&gt;.</Hint>
+			<Hint Index="472">EXAMINE the &lt;NEWSPAPER&gt; and read article on &lt;PAWNSHOP&gt; robbery.</Hint>
+			<Hint Index="31">Go to the &lt;POLICE STATION&gt; and talk to &lt;MAC MALDEN.&gt;</Hint>
+			<Hint Index="32">Getting &lt;MAC&gt; to talk about the &lt;MARTIAN&gt; case will get you half way there.</Hint>
+			<Hint Index="33">Get the &lt;BUM&gt; in the alley to show up.	(See DIRECTORY)</Hint>
+			<Hint Index="34">Get the &lt;BUM&gt; to cooperate.  (See DIRECTORY)</Hint>
+			<Hint Index="35">Ask the &lt;BUM&gt; about the &lt;BURGLARY.&gt;  ~Remember the clues for use later.@</Hint>
+			<Hint Index="36">Enter ~CLUES@ into the &lt;CRIME LINK COMPUTER&gt; to get name of suspect.  (See DIRECTORY)</Hint>
+		</HintCategory>
+		<HintCategory Index="6" Title="Getting into Rusty's">
+			<Hint Index="37">Go into the street and look at the &lt;DOOR&gt; to Rusty's.</Hint>
+			<Hint Index="38">Move the &lt;DOORMAT&gt;.</Hint>
+			<Hint Index="39">Get the &lt;KEY&gt; under the doormat.</Hint>
+			<Hint Index="40">Use the &lt;KEY&gt; on the door to unlock it.</Hint>
+			<Hint Index="41">Open the &lt;DOOR.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="7" Title="Getting into Rusty's Back Room">
+			<Hint Index="42">Look at the &lt;EMPLOYEE'S ONLY DOOR&gt; in &lt;RUSTY'S.&gt;</Hint>
+			<Hint Index="43">Find and get the &lt;KEY&gt;.</Hint>
+			<Hint Index="44">Use the &lt;BACK ROOM KEY&gt; on the &lt;BACK ROOM DOOR.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="8" Title="Getting the Bum in the Alley to Show Up">
+			<Hint Index="45">Open the &lt;DUMPSTER&gt; and look inside.</Hint>
+			<Hint Index="46">Get the &lt;RADIO&gt;.</Hint>
+			<Hint Index="47">EXAMINE the RADIO.</Hint>
+			<Hint Index="48">Leave the alley through the fence or through Rook's.</Hint>
+			<Hint Index="49">Go back to the alley.</Hint>
+		</HintCategory>
+		<HintCategory Index="9" Title="Getting the Bum to cooperate">
+			<Hint Index="50">Talk to the &lt;BUM&gt; until he tells you about his addiction.</Hint>
+			<Hint Index="51">Go to the &lt;BREW &amp; STEW&gt; and talk to &lt;LOUIE.&gt;</Hint>
+			<Hint Index="53">Ask &lt;LOUIE&gt; about &lt;CHOCOLATE&gt; to get chocolate pie.</Hint>
+			<Hint Index="54">Talk to &lt;BUM&gt; again.</Hint>
+			<Hint Index="55">Offer him the &lt;CHOCOLATE PIE&gt; and he'll give you some important information.</Hint>
+		</HintCategory>
+		<HintCategory Index="10" Title="Locating Mick Flemm">
+			<Hint Index="56">In Tex's office, read the &lt;MICK FLEMM&gt; file on the Crime Link Computer.</Hint>
+			<Hint Index="57">Locate &lt;BEEK NARIZ.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="58">Get &lt;BEEK&gt; to cooperate.  (See DIRECTORY)</Hint>
+			<Hint Index="59">Ask &lt;BEEK&gt; about &lt;MICK FLEMM&gt; and he'll tell you where he hangs out.</Hint>
+			<Hint Index="60">Go to the &lt;WAREHOUSE.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="11" Title="Locating Beek Nariz">
+			<Hint Index="61">In Tex's office, read &lt;MICK FLEMM'S&gt; file on the Crime Link Computer.</Hint>
+			<Hint Index="62">Go to the &lt;NEWSSTAND&gt; in the street and talk to &lt;CHELSEE.&gt;</Hint>
+			<Hint Index="63">Ask &lt;CHELSEE&gt; about &lt;BEEK&gt; to get directions.</Hint>
+			<Hint Index="64">Go to &lt;COIT TOWER.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="12" Title="Getting BEEK to cooperate">
+			<Hint Index="65">Go to &lt;COIT TOWER&gt; and talk to &lt;BEEK.&gt;</Hint>
+			<Hint Index="66">Go to Tex's office and get the &lt;COSMETIC SURGERY GIFT CERTIFICATE.&gt;</Hint>
+			<Hint Index="67">Go back to &lt;COIT TOWER&gt; and offer the &lt;GIFT CERTIFICATE&gt; to &lt;BEEK.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="13" Title="Getting the Bracelet from Mick Flemm">
+			<Hint Index="68">Go to &lt;COIT TOWER&gt; and ask &lt;BEEK&gt; about &lt;MICK FLEMM.&gt;</Hint>
+			<Hint Index="69">Ask &lt;BEEK&gt; about &lt;RUSTY CLOWN.&gt;</Hint>
+			<Hint Index="70">Go to the &lt;WAREHOUSE&gt; and get the &lt;KEY&gt;.</Hint>
+			<Hint Index="71">Use the &lt;KEY&gt; from the warehouse on the &lt;POWER BOX.&gt;</Hint>
+			<Hint Index="72">Open the &lt;POWER BOX.&gt;</Hint>
+			<Hint Index="73">Get into &lt;RUSTY'S.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="74">Find and get the &lt;RUSTY CLOWN DOLL.&gt;</Hint>
+			<Hint Index="75">COMBINE the &lt;BATTERIES&gt; and the &lt;RUSTY DOLL&gt; to get a &lt;LIVE CLOWN DOLL.&gt;</Hint>
+			<Hint Index="76">Go back to the &lt;WAREHOUSE&gt; and use the &lt;LIVE CLOWN DOLL&gt; on the &lt;PULLEY HOOK.&gt;</Hint>
+			<Hint Index="77">Hide behind the crates near the pulley control box and wait.</Hint>
+			<Hint Index="78">Get the &lt;BRACELET&gt; from the table.</Hint>
+		</HintCategory>
+		<HintCategory Index="14" Title="Getting Into the Electronics Shop">
+			<Hint Index="79">Mail the Electronics Shop &lt;CREDIT CARD APPLICATION.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="80">In Tex's office, get the &lt;CREDIT CARD&gt; in the mail on the &lt;SECOND DAY.&gt;</Hint>
+			<Hint Index="81">Go to the Electronics Shop and use the &lt;CREDIT CARD&gt; on the &lt;FRONT DOOR.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="15" Title="Getting Started on the Second Day">
+			<Hint Index="82">Get a &lt;NEW FAX MACHINE.&gt; and ~return to Tex's office@ (See DIRECTORY)</Hint>
+			<Hint Index="83">Get &lt;FAX #1.&gt;</Hint>
+			<Hint Index="84">EXAMINE &lt;FAX #1.&gt;</Hint>
+			<Hint Index="85">Travel to the &lt;COUNTESS' MANSION.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="16" Title="The Countess' Case: Finding Out who has the Statuette">
+			<Hint Index="86">Go to the &lt; COUNTESS' MANSION&gt; and talk to the &lt;COUNTESS&gt;.</Hint>
+			<Hint Index="87">Go to the &lt;NEWSSTAND&gt; and talk to &lt;CHELSEE.&gt;</Hint>
+			<Hint Index="88">Ask &lt;CHELSEE&gt; about the &lt;STATUETTE.&gt;</Hint>
+			<Hint Index="89">Locate &lt;FRANCO FRANCO.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="90">Get &lt;FRANCO FRANCO&gt; to cooperate.  (See DIRECTORY)</Hint>
+			<Hint Index="91">Ask &lt;FRANCO&gt; about &lt;'THE MYSTERIOUS ARTIFACT'.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="17" Title="Locating Franco Franco">
+			<Hint Index="92">Go to the &lt;NEWSSTAND&gt; and ask &lt;CHELSEE&gt; about the &lt;STATUETTE.&gt;</Hint>
+			<Hint Index="93">Go to the &lt;POLICE STATION&gt; and talk to &lt;MAC MALDEN.&gt;</Hint>
+			<Hint Index="94">Ask &lt;MAC&gt; about &lt;FRANCO FRANCO.&gt;</Hint>
+			<Hint Index="95">Go to the &lt;PAWNSHOP&gt; and talk to &lt;ROOK.&gt;</Hint>
+			<Hint Index="96">Ask &lt;ROOK&gt; about &lt;JADE.&gt;</Hint>
+			<Hint Index="97">Go to the &lt;ALLEY&gt; and open the &lt;GARBAGE CAN.&gt;</Hint>
+			<Hint Index="98">Get the &lt;TRADE PAPER.&gt;</Hint>
+			<Hint Index="99">EXAMINE the &lt;TRADE PAPER&gt;.</Hint>
+			<Hint Index="100">Travel to the &lt;ALHAMBRA THEATER.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="18" Title="Getting Franco Franco to Cooperate">
+			<Hint Index="101">Go to the &lt;THEATER&gt; and talk to &lt;FRANCO.&gt;</Hint>
+			<Hint Index="102">Go to the &lt;ALLEY&gt; and look for a &lt;KEY&gt;.</Hint>
+			<Hint Index="103">Get the &lt;KEY&gt; from under the garbage can.</Hint>
+			<Hint Index="104">Go to the &lt;WAREHOUSE&gt; and get &lt;MICK FLEMM'S KEYS&gt; from the table.</Hint>
+			<Hint Index="105">Use the &lt;KEYS&gt; on the &lt;LOCKED STORAGE COMPARTMENT&gt; to unlock it.</Hint>
+			<Hint Index="106">Open the &lt;STORAGE COMPARTMENT.&gt;</Hint>
+			<Hint Index="107">Get the &lt;STRONGBOX.&gt;</Hint>
+			<Hint Index="108">COMBINE the &lt;KEY FROM THE ALLEY&gt; with the &lt;STRONGBOX&gt; to unlock the strongbox.</Hint>
+			<Hint Index="109">EXAMINE the &lt;UNLOCKED STRONGBOX&gt; to get the &lt;JADE.&gt;</Hint>
+			<Hint Index="110">Go back to the &lt;THEATER&gt; and talk to &lt;FRANCO.&gt;</Hint>
+			<Hint Index="111">Offer the &lt;JADE&gt; To &lt;FRANCO.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="19" Title="Locating Eddie Ching">
+			<Hint Index="112">Go to the &lt;THEATER&gt; and ask &lt;FRANCO&gt; about &lt;'THE MYSTERIOUS ARTIFACT'.&gt;</Hint>
+			<Hint Index="113">Go to Tex's office and get &lt;FAX #2.&gt;</Hint>
+			<Hint Index="114">EXAMINE &lt;FAX #2.&gt;</Hint>
+			<Hint Index="115">Go to the &lt;POLICE STATION&gt; and talk to &lt;MAC MALDEN.&gt;</Hint>
+			<Hint Index="116">Ask &lt;MAC&gt; about the &lt;KNICKERBOCKER.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="20" Title="Getting into the Knickerbocker">
+			<Hint Index="117">Go to the &lt;POLICE STATION&gt; and ask &lt;MAC MALDEN&gt; about the &lt;KNICKERBOCKER.&gt;</Hint>
+			<Hint Index="461">Travel to the &lt;KNICKERBOCKER&gt;.</Hint>
+			<Hint Index="118">Go to the Electronics Shop and talk to &lt;HAMM UNDERWOOD.&gt;</Hint>
+			<Hint Index="119">Fraternize with Hamm, and run with it to get info on the &lt;KNICKERBOCKER.&gt;</Hint>
+			<Hint Index="120">Use the &lt;CREDIT CARD&gt; on the &lt;BLUE LIGHT SPECIAL BOX.&gt;</Hint>
+			<Hint Index="121">Get the &lt;LASERBLADE.&gt;</Hint>
+			<Hint Index="122">Travel to the &lt;KNICKERBOCKER.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="21" Title="Finding the Statuette">
+			<Hint Index="123">Get into the &lt;KNICKERBOCKER.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="124">In &lt;EDDIE CHING'S LIBRARY,&gt; get the book &lt;'THROUGH THE LOOKING GLASS'.&gt;</Hint>
+			<Hint Index="125">EXAMINE the &lt;BOOK&gt; to get the &lt;KEY.&gt;</Hint>
+			<Hint Index="126">Go into &lt;CHING'S HALLWAY&gt; and turn off the &lt;LASER NET.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="127">Go into &lt;CHING'S STUDY&gt; and move the &lt;MIRROR.&gt;</Hint>
+			<Hint Index="128">Use &lt;CHING'S KEY&gt; on the &lt;SWITCH LOCK&gt; behind the mirror.</Hint>
+			<Hint Index="129">Go into &lt;CHING'S LIBRARY&gt; and enter the &lt;SECRET ROOM.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="22" Title="Turning Off the Laser Net in the Knickerbocker">
+			<Hint Index="130">In &lt;EDDIE CHING'S HALLWAY,&gt; look at the &lt;POWER BOX&gt; at the far end of the hallway.</Hint>
+			<Hint Index="131">Go to &lt;RUSTY'S&gt; and find and get the &lt;STACKING RING.&gt;</Hint>
+			<Hint Index="132">Find and get the &lt;DART CROSSBOW.&gt;</Hint>
+			<Hint Index="133">Get into &lt;RUSTY'S BACK ROOM.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="134">Find and get the &lt;SUCTION DART.&gt;</Hint>
+			<Hint Index="135">COMBINE the &lt;SUCTION DART&gt; and the &lt;DART CROSSBOW&gt; to create a &lt;LOADED CROSSBOW.&gt;</Hint>
+			<Hint Index="136">Go back to &lt;CHING'S HALLWAY&gt; and use the &lt;LOADED CROSSBOW&gt; on the &lt;POWER BOX.&gt;</Hint>
+			<Hint Index="137">Look at the &lt;LEVER&gt; in the &lt;POWER BOX.&gt;</Hint>
+			<Hint Index="138">Go into &lt; CHING'S LIBRARY&gt; and open the &lt;AQUARIUM.&gt;</Hint>
+			<Hint Index="139">Use the &lt;STACKING RING&gt; on the &lt;AQUARIUM&gt; to create a &lt;FILLED RING.&gt;</Hint>
+			<Hint Index="140">Go back into &lt; CHING'S HALLWAY&gt; and use the &lt;FILLED RING&gt; on the &lt;LEVER.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="23" Title="Getting the Geigger">
+			<Hint Index="141">Go to &lt;CHING'S&gt; and look at the &lt;GEIGGER&gt; in the tank.</Hint>
+			<Hint Index="142">Open the &lt;CLOSET DOOR.&gt;</Hint>
+			<Hint Index="143">Get the &lt;GEIGGER TRAP.&gt;</Hint>
+			<Hint Index="144">Get the &lt;GEIGGER CHOW.&gt;</Hint>
+			<Hint Index="145">COMBINE the &lt;GEIGGER TRAP&gt; and the &lt;GEIGGER CHOW&gt; to create a &lt;BAITED GEIGGER TRAP.&gt;</Hint>
+			<Hint Index="146">Use the &lt;BAITED GEIGGER TRAP&gt; on the &lt;GEIGGER TANK&gt;.</Hint>
+		</HintCategory>
+		<HintCategory Index="24" Title="Getting the Statuette">
+			<Hint Index="147">Go to &lt;CHING'S SECRET ROOM&gt; and &lt;LOOK AT THE STATUETTE.&gt; (See DIRECTORY)</Hint>
+			<Hint Index="148">Go into &lt;CHING'S STUDY&gt; and get the &lt;CAPTURE NOOSE.&gt;</Hint>
+			<Hint Index="149">Move the &lt;PAINTING.&gt;</Hint>
+			<Hint Index="150">Look at the &lt;SAFE&gt; behind the painting.</Hint>
+			<Hint Index="151">Get the &lt;BIRTHDAY FAX.&gt;</Hint>
+			<Hint Index="152">EXAMINE the &lt;BIRTHDAY FAX.&gt;</Hint>
+			<Hint Index="153">Try to open the &lt;SAFE.&gt;</Hint>
+			<Hint Index="154">Click the &lt;START&gt; key.</Hint>
+			<Hint Index="155">Click keys &lt;101412.&gt;</Hint>
+			<Hint Index="156">Click the &lt;ENTER&gt; key.</Hint>
+			<Hint Index="157">Open the &lt;SAFE.&gt;</Hint>
+			<Hint Index="158">Get the &lt;SECURITY CARD.&gt;</Hint>
+			<Hint Index="159">Go into the &lt;SECRET ROOM&gt; and move the &lt;PAINTING&gt;.</Hint>
+			<Hint Index="160">Use the &lt;SECURITY CARD&gt; in the &lt;CARD SLOT&gt; behind the painting.</Hint>
+			<Hint Index="161">Move the &lt;EMPTY CRATE&gt;.</Hint>
+			<Hint Index="162">Use the &lt;CAPTURE NOOSE&gt; on the &lt;STATUETTE.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="25" Title="Finding Out Who Jumped You and Stole the Statuette">
+			<Hint Index="163">Talk to people in the neighborhood to see who knows about the &lt;MUGGING.&gt;</Hint>
+			<Hint Index="164">Solve &lt;FRANCESCA'S CASE.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="165">Offer &lt;DEVELOPED PHOTOS&gt; to &lt;FRANCESCA.&gt;</Hint>
+			<Hint Index="166">Ask &lt;FRANCESCA&gt; about the &lt;MUGGING.&gt;</Hint>
+			<Hint Index="167">Locate &lt;PUG.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="168">Go to &lt;PUG'S ALLEY&gt; and talk to &lt;PUG&gt;.</Hint>
+			<Hint Index="169">Get him to mention the &lt;COLONEL.&gt;</Hint>
+			<Hint Index="170">Travel to the &lt;COLONEL'S OFFICE.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="26" Title="Francesca's Case:  Getting Some Dirt on Sal Lucido">
+			<Hint Index="171">Go to the &lt;SLICE O' HEAVEN PIZZA PARLOR&gt; and get the &lt;NOTE&gt; from Francesca.</Hint>
+			<Hint Index="172">Go to the &lt;BREW &amp; STEW and talk to &lt;LOUIE.&gt;</Hint>
+			<Hint Index="173">Ask &lt;LOUIE&gt; about &lt;SAL&gt;.</Hint>
+			<Hint Index="174">Go into the &lt;STREET&gt; and find the &lt;GARBAGE CAN.&gt;</Hint>
+			<Hint Index="175">Open the &lt;GARBAGE CAN.&gt;</Hint>
+			<Hint Index="176">Get the &lt;NOTE SCRAPS&gt; from the &lt;GARBAGE CAN.&gt;</Hint>
+			<Hint Index="177">Assemble the &lt;NOTE SCRAPS&gt; (See DIRECTORY)</Hint>
+			<Hint Index="178">Decode the &lt;CRYPTOGRAM.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="179">Go to the &lt;GOLDEN GATE HOTEL LOBBY&gt;  and get past &lt;ARDO.&gt; (See DIRECTORY)</Hint>
+			<Hint Index="180">Get into the &lt;HOTEL SUITE.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="181">In the &lt;HOT TUB ROOM,&gt; find and get the &lt;CHAMPAGNE CORK&gt;. (See DIRECTORY)</Hint>
+			<Hint Index="182">In the &lt;BEDROOM,&gt; unlock the &lt;DESK DRAWER&gt; and get the shoelace.  (See DIRECTORY)</Hint>
+			<Hint Index="183">In the &lt;HOT TUB ROOM,&gt; move the &lt;TOWEL&gt; on the floor.</Hint>
+			<Hint Index="184">Look at the &lt;DRAIN.&gt;</Hint>
+			<Hint Index="185">Get the &lt;ROLL OF FILM&gt; out of the &lt;DRAIN&gt;.  (See DIRECTORY)</Hint>
+			<Hint Index="186">&lt;DEVELOP THE ROLL OF FILM.&gt;  (See DIRECTORY)</Hint>
+		</HintCategory>
+		<HintCategory Index="27" Title="Assembling Sal Lucido's Cryptogram Note">
+			<Hint Index="187">Go to the &lt;BREW &amp; STEW&gt; and get the &lt;NOTE SCRAPS&gt; from the &lt;GARBAGE CAN.&gt;</Hint>
+			<Hint Index="188">EXAMINE and assemble the &lt;NOTE SCRAPS.&gt; (See the HELP system for instructions)</Hint>
+			<Hint Index="190">
+				The Cryptogram Note reads:
+				&lt;REGENCY ESCORT SERVICE
+				YV UZNV SIAKWBHVG
+				RIPB ZEEIWALHVAL
+				YWLU SUZXLWLR ZL
+				LUV XPWLV WA LUV
+				CIOGVA CZLV UILVO
+				ZL LUV PXPZO LWHV.
+				LUV EZXXYIBG LIGZR
+				WX XWOWSIA.
+			</Hint>
+		</HintCategory>
+		<HintCategory Index="28" Title="Decoding Sal Lucido's Cryptogram Note">
+			<Hint Index="199">EXAMINE the &lt;NOTE&gt; Francesca gave you.  That NOTE is the KEY to the CRYPTOGRAM.</Hint>
+			<Hint Index="189">COMBINE Francesca's &lt;NOTE&gt; with the &lt;ASSEMBLED NOTE SCRAPS&gt;</Hint>
+			<Hint Index="470">EXAMINE the &lt;ASSEMBLED NOTE SCRAPS&gt; and the 1st line reads &lt;We have confirmed...&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="29" Title="Getting Past Ardo">
+			<Hint Index="200">Go to the &lt;GOLDEN GATE HOTEL LOBBY&gt; and talk to &lt;ARDO&gt;.</Hint>
+			<Hint Index="201">Find out about &lt;INSPECTOR BURNS.&gt;</Hint>
+			<Hint Index="202">Go to the &lt;WAREHOUSE&gt; and open the &lt;CRATE.&gt;</Hint>
+			<Hint Index="204">Go to &lt;RUSTY'S&gt; and turn on the TV.</Hint>
+			<Hint Index="203">Get the &lt;FIREMAN'S UNIFORM&gt;.</Hint>
+			<Hint Index="205">Get &lt;INSPECTOR BURNS' MASK.&gt;</Hint>
+			<Hint Index="206">Get the &lt;BALLOON.&gt;</Hint>
+			<Hint Index="207">Find the &lt;HELIUM NOZZLE&gt; in &lt;RUSTY'S.&gt;</Hint>
+			<Hint Index="208">Use the &lt;BALLOON&gt; on the &lt;HELIUM NOZZLE&gt; to fill the balloon.</Hint>
+			<Hint Index="209">COMBINE the &lt;MASK&gt; and &lt;UNIFORM&gt; to create the &lt;INSPECTOR BURNS DISGUISE.&gt;</Hint>
+			<Hint Index="210">Go back to the &lt;GOLDEN GATE HOTEL LOBBY&gt; and talk to &lt;ARDO&gt; as Inspector Burns.</Hint>
+		</HintCategory>
+		<HintCategory Index="30" Title="Getting Into the Hotel Suite (Regency Escort Service)">
+			<Hint Index="211">Decode Sal Lucido's Cryptogram Note.  (See DIRECTORY)</Hint>
+			<Hint Index="212">Enter the password &lt;SILICON.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="31" Title="Getting the Cork">
+			<Hint Index="213">Go to the &lt;HOT TUB ROOM&gt; in the &lt;GOLDEN GATE HOTEL SUITE&gt; and look at the &lt;MOUNTED VASE.&gt;</Hint>
+			<Hint Index="214">Go into the &lt;BEDROOM&gt; and open the &lt;CLOSET DOORS.&gt;</Hint>
+			<Hint Index="215">Get the &lt;CHAMPAGNE GLASS.&gt;</Hint>
+			<Hint Index="216">Go back into the &lt;HOT TUB ROOM&gt; and use the &lt;CHAMPAGNE GLASS&gt; on the &lt;HOT TUB.&gt;</Hint>
+			<Hint Index="217">Use the &lt;FILLED CHAMPAGNE GLASS&gt; on the &lt;MOUNTED VASE.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="32" Title="Unlocking the Desk Drawer in the Bedroom of the Hotel Suite">
+			<Hint Index="218">In the &lt;BEDROOM&gt; of the &lt;GOLDEN GATE HOTEL SUITE,&gt; look at the &lt;LOCKED DESK DRAWER.&gt;</Hint>
+			<Hint Index="219">In the &lt;HOT TUB ROOM,&gt; get the &lt;CHAMPAGNE CORK&gt; out of the &lt;MOUNTED VASE&gt;.  (DIRECTORY)</Hint>
+			<Hint Index="220">EXAMINE the &lt;CORK&gt; to get the &lt;WIRE.&gt;</Hint>
+			<Hint Index="221">Use the &lt;WIRE&gt; on the &lt;LOCKED DESK DRAWER.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="33" Title="Getting the Roll of Film Out of the Drain">
+			<Hint Index="222">In the &lt;HOT TUB ROOM&gt; of the &lt;HOTEL SUITE,&gt; look at the &lt;ROLL OF FILM&gt; in the &lt;DRAIN.&gt;</Hint>
+			<Hint Index="223">Go into the &lt;BEDROOM&gt; and unlock the &lt;DESK DRAWER.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="224">Open the &lt;DESK DRAWER.&gt;</Hint>
+			<Hint Index="225">Get the &lt;SHOELACE.&gt;</Hint>
+			<Hint Index="226">Go into the &lt;PIANO ROOM&gt; and get the &lt;DEODORIZER MAGNET.&gt;</Hint>
+			<Hint Index="227">COMBINE the &lt;MAGNET&gt; and the &lt;SHOELACE&gt; to create a &lt;MAGNET-ON-A-STRING.&gt;</Hint>
+			<Hint Index="228">In a &lt;HOT TUB ROOM,&gt; use the &lt;MAGNET-ON-A-STRING&gt; on the &lt;DRAIN&gt; to get &lt;SCREWDRIVER.&gt;</Hint>
+			<Hint Index="229">Use the &lt;SCREWDRIVER&gt; on the &lt;DRAIN&gt; to open it.</Hint>
+			<Hint Index="230">Get the &lt;ROLL OF FILM.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="34" Title="Developing the Roll of Film">
+			<Hint Index="231">In the &lt;HOT TUB ROOM,&gt; get the &lt;ROLL OF FILM&gt; out of the &lt;DRAIN.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="232">At the &lt;ELECTRONICS SHOP,&gt; use the &lt;CREDIT CARD&gt; on the &lt;BLUE LIGHT SPECIAL BOX.&gt;</Hint>
+			<Hint Index="233">Get the &lt;FILM DEVELOPING KIT.&gt;</Hint>
+			<Hint Index="234">COMBINE the &lt;ROLL OF FILM&gt; with the &lt;DEVELOPING KIT.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="35" Title="Locating Pug">
+			<Hint Index="235">Go to the &lt;SLICE O' HEAVEN PIZZA PARLOR&gt; and ask &lt;FRANCESCA&gt; about &lt;MUGGING.&gt;</Hint>
+			<Hint Index="236">Go to &lt;COIT TOWER&gt; and talk to &lt;BEEK.&gt;</Hint>
+			<Hint Index="237">Ask &lt;BEEK&gt; about &lt;PUG.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="36" Title="Getting Started on the Fourth Day">
+			<Hint Index="238">Go to the &lt;COUNTESS' MANSION.&gt;</Hint>
+			<Hint Index="239">Go back to the &lt;COLONEL'S OFFICE.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="37" Title="What to do in the Mansion">
+			<Hint Index="240">Go to the &lt;COUNTESS' MANSION&gt; and look at the &lt;BIRD&gt;.</Hint>
+			<Hint Index="241">Get the &lt;NOTE PIECES&gt;.</Hint>
+			<Hint Index="464">Get the &lt;WATCH&gt;.</Hint>
+		</HintCategory>
+		<HintCategory Index="38" Title="Getting the Cigarette Case from the Bird">
+			<Hint Index="242">Go to the  &lt; COUNTESS' MANSION&gt; and look at &lt;BIRD&gt;.</Hint>
+			<Hint Index="243">Go to the &lt;HOTEL&gt; and find something shiny.</Hint>
+			<Hint Index="244">Go back to the &lt; COUNTESS' MANSION&gt; and use the &lt;GOLD FOIL&gt; on the &lt;BIRD.&gt;</Hint>
+			<Hint Index="245">Get the &lt;CIGARETTE CASE.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="39" Title="Assembling the Note in the Mansion">
+			<Hint Index="246">Go to the &lt; COUNTESS' MANSION&gt; and get the &lt;NOTE PIECES&gt;.</Hint>
+			<Hint Index="247">EXAMINE and assemble the &lt;NOTE PIECES.&gt;</Hint>
+			<Hint Index="248">
+				The first lines of the note read:
+				&lt;...circumstance... progressing smoothly... delighted to hear that Murphy was able to
+				provide the final piece of our puzzle.&gt;
+			</Hint>
+		</HintCategory>
+		<HintCategory Index="40" Title="The Colonel's Case:  Getting Additional Information">
+			<Hint Index="250">Go to the &lt;COLONEL'S OFFICE.&gt;</Hint>
+			<Hint Index="251">Move the &lt;VASE&gt;.</Hint>
+			<Hint Index="252">Get the &lt;EMERGENCY DISC.&gt;</Hint>
+			<Hint Index="253">Turn on the Colonel's &lt;COMPUTER.&gt;</Hint>
+			<Hint Index="254">Use the &lt;EMERGENCY DISC&gt; on the &lt;COMPUTER&gt;.</Hint>
+			<Hint Index="255">Move the &lt;FACE DOWN PICTURE FRAME&gt;.</Hint>
+			<Hint Index="256">Look at the &lt;PHOTO OF THE GIRL.&gt;</Hint>
+			<Hint Index="257">Track down the Colonel's &lt;GIRLFRIEND.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="258">Get &lt;MELAHN TODE&gt; to cooperate.  (See DIRECTORY)</Hint>
+			<Hint Index="259">Ask &lt;MELAHN&gt; about the &lt;COLONEL.&gt;</Hint>
+			<Hint Index="260">Ask &lt;MELAHN&gt; about the &lt;KEY&gt;.</Hint>
+			<Hint Index="261">Go to the &lt;COLONEL'S OFFICE&gt; and use the &lt;COLONEL'S KEY&gt; on the Colonel's &lt;FILE CABINET.&gt;</Hint>
+			<Hint Index="262">Get the &lt;CODED DOCUMENTS.&gt;</Hint>
+			<Hint Index="263">Decode the &lt;DOCUMENTS.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="264">EXAMINE the &lt;DECODED DOCUMENTS.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="41" Title="Tracking Down the Colonel's Girlfriend">
+			<Hint Index="265">Go to the &lt;COLONEL'S OFFICE&gt; and look at the &lt;PICTURE OF THE GIRL.&gt;</Hint>
+			<Hint Index="266">Open the &lt;DESK DRAWER.&gt;</Hint>
+			<Hint Index="267">Get the &lt;ENVELOPE.&gt;</Hint>
+			<Hint Index="268">EXAMINE the &lt;ENVELOPE&gt; to get &lt;MELAHN TODE'S&gt; address.</Hint>
+		</HintCategory>
+		<HintCategory Index="42" Title="Getting Melahn Tode to Cooperate">
+			<Hint Index="269">Go to &lt;MELAHN TODE'S APARTMENT&gt; and talk to &lt;MELAHN.&gt;</Hint>
+			<Hint Index="270">Go to the &lt;COLONEL'S OFFICE&gt; and open the &lt;DESK DRAWER.&gt;</Hint>
+			<Hint Index="271">Get the &lt;GREETING CARD.&gt;</Hint>
+			<Hint Index="272">EXAMINE the &lt;GREETING CARD.&gt;</Hint>
+			<Hint Index="274">Offer &lt;MELAHN&gt; the &lt;GREETING CARD.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="43" Title="The Colonel's Case:  Decoding the Documents">
+			<Hint Index="275">Go to the &lt;COLONEL'S OFFICE&gt; and get the Colonel's &lt;CODED DOCUMENTS.&gt;</Hint>
+			<Hint Index="276">Move the &lt;MAGAZINES&gt;.</Hint>
+			<Hint Index="277">Get the &lt;UPEX RECEIPT.&gt;</Hint>
+			<Hint Index="278">EXAMINE the &lt;RECEIPT.&gt;</Hint>
+			<Hint Index="279">Go to &lt;MELAHN TODE'S APARTMENT&gt; and talk to &lt;MELAHN&gt;.</Hint>
+			<Hint Index="280">Ask &lt;MELAHN&gt; about the &lt;UPEX RECEIPT&gt; to get a &lt;PAPER&gt; with a secret combination on it.</Hint>
+			<Hint Index="281">EXAMINE the &lt;PAPER&gt; with the combination.</Hint>
+			<Hint Index="282">Go to the &lt;COLONEL'S OFFICE&gt; and move the &lt;PAINTING.&gt;</Hint>
+			<Hint Index="283">Try to open the &lt;SAFE.&gt;</Hint>
+			<Hint Index="284">Click the &lt;LEFT KNOB 5 Times.&gt;</Hint>
+			<Hint Index="285">Click the &lt;CENTER KNOB 7 times.&gt;</Hint>
+			<Hint Index="286">Click the &lt;RIGHT KNOB 1 Time.&gt;</Hint>
+			<Hint Index="287">Open the &lt;SAFE.&gt;</Hint>
+			<Hint Index="288">Get the &lt;CODE BOOK.&gt;</Hint>
+			<Hint Index="289">COMBINE the &lt;CODE BOOK&gt; with the &lt;CODED DOCUMENTS.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="44" Title="What to do with the Decoded Documents">
+			<Hint Index="290">EXAMINE the &lt;DECODED DOCUMENTS.&gt;</Hint>
+			<Hint Index="291">Travel to the &lt;ROADSIDE MOTEL.&gt;</Hint>
+			<Hint Index="292">Talk to &lt;ALAYNAH.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="45" Title="Searching G.R.S.">
+			<Hint Index="294">Go to &lt;G.R.S.&gt;</Hint>
+			<Hint Index="295">Go into the &lt;R&amp;D OFFICE&gt;  and get access to &lt;PAUL DUBOIS' COMPUTER.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="296">Go into the &lt;SUPERVISOR'S OFFICE&gt; and find out about &lt;EVA SCHANZEE.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="297">Get into the &lt;HIGH SECURITY AREA.&gt; (See DIRECTORY)</Hint>
+			<Hint Index="298">Get into the &lt;WALL SAFE.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="299">Go into the &lt;HALLWAY&gt; and get into &lt;MARCUS TUCKER'S OFFICE.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="300">Get into &lt;MARCUS TUCKER'S SAFE.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="301">Go into the &lt;CONFERENCE ROOM&gt; and use the &lt;VIDEO SCREEN.&gt;  (See DIRECTORY)</Hint>
+		</HintCategory>
+		<HintCategory Index="46" Title="Avoiding the G.R.S. Security Eye:  In the Hallway">
+			<Hint Index="302">&lt;RUN AWAY!&gt;  Or go into one of the offices.</Hint>
+		</HintCategory>
+		<HintCategory Index="47" Title="Avoiding the G.R.S. Security Eye:  R&amp;D Office">
+			<Hint Index="303">Hide between &lt;PAUL DUBOIS' DESK&gt; and the wall and get as close to the floor as possible.</Hint>
+		</HintCategory>
+		<HintCategory Index="48" Title="Avoiding the G.R.S. Security Eye:  Supervisor's Office">
+			<Hint Index="304">Hide behind the &lt;PARTITION WALL&gt; in the back corner.</Hint>
+		</HintCategory>
+		<HintCategory Index="49" Title="Avoiding the G.R.S. Security Eye:  Conference Room">
+			<Hint Index="305">Hide behind the &lt;DESK.&gt;  Get as close to the floor as possible.</Hint>
+		</HintCategory>
+		<HintCategory Index="50" Title="Avoiding the G.R.S. Security Eye:  Tucker's Office">
+			<Hint Index="306">Hide behind the &lt;PLANTS.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="51" Title="Avoiding the G.R.S. Security Eye:  In Tucker's Safe">
+			<Hint Index="307">
+				&lt;HURRY!&gt; You have 30 seconds.
+				Get out of the &lt;SAFE.&gt;
+				Hide behind the &lt;PLANT&gt; in &lt;TUCKER'S OFFICE.&gt;
+			</Hint>
+		</HintCategory>
+		<HintCategory Index="52" Title="Getting Access to Paul DuBois' Computer">
+			<Hint Index="310">Go to the &lt;G.R.S.  R&amp;D OFFICE&gt; and look at Paul DuBois' &lt;COMPUTER.&gt;</Hint>
+			<Hint Index="311">Get the &lt;PENNANT.&gt;</Hint>
+			<Hint Index="312">EXAMINE the &lt;PENNANT&gt; to get &lt;PAUL DUBOIS' COMPUTER CARD.&gt;</Hint>
+			<Hint Index="313">Turn on Paul DuBois' &lt;COMPUTER&gt;.</Hint>
+			<Hint Index="314">Use &lt;PAUL DUBOIS' COMPUTER CARD&gt; on Paul DuBois' &lt;COMPUTER.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="53" Title="Finding out about Eva Schanzee">
+			<Hint Index="315">Go to the &lt;G.R.S. SUPERVISOR'S OFFICE&gt; and get into the &lt;HIGH SECURITY AREA.&gt;  (DIRECTORY)</Hint>
+			<Hint Index="316">Get the &lt;MINI-DISK&gt; in the High Security Area.</Hint>
+			<Hint Index="317">Leave the &lt;HIGH SECURITY AREA&gt;.  Go to Eva Schanzee's &lt;COMPUTER&gt; and turn it &lt;ON&gt;.</Hint>
+			<Hint Index="318">Get &lt;EVA'S COMPUTER CARD.&gt;</Hint>
+			<Hint Index="319">Use &lt;EVA'S COMPUTER CARD&gt; on Eva Schanzee's &lt;COMPUTER.&gt;</Hint>
+			<Hint Index="320">Use the &lt;MINI-DISK&gt; on Eva Schanzee's &lt;COMPUTER.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="54" Title="Getting Into the High Security Area">
+			<Hint Index="321">Go to &lt;CHING'S LIBRARY&gt;  and get the &lt;GEIGGER&gt;.  (See DIRECTORY)</Hint>
+			<Hint Index="322">Go to the &lt;G.R.S. R&amp;D OFFICE&gt; and get the &lt;WRENCH.&gt;</Hint>
+			<Hint Index="323">Go to the &lt;G.R.S. SUPERVISOR'S OFFICE&gt; and use the &lt;WRENCH&gt; on the &lt;VENT&gt;.</Hint>
+			<Hint Index="324">Use the &lt;GEIGGER&gt; on the &lt;VENT OPENING.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="55" Title="Getting into the Wall Safe in the Supervisor's Office">
+			<Hint Index="325">Go into the &lt;G.R.S. SUPERVISOR'S OFFICE&gt; and look at the &lt;SAFE.&gt;</Hint>
+			<Hint Index="326">Go to &lt;TUCKER'S OFFICE&gt; and open the &lt;DESK DRAWER.&gt;</Hint>
+			<Hint Index="327">Look at the &lt;PIECE OF MASKING TAPE&gt; to see the 6-digit code &lt;142235.&gt;</Hint>
+			<Hint Index="328">Go back to the &lt;SUPERVISOR'S OFFICE&gt; and enter the numbers &lt;142235&gt; on the &lt;SAFE KEYPAD&gt;.</Hint>
+		</HintCategory>
+		<HintCategory Index="56" Title="Getting into Marcus Tucker's Office">
+			<Hint Index="330">Go to the &lt;G.R.S. HALLWAY&gt; and look at &lt;SECURITY PANEL&gt; by the door to &lt;TUCKER'S OFFICE.&gt;</Hint>
+			<Hint Index="331">In the &lt;G.R.S. SUPERVISOR'S OFFICE,&gt; get into the &lt;HIGH SECURITY AREA.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="332">In the &lt;HIGH SECURITY AREA,&gt; open the &lt;DESK DRAWER.&gt;</Hint>
+			<Hint Index="333">Get the &lt;PASSCARD.&gt;</Hint>
+			<Hint Index="334">Use the &lt;PASSCARD&gt; on the &lt;SECURITY PANEL&gt; by Tucker's office door.</Hint>
+			<Hint Index="335">Open the door to &lt;TUCKER'S OFFICE.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="57" Title="Getting into Marcus Tucker's Safe">
+			<Hint Index="336">Look at the &lt;SAFE&gt; in &lt;TUCKER'S OFFICE.&gt;</Hint>
+			<Hint Index="337">Look at the &lt;ACCESS PANEL&gt; by the &lt;SAFE.&gt;</Hint>
+			<Hint Index="338">Go into the &lt;R&amp;D OFFICE&gt; and find and get the &lt;TV.&gt;</Hint>
+			<Hint Index="339">Go into the &lt;CONFERENCE ROOM&gt; and open the &lt;DESK DRAWER.&gt;</Hint>
+			<Hint Index="340">Get the &lt;LASER DISC PLAYER.&gt;</Hint>
+			<Hint Index="341">Go into the &lt;HIGH SECURITY AREA&gt; in the &lt;SUPERVISOR'S OFFICE&gt; and get the &lt;LASER DISC.&gt;</Hint>
+			<Hint Index="342">COMBINE the &lt;LASER DISC PLAYER&gt; and the &lt;TV&gt; to create &lt;A.V. EQUIPMENT.&gt;</Hint>
+			<Hint Index="343">COMBINE the &lt;LASER DISC&gt; and the &lt;A.V. EQUIPMENT&gt; to create &lt;LOADED A.V. EQUIPMENT.&gt;</Hint>
+			<Hint Index="344">Go to &lt;TUCKER'S OFFICE&gt; and use the &lt;LOADED A.V. EQUIPMENT&gt; on the &lt;ACCESS PANEL.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="58" Title="What to do in Marcus Tucker's Safe">
+			<Hint Index="345">Get into &lt;MARCUS TUCKER'S SAFE&gt;.  (See DIRECTORY)</Hint>
+			<Hint Index="346">Get the &lt;VIDEO CASSETTE.&gt;</Hint>
+			<Hint Index="347">Get the &lt;BUDDHA STATUE.&gt;</Hint>
+			<Hint Index="348">Look in the &lt;WASTEBASKET.&gt;</Hint>
+			<Hint Index="349">Get the &lt;NOTE SHREDS.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="59" Title="Using the Video Screen in the Conference Room">
+			<Hint Index="350">Look at the &lt;VIDEO SCREEN.&gt;</Hint>
+			<Hint Index="351">Find and get the &lt;KEY&gt;.</Hint>
+			<Hint Index="352">Use the &lt;CABINET KEY&gt; on the &lt;CABINET&gt; under the video screen.</Hint>
+			<Hint Index="353">Open the &lt;CABINET&gt; and look at the &lt;VCR.&gt;</Hint>
+			<Hint Index="354">Get into &lt;MARCUS TUCKER'S OFFICE.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="355">Get into Marcus Tucker's &lt;SAFE.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="356">Get the &lt;VIDEO CASSETTE&gt; from the &lt;SAFE.&gt;</Hint>
+			<Hint Index="357">Go back into the &lt;CONFERENCE ROOM&gt; and turn on the &lt;VCR.&gt;</Hint>
+			<Hint Index="358">Use the &lt;VIDEO CASSETTE&gt; on the &lt;VCR&gt;.</Hint>
+			<Hint Index="359">Find the &lt;REMOTE PAD&gt; and turn &lt;ON&gt; the video display.</Hint>
+		</HintCategory>
+		<HintCategory Index="60" Title="What to do with the Winter Chip">
+			<Hint Index="360">EXAMINE the &lt;BUDDHA STATUE&gt; to get the &lt;WINTER CHIP&gt;</Hint>
+			<Hint Index="467">Go to the &lt;COUNTESS' MANSION&gt; and get the &lt;WATCH&gt;</Hint>
+			<Hint Index="468">Examine the &lt;WATCH&gt;</Hint>
+			<Hint Index="469">Combine the &lt;WATCH&gt; with the &lt;WINTER CHIP&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="61" Title="Disposing of the Chameleon">
+			<Hint Index="365">In the &lt;BASTION,&gt; look at the &lt;CHAMELEON.</Hint>
+			<Hint Index="366">Go to the &lt;COUNTESS' MANSION&gt; and get the &lt;CIGARETTE CASE&gt; from the bird.  (See DIRECTORY)</Hint>
+			<Hint Index="367">EXAMINE the &lt;CIGARETTE CASE&gt; to get the &lt;CIGARETTE.&gt;</Hint>
+			<Hint Index="368">Go to the &lt;G.R.S. SUPERVISOR'S OFFICE&gt; and get into the &lt;WALL SAFE.&gt;  (See DIRECTORY</Hint>
+			<Hint Index="369">Get the &lt;VIRAL POWDER.&gt;</Hint>
+			<Hint Index="370">Go into &lt;TUCKER'S OFFICE&gt; and open the &lt;DESK DRAWER.&gt;</Hint>
+			<Hint Index="371">Get the &lt;MATCH.&gt;</Hint>
+			<Hint Index="372">Go back to the &lt;BASTION&gt; and distract the &lt;CHAMELEON.&gt;	(See DIRECTORY)</Hint>
+			<Hint Index="373">COMBINE the &lt;CIGARETTE&gt; and the &lt;VIRAL POWDER&gt; to create a &lt;LETHAL CIGARETTE.&gt;</Hint>
+			<Hint Index="374">COMBINE the &lt;LETHAL CIGARETTE&gt; with the &lt;MATCH&gt; to create a &lt;LIT LETHAL CIGARETTE.&gt;</Hint>
+			<Hint Index="460">Use the &lt;LIT LETHAL CIGARETTE&gt; on the &lt;TABLE&gt; in the &lt;MAIN HALL&gt;.</Hint>
+		</HintCategory>
+		<HintCategory Index="62" Title="Distracting the Chameleon">
+			<Hint Index="375">In the &lt;HALLWAY&gt; in the &lt;BASTION&gt;, look at the &lt;EXPENSIVE VASE&gt;.</Hint>
+			<Hint Index="376">Get the &lt;BUNGEE STRAP.&gt;</Hint>
+			<Hint Index="377">Get the &lt;GEMSTONE&gt; from a piece of art.</Hint>
+			<Hint Index="378">Get the &lt;CLAMP&gt;.</Hint>
+			<Hint Index="379">COMBINE the &lt;CLAMP&gt; and the &lt;BUNGEE STRAP&gt; to create a &lt;SLINGSHOT.&gt;</Hint>
+			<Hint Index="380">COMBINE the &lt;SLINGSHOT&gt; and the &lt;GEMSTONE&gt; to create a &lt;LOADED SLINGSHOT.&gt;</Hint>
+			<Hint Index="381">Use the &lt;LOADED SLINGSHOT&gt; on the &lt;VASE.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="63" Title="Getting Alaynah out of the Force Field">
+			<Hint Index="382">In the &lt;BASTION MAIN ROOM,&gt; look at &lt;ALAYNAH.&gt;</Hint>
+			<Hint Index="383">Move the &lt;SHIELD&gt;.</Hint>
+			<Hint Index="384">Turn &lt;OFF&gt; the &lt;SWITCH.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="64" Title="Getting Past the Bartender">
+			<Hint Index="385">In the &lt;BROKEN SKULL BAR,&gt; talk to the &lt;BARTENDER.&gt;</Hint>
+			<Hint Index="386">Start by &lt;ORDERING A MANLY DRINK.&gt;</Hint>
+			<Hint Index="387">Offer her &lt;$100&gt; bill.</Hint>
+			<Hint Index="388">Choose attitude A or B.</Hint>
+			<Hint Index="389">When she asks for the &lt;TOKEN,&gt; use attitude B.</Hint>
+			<Hint Index="390">Find the &lt;TOKEN.&gt;  (See DIRECTORY)</Hint>
+			<Hint Index="391">Talk to the &lt;BARTENDER&gt; again.</Hint>
+			<Hint Index="392">Respond with attitude &lt;A or B.&gt;</Hint>
+			<Hint Index="393">Offer her the &lt;SILVER DOLLAR.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="65" Title="Getting to the Broken Skull">
+			<Hint Index="394">In the &lt;BASTION MAIN ROOM,&gt; get the &lt;BROKEN SKULL&gt; reference from &lt;ALAYNAH.&gt;</Hint>
+			<Hint Index="395">Go to the &lt;NEWSSTAND&gt; and talk to &lt;CHELSEE.&gt;</Hint>
+			<Hint Index="396">Ask about the &lt;BROKEN SKULL.&gt;</Hint>
+			<Hint Index="397">Travel to the &lt;BROKEN SKULL.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="66" Title="Finding the Token">
+			<Hint Index="398">Talk to the &lt;BARTENDER&gt; at the &lt;BROKEN SKULL&gt; to find out about the &lt;TOKEN.&gt;</Hint>
+			<Hint Index="399">Go to the &lt;ROADSIDE MOTEL&gt; and talk to &lt;ALAYNAH.&gt;</Hint>
+			<Hint Index="400">Ask &lt;ALAYNAH&gt; about the &lt;TOKEN.&gt;</Hint>
+			<Hint Index="401">Go to the &lt;PAWNSHOP&gt; and talk to &lt;ROOK.&gt;</Hint>
+			<Hint Index="402">Ask &lt;ROOK&gt; about the &lt;SILVER DOLLAR&gt;.</Hint>
+		</HintCategory>
+		<HintCategory Index="67" Title="Ferrelette">
+			<Hint Index="403">Talk to &lt;FERREL PUS&gt;</Hint>
+			<Hint Index="404">At the end of round 1, the correct ball is in the same position, even after reload.</Hint>
+			<Hint Index="405">If you choose the wrong ball, reload and pick a differnt one.</Hint>
+			<Hint Index="406">Each time you pick incorrectly, your odds of guessing correctly go from 4:1 to 3:1.</Hint>
+			<Hint Index="407">The correct ball may or may not be in the same position as the previous round.</Hint>
+		</HintCategory>
+		<HintCategory Index="68" Title="Escaping from the Arboretum">
+			<Hint Index="408">In the &lt;MOON CHILD ARBORETUM,&gt; look at the &lt;DOOR.&gt;</Hint>
+			<Hint Index="409">Look at the &lt;SMOKE ALARM&gt; on the wall above the door.</Hint>
+			<Hint Index="410">Look at the &lt;PILE OF LEAVES.&gt;</Hint>
+			<Hint Index="411">Open the &lt;WALL PANEL.&gt;</Hint>
+			<Hint Index="412">Get the &lt;LIGHTER FLUID.&gt;</Hint>
+			<Hint Index="413">Find and get the &lt;RAKE.&gt;</Hint>
+			<Hint Index="414">Find and get the &lt;FLINT.&gt;</Hint>
+			<Hint Index="415">Find and get the &lt;STONE.&gt;</Hint>
+			<Hint Index="416">Use the &lt;RAKE&gt; on the &lt;PILE OF LEAVES.&gt;</Hint>
+			<Hint Index="417">Use the &lt;LIGHTER FLUID&gt; on the &lt;PILE OF LEAVES.&gt;</Hint>
+			<Hint Index="418">COMBINE the &lt;FLINT&gt; with the &lt;STONE&gt; to create &lt;SPARKS.&gt;</Hint>
+			<Hint Index="419">Use the &lt;SPARKS&gt; on the &lt;PILE OF LEAVES.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="69" Title="What to do after Escaping from the Arboretum.">
+			<Hint Index="420">In the &lt;MOON CHILD HALLWAY,&gt; find the &lt;STASIS ROOM DOOR.&gt;</Hint>
+			<Hint Index="421">Open the &lt;STASIS ROOM DOOR&gt; and enter.</Hint>
+		</HintCategory>
+		<HintCategory Index="70" Title="Resuscitating Eva Schanzee">
+			<Hint Index="422">Move one of the sliders.</Hint>
+			<Hint Index="423">Move one of the sliders.</Hint>
+			<Hint Index="424">Select a button.</Hint>
+			<Hint Index="425">Select a button.</Hint>
+			<Hint Index="426">Move one of the sliders.</Hint>
+			<Hint Index="427">Select a button.</Hint>
+			<Hint Index="428">Select a button.</Hint>
+			<Hint Index="429">Move one of the sliders.</Hint>
+			<Hint Index="430">Move one of the sliders.</Hint>
+			<Hint Index="431">Move one of the sliders.</Hint>
+			<Hint Index="432">Select a button.</Hint>
+			<Hint Index="433">Select a button.</Hint>
+		</HintCategory>
+		<HintCategory Index="71" Title="Finding the Mini-Computer">
+			<Hint Index="434">EXAMINE the &lt;MISSION PAPER.&gt;</Hint>
+			<Hint Index="435">Get the &lt;KEY&gt; from &lt;EVA SCHANZEE.&gt;</Hint>
+			<Hint Index="436">In the &lt;MOON CHILD OBSERVATORY,&gt; use &lt;EVA'S KEY&gt; on the &lt;WALL PANEL.&gt;</Hint>
+			<Hint Index="437">Open the &lt;WALL PANEL.&gt;</Hint>
+			<Hint Index="438">Move the &lt;LINKS 986 BOX.&gt;</Hint>
+			<Hint Index="439">Get the &lt;MINI-COMPUTER.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="72" Title="Finding a Computer Cable">
+			<Hint Index="440">EXAMINE the &lt;MISSION PAPER.&gt;</Hint>
+			<Hint Index="441">In the &lt;MOON CHILD OBSERVATORY,&gt; move the plant to expose the &lt;FLOOR PANEL.&gt;</Hint>
+			<Hint Index="442">Look at the &lt;FLOOR PANEL.&gt;</Hint>
+			<Hint Index="443">Go into the &lt;MOON CHILD HALLWAY&gt; and find and get the &lt;PIPE.&gt;</Hint>
+			<Hint Index="444">Go back into the &lt;OBSERVATORY&gt; and use the &lt;PIPE&gt; on the &lt;FLOOR PANEL&gt; to open it.</Hint>
+			<Hint Index="445">Get the &lt;COMPUTER CABLE.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="73" Title="Locating the Moon Child Computer">
+			<Hint Index="446">EXAMINE the &lt;MISSION PAPER.&gt;</Hint>
+			<Hint Index="447">Go into the &lt;MOON CHILD OBSERVATORY&gt; and get the &lt;COCKTAIL GLASS.&gt;</Hint>
+			<Hint Index="448">EXAMINE the &lt;COCKTAIL GLASS&gt; to get the &lt;FLEX-STRAW.&gt;</Hint>
+			<Hint Index="449">Find the &lt;RECESSED BUTTON&gt; on the wall.</Hint>
+			<Hint Index="450">Use the &lt;FLEX-STRAW&gt; on the &lt;RECESSED BUTTON.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="74" Title="Disabling the Moon Child Computer">
+			<Hint Index="451">Get the &lt;MINI-COMPUTER.&gt; (See DIRECTORY.)</Hint>
+			<Hint Index="453">COMBINE &lt;MINI-COMPUTER&gt; with &lt;WINTER CHIP&gt; to get &lt;COMPUTER VIRUS LINK-UP&gt;.</Hint>
+			<Hint Index="454">COMBINE &lt;COMPUTER VIRUS LINK-UP&gt; with &lt;COMPUTER CABLE&gt; to get &lt;VIRUS LINK CONNECTION&gt;.</Hint>
+			<Hint Index="455">Use the &lt;COMPUTER VIRUS LINK CONNECTION&gt; on the &lt;MOON CHILD COMPUTER.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="75" Title="Getting to The Engineering Corridors">
+			<Hint Index="456">In the &lt;MOON CHILD HALLWAY&gt;, find the &lt;DEAD GUARD.&gt;</Hint>
+			<Hint Index="457">Get the guard's &lt;I.D. BADGE.&gt;</Hint>
+			<Hint Index="458">Go to the &lt;EMERGENCY EXIT DOOR.&gt;</Hint>
+			<Hint Index="459">Use the &lt;I.D. BADGE&gt; on the &lt;ACCESS PANEL.&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="76" Title="Getting Started on the Fifth Day">
+			<Hint Index="361">EXAMINE the &lt;NOTE SHREDS.&gt;  The top line reads &lt;'Brother Marcus:'&gt;</Hint>
+			<Hint Index="362">The second line reads &lt;'We are seekers of purity who....'&gt;</Hint>
+			<Hint Index="465">Travel to the &lt;BASTION OF SANCTITY&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="77" Title="Finding some Work">
+			<Hint Index="466">Go to the &lt;PAWNSHOP&gt; and talk to &lt;ROOK&gt;.</Hint>
+			<Hint Index="473">Find out what is bothering &lt;ROOK&gt; and accept the &lt;CASE&gt;.</Hint>
+		</HintCategory>
+	</Hints>
 </GameData>

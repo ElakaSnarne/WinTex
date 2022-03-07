@@ -56,7 +56,7 @@ CPDGame::CPDGame()
 	_lastDialoguePoint = -1;
 	_frameTrigger = -1;
 
-	BuildFileList(IDR_PD_XML);
+	ReadGameXMLInfo(IDR_PD_XML);
 
 	SetGamePath(L".\\");
 }
@@ -202,7 +202,7 @@ int CPDGame::GetAskAboutId(int index)
 
 int CPDGame::GetScore()
 {
-	return GetWord(PD_SAVE_SCORE);
+	return GetWord(PD_SAVE_SCORE, TRUE);
 }
 
 void CPDGame::AddScore(int value)
@@ -406,9 +406,15 @@ void CPDGame::SetItemExamined(int itemId, int conditionalScore)
 {
 }
 
-int CPDGame::GetWord(int offset)
+int CPDGame::GetWord(int offset, BOOL signExtend)
 {
-	return (offset >= 0 && offset < (PD_SAVE_SIZE - 1)) ? (_gameData[offset + 1] << 8) | _gameData[offset] : 0;
+	int result = (offset >= 0 && offset < (PD_SAVE_SIZE - 1)) ? (_gameData[offset + 1] << 8) | _gameData[offset] : 0;
+	if (signExtend && result & 0x8000)
+	{
+		result |= ~0xffff;
+	}
+
+	return result;
 }
 
 void CPDGame::SetWord(int offset, int value)

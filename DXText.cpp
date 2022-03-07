@@ -41,7 +41,7 @@ void CDXText::Render(float x, float y)
 	dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	ID3D11ShaderResourceView* pRV = TexFont.GetTextureRV();
-	XMMATRIX wm = XMMatrixTranslation(floor(x) + 0.0f, -floor(y), -1.0f);
+	XMMATRIX wm = XMMatrixTranslation(floor(x), -floor(y), -1.0f);
 
 	CShaders::SelectTexFontShader();
 
@@ -267,6 +267,8 @@ void CDXText::SetText(char* text, Rect rect, Alignment alignment)
 
 					while (print != NULL && wordsInLine-- > 0)
 					{
+						sx = floor(sx);
+
 						for (int c = 0; c < print->Chars(); c++)
 						{
 							char ch = print->Text()[c];
@@ -457,6 +459,8 @@ void CDXText::SetText(LPCWSTR text, Rect rect, Alignment alignment)
 
 				while (print != NULL && wordsInLine-- > 0)
 				{
+					sx = floor(sx);
+
 					for (int c = 0; c < print->Chars(); c++)
 					{
 						char ch = ((WCHAR*)print->Text())[c];

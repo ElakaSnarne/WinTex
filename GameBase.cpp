@@ -4,11 +4,13 @@
 #include "VideoModule.h"
 #include "GameController.h"
 #include "LocationModule.h"
+#include "ResumeGameModule.h"
 
 CGameBase::CGameBase()
 {
 	_gameData = NULL;
 	ZeroMemory(Timers, sizeof(Timers));
+	_hintCategoryCount = 0;
 }
 
 CGameBase::~CGameBase()
@@ -116,7 +118,7 @@ BOOL CGameBase::LoadIcons(BinaryData bd)
 	return FALSE;
 }
 
-void CGameBase::BuildFileList(int resource)
+void CGameBase::ReadGameXMLInfo(int resource)
 {
 	DWORD xmlSize = 0;
 	PBYTE xml = GetResource(resource, L"XML", &xmlSize);
@@ -219,8 +221,87 @@ void CGameBase::BuildFileList(int resource)
 
 				diaSitNode.Release();
 			}
+
+			// TODO: Read hints
+			CComPtr<IXMLDOMNode> hintCategoriesNode = NULL;
+			doc->selectSingleNode(L"GameData/Hints", &hintCategoriesNode);
+			if (hintCategoriesNode != NULL)
+			{
+				CComVariant va;
+
+				hintCategoriesNode->selectNodes(L"HintCategory", &nodeList);
+				_hintCategoryCount = 0;
+				while (nodeList->get_item(_hintCategoryCount++, &node) == S_OK)
+				{
+					CComQIPtr<IXMLDOMElement> element(node);
+					element->getAttribute(L"Index", &va);
+					int categoryIndex = (int)wcstol(va.bstrVal, 0, 10);
+					if (_hintCategoryCount < categoryIndex)
+					{
+						_hintCategoryCount = categoryIndex;
+					}
+
+					element->getAttribute(L"Title", &va);
+					std::wstring title = va.bstrVal;
+					CHintCategory* pCategory = new CHintCategory(categoryIndex, title);
+
+					// TODO: Create new hint category list
+					//CGameController::SetSituationDescriptionD(ix++, va.bstrVal);
+					// TODO: Get category hints
+
+					CComPtr<IXMLDOMNode> hintNode = NULL;
+					CComPtr<IXMLDOMNodeList> hintsNodeList;
+					node->selectNodes(L"Hint", &hintsNodeList);
+					int hintix = 0;
+					while (hintsNodeList->get_item(hintix++, &hintNode) == S_OK)
+					{
+						CComQIPtr<IXMLDOMElement> hintElement(hintNode);
+						hintElement->getAttribute(L"Index", &va);
+						int hintIndex = (int)wcstol(va.bstrVal, 0, 10);
+						BSTR bstr = NULL;
+						hintElement->get_text(&bstr);
+						if (bstr != NULL)
+						{
+							std::wstring hint(bstr);
+							// Add hint to category
+							pCategory->AddHint(hintIndex, hint);
+
+							::SysFreeString(bstr);
+						}
+						hintNode.Release();
+					}
+					hintsNodeList.Release();
+
+					node.Release();
+
+					_hintCategories[categoryIndex] = pCategory;
+				}
+				nodeList.Release();
+
+				hintCategoriesNode.Release();
+			}
 		}
 
 		delete[] wcxml;
 	}
+}
+
+void CGameBase::Start()
+{
+	Init();
+
+	if (CFile::Exists(L"GAMES\\SAVEGAME.000"))
+	{
+		CModuleController::Push(new CResumeGameModule());
+	}
+	else
+	{
+		CModuleController::Push(new CVideoModule(VideoType::Single, L"TITLE.AP", 0));
+	}
+}
+
+CHintCategory* CGameBase::GetHintCategory(int index)
+{
+	CHintCategory* pCategory = _hintCategories[index];
+	return pCategory;
 }

@@ -280,6 +280,11 @@ void CModuleBase::CheckInput()
 					}
 					break;
 				}
+				case InputAction::Hints:
+				{
+					Hints();
+					break;
+				}
 			}
 
 			if (action.second.CurrentSource != InputSource::JoystickAxis || action.second.CurrentData == 0)// InputSource::Mouse || action.second.CurrentSource == InputSource::MouseWheel || (action.second.CurrentSource == InputSource::Key && action.second.CurrentData == 0))

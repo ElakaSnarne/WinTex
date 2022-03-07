@@ -29,9 +29,12 @@ public:
 
 	virtual void Render();
 
-	static CModuleBase* MainMenuModule;
+	static CMainMenuModule* MainMenuModule;
 
 	static void GameOver();
+
+	static void EnableSaveAndResume(BOOL enable);
+	static void UpdateSaveGameData();
 
 protected:
 	virtual void Initialize();

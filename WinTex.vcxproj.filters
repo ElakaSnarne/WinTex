@@ -321,6 +321,21 @@
     <ClCompile Include="PDMap.cpp">
       <Filter>PD</Filter>
     </ClCompile>
+    <ClCompile Include="ResumeGameModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="HintModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="HintCategory.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Hint.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="DXMultiColouredText.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DXFrame.h">
@@ -649,6 +664,21 @@
     </ClInclude>
     <ClInclude Include="PDExamStruct.h">
       <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="ResumeGameModule.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="HintModule.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="HintCategory.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Hint.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="DXMultiColouredText.h">
+      <Filter>Controls</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

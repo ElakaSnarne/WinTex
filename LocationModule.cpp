@@ -11,6 +11,7 @@
 #include "UAKMTravelModule.h"
 #include "Items.h"
 #include "AmbientAudio.h"
+#include "HintModule.h"
 
 float CLocationModule::_movement_x = 0.0f;
 float CLocationModule::_movement_y = 0.0f;
@@ -472,7 +473,6 @@ void CLocationModule::BeginAction()
 {
 	if (!CAnimationController::HasAnim())
 	{
-		// Left button
 		if (CurrentAction != 0)
 		{
 			ClearCaptions(pDisplayCaptions);
@@ -609,4 +609,9 @@ void CLocationModule::CycleItems(int direction)
 //	// Move object at cursor up or down
 //	_location.MoveObject(direction);
 //#endif
+}
+
+void CLocationModule::Hints()
+{
+	CModuleController::Push(new CHintModule());
 }

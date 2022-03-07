@@ -87,6 +87,7 @@ protected:
 	virtual void Prev();
 	virtual void Inventory();
 	virtual void Travel();
+	virtual void Hints();
 
 	void CycleItems(int direction);
 };

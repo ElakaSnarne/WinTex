@@ -20,6 +20,7 @@ enum class InputAction
 	Prev,
 	Inventory,
 	Travel,
+	Hints,
 };
 
 enum class InputSource

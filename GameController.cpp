@@ -147,7 +147,13 @@ std::wstring CGameController::GetSituationDescriptionL(int ix)
 
 	if (_lSituations.find(ix) != _lSituations.end())
 	{
-		return _lSituations[ix];
+		std::wstring description = _lSituations[ix];
+		if (description == L"")
+		{
+			description = _lSituations[-1];
+		}
+
+		return description;
 	}
 
 	return L"";
@@ -167,7 +173,13 @@ std::wstring CGameController::GetSituationDescriptionD(int ix)
 
 	if (_dSituations.find(ix) != _dSituations.end())
 	{
-		return _dSituations[ix];
+		std::wstring description= _dSituations[ix];
+		if (description == L"")
+		{
+			description = _dSituations[-1];
+		}
+
+		return description;
 	}
 
 	return L"";

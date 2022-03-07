@@ -12,6 +12,7 @@
 #include "DXLabel.h"
 #include "VideoModule.h"
 #include "LocationModule.h"
+#include "HintCategory.h"
 
 class CGameBase
 {
@@ -25,10 +26,10 @@ public:
 	virtual void KeyDown(WPARAM key, LPARAM lParam) = NULL;
 	virtual void KeyUp(WPARAM key, LPARAM lParam) = NULL;
 
-	void LoadFromDMap(int entry);
-	void LoadFromMap(int entry, int startupPosition);
+	virtual void LoadFromDMap(int entry);
+	virtual void LoadFromMap(int entry, int startupPosition);
 
-	virtual void Start() { Init(); CModuleController::Push(new CVideoModule(VideoType::Single, L"TITLE.AP", 0)); }
+	virtual void Start();
 
 	virtual CScriptBase* GetScriptEngine() = NULL;
 	virtual CScriptState* GetScriptState() = NULL;
@@ -79,10 +80,13 @@ public:
 	virtual int GetLocationInitializationScriptId() = NULL;
 	virtual int GetLocationEnvironmentScriptId() = NULL;
 
+	int GetHintCategoryCount() { return _hintCategoryCount; }
+	CHintCategory* GetHintCategory(int index);
+
 protected:
 	virtual BOOL Init() = NULL;
 
-	virtual int GetWord(int offset) = NULL;
+	virtual int GetWord(int offset, BOOL signExtend = FALSE) = NULL;
 	virtual void SetWord(int offset, int value) = NULL;
 
 	virtual BOOL LoadIcons() { return FALSE; }
@@ -92,7 +96,10 @@ protected:
 
 	int Timers[32];
 
-	void BuildFileList(int resource);
+	void ReadGameXMLInfo(int resource);
 
 	virtual CLocationModule* GetLocationModule(int entry, int startupPosition) { return new CLocationModule(entry, startupPosition); }
+
+	std::unordered_map<int, CHintCategory*> _hintCategories;
+	int _hintCategoryCount;
 };
