@@ -391,7 +391,7 @@ void CInventoryModule::OnExamine(LPVOID data)
 		pDisplayCaptions = pAddCaptions;
 		pAddCaptions = pOld;
 		ClearCaptions(pOld);
-		Rect rect{ 0.0f, 0.0f, 1000.0f, _limitedRect.right - _limitedRect.left };
+		Rect rect{ 0.0f, 0.0f, 1000.0f, static_cast<float>(_limitedRect.right - _limitedRect.left)};
 		_text.SetText(pDesc, rect);
 		_lineCount = _text.Lines();
 		_lineAdjustment = max(0, min(_lineCount - _visibleLineCount, _lineCount));
