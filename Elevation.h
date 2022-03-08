@@ -1,6 +1,6 @@
 #pragma once
 
-typedef struct Elevation
+struct Elevation
 {
 	int Type;
 	int Id;

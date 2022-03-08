@@ -1,6 +1,6 @@
 #pragma once
 
-typedef struct FileMap
+struct FileMap
 {
 	int File;
 	int Entry;
