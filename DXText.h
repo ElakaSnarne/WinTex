@@ -1,6 +1,6 @@
 #pragma once
 
-#include <D3D11.h>
+#include "D3D11-NoWarn.h"
 #include "DirectX.h"
 
 class CDXText : public CDXBase

@@ -2,7 +2,7 @@
 
 #include "ModuleBase.h"
 #include <unordered_map>
-#include <D3D11.h>
+#include "D3D11-NoWarn.h"
 #include "Texture.h"
 #include <list>
 #include <string>

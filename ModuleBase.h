@@ -2,8 +2,8 @@
 
 #include <Windows.h>
 #include "Map.h"
-#include <D3D11.h>
-#include <D3DX11.h>
+#include "D3D11-NoWarn.h"
+#include "D3DX11-NoWarn.h"
 #include <DirectXPackedVector.h>
 #include "InputMapping.h"
 

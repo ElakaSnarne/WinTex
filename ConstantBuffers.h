@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DirectX.h"
-#include <D3D11.h>
+#include "D3D11-NoWarn.h"
 //#include <D3DX10math.h>
 
 class CConstantBuffers

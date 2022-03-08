@@ -2,7 +2,7 @@
 
 #include "ModuleBase.h"
 #include <list>
-#include <D3D11.h>
+#include "D3D11-NoWarn.h"
 #include "DXButton.h"
 #include "AnimBase.h"
 #include "DXImageButton.h"
