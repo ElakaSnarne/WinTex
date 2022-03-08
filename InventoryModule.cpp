@@ -80,6 +80,7 @@ CInventoryModule::CInventoryModule() : CModuleBase(ModuleType::Inventory)
 	ExamineItemOnResume = -1;
 
 	_text.SetColours(0xff000000, 0xff00c300, 0xff24ff00, 0xff000000);
+	_fullRect = { 0,0,0,0 };
 }
 
 CInventoryModule::~CInventoryModule()

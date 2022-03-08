@@ -31,7 +31,7 @@ public:
 
 protected:
 	void(*_clicked)(LPVOID data);
-	LPVOID _data;
+	LPVOID _data{};
 
 	static CTexture _texBackground;
 	static CTexture _texMouseOver;

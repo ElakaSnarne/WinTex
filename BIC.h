@@ -13,9 +13,9 @@ public:
 protected:
 	virtual BOOL DecodeFrame();
 
-	int _embeddedAudioSize;
-	int _firstAudioFrame;
-	int _chunkTest;
+	int _embeddedAudioSize{};
+	int _firstAudioFrame{};
+	int _chunkTest{};
 
 	int ProcessBICFrame(int offset, int chunkSize);
 
