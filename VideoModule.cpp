@@ -23,6 +23,11 @@ CVideoModule::CVideoModule(VideoType type, int dmapIndex, int activeScript) : CM
 		{
 			_scriptState->ExecutionPointer = _scriptState->GetScript(activeScript);
 		}
+
+		if (_scriptState->ExecutionPointer < 0)
+		{
+			_scriptState->ExecutionPointer = 0;
+		}
 	}
 }
 

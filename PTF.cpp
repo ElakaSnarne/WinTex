@@ -391,6 +391,12 @@ BOOL CPTF::DecodeFrame()
 				int r = _colourTranslationTable[_pInputBuffer[inPtr++]];
 				int g = _colourTranslationTable[_pInputBuffer[inPtr++]];
 				int b = _colourTranslationTable[_pInputBuffer[inPtr++]];
+
+				if (videoMode == VideoMode::Embedded && c < 32)
+				{
+					r = g = b = 0;
+				}
+
 				int col = 0xff000000 | b | (g << 8) | (r << 16);
 				_pPalette[c] = col;
 			}
