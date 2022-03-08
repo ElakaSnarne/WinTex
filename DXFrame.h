@@ -29,6 +29,6 @@ public:
 protected:
 	CDXFrame() {}
 	static CTexture _texBackground;
-	CDXText* _pText;
-	int _textW;
+	CDXText* _pText{};
+	int _textW{};
 };

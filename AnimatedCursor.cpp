@@ -105,7 +105,7 @@ void CAnimatedCursor::Render()
 void CAnimatedCursor::SetIcons(CursorType type, std::list<CDXBitmap*> icons)
 {
 	_type = type;
-	_iconCount = icons.size();
+	_iconCount = static_cast<int>(icons.size());
 	_ppIcons = new CDXBitmap * [_iconCount];
 	for (int i = 0; i < _iconCount; i++)
 	{

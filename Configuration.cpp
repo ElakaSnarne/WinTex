@@ -54,7 +54,7 @@ CConfiguration::CConfiguration(LPWSTR gameName)
 		AnisotropicFilter = ((flags & CONFIG_FLAGS_ANISOTROPICFILTER) == 0);	// Inverted
 
 		MIDIDeviceId = GetRegistryInt(hk, L"MIDIDeviceId", -1);
-		FontScale = max(1.0, min(GetRegistryFloat(hk, L"FontScale", 1.0f), 3.0));
+		FontScale = max(1.0f, min(GetRegistryFloat(hk, L"FontScale", 1.0f), 3.0f));
 		Volume = max(0, min(GetRegistryInt(hk, L"Volume", 100), 100));
 		MIDIVolume = max(0, min(GetRegistryInt(hk, L"MIDIVolume", 100), 100));
 
@@ -69,7 +69,7 @@ CConfiguration::CConfiguration(LPWSTR gameName)
 		int currentMode = -1;
 		int currentModeDiff = 1000000000;
 
-		for (int m = 0; m < pAdapter->_numModes; m++)
+		for (int m = 0; m < static_cast<int>(pAdapter->_numModes); m++)
 		{
 			if (pAdapter->_displayModeList[m].Width >= 640 && pAdapter->_displayModeList[m].Height >= 480)
 			{

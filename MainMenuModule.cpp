@@ -206,7 +206,7 @@ void CMainMenuModule::ConfigPreviousResolution(LPVOID data)
 
 void CMainMenuModule::ConfigNextResolution(LPVOID data)
 {
-	if (pConfig->pAdapter != NULL && cfgMode < (pConfig->pAdapter->_numModes - 1))
+	if (pConfig->pAdapter != NULL && cfgMode < (static_cast<int>(pConfig->pAdapter->_numModes) - 1))
 	{
 		cfgMode++;
 		cfgWidth = pConfig->pAdapter->_displayModeList[cfgMode].Width;
@@ -602,7 +602,7 @@ void CMainMenuModule::SaveSetup()
 		nameLength--;
 	}
 
-	for (unsigned int i = 0; i < 6; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		info.FileName += (WCHAR)((i < nameLength) ? CurrentGameInfo.Player.at(i) : '_');
 	}

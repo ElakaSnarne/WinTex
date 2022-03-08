@@ -80,6 +80,7 @@ CInventoryModule::CInventoryModule() : CModuleBase(ModuleType::Inventory)
 	ExamineItemOnResume = -1;
 
 	_text.SetColours(0xff000000, 0xff00c300, 0xff24ff00, 0xff000000);
+	_fullRect = { 0,0,0,0 };
 }
 
 CInventoryModule::~CInventoryModule()
@@ -391,7 +392,7 @@ void CInventoryModule::OnExamine(LPVOID data)
 		pDisplayCaptions = pAddCaptions;
 		pAddCaptions = pOld;
 		ClearCaptions(pOld);
-		Rect rect{ 0.0f, 0.0f, 1000.0f, _limitedRect.right - _limitedRect.left };
+		Rect rect{ 0.0f, 0.0f, 1000.0f, static_cast<float>(_limitedRect.right - _limitedRect.left)};
 		_text.SetText(pDesc, rect);
 		_lineCount = _text.Lines();
 		_lineAdjustment = max(0, min(_lineCount - _visibleLineCount, _lineCount));
@@ -621,7 +622,7 @@ void CInventoryModule::ScrollDown(LPVOID data)
 
 void CInventoryModule::UpdateButtons()
 {
-	BOOL tooManyLines = ((_visibleLineCount - _lineCount) < 0);
+	bool tooManyLines = ((_visibleLineCount - _lineCount) < 0);
 	_pBtnUp->SetEnabled(tooManyLines && _lineAdjustment != (_lineCount - _visibleLineCount));
 	if (!_pBtnUp->GetEnabled())
 	{

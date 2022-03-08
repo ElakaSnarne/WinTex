@@ -1,6 +1,6 @@
 #pragma once
 
-typedef struct StartupPosition
+struct StartupPosition
 {
 	float X;
 	float Y;
