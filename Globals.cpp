@@ -1,6 +1,6 @@
 #include "DirectX.h"
 #include "AnimBase.h"
-#include <list>"
+#include <list>
 #include "Caption.h"
 #include "GameBase.h"
 #include "ModuleBase.h"
