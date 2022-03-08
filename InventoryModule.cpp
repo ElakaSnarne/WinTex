@@ -621,7 +621,7 @@ void CInventoryModule::ScrollDown(LPVOID data)
 
 void CInventoryModule::UpdateButtons()
 {
-	BOOL tooManyLines = ((_visibleLineCount - _lineCount) < 0);
+	bool tooManyLines = ((_visibleLineCount - _lineCount) < 0);
 	_pBtnUp->SetEnabled(tooManyLines && _lineAdjustment != (_lineCount - _visibleLineCount));
 	if (!_pBtnUp->GetEnabled())
 	{
