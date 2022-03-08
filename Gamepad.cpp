@@ -132,7 +132,7 @@ void CGamepad::Update()
 		{
 			if (SUCCEEDED(_pDevice->GetDeviceData(sizeof(DIDEVICEOBJECTDATA), data, &dwItemCount, 0)))
 			{
-				for (int i = 0; i < dwItemCount; i++)
+				for (int i = 0; i < static_cast<int>(dwItemCount); i++)
 				{
 					InputSource source = InputSource::Unknown;
 					int dwData = data[i].dwData;

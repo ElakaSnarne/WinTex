@@ -95,7 +95,7 @@ void CUAKMColonelsComputerModule::Render()
 	else if (_currentPage == 1)
 	{
 		int requiredDelta = (_currentFrame > 0) ? _colonelsComputerAnimData[4 * _currentFrame + 3] * TIMER_SCALE : 0;
-		if (delta >= requiredDelta)
+		if (static_cast<int>(delta) >= requiredDelta)
 		{
 			int img = _colonelsComputerAnimData[4 * _currentFrame];
 			int y1 = _colonelsComputerAnimData[4 * _currentFrame + 1];

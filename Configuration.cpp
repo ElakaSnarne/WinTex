@@ -69,7 +69,7 @@ CConfiguration::CConfiguration(LPWSTR gameName)
 		int currentMode = -1;
 		int currentModeDiff = 1000000000;
 
-		for (int m = 0; m < pAdapter->_numModes; m++)
+		for (int m = 0; m < static_cast<int>(pAdapter->_numModes); m++)
 		{
 			if (pAdapter->_displayModeList[m].Width >= 640 && pAdapter->_displayModeList[m].Height >= 480)
 			{
