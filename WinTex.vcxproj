@@ -267,6 +267,10 @@
     <ClInclude Include="AreaData.h" />
     <ClInclude Include="BIC.h" />
     <ClInclude Include="BinaryData.h" />
+    <ClInclude Include="D3D11-NoWarn.h" />
+    <ClInclude Include="D3DX10-NoWarn.h" />
+    <ClInclude Include="D3DX11-NoWarn.h" />
+    <ClInclude Include="dinput-NoWarn.h" />
     <ClInclude Include="DXMultiColouredText.h" />
     <ClInclude Include="Elevation.h" />
     <ClInclude Include="Hint.h" />

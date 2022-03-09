@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Globals.h"
-#include <d3d11.h>
+#include "D3D11-NoWarn.h"
 #include <dsound.h>
 #include "LZ.h"
 #include <xaudio2.h>

@@ -2,7 +2,7 @@
 #define STRUCTS_H_
 #pragma once
 
-#include <D3DX11.h>
+#include "D3DX11-NoWarn.h"
 #include <DirectXPackedVector.h>
 #include <list>
 #include <string>

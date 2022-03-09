@@ -1,5 +1,5 @@
 #include "DXControl.h"
-#include <D3DX11.h>
+#include "D3DX11-NoWarn.h"
 #include "Utilities.h"
 
 using namespace DirectX::PackedVector;

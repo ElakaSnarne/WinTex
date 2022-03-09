@@ -2,7 +2,7 @@
 
 #include "FullScreenModule.h"
 #include <unordered_map>
-#include <d3d11.h>
+#include "D3D11-NoWarn.h"
 #include "Texture.h"
 #include "AmbientAudio.h"
 

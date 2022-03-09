@@ -43,6 +43,9 @@
     <Filter Include="Structs">
       <UniqueIdentifier>{288b8ec3-396b-41fc-be56-deeb5edb7cbe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DirectX\Warning Wrappers">
+      <UniqueIdentifier>{69ae6fc5-d3f9-4859-bd05-059168581211}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXButton.cpp">
@@ -679,6 +682,18 @@
     </ClInclude>
     <ClInclude Include="DXMultiColouredText.h">
       <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11-NoWarn.h">
+      <Filter>DirectX\Warning Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DX11-NoWarn.h">
+      <Filter>DirectX\Warning Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="dinput-NoWarn.h">
+      <Filter>DirectX\Warning Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DX10-NoWarn.h">
+      <Filter>DirectX\Warning Wrappers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

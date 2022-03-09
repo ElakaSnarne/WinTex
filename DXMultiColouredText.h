@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DXText.h"
-#include <D3D11.h>
+#include "D3D11-NoWarn.h"
 #include "DirectX.h"
 
 class CDXMultiColouredText : public CDXText
