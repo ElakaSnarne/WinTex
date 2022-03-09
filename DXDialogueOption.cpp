@@ -19,7 +19,7 @@ CDXDialogueOption::~CDXDialogueOption()
 
 void CDXDialogueOption::Init()
 {
-	DWORD s1, s2;
+	DWORD s1;
 	PBYTE p1 = GetResource(IDB_BUBBLE, L"PNG", &s1);
 
 	_texBubble.Init(p1, s1, "BUTTON1");

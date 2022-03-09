@@ -62,7 +62,6 @@ CDirectX::CDirectX()
 	IDXGIAdapter* pAdapter = NULL;
 	if (CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&pFactory) == S_OK)
 	{
-		wchar_t buffer[10];
 		for (UINT i = 0; pFactory->EnumAdapters(i, &pAdapter) != DXGI_ERROR_NOT_FOUND; ++i)
 		{
 			_adapters.push_back(new CDXAdapter(pAdapter));

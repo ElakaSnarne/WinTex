@@ -1163,7 +1163,6 @@ void CLocation::LoadTextures()
 	int lqSize = GetInt(tex, 4, 4);
 	int texCount = GetInt(tex, 8, 4);
 	int texPtr = 12 + texCount * 12;
-	wchar_t buffer[10];
 	for (int t = 0; t < texCount; t++)
 	{
 		pPal[3] = (transparentTextures[t] || processedTextures.find(t) == processedTextures.end()) ? 0 : 255;

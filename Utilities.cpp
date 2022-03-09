@@ -45,7 +45,6 @@ BinaryData LoadEntry(LPCWSTR fileName, int itemIndex)
 		{
 			int len = 10 + itemIndex * 4;
 			LPBYTE header = new BYTE[len];
-			wchar_t convert[10];
 
 			if (header != NULL)
 			{
@@ -121,7 +120,6 @@ DoubleData LoadDoubleEntry(LPCWSTR fileName, int itemIndex)
 		{
 			int len = 14 + itemIndex * 4;
 			LPBYTE header = new BYTE[len];
-			wchar_t convert[10];
 
 			if (header != NULL)
 			{
