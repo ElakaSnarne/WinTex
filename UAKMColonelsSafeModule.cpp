@@ -223,8 +223,8 @@ void CUAKMColonelsSafeModule::TurnDial(int dial)
 
 void CUAKMColonelsSafeModule::BeginAction()
 {
-	int x = (_cursorPosX - _left) / _scale;
-	int y = (_cursorPosY - _top) / _scale;
+	int x = static_cast<int>((_cursorPosX - _left) / _scale);
+	int y = static_cast<int>((_cursorPosY - _top) / _scale);
 
 	if (x >= 581 && x <= 639 && y >= 442 && y <= 479)
 	{

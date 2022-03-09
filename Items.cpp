@@ -141,9 +141,9 @@ BOOL CItems::Init()
 							if (pVB != NULL)
 							{
 								float x1 = 0.0f;
-								float x2 = dx.GetWidth();
+								float x2 = dx.GetWidth() * 1.0f;
 								float y1 = 0.0f;
-								float y2 = -dx.GetHeight() * 1.6;
+								float y2 = -dx.GetHeight() * 1.6f;
 
 								pVB[0].position = XMFLOAT3(x1, y1, -0.25f);
 								pVB[0].texture = XMFLOAT2(0.0f, 0.0f);
@@ -368,10 +368,10 @@ int CItems::GetWidestName()
 		}
 	}
 
-	return ceil(widest);
+	return static_cast<int>(ceil(widest));
 }
 
 int CItems::GetItemNameWidth(int id)
 {
-	return _items[id]->NameWidth();
+	return static_cast<int>(_items[id]->NameWidth());
 }

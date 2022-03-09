@@ -23,10 +23,10 @@ CUAKMPusShellGameModule::CUAKMPusShellGameModule(int parameter, int correctAnswe
 	_top = -(h - sh) / 2.0f;
 	_left = (w - sw) / 2.0f;
 
-	_cursorMinX = _left;
-	_cursorMaxX = (float)CAnimationController::Width() *_scale;
-	_cursorMinY = _top;
-	_cursorMaxY = (float)CAnimationController::Height() * _scale;
+	_cursorMinX = static_cast<int>(_left);
+	_cursorMaxX = static_cast<int>(CAnimationController::Width() * _scale);
+	_cursorMinY = static_cast<int>(_top);
+	_cursorMaxY = static_cast<int>(CAnimationController::Height() * _scale);
 }
 
 CUAKMPusShellGameModule::~CUAKMPusShellGameModule()
@@ -66,15 +66,15 @@ void CUAKMPusShellGameModule::Resume()
 
 void CUAKMPusShellGameModule::Initialize()
 {
-	_cursorPosX = dx.GetWidth() / 2;
-	_cursorPosY = dx.GetHeight() / 2;
+	_cursorPosX = dx.GetWidth() / 2.0f;
+	_cursorPosY = dx.GetHeight() / 2.0f;
 }
 
 void CUAKMPusShellGameModule::BeginAction()
 {
 	// Coordinates need to be scaled and offset
-	int x = 8 + (_cursorPosX - _left) / _scale;
-	int y = 6 + (_cursorPosY - _top) / _scale;
+	int x = 8 + static_cast<int>((_cursorPosX - _left) / _scale);
+	int y = 6 + static_cast<int>((_cursorPosY - _top) / _scale);
 
 	// If over a ball, set parameter to 0 or 1 (if the ID matches correct answer), then pop module
 	for (int i = 0; i < 4; i++)

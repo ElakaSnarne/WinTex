@@ -17,7 +17,7 @@ CDXTabItem::CDXTabItem(CDXTabControl* pOwner, LPSTR title, float w, float h)
 	rc.Right = 1024.0f;
 	_pText->SetText(title, rc);
 
-	_textW = _pText->PixelWidth(title);
+	_textW = static_cast<int>(_pText->PixelWidth(title));
 
 	_x = 0.0f;
 	_y = 0.0f;

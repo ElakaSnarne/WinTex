@@ -11,6 +11,7 @@ int handleAnimOffsets[] = { 62, 1, 53, 5, 37, 0, 34, 6, 26, 6, 22, 6, 13, 6, 5, 
 
 int keyLocations[] = { 493, 280, 461, 200, 493, 200, 524, 200, 461, 226, 493, 226, 524, 226, 461, 253, 493, 253, 524, 253, 461, 280, 524, 280, 493, 307, 493, 334 };
 
+// TODO: Change these to unsigned char, or change constants to unsigned equivalent
 BYTE eddieChingsSafeCode[] = { 1, 0, 1, 4, 1, 2, -1, -1 };
 BYTE grsSafeCode[] = { 1, 4, 2, 2, 3, 5, -1, -1 };
 
@@ -60,10 +61,10 @@ CUAKMSafeModule::CUAKMSafeModule(int parameter, BOOL alternatePalette) : CModule
 	_right = _left + width * _scale;
 	_bottom = _top - height * _scale;
 
-	_cursorMinX = _left + 462 * _scale;
-	_cursorMaxX = _left + 627 * _scale;
-	_cursorMinY = -_top + 171 * _scale;
-	_cursorMaxY = -_top + 317 * _scale;
+	_cursorMinX = static_cast<int>(_left + 462 * _scale);
+	_cursorMaxX = static_cast<int>(_left + 627 * _scale);
+	_cursorMinY = static_cast<int>(-_top + 171 * _scale);
+	_cursorMaxY = static_cast<int>(-_top + 317 * _scale);
 
 	_vertexBuffer = NULL;
 	_handVertexBuffer = NULL;
@@ -90,8 +91,8 @@ CUAKMSafeModule::~CUAKMSafeModule()
 
 void CUAKMSafeModule::Initialize()
 {
-	_cursorPosX = dx.GetWidth() / 2;
-	_cursorPosY = dx.GetHeight() / 2;
+	_cursorPosX = dx.GetWidth() / 2.0f;
+	_cursorPosY = dx.GetHeight() / 2.0f;
 
 	CGameController::SetParameter(_parameter, 0);
 
@@ -268,7 +269,7 @@ void CUAKMSafeModule::Render()
 		else if (_keyDown >= 0)
 		{
 			// Check delay, should render unpressed key?
-			DWORD duration = tick - _frameTime;
+			auto duration = tick - _frameTime;
 			if (duration >= _frameDelay)
 			{
 				// Render key pressed
@@ -372,6 +373,7 @@ void CUAKMSafeModule::Render()
 
 void CUAKMSafeModule::KeyDown(WPARAM key, LPARAM lParam)
 {
+	// TODO: Check type of key
 	if (key == '0' || key == VK_NUMPAD0)
 	{
 		Press(0, 11);
@@ -382,11 +384,11 @@ void CUAKMSafeModule::KeyDown(WPARAM key, LPARAM lParam)
 	}
 	else if (key >= '1' && key <= '9')
 	{
-		Press(key - '0', key - '1');
+		Press(static_cast<int>(key - '0'), static_cast<int>(key - '1'));
 	}
 	else if (key >= VK_NUMPAD1 && key <= VK_NUMPAD9)
 	{
-		Press(key - VK_NUMPAD0, key - VK_NUMPAD1);
+		Press(static_cast<int>(key - VK_NUMPAD0), static_cast<int>(key - VK_NUMPAD1));
 	}
 	else if (key == VK_HOME)
 	{

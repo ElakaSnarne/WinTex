@@ -358,7 +358,7 @@ void CPDGame::SetTimer(int timer, int duration)
 
 		SetWord(PD_SAVE_TIMERS_INITIAL + timer * 2, duration);
 		SetWord(PD_SAVE_TIMERS_CURRENT + timer * 2, duration);
-		Timers[timer] = duration * TIMER_SCALE;
+		Timers[timer] = static_cast<int>(duration * TIMER_SCALE);
 	}
 }
 

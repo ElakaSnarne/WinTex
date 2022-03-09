@@ -124,7 +124,7 @@ void CMIDIPlayer::Init(BinaryData data)
 					shift += 7;
 				} while ((v & 0x80) == 0);
 
-				_delays[i] = div * TIMER_SCALE / 2;
+				_delays[i] = static_cast<int>(div * TIMER_SCALE / 2);
 				_channels[i] = pChannel + check;
 				pChannel += chunkLength;
 			}
@@ -198,7 +198,7 @@ void CMIDIPlayer::SetVolume(float volume)
 {
 	MIDIHDR hdr;
 	ZeroMemory(&hdr, sizeof(hdr));
-	int v = 0x3fff * volume;
+	int v = static_cast<int>(0x3fff * volume);
 	BYTE data[8];
 	data[0] = 0xf0;
 	data[1] = 0x7f;

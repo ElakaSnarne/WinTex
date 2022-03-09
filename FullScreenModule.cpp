@@ -19,10 +19,10 @@ CFullScreenModule::CFullScreenModule(ModuleType type) : CModuleBase(type)
 	_bottom = _top - sh;
 	_right = _left + sw;
 
-	_cursorMinX = _left;
-	_cursorMaxX = _left + 639 * _scale;
-	_cursorMinY = -_top;
-	_cursorMaxY = 479 * _scale - _top;
+	_cursorMinX = static_cast<int>(_left);
+	_cursorMaxX = static_cast<int>(_left + 639 * _scale);
+	_cursorMinY = static_cast<int>( - _top);
+	_cursorMaxY = static_cast<int>(479 * _scale - _top);
 
 	_vertexBuffer = NULL;
 	_iconVertexBuffer = NULL;
@@ -315,8 +315,8 @@ void CFullScreenModule::CheckKeyAction(int key, ControlCoordinates coordinates[]
 
 void CFullScreenModule::CheckMouseAction(ControlCoordinates coordinates[], int count)
 {
-	int x = (_cursorPosX - _left) / _scale;
-	int y = (_cursorPosY - _top) / _scale;
+	int x = static_cast<int>((_cursorPosX - _left) / _scale);
+	int y = static_cast<int>((_cursorPosY - _top) / _scale);
 
 	for (int c = 0; c < count; c++)
 	{

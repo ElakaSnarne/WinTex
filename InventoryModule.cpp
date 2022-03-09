@@ -121,13 +121,13 @@ CInventoryModule::~CInventoryModule()
 		_pBtnDown = NULL;
 	}
 
-	CModuleController::Cursors[(int)CAnimatedCursor::CursorType::Crosshair].SetPosition(dx.GetWidth() / 2, dx.GetHeight() / 2);
+	CModuleController::Cursors[(int)CAnimatedCursor::CursorType::Crosshair].SetPosition(dx.GetWidth() / 2.0f, dx.GetHeight() / 2.0f);
 }
 
 void CInventoryModule::Initialize()
 {
-	_cursorPosX = dx.GetWidth() / 2;
-	_cursorPosY = dx.GetHeight() / 2;
+	_cursorPosX = dx.GetWidth() / 2.0f;
+	_cursorPosY = dx.GetHeight() / 2.0f;
 
 	if (_pBtnExamine == NULL)
 	{
@@ -152,18 +152,18 @@ void CInventoryModule::Initialize()
 		_fullRect.right = dx.GetWidth();
 
 		ZeroMemory(&_limitedRect, sizeof(D3D11_RECT));
-		_limitedRect.top = 3.0f * dx.GetHeight() / 4.0f;
+		_limitedRect.top = static_cast<LONG>(3.0f * dx.GetHeight() / 4.0f);
 		_limitedRect.left = 0;
-		_limitedRect.bottom = dx.GetHeight() - 10.0f;
-		_limitedRect.right = dx.GetWidth() - 40 - _pBtnResume->GetWidth();
+		_limitedRect.bottom = static_cast<LONG>(dx.GetHeight() - 10.0f);
+		_limitedRect.right = static_cast<LONG>(dx.GetWidth() - 40 - _pBtnResume->GetWidth());
 
-		_visibleLineCount = (_limitedRect.bottom - _limitedRect.top) / (TexFont.Height() * pConfig->FontScale);
+		_visibleLineCount = static_cast<int>((_limitedRect.bottom - _limitedRect.top) / (TexFont.Height() * pConfig->FontScale));
 
 		// Text up/down buttons
 		_pBtnUp = new CDXImageButton(2, ScrollUp);
-		_pBtnUp->SetPosition(_limitedRect.right, _limitedRect.top);
+		_pBtnUp->SetPosition(static_cast<float>(_limitedRect.right), static_cast<float>(_limitedRect.top));
 		_pBtnDown = new CDXImageButton(3, ScrollDown);
-		_pBtnDown->SetPosition(_limitedRect.right, _limitedRect.bottom - _pBtnDown->GetHeight() - 10.0f);
+		_pBtnDown->SetPosition(static_cast<float>(_limitedRect.right), _limitedRect.bottom - _pBtnDown->GetHeight() - 10.0f);
 
 		// Create selection rectangle vertex buffer
 		COLOURED_VERTEX_ORTHO* pVB = new COLOURED_VERTEX_ORTHO[5];
@@ -250,7 +250,7 @@ void CInventoryModule::Render()
 
 		float inventoryWidth = INVENTORY_WIDTH;
 		float inventoryHeight = INVENTORY_HEIGHT;
-		int numberOfItemsPerRow = w / inventoryWidth;
+		int numberOfItemsPerRow = static_cast<int>(w / inventoryWidth);
 		float margin = w - numberOfItemsPerRow * inventoryWidth;
 		float ox = margin / 2;
 		float oy = -inventoryHeight + 10.0f;
@@ -529,8 +529,8 @@ void CInventoryModule::BeginAction()
 			if (_mouseOverItemId >= 0)
 			{
 				_selectedItemId = _mouseOverItemId;
-				_mouseDownPoint.x = _cursorPosX;
-				_mouseDownPoint.y = _cursorPosY;
+				_mouseDownPoint.x = static_cast<LONG>(_cursorPosX);
+				_mouseDownPoint.y = static_cast<LONG>(_cursorPosY);
 				_dragging = TRUE;
 
 				ULONGLONG now = GetTickCount64();

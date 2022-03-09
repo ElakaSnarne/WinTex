@@ -152,10 +152,10 @@ BOOL CUAKMMap::Init()
 								if ((z & 0x8000) != 0) z |= 0xffff0000;
 								if ((my & 0x8000) != 0) my |= 0xffff0000;
 
-								float fx = ((float)x) / 16.0;
-								float fy = ((float)y) / 16.0;
-								float fz = ((float)z) / 16.0;
-								float fmy = ((float)my) / 16.0;
+								float fx = ((float)x) / 16.0f;
+								float fy = ((float)y) / 16.0f;
+								float fz = ((float)z) / 16.0f;
+								float fmy = ((float)my) / 16.0f;
 
 								float dy = (fy - fmy) / 6.0f;
 								float maxy = fmy + (dy * 8.0f);

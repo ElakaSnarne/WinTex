@@ -48,8 +48,8 @@ void CUAKMNewsPaperModule::Initialize()
 	_display = 1;
 	_highLight = 0;
 
-	_cursorPosX = dx.GetWidth() / 2;
-	_cursorPosY = dx.GetHeight() / 2;
+	_cursorPosX = dx.GetWidth() / 2.0f;
+	_cursorPosY = dx.GetHeight() / 2.0f;
 
 	int screenWidth = dx.GetWidth();
 	int screenHeight = dx.GetHeight();
@@ -119,7 +119,7 @@ void CUAKMNewsPaperModule::Initialize()
 							UpdateTexture(np);
 
 							int width = np->Width, height = np->Height;
-							float scale = max(1.0f, min(((float)screenWidth) / (float)width, ((float)screenHeight) / height) * 0.75);
+							float scale = max(1.0f, min(((float)screenWidth) / (float)width, ((float)screenHeight) / height) * 0.75f);
 							float sw = width * scale;
 							float sh = height * scale;
 							float ox = (screenWidth - sw);

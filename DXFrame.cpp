@@ -16,7 +16,7 @@ CDXFrame::CDXFrame(LPSTR title, float w, float h)
 	rc.Right = w;
 	_pText->SetText(title, rc);
 
-	_textW = _pText->PixelWidth(title);
+	_textW = static_cast<int>(_pText->PixelWidth(title));
 
 	_x = 0.0f;
 	_y = 0.0f;

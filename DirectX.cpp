@@ -186,8 +186,8 @@ BOOL CDirectX::Init(HWND hWnd, int width, int height, BOOL windowed, BOOL anisot
 
 	// Set the viewport
 	ZeroMemory(&_viewport, sizeof(D3D11_VIEWPORT));
-	_viewport.Width = width;
-	_viewport.Height = height;
+	_viewport.Width = static_cast<float>(width);
+	_viewport.Height = static_cast<float>(height);
 	_viewport.MinDepth = 0.0;
 	_viewport.MaxDepth = 1.0;
 	_devCon->RSSetViewports(1, &_viewport);

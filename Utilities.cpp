@@ -233,7 +233,7 @@ void Trace(float val, int dc)
 	{
 		Trace(L"-");
 	}
-	_itow(val, buffer, 10);
+	_itow(static_cast<int>(val), buffer, 10);
 	Trace(buffer);
 	Trace(L".");
 	if (val < 0.0f) val = -val;
@@ -241,7 +241,7 @@ void Trace(float val, int dc)
 	{
 		val -= (int)val;
 		val *= 10;
-		_itow(val, buffer, 10);
+		_itow(static_cast<int>(val), buffer, 10);
 		Trace(buffer);
 	}
 }

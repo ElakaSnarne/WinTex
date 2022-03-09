@@ -136,8 +136,8 @@ void CHintModule::Initialize()
 	int w = dx.GetWidth();
 	int h = dx.GetHeight();
 
-	_cursorPosX = w / 2;
-	_cursorPosY = h / 2;
+	_cursorPosX = static_cast<float>(w) / 2.0f;
+	_cursorPosY = static_cast<float>(h) / 2.0f;
 
 	int categoryCount = CGameController::GetHintCategoryCount();
 	for (int hc = 0; hc < categoryCount; hc++)
@@ -224,9 +224,9 @@ void CHintModule::Initialize()
 	_colHighlight = palette[29];	// 29 or 65
 	_colShade = palette[27];		// 27 or 67
 
-	Rect rect1{ 0, 0, h, w };
-	Rect rect2{ 0, 0, h, w };
-	Rect rect3{ 0, 0, h, w };
+	Rect rect1{ 0, 0, static_cast<float>(h), static_cast<float>(w) };
+	Rect rect2{ 0, 0, static_cast<float>(h), static_cast<float>(w) };
+	Rect rect3{ 0, 0, static_cast<float>(h), static_cast<float>(w) };
 	// TODO: Calculate position and space reserved for category? Need one for when it's in the list and one for when it's the selected category
 
 	for (auto it : _activeHintCategories)

@@ -1952,7 +1952,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 					}
 					*/
 
-					_y_elevation = d + 1.5f;
+					_y_elevation = static_cast<float>(d + 1.5f);
 				}
 
 				//TraceLine(L"");

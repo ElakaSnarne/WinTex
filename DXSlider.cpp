@@ -244,10 +244,10 @@ void CDXSlider::Drag(float x, float y)
 		float max_x_pos = _x + 358.0f;
 
 		float pos_x = max(min_x_pos, min(max_x_pos, x)) - min_x_pos;
-		int positions = 1 + span / _step;
+		int positions = 1 + static_cast<int>(span / _step);
 		// Find which step position is the closest
 		float pixels_per_step = 106.0f / (positions - 1);
-		int pos_index = pos_x / pixels_per_step;
+		int pos_index = static_cast<int>(pos_x / pixels_per_step);
 		_sliderPosition = (106.0f * pos_index) / (positions - 1);
 		if (_pValue != NULL)
 		{

@@ -113,8 +113,8 @@ void CDXText::SetText(LPCWSTR text, Alignment alignment)
 	Rect rc;
 	rc.Top = 0;
 	rc.Left = 10.0f;
-	rc.Bottom = -dx.GetHeight();
-	rc.Right = dx.GetWidth() - 10.0f;
+	rc.Bottom = static_cast<float>(-dx.GetHeight());
+	rc.Right = static_cast<float>(dx.GetWidth() - 10.0f);
 	SetText(text, rc, alignment);
 }
 
@@ -123,7 +123,7 @@ void CDXText::SetText(char* text, Alignment alignment)
 	Rect rc;
 	rc.Top = 0;
 	rc.Left = 10.0f;
-	rc.Bottom = -dx.GetHeight();
+	rc.Bottom = static_cast<float>(-dx.GetHeight());
 	rc.Right = dx.GetWidth() - 10.0f;
 	SetText(text, rc, alignment);
 }
@@ -154,7 +154,7 @@ void CDXText::SetText(char* text, Rect rect, Alignment alignment)
 		else if (c == 0x20 || c == 0xa || c == 0xd)
 		{
 			// space, add word to list
-			int len = scan - start - 1;
+			int len = static_cast<int>(scan - start - 1);
 			if (len > 0)
 			{
 				wl.Add(start, len, pixels);
@@ -176,7 +176,7 @@ void CDXText::SetText(char* text, Rect rect, Alignment alignment)
 	}
 
 	// Add last word to list
-	int len = scan - start - 1;
+	int len = static_cast<int>(scan - start - 1);
 	if (len > 0)
 	{
 		wl.Add(start, len, pixels);
@@ -360,12 +360,12 @@ void CDXText::SetText(LPCWSTR text, Rect rect, Alignment alignment)
 
 	while (TRUE)
 	{
-		char c = *(scan++);
+		char c = *(scan++) & 0xFF;
 		if (c == 0) break;
 		else if (c == 0x20)
 		{
 			// Space, add word to list
-			int len = scan - start - 1;
+			int len = static_cast<int>(scan - start - 1);
 			if (len > 0)
 			{
 				wl.Add((char*)start, len, pixels);
@@ -381,7 +381,7 @@ void CDXText::SetText(LPCWSTR text, Rect rect, Alignment alignment)
 	}
 
 	// Add last word to list
-	int len = scan - start - 1;
+	int len = static_cast<int>(scan - start - 1);
 	if (len > 0)
 	{
 		wl.Add((char*)start, len, pixels);
@@ -463,7 +463,7 @@ void CDXText::SetText(LPCWSTR text, Rect rect, Alignment alignment)
 
 					for (int c = 0; c < print->Chars(); c++)
 					{
-						char ch = ((WCHAR*)print->Text())[c];
+						char ch = ((WCHAR*)print->Text())[c] & 0xFF;
 						if (ch >= 0x20 && ch <= 0x7f)
 						{
 							ch -= 0x20;

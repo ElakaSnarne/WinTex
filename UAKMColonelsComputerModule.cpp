@@ -63,7 +63,7 @@ void CUAKMColonelsComputerModule::Render()
 {
 	BOOL popOnEnd = FALSE;
 
-	DWORD delta = GetTickCount64() - _frameTime;
+	auto delta = GetTickCount64() - _frameTime;
 	if (_currentPage == 0)
 	{
 		// Part of the startup animation
@@ -94,7 +94,7 @@ void CUAKMColonelsComputerModule::Render()
 	}
 	else if (_currentPage == 1)
 	{
-		int requiredDelta = (_currentFrame > 0) ? _colonelsComputerAnimData[4 * _currentFrame + 3] * TIMER_SCALE : 0;
+		int requiredDelta = (_currentFrame > 0) ? static_cast<int>(_colonelsComputerAnimData[4 * _currentFrame + 3] * TIMER_SCALE) : 0;
 		if (static_cast<int>(delta) >= requiredDelta)
 		{
 			int img = _colonelsComputerAnimData[4 * _currentFrame];
@@ -439,8 +439,8 @@ void CUAKMColonelsComputerModule::BeginAction()
 		//LPBYTE pTest1 = _codePanelFiles[DAT_COORDS1];
 		//LPBYTE pTest2 = _codePanelFiles[DAT_COORDS2];
 
-		int x = (_cursorPosX - _left) / _scale;
-		int y = (_cursorPosY - _top) / _scale;
+		int x = static_cast<int>((_cursorPosX - _left) / _scale);
+		int y = static_cast<int>((_cursorPosY - _top) / _scale);
 
 		if (y >= 363 && y < 383)
 		{

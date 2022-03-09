@@ -45,8 +45,8 @@ void CUAKMMainMenuModule::SetupScreen()
 
 	float iw = pBmp->GetWidth();
 	float ih = pBmp->GetHeight();
-	float w = dx.GetWidth();
-	float h = dx.GetHeight();
+	float w = static_cast<float>(dx.GetWidth());
+	float h = static_cast<float>(dx.GetHeight());
 
 	// Center image
 	float imageTop = (h - ih) / 2;
@@ -55,8 +55,8 @@ void CUAKMMainMenuModule::SetupScreen()
 
 	// Buttons should be inside moon
 	// Moon covers about 67% of the width and 70% of the height
-	float moonW = iw * 0.67;
-	float moonH = ih * 0.64;
+	float moonW = iw * 0.67f;
+	float moonH = ih * 0.64f;
 
 	float moonCenterX = w - imageLeft - moonW / 2.0f;
 	float moonCenterY = imageTop + moonH / 2.0f;

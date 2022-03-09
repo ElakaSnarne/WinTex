@@ -229,7 +229,7 @@ void CUAKMGame::SaveGame(LPWSTR fileName)
 		memset(_gameData + UAKM_SAVE_LOCATION, ' ', 30);
 		for (int i = 0; i < sit.size() && i < 0x1e; i++)
 		{
-			_gameData[UAKM_SAVE_LOCATION + i] = sit[i];
+			_gameData[UAKM_SAVE_LOCATION + i] = sit[i] & 0xFF;
 		}
 
 		SYSTEMTIME time;
@@ -547,7 +547,7 @@ void CUAKMGame::SetTimer(int timer, int duration)
 
 		SetWord(UAKM_SAVE_TIMERS_INITIAL + timer * 2, duration);
 		SetWord(UAKM_SAVE_TIMERS_CURRENT + timer * 2, duration);
-		Timers[timer] = duration * TIMER_SCALE;
+		Timers[timer] = static_cast<int>(duration * TIMER_SCALE);
 	}
 
 	//Trace(L"Setting timer ");

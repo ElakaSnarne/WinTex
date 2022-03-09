@@ -85,7 +85,7 @@ CDXSlider* CMainMenuModule::_pSliderDragging = NULL;
 CMainMenuModule::CMainMenuModule() : CModuleBase(ModuleType::MainMenu)
 {
 	_pScreen = new CDXScreen();
-	_pScreen->SetSize(dx.GetWidth(), dx.GetHeight());
+	_pScreen->SetSize(static_cast<float>(dx.GetWidth()), static_cast<float>(dx.GetHeight()));
 
 	MainMenuModule = this;
 
@@ -100,8 +100,8 @@ CMainMenuModule::~CMainMenuModule()
 
 void CMainMenuModule::Initialize()
 {
-	_cursorPosX = _cursorMaxX / 2;
-	_cursorPosY = _cursorMaxY / 2;
+	_cursorPosX = _cursorMaxX / 2.0f;
+	_cursorPosY = _cursorMaxY / 2.0f;
 
 	SetupScreen();
 }
@@ -121,8 +121,8 @@ void CMainMenuModule::ConfigCancel(LPVOID data)
 	cfgInvertY = pConfig->InvertY;
 	cfgMIDIDevice = pConfig->MIDIDeviceId;
 	cfgFontScale = pConfig->FontScale;
-	cfgVolume = pConfig->Volume;
-	cfgMIDIVolume = pConfig->MIDIVolume;
+	cfgVolume = static_cast<float>(pConfig->Volume);
+	cfgMIDIVolume = static_cast<float>(pConfig->MIDIVolume);
 	cfgAnisotropicFiltering = pConfig->AnisotropicFilter;
 
 	pMIDIVolumeSlider->CalculateSliderPosition();
@@ -154,8 +154,8 @@ void CMainMenuModule::ConfigAccept(LPVOID data)
 	pConfig->InvertY = cfgInvertY;
 	pConfig->MIDIDeviceId = cfgMIDIDevice;
 	pConfig->FontScale = cfgFontScale;
-	pConfig->Volume = cfgVolume;
-	pConfig->MIDIVolume = cfgMIDIVolume;
+	pConfig->Volume = static_cast<int>(cfgVolume);
+	pConfig->MIDIVolume = static_cast<int>(cfgMIDIVolume);
 	pConfig->AnisotropicFilter = cfgAnisotropicFiltering;
 	pConfig->Save();
 
@@ -373,8 +373,8 @@ void CMainMenuModule::Config(LPVOID data)
 	cfgInvertY = pConfig->InvertY;
 	cfgFontScale = pConfig->FontScale;
 	cfgAnisotropicFiltering = pConfig->AnisotropicFilter;
-	cfgVolume = pConfig->Volume;
-	cfgMIDIVolume = pConfig->MIDIVolume;
+	cfgVolume = static_cast<float>(pConfig->Volume);
+	cfgMIDIVolume = static_cast<float>(pConfig->MIDIVolume);
 
 	if (_pConfig == NULL)
 	{
@@ -410,7 +410,7 @@ void CMainMenuModule::Render()
 			memset(buffer, 0, 32);
 			for (int i = 0; i < 32 && i < info.FileName.length(); i++)
 			{
-				buffer[i] = info.FileName.at(i);
+				buffer[i] = info.FileName.at(i) & 0xFF;
 			}
 			float x = _saveControl->GetX() + 21 * pConfig->FontScale + ceil(TexFont.PixelWidth(buffer));
 			float y = _saveControl->GetY() + 8 * pConfig->FontScale;
@@ -420,7 +420,7 @@ void CMainMenuModule::Render()
 		{
 			// Show cursor at comment
 			float y = _saveControl->GetY() + 68 * pConfig->FontScale;
-			_saveCursor.Render(_caretPos, y);
+			_saveCursor.Render(static_cast<float>(_caretPos), y);
 		}
 	}
 
@@ -449,14 +449,14 @@ void CMainMenuModule::Resize(int width, int height)
 	}
 
 	_pScreen = new CDXScreen();
-	_pScreen->SetSize(width, height);
+	_pScreen->SetSize(static_cast<float>(width), static_cast<float>(height));
 	SetupScreen();
 
 	_cursorMaxX = width - 1;
 	_cursorMaxY = height - 1;
 
-	_cursorPosX = width / 2;
-	_cursorPosY = height / 2;
+	_cursorPosX = width / 2.0f;
+	_cursorPosY = height / 2.0f;
 
 	_btnMainSave->SetEnabled(saveEnabled);
 	_btnMainResume->SetVisible(resumeVisible);
@@ -509,10 +509,10 @@ void CMainMenuModule::LoadSetup()
 		}
 
 		sgc->SetInfo(sgi);
-		sgc->SetPosition(16.0f, y);
-		sgc->SetWidth(w - 80);
+		sgc->SetPosition(16.0f, static_cast<float>(y));
+		sgc->SetWidth(w - 80.0f);
 		sgc->SetVisible(TRUE);
-		y += sgc->GetHeight() + 8 * pConfig->FontScale;
+		y += static_cast<int>(sgc->GetHeight() + 8 * pConfig->FontScale);
 		ix++;
 	}
 
@@ -816,7 +816,7 @@ void CMainMenuModule::BeginAction()
 						SaveMode = SaveMode::Comment;
 						SaveGameInfo info = _saveControl->GetInfo();
 						SaveTypedChars = info.Comment.length();
-						_caretPos = _saveControl->GetX() + 68 * pConfig->FontScale + ceil(TexFont.PixelWidth(_commentBuffer));
+						_caretPos = static_cast<int>(_saveControl->GetX() + 68 * pConfig->FontScale + ceil(TexFont.PixelWidth(_commentBuffer)));
 					}
 				}
 				else if (SaveMode == SaveMode::Comment)
@@ -966,7 +966,7 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 				SaveMode = SaveMode::Comment;
 				SaveGameInfo info = _saveControl->GetInfo();
 				SaveTypedChars = info.Comment.length();
-				_caretPos = _saveControl->GetX() + 68 * pConfig->FontScale;
+				_caretPos = static_cast<int>(_saveControl->GetX() + 68 * pConfig->FontScale);
 			}
 		}
 		else if (SaveMode == SaveMode::Comment)
@@ -978,7 +978,7 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 				{
 					_commentBuffer[--SaveTypedChars] = 0;
 					_saveControl->SetComment(_commentBuffer);
-					_caretPos = _saveControl->GetX() + 68 * pConfig->FontScale + ceil(TexFont.PixelWidth(_commentBuffer));
+					_caretPos = static_cast<int>(_saveControl->GetX() + 68 * pConfig->FontScale + ceil(TexFont.PixelWidth(_commentBuffer)));
 				}
 			}
 			else if (key == VK_RETURN)
@@ -991,7 +991,7 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 				BYTE keyStates[256];
 				GetKeyboardState(keyStates);
 				WORD ascii = 0;
-				if (ToAscii(key, 0, keyStates, &ascii, 0) == 1)
+				if (ToAscii(static_cast<UINT>(key), 0, keyStates, &ascii, 0) == 1)
 				{
 					if (ascii >= 0x20 && ascii <= 0x7f)
 					{
@@ -1001,7 +1001,7 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 						{
 							_commentBuffer[SaveTypedChars++] = (char)ascii;
 							_saveControl->SetComment(_commentBuffer);
-							_caretPos = _saveControl->GetX() + 68 * pConfig->FontScale + ceil(TexFont.PixelWidth(_commentBuffer));
+							_caretPos = static_cast<int>(_saveControl->GetX() + 68 * pConfig->FontScale + ceil(TexFont.PixelWidth(_commentBuffer)));
 						}
 					}
 				}
@@ -1061,7 +1061,7 @@ void CMainMenuModule::SetupConfigFrame()
 
 	// Video config
 	float tw = (w - 80.0f) / 3 - 2.0f;
-	_pConfigVideo = new CDXTabItem(_pConfigTab, "Video", tw, h - 80);
+	_pConfigVideo = new CDXTabItem(_pConfigTab, "Video", tw, h - 80.0f);
 	_pConfigTab->AddChild(_pConfigVideo, 0.0f, 0.0f);
 
 	float y = 46.0f;
@@ -1096,13 +1096,13 @@ void CMainMenuModule::SetupConfigFrame()
 	_pConfigVideo->AddChild(pFontScaleSlider = new CDXSlider("Font scale", 1.0f, 3.0f, 0.25f, &cfgFontScale, 5), 22.0f, y);
 
 	// Audio config
-	_pConfigAudio = new CDXTabItem(_pConfigTab, "Audio", tw, h - 80);
+	_pConfigAudio = new CDXTabItem(_pConfigTab, "Audio", tw, h - 80.0f);
 	_pConfigTab->AddChild(_pConfigAudio, 0.0f, 0.0f);
 
 	y = 46.0f;
 
 	_pConfigAudio->AddChild(pVolumeSlider = new CDXSlider("Volume", 0.0f, 100.0f, 1.0f, &cfgVolume, 0), 22.0f, y);
-	y += buttonHeight * 1.5;
+	y += buttonHeight * 1.5f;
 
 	// MIDI
 	_pConfigAudio->AddChild(new CDXCheckBox("MIDI", &cfgPlayMIDI, checkBoxWidth), 22.0f, y);
@@ -1125,7 +1125,7 @@ void CMainMenuModule::SetupConfigFrame()
 	_pConfigAudio->AddChild(pMIDIVolumeSlider = new CDXSlider("MIDI volume", 0.0f, 100.0f, 1.0f, &cfgMIDIVolume, 0), 22.0f, y);
 
 	// Control config
-	_pConfigControl = new CDXTabItem(_pConfigTab, "Controls", tw, h - 80);
+	_pConfigControl = new CDXTabItem(_pConfigTab, "Controls", tw, h - 80.0f);
 	_pConfigTab->AddChild(_pConfigControl, 0.0f, 0.0f);
 
 	y = 66.0f;
@@ -1134,9 +1134,9 @@ void CMainMenuModule::SetupConfigFrame()
 	_pConfigControl->AddChild(_pConfigControlTab, 0.0f, 20.0f);
 
 	float ctw = (w - 80.0f) / 2 - 2.0f;
-	_pConfigControlKeyMouse = new CDXTabItem(_pConfigControlTab, "Mouse & Keyboard", ctw, h - 80);
+	_pConfigControlKeyMouse = new CDXTabItem(_pConfigControlTab, "Mouse & Keyboard", ctw, h - 80.0f);
 	_pConfigControlTab->AddChild(_pConfigControlKeyMouse, 0.0f, 10.0f);
-	_pConfigControlJoystick = new CDXTabItem(_pConfigControlTab, "Joystick", ctw, h - 80);
+	_pConfigControlJoystick = new CDXTabItem(_pConfigControlTab, "Joystick", ctw, h - 80.0f);
 	_pConfigControlTab->AddChild(_pConfigControlJoystick, 0.0f, 10.0f);
 
 	_pConfigControl->AddChild(new CDXCheckBox("Invert Y", &cfgInvertY, checkBoxWidth), 22.0f, y);

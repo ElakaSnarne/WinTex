@@ -48,8 +48,8 @@ void CPDMainMenuModule::SetupScreen()
 
 	float iw = pBmp->GetWidth();
 	float ih = pBmp->GetHeight();
-	float w = dx.GetWidth();
-	float h = dx.GetHeight();
+	float w = static_cast<float>(dx.GetWidth());
+	float h = static_cast<float>(dx.GetHeight());
 
 	// Center image
 	float imageTop = (h - ih) / 2;
@@ -58,8 +58,8 @@ void CPDMainMenuModule::SetupScreen()
 
 	// Buttons should be inside moon
 	// Moon covers about 67% of the width and 70% of the height
-	float moonW = iw * 0.67;
-	float moonH = ih * 0.64;
+	float moonW = iw * 0.67f;
+	float moonH = ih * 0.64f;
 
 	float moonCenterX = w - imageLeft - moonW / 2.0f;
 	float moonCenterY = imageTop + moonH / 2.0f;
@@ -109,7 +109,7 @@ void CPDMainMenuModule::Render()
 			memset(buffer, 0, 32);
 			for (int i = 0; i < 32 && i < info.FileName.length(); i++)
 			{
-				buffer[i] = info.FileName.at(i);
+				buffer[i] = static_cast<char>(info.FileName.at(i));
 			}
 			float x = _saveControl->GetX() + 21 * pConfig->FontScale + ceil(TexFont.PixelWidth(buffer));
 			float y = _saveControl->GetY() + 8 * pConfig->FontScale;
@@ -120,7 +120,7 @@ void CPDMainMenuModule::Render()
 			// Show cursor at comment
 			//SaveGameInfo info = _saveControl->GetInfo();
 			float y = _saveControl->GetY() + 68 * pConfig->FontScale;
-			_saveCursor.Render(_caretPos, y);
+			_saveCursor.Render(static_cast<float>(_caretPos), y);
 		}
 	}
 

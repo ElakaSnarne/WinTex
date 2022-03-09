@@ -42,7 +42,7 @@ void CUAKMGRSComputerModule::Render()
 {
 	BOOL popOnEnd = FALSE;
 
-	DWORD delta = GetTickCount64() - _frameTime;
+	auto delta = GetTickCount64() - _frameTime;
 	if (_currentPage == 0)
 	{
 		// Part of the startup animation
@@ -122,10 +122,10 @@ void CUAKMGRSComputerModule::Render()
 
 				// Set mouse min/max
 				LPBYTE pageData = _files[0] + (_currentPage - 1) * 28;
-				_cursorMinY = GetInt(pageData, 20, 2) * _scale - _top;
-				_cursorMaxY = GetInt(pageData, 22, 2) * _scale - _top;
-				_cursorMinX = GetInt(pageData, 24, 2) * _scale + _left;
-				_cursorMaxX = GetInt(pageData, 26, 2) * _scale + _left;
+				_cursorMinY = static_cast<int>(GetInt(pageData, 20, 2) * _scale - _top);
+				_cursorMaxY = static_cast<int>(GetInt(pageData, 22, 2) * _scale - _top);
+				_cursorMinX = static_cast<int>(GetInt(pageData, 24, 2) * _scale + _left);
+				_cursorMaxX = static_cast<int>(GetInt(pageData, 26, 2) * _scale + _left);
 
 				if (_currentPage == 1)
 				{
@@ -372,8 +372,8 @@ void CUAKMGRSComputerModule::BeginAction()
 {
 	if (_inputEnabled && _currentPage < 99)
 	{
-		int x = (_cursorPosX - _left) / _scale;
-		int y = (_cursorPosY - _top) / _scale;
+		int x = static_cast<int>((_cursorPosX - _left) / _scale);
+		int y = static_cast<int>((_cursorPosY - _top) / _scale);
 
 		// Get current page's button table
 		LPBYTE data = _files[0];

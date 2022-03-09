@@ -123,7 +123,7 @@ void CUAKMStasisModule::Render()
 	}
 	else if (_movingSlider > 0)
 	{
-		int y = max(min((_cursorPosY / _scale) - _top - 9, 252), 142);
+		int y = max(min(static_cast<int>((_cursorPosY / _scale) - _top) - 9, 252), 142);
 		int* pSliderValue = (_movingSlider == 1) ? &_temperature : &_oxygen;
 		int moved = (*pSliderValue - y);
 		if (moved != 0)
@@ -164,8 +164,8 @@ void CUAKMStasisModule::Render()
 		RenderControl(STASIS_CONTROL_PULSE, _stasisSettings & 1);
 
 		UpdateTexture();
-
-		_nextPulseChange = GetTickCount64() + 30 * ((3 - _stage / 4) * TIMER_SCALE);
+		// TODO: check if idiv here is desired
+		_nextPulseChange = GetTickCount64() + 30 * static_cast<ULONGLONG>((3 - _stage / 4) * TIMER_SCALE);
 	}
 
 	if ((_stasisSettings & (STASIS_SETTINGS_STATE_DYING_1 | STASIS_SETTINGS_STATE_DYING_2)) != 0 && GetTickCount64() > _nextWarningChange && _exitAfterTime == 0)
@@ -262,7 +262,7 @@ void CUAKMStasisModule::KeyDown(WPARAM key, LPARAM lParam)
 {
 	if (_inputEnabled)
 	{
-		CheckKeyAction(key, StasisControlCoordinates, sizeof(StasisControlCoordinates) / sizeof(ControlCoordinates));
+		CheckKeyAction(static_cast<int>(key), StasisControlCoordinates, sizeof(StasisControlCoordinates) / sizeof(ControlCoordinates));
 	}
 }
 
@@ -270,15 +270,15 @@ void CUAKMStasisModule::Initialize()
 {
 	CFullScreenModule::Initialize();
 
-	_cursorPosX = dx.GetWidth() / 2;
-	_cursorPosY = dx.GetHeight() / 2;
+	_cursorPosX = dx.GetWidth() / 2.0f;
+	_cursorPosY = dx.GetHeight() / 2.0f;
 
 	// Load items from STASIS.AP (palette & images, animation?) and STASISW.AP (sound)
 
-	_cursorMinX = _left + 87 * _scale;
-	_cursorMaxX = _left + 478 * _scale;
-	_cursorMinY = _top + 47 * _scale;
-	_cursorMaxY = _top + 269 * _scale;
+	_cursorMinX = static_cast<int>(_left + 87 * _scale);
+	_cursorMaxX = static_cast<int>(_left + 478 * _scale);
+	_cursorMinY = static_cast<int>(_top + 47 * _scale);
+	_cursorMaxY = static_cast<int>(_top + 269 * _scale);
 
 	// Load palette and compressed image
 	DoubleData dd = LoadDoubleEntry(L"STASIS.AP", 0);
@@ -367,7 +367,8 @@ void CUAKMStasisModule::PowerOn()
 			stage >>= 1;
 		}
 
-		_nextPulseChange = GetTickCount64() + 30 * ((3 - _stage / 4) * TIMER_SCALE);
+		// TODO: Another idiv to check
+		_nextPulseChange = GetTickCount64() + 30 * static_cast<ULONGLONG>((3 - _stage / 4) * TIMER_SCALE);
 
 		// Render sliders at correct positions for current stage
 		RenderItem(IMG_LEFT_SLIDER_AREA, 108, 142);
@@ -509,10 +510,10 @@ void CUAKMStasisModule::OnAction(int action)
 	{
 		if (action == ACTION_STASIS_TEMPERATURE)
 		{
-			_cursorMinX = _left + 108 * _scale;
-			_cursorMaxX = _left + 125 * _scale;
-			_cursorMinY = _top + 142 * _scale;
-			_cursorMaxY = _top + 269 * _scale;
+			_cursorMinX = static_cast<int>(_left + 108 * _scale);
+			_cursorMaxX = static_cast<int>(_left + 125 * _scale);
+			_cursorMinY = static_cast<int>(_top + 142 * _scale);
+			_cursorMaxY = static_cast<int>(_top + 269 * _scale);
 
 			_inputEnabled = FALSE;
 			_movingSlider = 1;
@@ -535,10 +536,10 @@ void CUAKMStasisModule::OnAction(int action)
 		}
 		else if (action == ACTION_STASIS_OXYGEN)
 		{
-			_cursorMinX = _left + 446 * _scale;
-			_cursorMaxX = _left + 463 * _scale;
-			_cursorMinY = _top + 142 * _scale;
-			_cursorMaxY = _top + 269 * _scale;
+			_cursorMinX = static_cast<int>(_left + 446 * _scale);
+			_cursorMaxX = static_cast<int>(_left + 463 * _scale);
+			_cursorMinY = static_cast<int>(_top + 142 * _scale);
+			_cursorMaxY = static_cast<int>(_top + 269 * _scale);
 			_inputEnabled = FALSE;
 			_movingSlider = 2;
 		}
@@ -623,10 +624,10 @@ void CUAKMStasisModule::Progress()
 			CAnimationController::UpdateAndRender();
 			_inputEnabled = FALSE;
 			_movingSlider = 0;
-			_cursorMinX = _left + 87 * _scale;
-			_cursorMaxX = _left + 478 * _scale;
-			_cursorMinY = _top + 47 * _scale;
-			_cursorMaxY = _top + 269 * _scale;
+			_cursorMinX = static_cast<int>(_left + 87 * _scale);
+			_cursorMaxX = static_cast<int>(_left + 478 * _scale);
+			_cursorMinY = static_cast<int>(_top + 47 * _scale);
+			_cursorMaxY = static_cast<int>(_top + 269 * _scale);
 		}
 
 		_stasisSettings |= Progression[_stage].Setting;
@@ -734,10 +735,10 @@ void CUAKMStasisModule::EndAction()
 {
 	if (_movingSlider > 0)
 	{
-		_cursorMinX = _left + 87 * _scale;
-		_cursorMaxX = _left + 478 * _scale;
-		_cursorMinY = _top + 47 * _scale;
-		_cursorMaxY = _top + 269 * _scale;
+		_cursorMinX = static_cast<int>(_left + 87 * _scale);
+		_cursorMaxX = static_cast<int>(_left + 478 * _scale);
+		_cursorMinY = static_cast<int>(_top + 47 * _scale);
+		_cursorMaxY = static_cast<int>(_top + 269 * _scale);
 
 		_movingSlider = 0;
 	}

@@ -187,7 +187,7 @@ void CUAKMCrimeLinkModule::Render()
 
 			_animationIndex += 4;
 
-			_animationFrameDuration = TIMER_SCALE * duration;
+			_animationFrameDuration = static_cast<ULONGLONG>(TIMER_SCALE * duration);
 			_animationFrameTime = tick;
 
 			if (_animationIndex >= CL_ANIMATION_FRAMES * 4)
@@ -271,7 +271,7 @@ void CUAKMCrimeLinkModule::Pause()
 	// Save selections back to save data
 	for (int i = 0; i < 15; i++)
 	{
-		CGameController::SetData(UAKM_SAVE_CRIMELINK_SELECTIONS + i * 2, PlayerSelections[i]);
+		CGameController::SetData(UAKM_SAVE_CRIMELINK_SELECTIONS + i * 2, PlayerSelections[i] & 0xFF);
 		CGameController::SetData(UAKM_SAVE_CRIMELINK_SELECTIONS + i * 2 + 1, PlayerSelections[i] >> 8);
 	}
 }
@@ -282,10 +282,10 @@ void CUAKMCrimeLinkModule::SetCursorArea(int x1, int y1, int x2, int y2)
 	_lastMouseOver.y = -1;
 
 	// Scale values based on main screen scaling
-	_cursorMinX = _left + x1 * _scale;
-	_cursorMaxX = _left + x2 * _scale;
-	_cursorMinY = _top + y1 * _scale;
-	_cursorMaxY = _top + y2 * _scale;
+	_cursorMinX = static_cast<int>(_left + x1 * _scale);
+	_cursorMaxX = static_cast<int>(_left + x2 * _scale);
+	_cursorMinY = static_cast<int>(_top + y1 * _scale);
+	_cursorMaxY = static_cast<int>(_top + y2 * _scale);
 }
 
 POINT CUAKMCrimeLinkModule::GetMouseOver()
@@ -294,8 +294,8 @@ POINT CUAKMCrimeLinkModule::GetMouseOver()
 	pt.x = -1;
 	pt.y = -1;
 
-	int scaledX = (_cursorPosX - _left) / _scale;
-	int scaledY = (_cursorPosY - _top) / _scale;
+	int scaledX = static_cast<int>((_cursorPosX - _left) / _scale);
+	int scaledY = static_cast<int>((_cursorPosY - _top) / _scale);
 
 	// Check if mouse is inside a selectable field, and if yes, which category it belongs to (if any)
 	int c = 0;
