@@ -31,6 +31,7 @@ CConfiguration::CConfiguration(LPWSTR gameName)
 	MIDIDeviceId = -1;
 
 	InvertY = FALSE;
+	MouselookScaling = 1.0f;
 	FontScale = 1.0f;
 
 	AnisotropicFilter = TRUE;
@@ -51,6 +52,7 @@ CConfiguration::CConfiguration(LPWSTR gameName)
 		AlternativeMedia = ((flags & CONFIG_FLAGS_ALTERNATIVEMEDIA) != 0);
 		PlayMIDI = ((flags & CONFIG_FLAGS_PLAYMIDI) != 0);
 		InvertY = ((flags & CONFIG_FLAGS_INVERTY) != 0);
+		MouselookScaling = GetRegistryFloat(hk, L"MouselookScaling", 1.0f);
 		AnisotropicFilter = ((flags & CONFIG_FLAGS_ANISOTROPICFILTER) == 0);	// Inverted
 
 		MIDIDeviceId = GetRegistryInt(hk, L"MIDIDeviceId", -1);
@@ -148,6 +150,7 @@ void CConfiguration::Save()
 
 		RegSetValueEx(hk, L"Flags", 0, REG_DWORD, (PBYTE)&flags, sizeof(flags));
 		RegSetValueEx(hk, L"MIDIDeviceId", 0, REG_DWORD, (PBYTE)&MIDIDeviceId, sizeof(MIDIDeviceId));
+		SetRegistryFloat(hk, L"MouselookScaling", MouselookScaling);
 		SetRegistryFloat(hk, L"FontScale", FontScale);
 		SetRegistryInt(hk, L"Volume", Volume);
 		SetRegistryInt(hk, L"MIDIVolume", MIDIVolume);

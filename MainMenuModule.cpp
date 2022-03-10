@@ -20,6 +20,7 @@ BOOL CMainMenuModule::cfgCaptions = TRUE;
 BOOL CMainMenuModule::cfgAlternativeMedia = FALSE;
 BOOL CMainMenuModule::cfgPlayMIDI = FALSE;
 BOOL CMainMenuModule::cfgInvertY = FALSE;
+float CMainMenuModule::cfgMouselookScaling = 1.0f;
 float CMainMenuModule::cfgFontScale = 1.0f;
 BOOL CMainMenuModule::cfgAnisotropicFiltering = TRUE;
 float CMainMenuModule::cfgVolume = 50.0f;
@@ -119,6 +120,7 @@ void CMainMenuModule::ConfigCancel(LPVOID data)
 	cfgAlternativeMedia = pConfig->AlternativeMedia;
 	cfgPlayMIDI = pConfig->PlayMIDI;
 	cfgInvertY = pConfig->InvertY;
+	cfgMouselookScaling = pConfig->MouselookScaling;
 	cfgMIDIDevice = pConfig->MIDIDeviceId;
 	cfgFontScale = pConfig->FontScale;
 	cfgVolume = static_cast<float>(pConfig->Volume);
@@ -152,6 +154,7 @@ void CMainMenuModule::ConfigAccept(LPVOID data)
 	pConfig->AlternativeMedia = cfgAlternativeMedia;
 	pConfig->PlayMIDI = cfgPlayMIDI;
 	pConfig->InvertY = cfgInvertY;
+	pConfig->MouselookScaling = cfgMouselookScaling;
 	pConfig->MIDIDeviceId = cfgMIDIDevice;
 	pConfig->FontScale = cfgFontScale;
 	pConfig->Volume = static_cast<int>(cfgVolume);
@@ -1230,7 +1233,9 @@ void CMainMenuModule::SetupConfigFrame()
 	_pConfigControlKeyMouse->AddChild(_mouseKeyControls[InputAction::Travel], x, y);
 	y += fontHeight;
 	_pConfigControlKeyMouse->AddChild(_mouseKeyControls[InputAction::Hints], x, y);
-	y += fontHeight;
+	y += fontHeight * 2.0f;
+	_pConfigControlKeyMouse->AddChild(new CDXSlider("Mouse sensitivity", 0.25f, 2.0f, 0.05f, &cfgMouselookScaling, 2), x, y);
+	y += fontHeight * 2.0f;
 
 	/*
 	Extra configurations for joysticks;

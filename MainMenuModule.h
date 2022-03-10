@@ -76,6 +76,7 @@ protected:
 	static BOOL cfgPlayMIDI;
 	static float cfgMIDIVolume;
 	static BOOL cfgInvertY;
+	static float cfgMouselookScaling;
 
 	static void UpdateResolutionLabel();
 	static void UpdateMIDIDeviceLabel();

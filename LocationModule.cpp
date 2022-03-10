@@ -113,6 +113,7 @@ void CLocationModule::Initialize()
 
 void CLocationModule::MouseMove(POINT pt)
 {
+	/*
 	if (GetForegroundWindow() == _hWnd)
 	{
 		POINT currentpt;
@@ -129,6 +130,7 @@ void CLocationModule::MouseMove(POINT pt)
 			SetCursorPos(newpt.x, newpt.y);	// Problem, this will be considered a mouse move and trigger input
 		}
 	}
+	*/
 }
 
 void CLocationModule::Render()
@@ -458,14 +460,16 @@ void CLocationModule::Resize(int width, int height)
 void CLocationModule::Cursor(float x, float y, BOOL relative)
 {
 	// Change view angle
-	if (CAnimationController::NoAnimOrWave())
+	if (CAnimationController::NoAnimOrWave() && (CInputMapping::IgnoreNextMouseInput == FALSE))
 	{
 		float delta_x = relative ? -x : dx.GetWidth() / 2 - x;
 		float delta_y = relative ? -y : dx.GetHeight() / 2 - y;
 
 		if (pConfig->InvertY) delta_y = -delta_y;
+		auto scale = pConfig->MouselookScaling;
 
-		_location.DeltaAngles(((float)-delta_y) / 500.0f, ((float)-delta_x) / 500.0f);	// TODO: Sensitivity should be configurable
+		_location.DeltaAngles(((float)-delta_y) / 2000.0f * scale, ((float)-delta_x) / 2000.0f * scale);	// TODO: Sensitivity should be configurable
+		CenterMouse();
 	}
 }
 
