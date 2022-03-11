@@ -16,8 +16,8 @@ CUAKMTornNoteModule::CUAKMTornNoteModule(int item) : CModuleBase(ModuleType::Tor
 	_cursorMinX = 0;
 	_cursorMaxX = dx.GetWidth() - 1;
 	_cursorMinY = 0;
-	_screenHeight = dx.GetHeight();
-	_cursorMaxY = _screenHeight - 1;
+	_screenHeight = static_cast<float>(dx.GetHeight());
+	_cursorMaxY = static_cast<int>(_screenHeight - 1.0f);
 
 	_item = item;
 	_newItem = -1;
@@ -129,8 +129,8 @@ void CUAKMTornNoteModule::Render()
 
 void CUAKMTornNoteModule::Initialize()
 {
-	_cursorPosX = dx.GetWidth() / 2;
-	_cursorPosY = dx.GetHeight() / 2;
+	_cursorPosX = dx.GetWidth() / 2.0f;
+	_cursorPosY = dx.GetHeight() / 2.0f;
 
 	int palIx = -1;
 	if (_item == 33)
@@ -303,8 +303,8 @@ CUAKMTornNoteModule::CNoteScrap* CUAKMTornNoteModule::HitTest(float mx, float my
 		{
 			// Translate mouse coordinates, scale and orientation relative to object
 
-			int cx = (mx - x) / _scale;
-			int cy = (my - y) / _scale;
+			int cx = static_cast<int>((mx - x) / _scale);
+			int cy = static_cast<int>((my - y) / _scale);
 			if (pN->Orientation == 2)
 			{
 				// Upside down
@@ -370,13 +370,13 @@ BOOL CUAKMTornNoteModule::CheckCompleted()
 
 			CNoteScrap* pScrap2 = _images[i + 1];
 
-			int dx = abs((pScrap1->X - pScrap2->X) / _scale - TornNoteDistances[i * 2]);
+			int dx = static_cast<int>(abs((pScrap1->X - pScrap2->X) / _scale - TornNoteDistances[i * 2]));
 			if (dx > 5)
 			{
 				return FALSE;
 			}
 
-			int dy = abs((pScrap1->Y - pScrap2->Y) / _scale - TornNoteDistances[i * 2 + 1]);
+			int dy = static_cast<int>(abs((pScrap1->Y - pScrap2->Y) / _scale - TornNoteDistances[i * 2 + 1]));
 			if (dy > 5)
 			{
 				return FALSE;
@@ -389,7 +389,7 @@ BOOL CUAKMTornNoteModule::CheckCompleted()
 		{
 			CNoteScrap* pScrap1 = _images[i];
 			CNoteScrap* pScrap2 = _images[i + 1];
-			int dx = (pScrap2->X - pScrap1->X) / _scale;
+			int dx = static_cast<int>((pScrap2->X - pScrap1->X) / _scale);
 			if (dx < 8 || dx > 12)
 			{
 				return FALSE;
@@ -420,8 +420,8 @@ void CUAKMTornNoteModule::Cursor(float x, float y, BOOL relative)
 		// Move selected piece
 		_selectedScrap->X -= _pt.x - _cursorPosX;
 		_selectedScrap->Y -= _pt.y - _cursorPosY;
-		_pt.x = _cursorPosX;
-		_pt.y = _cursorPosY;
+		_pt.x = static_cast<LONG>(_cursorPosX);
+		_pt.y = static_cast<LONG>(_cursorPosY);
 	}
 }
 
@@ -439,8 +439,8 @@ void CUAKMTornNoteModule::BeginAction()
 			if (pScrap != NULL)
 			{
 				_selectedScrap = pScrap;
-				_pt.x = _cursorPosX;
-				_pt.y = _cursorPosY;
+				_pt.x = static_cast<LONG>(_cursorPosX);
+				_pt.y = static_cast<LONG>(_cursorPosY);
 			}
 		}
 	}
@@ -456,8 +456,8 @@ void CUAKMTornNoteModule::EndAction()
 	if (_selectedScrap != NULL && !_completed)
 	{
 		// Update save area
-		int x = _selectedScrap->X / _scale;
-		int y = _selectedScrap->Y / _scale;
+		int x = static_cast<int>(_selectedScrap->X / _scale);
+		int y = static_cast<int>(_selectedScrap->Y / _scale);
 		CGameController::SetData(_selectedScrap->Offset, x & 0xff);
 		CGameController::SetData(_selectedScrap->Offset + 1, (x >> 8) & 0xff);
 		CGameController::SetData(_selectedScrap->Offset + 2, y & 0xff);

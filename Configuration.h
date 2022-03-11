@@ -21,6 +21,7 @@ public:
 	int MIDIDeviceId;
 
 	BOOL InvertY;
+	float MouselookScaling;
 	float FontScale;
 
 	BOOL AnisotropicFilter;

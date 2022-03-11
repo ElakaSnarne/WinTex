@@ -33,8 +33,8 @@ void CResumeGameModule::Render()
 
 void CResumeGameModule::Initialize()
 {
-	_cursorPosX = _cursorMaxX / 2;
-	_cursorPosY = _cursorMaxY / 2;
+	_cursorPosX = static_cast<int>(_cursorMaxX) / 2.0f;
+	_cursorPosY = static_cast<int>(_cursorMaxY) / 2.0f;
 
 	int w = dx.GetWidth();
 	int h = dx.GetHeight();
@@ -49,7 +49,7 @@ void CResumeGameModule::Initialize()
 	float hw = max(TexFont.PixelWidth(pH), maxlabelw);
 	float lineHeight = TexFont.Height() * pConfig->FontScale;
 	float fw = hw + 16.0f * pConfig->FontScale;
-	float fh = 8.5 * lineHeight;
+	float fh = 8.5f * lineHeight;
 
 	_pFrame = new CDXFrame(pH, fw, fh);
 
@@ -64,7 +64,7 @@ void CResumeGameModule::Initialize()
 	_pFrame->AddChild(_pLine1, fx + 8.0f, fy + lineHeight * 2);
 	_pFrame->AddChild(_pLine2, fx + 8.0f, fy + lineHeight * 3);
 	_pBtnYes = _pFrame->AddButton(pY, fx + 8.0f, fy + lineHeight * 4.5f, maxbtnw, 20.0f, NULL);
-	_pBtnNo = _pFrame->AddButton(pN, fx + fw - maxbtnw - 32 * pConfig->FontScale - 8.0f, fy + lineHeight * 4.5, maxbtnw, 20.0f, NULL);
+	_pBtnNo = _pFrame->AddButton(pN, fx + fw - maxbtnw - 32.0f * pConfig->FontScale - 8.0f, fy + lineHeight * 4.5f, maxbtnw, 20.0f, NULL);
 	_pFrame->SetPosition(fx, fy);
 }
 

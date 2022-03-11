@@ -180,8 +180,8 @@ void CUAKMEncodedMessageModule::KeyDown(WPARAM key, LPARAM lParam)
 
 void CUAKMEncodedMessageModule::Initialize()
 {
-	_cursorPosX = dx.GetWidth() / 2;
-	_cursorPosY = dx.GetHeight() / 2;
+	_cursorPosX = dx.GetWidth() / 2.0f;
+	_cursorPosY = dx.GetHeight() / 2.0f;
 
 	DWORD s;
 	_font = GetResource(IDR_RAWFONT, L"BIN", &s);

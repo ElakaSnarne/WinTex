@@ -45,7 +45,6 @@ BinaryData LoadEntry(LPCWSTR fileName, int itemIndex)
 		{
 			int len = 10 + itemIndex * 4;
 			LPBYTE header = new BYTE[len];
-			wchar_t convert[10];
 
 			if (header != NULL)
 			{
@@ -121,7 +120,6 @@ DoubleData LoadDoubleEntry(LPCWSTR fileName, int itemIndex)
 		{
 			int len = 14 + itemIndex * 4;
 			LPBYTE header = new BYTE[len];
-			wchar_t convert[10];
 
 			if (header != NULL)
 			{
@@ -235,7 +233,7 @@ void Trace(float val, int dc)
 	{
 		Trace(L"-");
 	}
-	_itow(val, buffer, 10);
+	_itow(static_cast<int>(val), buffer, 10);
 	Trace(buffer);
 	Trace(L".");
 	if (val < 0.0f) val = -val;
@@ -243,7 +241,7 @@ void Trace(float val, int dc)
 	{
 		val -= (int)val;
 		val *= 10;
-		_itow(val, buffer, 10);
+		_itow(static_cast<int>(val), buffer, 10);
 		Trace(buffer);
 	}
 }

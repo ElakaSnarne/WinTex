@@ -71,15 +71,15 @@ void CDXMultiColouredText::SetText(LPCWSTR text, Rect rect)
 
 	while (TRUE)
 	{
-		char c = *(scan++);
+		auto c = *(scan++);
 		if (c == 0) break;
 		else if (c == 0x20 || c == '<' || c == '~' || c == '>' || c == '@')
 		{
 			// Space, add word to list
-			int len = scan - start - 1;
+			auto len = scan - start - 1;
 			if (len > 0)
 			{
-				wl.Add((char*)start, len, pixels, currentCol);
+				wl.Add((char*)start, static_cast<int>(len), pixels, currentCol);
 			}
 			start = scan;
 			pixels = 0.0f;
@@ -105,10 +105,10 @@ void CDXMultiColouredText::SetText(LPCWSTR text, Rect rect)
 	}
 
 	// Add last word to list
-	int len = scan - start - 1;
+	auto len = scan - start - 1;
 	if (len > 0)
 	{
-		wl.Add((char*)start, len, pixels, currentCol);
+		wl.Add((char*)start, static_cast<int>(len), pixels, currentCol);
 	}
 
 	if (_printableCharacters > 0)
@@ -163,7 +163,7 @@ void CDXMultiColouredText::SetText(LPCWSTR text, Rect rect)
 					sx = floor(sx);
 					for (int c = 0; c < print->Chars(); c++)
 					{
-						char ch = ((WCHAR*)print->Text())[c];
+						auto ch = ((WCHAR*)print->Text())[c];
 						if (ch >= 0x20 && ch <= 0x7f)
 						{
 							ch -= 0x20;

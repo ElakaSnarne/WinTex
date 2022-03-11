@@ -217,7 +217,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 							}
 							else if (msg.message == WM_MOUSEWHEEL)
 							{
-								CModuleController::MouseWheel(msg.wParam);
+								CModuleController::MouseWheel(static_cast<int>(msg.wParam));
 							}
 							else if (msg.message == WM_KEYDOWN)
 							{
@@ -235,7 +235,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 							else if (msg.message == UM_GAMEPAD)
 							{
 								InputSource source = (InputSource)(msg.wParam >> 16);
-								CModuleController::GamepadInput(source, msg.wParam & 0xffff, msg.lParam);
+								CModuleController::GamepadInput(source, msg.wParam & 0xffff, static_cast<int>(msg.lParam));
 							}
 							else
 							{

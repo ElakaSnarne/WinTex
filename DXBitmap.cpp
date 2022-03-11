@@ -31,13 +31,13 @@ CDXBitmap::CDXBitmap(int width, int height)
 
 void CDXBitmap::Init()
 {
-	_w = _texture.Width();
-	_h = _texture.Height();
+	_w = static_cast<float>(_texture.Width());
+	_h = static_cast<float>(_texture.Height());
 
 	double sw = dx.GetWidth();
 	double sh = dx.GetHeight();
-	float imageRatioX = _w / sw;
-	float imageRatioY = _h / sh;
+	float imageRatioX = static_cast<float>(_w / sw);
+	float imageRatioY = static_cast<float>(_h / sh);
 
 	float imageRatio = max(imageRatioX, imageRatioY);
 	if (imageRatio > 1.0f)

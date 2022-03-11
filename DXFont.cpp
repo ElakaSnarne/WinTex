@@ -95,7 +95,7 @@ void CDXFont::Init(PBYTE pFont, DWORD size)
 				offset += charwidth * 4;
 			}
 
-			_height = tallest + 1;
+			_height = tallest + 1.0f;
 			_y1 = 0.75;
 			_y2 = ((float)3 * charheight + _height) / (float)desc.Height;
 
@@ -160,7 +160,7 @@ Size CDXFont::GetSize(char* text, float maxw)
 		if (c == 0 || c == 0x20)
 		{
 			// Space or end of text, add word to list
-			int len = scan - start - 1;
+			int len = static_cast<int>(scan - start - 1);
 			if (len > 0)
 			{
 				wl.Add(start, len, pixels);

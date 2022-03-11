@@ -72,8 +72,8 @@ CUAKMTravelModule::~CUAKMTravelModule()
 
 void CUAKMTravelModule::Initialize()
 {
-	_cursorPosX = dx.GetWidth() / 2;
-	_cursorPosY = dx.GetHeight() / 2;
+	_cursorPosX = dx.GetWidth() / 2.0f;
+	_cursorPosY = dx.GetHeight() / 2.0f;
 
 	// Load palette(s)
 	BinaryData bdPal = LoadEntry(L"GRAPHICS.AP", 28);

@@ -19,6 +19,7 @@
 #define SND_6			12
 #define SND_7			13
 
+// TODO: change to signed char, or alter constants to unsigned equivalent
 BYTE CodePanelCorrectCode[] = { 18, 8, 11, 8, 2, 14, 13, -1 };
 
 CUAKMCodePanelModule::CUAKMCodePanelModule(int parameter) : CFullScreenModule(ModuleType::CodePanel)
@@ -40,7 +41,7 @@ void CUAKMCodePanelModule::Render()
 {
 	if (_correctFrame > 0)
 	{
-		DWORD diff = GetTickCount64() - _correctFrameTime;
+		auto diff = GetTickCount64() - _correctFrameTime;
 		if (_correctFrame == 2 && diff > 500)
 		{
 			Render(IMG_PATRONAGE, 207, 121);
@@ -86,7 +87,7 @@ void CUAKMCodePanelModule::Render()
 	}
 	else if (_inputEnabled && _enteredCode[0] == 0xff)
 	{
-		int offset = (GetTickCount64() - _passwordMessageTime) / 200;
+		int offset = static_cast<int>((GetTickCount64() - _passwordMessageTime) / 200);
 		if (offset > _lastMessageOffset)
 		{
 			if (offset == 70)
@@ -185,7 +186,7 @@ void CUAKMCodePanelModule::KeyDown(WPARAM key, LPARAM lParam)
 		if (key >= 'A' && key <= 'Z')
 		{
 			// Enter code
-			Key(key - 'A');
+			Key(static_cast<int>(key - 'A'));
 		}
 		else if (key == VK_RETURN)
 		{
@@ -228,10 +229,10 @@ void CUAKMCodePanelModule::Initialize()
 		_palette[i] = 0xff000000;
 	}
 
-	_cursorMinX = _left + 2 * _scale;
-	_cursorMaxX = _left + 627 * _scale;
-	_cursorMinY = -_top + 236 * _scale;
-	_cursorMaxY = -_top + 467 * _scale;
+	_cursorMinX = static_cast<int>(_left + 2 * _scale);
+	_cursorMaxX = static_cast<int>(_left + 627 * _scale);
+	_cursorMinY = static_cast<int>(-_top + 236 * _scale);
+	_cursorMaxY = static_cast<int>(-_top + 467 * _scale);
 
 	UpdateTexture();
 
@@ -361,8 +362,8 @@ void CUAKMCodePanelModule::BeginAction()
 		LPBYTE pTest1 = _files[DAT_COORDS1];
 		LPBYTE pTest2 = _files[DAT_COORDS2];
 
-		int x = (_cursorPosX - _left) / _scale;
-		int y = (_cursorPosY - _top) / _scale;
+		int x = static_cast<int>((_cursorPosX - _left) / _scale);
+		int y = static_cast<int>((_cursorPosY - _top) / _scale);
 
 		LPBYTE scan = pTest2;
 		int i = 0;

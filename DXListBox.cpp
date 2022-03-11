@@ -291,7 +291,7 @@ int CDXListBox::HitTestLB(float x, float y)
 
 	if (x >= _x && x < (_x + _w) && y > _y&& y < (_y + _h - 1.0f))
 	{
-		_highlightIndex = (y - _y) / lineHeight;
+		_highlightIndex = static_cast<int>((y - _y) / lineHeight);
 		int selectedIndex = _topIndex + _highlightIndex;
 		if (selectedIndex >= 0 && selectedIndex < _items.size())
 		{

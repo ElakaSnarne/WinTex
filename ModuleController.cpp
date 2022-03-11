@@ -265,7 +265,7 @@ void CModuleController::Resize(int width, int height)
 
 	for (int c = 0; c < 12; c++)
 	{
-		Cursors[c].SetPosition(width / 2, height / 2);
+		Cursors[c].SetPosition(width / 2.0f, height / 2.0f);
 	}
 
 	for (int i = 0; i < 3; i++)

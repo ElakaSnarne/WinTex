@@ -141,8 +141,8 @@ void CModuleBase::CheckInput()
 					if (action.second.CurrentSource == InputSource::JoystickAxis)
 					{
 						// Scale values
-						fx = ((fx < 0) ? -Gain(-fx / 1000.0f) : Gain(fx / 1000.0f)) * 10.0f;	// TODO: Make gain configurable?
-						fy = ((fy < 0) ? -Gain(-fy / 1000.0f) : Gain(fy / 1000.0f)) * 10.0f;
+						fx = ((fx < 0) ? static_cast<float>(-Gain(-fx / 1000.0f)) : static_cast<float>(Gain(fx / 1000.0f))) * 10.0f;	// TODO: Make gain configurable?
+						fy = ((fy < 0) ? static_cast<float>(-Gain(-fy / 1000.0f)) : static_cast<float>(Gain(fy / 1000.0f))) * 10.0f;
 					}
 
 					Cursor(fx, fy, (action.second.CurrentSource != InputSource::Mouse));
@@ -190,8 +190,8 @@ void CModuleBase::CheckInput()
 						float fy = (float)y;
 
 						// Scale values
-						fx = (fx < 0) ? -Gain(-fx / 1000.0f) : Gain(fx / 1000.0f);
-						fy = (fy < 0) ? -Gain(-fy / 1000.0f) : Gain(fy / 1000.0f);
+						fx = (fx < 0) ? static_cast<float>(-Gain(-fx / 1000.0f)) : static_cast<float>(Gain(fx / 1000.0f));
+						fy = (fy < 0) ? static_cast<float>(-Gain(-fy / 1000.0f)) : static_cast<float>(Gain(fy / 1000.0f));
 
 						MoveForward(-fy);
 						MoveLeft(-fx);
