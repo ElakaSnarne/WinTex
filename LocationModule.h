@@ -21,7 +21,6 @@ public:
 	virtual void Pause();
 	virtual void Resume();
 	virtual void Render();
-	virtual void MouseMove(POINT pt);
 
 	static float _movement_x;
 	static float _movement_y;

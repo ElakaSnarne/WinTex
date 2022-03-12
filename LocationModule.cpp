@@ -111,28 +111,6 @@ void CLocationModule::Initialize()
 	_scriptEngine->Execute(_initScriptState, CGameController::GetLocationInitializationScriptId());
 }
 
-void CLocationModule::MouseMove(POINT pt)
-{
-	/*
-	if (GetForegroundWindow() == _hWnd)
-	{
-		POINT currentpt;
-		GetCursorPos(&currentpt);
-		ScreenToClient(_hWnd, &currentpt);
-
-		POINT newpt;
-		newpt.x = dx.GetWidth() / 2;
-		newpt.y = dx.GetHeight() / 2;
-		if (newpt.x != currentpt.x || newpt.y != currentpt.y)
-		{
-			CInputMapping::IgnoreNextMouseInput = TRUE;
-			ClientToScreen(_hWnd, &newpt);
-			SetCursorPos(newpt.x, newpt.y);	// Problem, this will be considered a mouse move and trigger input
-		}
-	}
-	*/
-}
-
 void CLocationModule::Render()
 {
 	dx.Clear(0.0f, 0.0f, 0.0f);
@@ -462,13 +440,13 @@ void CLocationModule::Cursor(float x, float y, BOOL relative)
 	// Change view angle
 	if (CAnimationController::NoAnimOrWave() && (CInputMapping::IgnoreNextMouseInput == FALSE))
 	{
-		float delta_x = relative ? -x : dx.GetWidth() / 2 - x;
-		float delta_y = relative ? -y : dx.GetHeight() / 2 - y;
+		float delta_x = relative ? x : x - dx.GetWidth() / 2;
+		float delta_y = relative ? y : y - dx.GetHeight() / 2;
 
 		if (pConfig->InvertY) delta_y = -delta_y;
 		auto scale = pConfig->MouselookScaling;
 
-		_location.DeltaAngles(((float)-delta_y) / 2000.0f * scale, ((float)-delta_x) / 2000.0f * scale);	// TODO: Sensitivity should be configurable
+		_location.DeltaAngles(((float)delta_y) / 2000.0f * scale, ((float)delta_x) / 2000.0f * scale);
 		CenterMouse();
 	}
 }
