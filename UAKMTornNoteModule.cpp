@@ -138,21 +138,21 @@ void CUAKMTornNoteModule::Initialize()
 		palIx = 21;
 		_numberOfImages = 28;
 		_positionOffset = UAKM_SAVE_PUZZLE_DATA;
-		CGameController::SetHintState(188, 2, 0);
+		CGameController::SetHintState(188, 1, 0);
 	}
 	else if (_item == 57)
 	{
 		palIx = 24;
 		_numberOfImages = 31;
 		_positionOffset = UAKM_SAVE_PUZZLE_DATA + 168;
-		CGameController::SetHintState(361, 2, 0);
+		CGameController::SetHintState(361, 1, 0);
 	}
 	else if (_item == 139)
 	{
 		palIx = 26;
 		_numberOfImages = 26;
 		_positionOffset = UAKM_SAVE_PUZZLE_DATA + 354;
-		CGameController::SetHintState(247, 2, 0);
+		CGameController::SetHintState(247, 1, 0);
 	}
 
 	_caption.SetColours(0, 0xff00c300, 0xff24ff00, 0);
@@ -475,8 +475,8 @@ void CUAKMTornNoteModule::EndAction()
 			if (_item == 33)
 			{
 				// Sal's note scraps
-				CGameController::SetData(UAKM_SAVE_HINT_STATES + 27, 2);
-				CGameController::SetHintState(177, 2, 1);
+				CGameController::SetHintState(177, 1, 1);
+				CGameController::SetHintCategoryState(27, 2);
 			}
 			else if (_item == 57)
 			{
@@ -488,7 +488,7 @@ void CUAKMTornNoteModule::EndAction()
 					CGameController::SetData(UAKM_SAVE_TRAVEL + 14, 1);
 				}
 
-				CGameController::SetHintState(362, 2, 1);
+				CGameController::SetHintState(362, 1, 1);
 			}
 
 			// Transform item

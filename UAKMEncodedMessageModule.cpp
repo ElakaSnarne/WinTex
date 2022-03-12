@@ -172,8 +172,8 @@ void CUAKMEncodedMessageModule::KeyDown(WPARAM key, LPARAM lParam)
 		_completed = CheckCompleted();
 		if (_completed)
 		{
-			CGameController::SetHintState(178, 2, 1);
-			CGameController::SetData(UAKM_SAVE_HINT_STATES + 28, 2);
+			CGameController::SetHintState(178, 1, 1);
+			CGameController::SetHintCategoryState(28, 2);
 		}
 	}
 }

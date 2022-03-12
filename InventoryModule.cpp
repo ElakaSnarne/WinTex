@@ -392,7 +392,7 @@ void CInventoryModule::OnExamine(LPVOID data)
 		pDisplayCaptions = pAddCaptions;
 		pAddCaptions = pOld;
 		ClearCaptions(pOld);
-		Rect rect{ 0.0f, 0.0f, 1000.0f, static_cast<float>(_limitedRect.right - _limitedRect.left)};
+		Rect rect{ 0.0f, 0.0f, 1000.0f, static_cast<float>(_limitedRect.right - _limitedRect.left) };
 		_text.SetText(pDesc, rect);
 		_lineCount = _text.Lines();
 		_lineAdjustment = max(0, min(_lineCount - _visibleLineCount, _lineCount));
@@ -559,10 +559,9 @@ void CInventoryModule::EndAction()
 			// Check for combination
 			for (int c = 0; c < 27; c++)
 			{
-				if ((comboTable[c * 3 + 0] == _selectedItemId && comboTable[c * 3 + 1] == _mouseOverItemId) || (comboTable[c * 3 + 0] == _mouseOverItemId && comboTable[c * 3 + 1] == _selectedItemId))
+				if ((comboTable[c * 3] == _selectedItemId && comboTable[c * 3 + 1] == _mouseOverItemId) || (comboTable[c * 3] == _mouseOverItemId && comboTable[c * 3 + 1] == _selectedItemId))
 				{
 					// Remove 2 items, add new
-					// TODO: Should actually replace item 2 (mouse over)
 					int newItemId = comboTable[c * 3 + 2];
 					CGameController::SetItemState(_selectedItemId, 2);
 					CGameController::SetItemState(_mouseOverItemId, 2);
@@ -572,7 +571,7 @@ void CInventoryModule::EndAction()
 					{
 						if (comboScoreTable[s * 2 + 1] == newItemId)
 						{
-							CGameController::AddScore(comboScoreTable[s * 2 + 0]);
+							CGameController::AddScore(comboScoreTable[s * 2]);
 							break;
 						}
 					}
@@ -582,10 +581,10 @@ void CInventoryModule::EndAction()
 					{
 						if (comboHintStateScoreTable[i * 2] == newItemId)
 						{
-							CGameController::SetHintState(comboHintStateScoreTable[i * 2 + 1], 2, 1);
+							CGameController::SetHintState(comboHintStateScoreTable[i * 2 + 1], 1, 1);
 							if (newItemId == 95)
 							{
-								CGameController::SetHintState(398, 2, 0);
+								CGameController::SetHintState(398, 1, 0);
 							}
 							break;
 						}
