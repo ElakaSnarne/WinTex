@@ -91,14 +91,6 @@ void CHintModule::BeginAction()
 					int hintIndex = it->GetHintIndex();
 					CGameController::SetHintState(hintIndex, CGameController::GetHintState(hintIndex) | 2, 0);
 					CGameController::AddScore(-4);
-
-					/*
-seg000:001A1CFA                 mov     ebx, ds:dword_1F100B[ecx*4]
-seg000:001A1D01                 shl     ebx, 1
-seg000:001A1D03                 add     ebx, 1
-seg000:001A1D06                 bts     ds:HintStates, ebx
-seg000:001A1D0D                 sub     ds:Score, 4     ; Lose 4 points when using a hint
-					*/
 					return;
 				}
 
@@ -179,27 +171,18 @@ void CHintModule::Initialize()
 			}
 
 			// Compressed image (active categories page)
-			// Compressed image (hint page)
-			// AP data with images
 			int categoriesPageOffset = GetInt(buffer, 6, 4);
 			int hintsPageOffset = GetInt(buffer, 10, 4);
 			int buttonsOffset = GetInt(buffer, 14, 4);
 			BinaryData bdCategoriesPage = CLZ::Decompress(buffer, categoriesPageOffset, hintsPageOffset - categoriesPageOffset);
-			//BinaryData bdHintsPage = CLZ::Decompress(buffer, hintsPageOffset, buttonsOffset - hintsPageOffset);
 
-			// TODO: Create textures of directory page (to get hints and directory images)
+			// Create textures of directory page (to get hints and directory images)
 			_hintTexture.Init(bdCategoriesPage.Data, bdCategoriesPage.Length, 0, palette, -1, NULL, 11, 9, 93, 42, true, 640, 480);
 			_categoryTexture.Init(bdCategoriesPage.Data, bdCategoriesPage.Length, 0, palette, -1, NULL, 108, 9, 421, 42, true, 640, 480);
 
 			delete[] bdCategoriesPage.Data;
-			//delete[] bdHintsPage.Data;
 
-			// TODO: Create textures and vertex buffers
-			// Entry 3.0 is blank
-			// Entry 3.1 is dot
-			// Entry 3.2 is check
-			// Entry 3.8 is questionmark button
-
+			// Create textures and vertex buffers
 			_blankTexture.Init(buffer + buttonsOffset + GetInt(buffer, buttonsOffset + 2, 4), 0, 0, &palette[0], 0, "");
 			_dotTexture.Init(buffer + buttonsOffset + GetInt(buffer, buttonsOffset + 6, 4), 0, 0, &palette[0], 0, "");
 			_checkTexture.Init(buffer + buttonsOffset + GetInt(buffer, buttonsOffset + 10, 4), 0, 0, &palette[0], 0, "");
@@ -227,7 +210,6 @@ void CHintModule::Initialize()
 	Rect rect1{ 0, 0, static_cast<float>(h), static_cast<float>(w) };
 	Rect rect2{ 0, 0, static_cast<float>(h), static_cast<float>(w) };
 	Rect rect3{ 0, 0, static_cast<float>(h), static_cast<float>(w) };
-	// TODO: Calculate position and space reserved for category? Need one for when it's in the list and one for when it's the selected category
 
 	for (auto it : _activeHintCategories)
 	{
@@ -249,11 +231,9 @@ void CHintModule::Initialize()
 
 void CHintModule::Render()
 {
-	// Render original hint GUI or create a new? (If allowing font scale, may need to use a new, but can use parts of the original graphics)
-
 	dx.Clear(0.73f, 0.73f, 0.73f);
 
-	float y = 0.0f;// *pConfig->FontScale;
+	float y = 0.0f;
 	float h = max(_blankTexture.Height() + 2, TexFont.Height()) * pConfig->FontScale;
 	float boxw = _blankTexture.Width() * pConfig->FontScale;
 	float x = 8.0f * pConfig->FontScale;
@@ -266,7 +246,6 @@ void CHintModule::Render()
 	if (_pCurrentHintCategory == NULL)
 	{
 		// Render categories
-
 		CShaders::SelectOrthoShader();
 		dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		dx.SetVertexBuffers(0, 1, &_categoryVertexBuffer, &stride, &offset);
@@ -299,11 +278,9 @@ void CHintModule::Render()
 	else
 	{
 		// Render category at top
-
 		float cw = _pCurrentHintCategory->Width();
 		float yoffset = ((_hintTexture.Height() - TexFont.Height()) * pConfig->FontScale) / 2.0f;
 		_pCurrentHintCategory->Render((dx.GetWidth() - cw) / 2, y + yoffset, false);
-		//y += TexFont.Height() * pConfig->FontScale * 2;
 
 		y += (_hintTexture.Height() + 2) * pConfig->FontScale;
 
@@ -353,7 +330,7 @@ void CHintModule::Render()
 		_pBtnDirectory->Render();
 	}
 
-	y = 0.0f;// *pConfig->FontScale;
+	y = 0.0f;
 	CShaders::SelectOrthoShader();
 	dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	dx.SetVertexBuffers(0, 1, &_hintVertexBuffer, &stride, &offset);
