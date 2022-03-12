@@ -374,6 +374,7 @@ void CMainMenuModule::Config(LPVOID data)
 	cfgAlternativeMedia = pConfig->AlternativeMedia;
 	cfgPlayMIDI = pConfig->PlayMIDI;
 	cfgInvertY = pConfig->InvertY;
+	cfgMouselookScaling = pConfig->MouselookScaling;
 	cfgFontScale = pConfig->FontScale;
 	cfgAnisotropicFiltering = pConfig->AnisotropicFilter;
 	cfgVolume = static_cast<float>(pConfig->Volume);
