@@ -535,7 +535,7 @@ void CUAKMSafeModule::BeginAction()
 					int key = i;
 					if (key == 11) key = 0;
 					else if (key > 11) key--;
-					// Is this the Start button bug???
+
 					Press(key, i - 1);
 				}
 

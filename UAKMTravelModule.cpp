@@ -496,6 +496,8 @@ void CUAKMTravelModule::BeginAction()
 		CAmbientAudio::Clear();
 		CGameController::CanCancelTravel = TRUE;
 
+		pMIDI->Stop();
+
 		int ix = (_selectedSubLocation > 0) ? _selectedSubLocation : _selectedLocation;
 		if (resultTable[ix * 2] != 0xff)
 		{

@@ -1288,6 +1288,8 @@ void CUAKMScript::Function_93(CScriptState* pState)
 	CAmbientAudio::Clear();
 	CGameController::SetParameter(252, 0);
 
+	pMIDI->Stop();
+
 	int locationId = pState->Script[pState->ExecutionPointer];
 	CGameController::SetData(UAKM_SAVE_MAP_ENTRY, locationId);
 	CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 0);
