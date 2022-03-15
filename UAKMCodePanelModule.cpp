@@ -19,8 +19,7 @@
 #define SND_6			12
 #define SND_7			13
 
-// TODO: change to signed char, or alter constants to unsigned equivalent
-BYTE CodePanelCorrectCode[] = { 18, 8, 11, 8, 2, 14, 13, -1 };
+signed char CodePanelCorrectCode[] = { 18, 8, 11, 8, 2, 14, 13, -1 };
 
 CUAKMCodePanelModule::CUAKMCodePanelModule(int parameter) : CFullScreenModule(ModuleType::CodePanel)
 {
