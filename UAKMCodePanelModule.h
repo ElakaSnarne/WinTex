@@ -24,7 +24,7 @@ protected:
 
 	void ResetCode();
 	void Key(int key);
-	BYTE _enteredCode[8];
+	signed char _enteredCode[8];
 	int _keyPos;
 
 	CAmbientAudio _sound;
