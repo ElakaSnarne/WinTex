@@ -419,7 +419,8 @@ void CUAKMEncodedMessageModule::RenderText(char* pText, int yOffset, BOOL transp
 
 bool CUAKMEncodedMessageModule::CheckCompleted()
 {
-	for (int i = 0; i < 18 * 8; i++)
+	int len = strlen(pDec);
+	for (int i = 0; i < len; i++)
 	{
 		if (_pSaveMsg[i] != pDec[i])
 		{
