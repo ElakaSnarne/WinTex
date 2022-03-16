@@ -13,6 +13,7 @@
 #include "Math.h"
 #include <tuple>
 #include "Elevation.h"
+#include "LocationDataHeader.h"
 
 BOOL CLocation::_loading = FALSE;
 
@@ -237,9 +238,32 @@ BOOL CLocation::Load(int locationFileIndex)
 		_objectMap[ix].id = *oit;
 		_objectMap[ix].ObjectIndex = ((_objectMap[ix].id & 0x80000800) == 0) ? _objectMap[ix].id : -1;
 
+		if (((*oit) & 0x88000800) == 0)
+		{
+			_objectMap[ix].VisibilityFloatPointers.push_back(&_visibilityBuffer.visibility[ix].x);
+		}
+
+		//Trace(L"Object ");
+		//Trace(ix);
+		//Trace(L" maps to ");
+		//TraceLine(*oit, 16);
+
 		ix++;
 		oit++;
 	}
+
+	//int animIndex = 0;
+	//for (auto map : _mapEntry->AnimationMap)
+	//{
+	//	Trace(L"Animation ");
+	//	Trace(animIndex++);
+	//	Trace(L" maps to ");
+	//	TraceLine(map);
+	//}
+
+	// Improved object map to test proper visibilities
+	_subObjectCount = GetInt(p3d2, 8, 4);
+	_improvedObjectMap = new ObjectVisibilityMapping[_subObjectCount];
 
 	// Extract 3D data
 	int texturedTriangles = 0;
@@ -316,6 +340,10 @@ BOOL CLocation::Load(int locationFileIndex)
 				int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
 				if ((flags & SUBOBJECT_FLAGS_TEXTURED) == 0) tex = -1;
 
+				_improvedObjectMap[six].ObjectIndex = i;
+				_improvedObjectMap[six].SubObjectIndex = six;
+				_improvedObjectMap[six].SubObjectId = sid;
+
 				pCurSubObjPtr[j].Id = sid;
 				pCurSubObjPtr[j].TextureIndex = tex;
 				pCurSubObjPtr[j].VertexIndex = -1;
@@ -332,6 +360,9 @@ BOOL CLocation::Load(int locationFileIndex)
 							// TODO: May have to do a reverse mapping, setting the object id on the triangle
 							//_objectMap[z].SubObjectIndex = six;
 							_objectMap[z].SubObjectIndices.push_back(six);
+
+							_objectMap[z].VisibilityFloatPointers.push_back(&_visibilityBuffer.visibility[six].y);
+							//break;
 						}
 					}
 				}
@@ -981,6 +1012,8 @@ BOOL CLocation::Load(int locationFileIndex)
 	}
 
 	_loading = FALSE;
+
+	Animate();// Force auto-starting animations to play before scripts can initiate more anims or show/hide objects
 
 	return TRUE;
 }
@@ -1962,15 +1995,15 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 
 	if (my != 0.0f)
 	{
-//#ifndef DEBUG
+		//#ifndef DEBUG
 		if (_y >= _y_max && _y <= _y_min)
 		{
 			// Allow movement up/down to limits
 			_y += (my < 0.0f) ? max(my, _y_max - _y) : min(my, _y_min - _y);
 		}
-//#else
-//		_y += my;
-//#endif
+		//#else
+		//		_y += my;
+		//#endif
 	}
 
 	UpdateSprites();
@@ -2425,27 +2458,6 @@ int CLocation::GetPickObject(int& objectId, int& subObjectId)
 	return ObjectIndex;
 }
 
-void CLocation::SetObjectVisibility(int objectId, BOOL visible)
-{
-	if (_objectMap[objectId].ObjectIndex >= 0)
-	{
-		_visibilityBuffer.visibility[_objectMap[objectId].ObjectIndex].x = visible ? 1.0f : -1.0f;
-	}
-	//else if (_objectMap[objectId].SubObjectIndex >= 0)
-	//{
-	//	_visibility.visibility[_objectMap[objectId].SubObjectIndex].y = visible ? 1.0f : -1.0f;
-	//}
-	else if (_objectMap[objectId].SubObjectIndices.size() > 0)
-	{
-		for (auto it : _objectMap[objectId].SubObjectIndices)
-		{
-			_visibilityBuffer.visibility[it].y = visible ? 1.0f : -1.0f;
-		}
-	}
-
-	_visibilityChanged = TRUE;
-}
-
 void CLocation::StartMappedAnimation(int index)
 {
 	// Lookup animation map
@@ -2597,389 +2609,6 @@ BOOL CLocation::IsAnimationFinished(int index)
 	// Should return the mapped animation status
 	int mappedIndex = _mapEntry->AnimationMap.at(index);
 	return (mappedIndex >= 0 && mappedIndex < 50 && Animations[mappedIndex].Status == AnimationStatus::Completed);
-}
-
-void CLocation::Animate()
-{
-	if (!_loading)
-	{
-		ULONGLONG now = GetTickCount64();
-		for (int i = 0; i < 50; i++)
-		{
-			if (Animations[i].Status == AnimationStatus::Running)
-			{
-				ULONGLONG frameTimeDiff = now - Animations[i].FrameTime;
-				if (frameTimeDiff >= Animations[i].FrameDuration)
-				{
-					Animations[i].FrameTime = now;
-					PBYTE pA = Animations[i].AnimDataPointer;
-
-					BOOL frameEnd = FALSE;
-					while (!frameEnd)
-					{
-						int p1 = GetInt(pA, 0, 4);
-						pA += 4;
-						if (p1 != -1)
-						{
-							switch (Animations[i].Type)
-							{
-							case 1:
-							{
-								// Texture switch
-								int objectId = Animations[i].ObjectId;
-								int subObjectId = Animations[i].Parameter;
-								int newTexture = p1;
-								// TODO: Change texture
-								// TODO: Get object, then get sub-object, find texture
-								// TODO: Find object in memory, find sub-object, find texture, set real texture
-
-								// Take 2, using list of objects and sub-objects to find texture and vertices/indexes
-								CLocationObject* lo = &_pLocObjects[objectId];
-								for (int soi = 0; soi < lo->SubObjectCount; soi++)
-								{
-									CLocationSubObject* pSub = &lo->pSubObjects[soi];
-									if ((pSub->Id & 0xffff) == subObjectId)
-									{
-										CTextureGroup* pTG = _allTextures.at(pSub->TextureIndex);
-										CTextureGroup* pNewT = _allTextures.at(newTexture);
-										if (pTG->SpriteVerticeCount > 0)
-										{
-											pTG->RealTexture = pNewT->pTexture;
-										}
-										else
-										{
-											// TODO: Test with ALL animations of type 1 (or type 4 subtype 1)
-											pTG->RemovePoints(pSub->VertexIndex, pSub->VertexCount);
-											pNewT->AddPoints(pSub->VertexIndex, pSub->VertexCount);
-											pSub->TextureIndex = newTexture;
-										}
-
-										break;
-									}
-								}
-
-								Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
-								pA += 4;
-								frameEnd = TRUE;
-								break;
-							}
-							case 2:
-							{
-								// Object translation
-								float x = ((float)p1) / 65536.0f;
-								float y = ((float)GetInt(pA, 0, 4)) / 65536.0f;
-								float z = ((float)GetInt(pA, 4, 4)) / 65536.0f;
-								Animations[i].FrameDuration = (DWORD)(GetInt(pA, 8, 4) * TIMER_SCALE);
-								pA += 12;
-								_translationBuffer.translation[Animations[i].ObjectId].x += x;
-								_translationBuffer.translation[Animations[i].ObjectId].y += y;
-								_translationBuffer.translation[Animations[i].ObjectId].z += z;
-								_translationChanged = TRUE;
-								PointingChanged = TRUE;
-								frameEnd = TRUE;
-								break;
-							}
-							case 3:
-							{
-								// Object visibility
-								// Get and hide object from parameter (must be set to -1 on initalization)
-								int objectToHide = Animations[i].Parameter;
-								int objectToShow = p1;
-								if (objectToShow >= 0)
-								{
-									Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
-									pA += 4;
-
-									if (objectToHide >= 0)
-									{
-										_visibilityBuffer.visibility[objectToHide].x = -1.0f;
-									}
-									_visibilityBuffer.visibility[objectToShow].x = 1.0f;
-									_visibilityChanged = TRUE;
-
-									// Store object in parameter
-									Animations[i].Parameter = objectToShow;
-									PointingChanged = TRUE;
-								}
-
-								frameEnd = TRUE;
-								break;
-							}
-							case 4:
-							{
-								// All functions
-								switch (p1)
-								{
-								case 1:
-								{
-									// Texture switch
-									int objectId = GetInt(pA, 0, 4);
-									int subObjectId = GetInt(pA, 4, 4);
-									int newTexture = GetInt(pA, 8, 4);
-									pA += 12;
-									BinaryData bd3d2 = GetLocationData(4);
-									PBYTE p3d2 = bd3d2.Data;
-									int objectOffset = GetInt(p3d2, 0x30 + objectId * 4, 4) + 0x30;
-
-									int subObjects = GetInt(p3d2, objectOffset + 12, 4);
-									int nextSubOffset = objectOffset + 40;
-									for (int ts = 0; ts < subObjects; ts++)
-									{
-										int thisSubOffset = nextSubOffset;
-										nextSubOffset = GetInt(p3d2, nextSubOffset, 4) + 0x30;
-
-										int sid = GetInt(p3d2, thisSubOffset + 0xc, 4);
-										if ((sid & 0xffff) == subObjectId)
-										{
-											int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
-											CTextureGroup* pTG = _allTextures.at(tex);
-											if (newTexture != tex)
-											{
-												CTextureGroup* pNewT = _allTextures.at(newTexture);
-												pTG->RealTexture = pNewT->pTexture;
-											}
-											else
-											{
-												pTG->RealTexture = NULL;
-											}
-										}
-									}
-
-									break;
-								}
-								case 2:
-								{
-									// Object translation
-									int p1 = GetInt(pA, 0, 4);
-									int p2 = GetInt(pA, 4, 4);
-									int p3 = GetInt(pA, 8, 4);
-									int p4 = GetInt(pA, 12, 4);
-									int p5 = GetInt(pA, 16, 4);
-									pA += 20;
-
-									float x = ((float)p2) / 65536.0f;
-									float y = ((float)p3) / 65536.0f;
-									float z = ((float)p4) / 65536.0f;
-
-									Animations[i].FrameDuration = (DWORD)(p5 * TIMER_SCALE);
-									_translationBuffer.translation[p1].x += x;
-									_translationBuffer.translation[p1].y += y;
-									_translationBuffer.translation[p1].z += z;
-									_translationChanged = TRUE;
-									PointingChanged = TRUE;
-									frameEnd = TRUE;
-									break;
-								}
-								case 3:
-								{
-									// Object visibility
-									// Get and hide object from parameter (must be set to -1 on initalization)
-									int objectId = GetInt(pA, 0, 4);
-									int visibility = GetInt(pA, 4, 4);
-									pA += 8;
-
-									//Trace(L"Animation ");
-									//Trace(i);
-									//Trace(L" setting visibility of object ");
-									//Trace(objectId, 16);
-									//Trace(L" to ");
-									//TraceLine(visibility, 16);
-
-									_visibilityBuffer.visibility[objectId].x = (visibility == 0) ? -1.0f : 1.0f;
-									_visibilityChanged = TRUE;
-
-									PointingChanged = TRUE;
-									break;
-								}
-								case 5:
-								{
-									// Object + subobject visibility
-									int objectId = GetInt(pA, 0, 4);
-									int subObjectId = GetInt(pA, 4, 4);
-									int visibility = GetInt(pA, 8, 4);
-									pA += 12;
-
-									for (int j = 0; j < _ppObjects[objectId]->SubObjectCount; j++)
-									{
-										if ((_ppObjects[objectId]->SubObjects[j].ID & 0xffff) == subObjectId)
-										{
-											_visibilityBuffer.visibility[_ppObjects[objectId]->SubObjects[j].SubObjectIndex].y = (visibility != 0) ? 1.0f : -1.0f;
-											_visibilityChanged = TRUE;
-											//break;
-										}
-									}
-
-									PointingChanged = TRUE;
-									break;
-								}
-								case 6:
-								{
-									// Start indexed animation
-									int animix = GetInt(pA, 0, 4);
-									pA += 4;
-									StartIndexedAnimation(animix);
-									break;
-								}
-								case 7:
-								{
-									// Start indexed animation and wait for it to complete
-									int animix = GetInt(pA, 0, 4);
-									pA += 4;
-									StartIndexedAnimation(animix);
-									Animations[animix].ParentAnim = i;
-									Animations[i].Status = AnimationStatus::OnHold;
-									frameEnd = TRUE;
-									break;
-								}
-								case 8:
-								{
-									// Enable or disable path
-									int pix = GetInt(pA, 0, 4);
-									if (pix >= 0 && pix < _pathCount)
-									{
-										_paths[pix].enabled = GetInt(pA, 4, 4);
-									}
-									//_paths[pix].allowLeave = false;	TODO: Check if player is currently inside path, if yes, allow leave
-									pA += 8;
-									break;
-								}
-								}
-								break;
-							}
-							case 14:
-							{
-								// Animated texture
-								int  animation = p1;
-								int texture = GetInt(pA, 0, 4);
-								int duration = GetInt(pA, 4, 4);
-								pA -= 4;
-								CTextureGroup* pTG = _allTextures.at(animation);
-								if (pTG->AnimatedTextureIndex >= pTG->Textures.size() - 1)
-								{
-									pTG->AnimatedTextureIndex = 0;
-								}
-								_allTextures.at(texture)->RealTexture = pTG->Textures.at(pTG->AnimatedTextureIndex++);
-								Animations[i].FrameDuration = (DWORD)(duration * TIMER_SCALE);
-								frameEnd = TRUE;
-								break;
-							}
-							case 15:
-							{
-								// Textures
-								int objectId = Animations[i].ObjectId;
-								int subObjectId = Animations[i].Parameter;
-								int newTexture = p1;
-								// TODO: Change texture
-								// TODO: Get object, then get sub-object, find texture
-								// TODO: Find object in memory, find sub-object, find texture, set real texture
-
-								BinaryData bd3d2 = GetLocationData(4);
-								PBYTE p3d2 = bd3d2.Data;
-								int objectOffset = GetInt(p3d2, 0x30 + objectId * 4, 4) + 0x30;
-
-								int subObjects = GetInt(p3d2, objectOffset + 12, 4);
-								int nextSubOffset = objectOffset + 40;
-								for (int ts = 0; ts < subObjects; ts++)
-								{
-									int thisSubOffset = nextSubOffset;
-									nextSubOffset = GetInt(p3d2, nextSubOffset, 4) + 0x30;
-
-									int sid = GetInt(p3d2, thisSubOffset + 0xc, 4);
-									if ((sid & 0xffff) == subObjectId)
-									{
-										int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
-										CTextureGroup* pTG = _allTextures.at(tex);
-										CTextureGroup* pNewT = _allTextures.at(newTexture);
-										pTG->RealTexture = pNewT->pTexture;
-									}
-								}
-
-								Animations[i].FrameDuration = Animations[i].ConstantFrameDuration;
-								if (pA >= Animations[i].AnimDataPointerEnd)
-								{
-									pA = Animations[i].AnimDataPointerInit;
-								}
-
-								frameEnd = TRUE;
-								break;
-							}
-							case 16:
-							{
-								// Elevation, not animated
-								break;
-							}
-							}
-						}
-						else
-						{
-							// Post frame command (could be multiple)
-							int cmd = GetInt(pA, 0, 4);
-							pA += 4;
-							switch (cmd)
-							{
-							case 0:
-							{
-								// Go back, x times
-								int p2 = GetInt(pA, 0, 4);
-								int p3 = GetInt(pA, 4, 4);
-								int p4 = GetInt(pA, 8, 4);
-								if (p3 == -1)
-								{
-									// Initialization
-									p3 = p2;
-								}
-
-								SetInt(pA, 4, --p3, 4);
-
-								pA += 12;
-								if (p3 > 0)
-								{
-									pA -= (p4 + 4);
-								}
-								else
-								{
-									// Reset counter
-									SetInt(pA, -8, -1, 4);
-								}
-
-								break;
-							}
-							case 1:
-							{
-								// Go back, always
-								pA -= GetInt(pA, 0, 4);
-								break;
-							}
-							case 2:
-							{
-								// End animation
-								Animations[i].Status = AnimationStatus::Completed;
-								if (Animations[i].ParentAnim >= 0)
-								{
-									// Resume parent animation
-									Animations[Animations[i].ParentAnim].Status = AnimationStatus::Running;
-								}
-								frameEnd = TRUE;
-								break;
-							}
-							case 3:
-							{
-								// Set frame duration (and end frame)
-								Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
-								pA += 4;
-								frameEnd = TRUE;
-								break;
-							}
-							}
-						}
-					}
-
-					Animations[i].AnimDataPointer = pA;
-					Animations[i].FrameCounter++;
-				}
-			}
-		}
-	}
 }
 
 int CLocation::GetAnimationFrame(int index)
@@ -3250,7 +2879,7 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 		ModifyLocationPoints(68, 71, 0.0f, 0.0f, 0.01f);			// Light switch
 		ModifyLocationPoints(3410, 3413, 0.0f, 0.0f, 0.01f);		// Dance school sign
 		ModifyLocationPoints(2369, 2464, 0.0f, 0.235f, 0.0f);		// Hutch
-		ModifyLocationPoints(3882, 3885, 0.0f, 0.01f, 0.0f);		// Letters (3882-3885 OR 3886-3889)
+		ModifyLocationPoints(3886, 3889, 0.0f, 0.01f, 0.0f);		// Letters (3882-3885 OR 3886-3889)
 		ModifyLocationPoints(776, 779, 0.0f, -0.33f, 0.0f);			// Pen
 		ModifyLocationPoints(957, 960, 0.0f, -0.33f, 0.0f);			// Pen
 	}
@@ -3368,3 +2997,1445 @@ void CLocation::MoveObject(int direction)
 		_translationChanged = TRUE;
 	}
 }
+
+BOOL CLocation::Load_Improved(int locationFileIndex)
+{
+	_loading = TRUE;
+
+	std::wstring file = CGameController::GetFileName(locationFileIndex);
+
+	PointingChanged = TRUE;
+
+	// Load location entries
+	CFile f;
+	if (f.Open(file.c_str()))
+	{
+		int len = f.Size();
+		_locationData = new BYTE[len];
+		if (_locationData != NULL)
+		{
+			f.Read(_locationData, len);
+		}
+
+		f.Close();
+	}
+
+	// Modify points
+	ModifyLocationPoints(file);
+
+	// Load path
+	LoadPaths();
+
+	// Load 3D data
+	BinaryData bd3d2 = GetLocationData(4);
+	PBYTE p3d2 = bd3d2.Data;
+	_verticeCount = GetInt(p3d2, 0, 4);
+	_objectCount = GetInt(p3d2, 12, 4);
+
+	// Quickly check which textures require transparency (flags & 0x10)
+	for (int tc = 0; tc < _objectCount; tc++)
+	{
+		int objectOffset = GetInt(p3d2, 0x30 + tc * 4, 4) + 0x30;
+		int subObjects = GetInt(p3d2, objectOffset + 12, 4);
+		int nextSubOffset = objectOffset + 40;
+		for (int ts = 0; ts < subObjects; ts++)
+		{
+			int thisSubOffset = nextSubOffset;
+			nextSubOffset = GetInt(p3d2, nextSubOffset, 4) + 0x30;
+
+			int points = GetInt(p3d2, thisSubOffset + 4, 4);
+			int flags = GetInt(p3d2, thisSubOffset + 8, 4);
+			int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
+
+			if ((flags & SUBOBJECT_FLAGS_ALPHA) != 0 || points == 1)	// Flagged having alpha or is used as sprite
+			{
+				transparentTextures[tex] = TRUE;
+			}
+			else
+			{
+				opaqueTextures[tex] = TRUE;
+			}
+			processedTextures[tex] = TRUE;
+		}
+	}
+
+	LoadTextures();
+
+	LocationDataHeader* pHeader = (LocationDataHeader*)p3d2;
+	LPBYTE base = p3d2 + 0x30;
+
+	// Load vertices
+	_points = new Point[_verticeCount];
+	int verticeOffset = 0;
+	for (int i = 0; i < _verticeCount; i++)
+	{
+		_points[i].X = ((float)GetInt(base, verticeOffset, 4)) / 65536.0f;
+		_points[i].Y = ((float)GetInt(base, verticeOffset + 4, 4)) / 65536.0f;
+		_points[i].Z = ((float)GetInt(base, verticeOffset + 8, 4)) / 65536.0f;
+		verticeOffset += 12;
+	}
+
+	// Prepare the visibility buffer
+	for (int i = 0; i < 3000; i++)
+	{
+		_visibilityBuffer.visibility[i] = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	}
+
+	// Prepare the translation buffer
+	for (int i = 0; i < 256; i++)
+	{
+		_translationBuffer.translation[i] = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	}
+
+	/*
+	// Prepare the object mapping list
+	_objectMapCount = _mapEntry->ObjectMap.size();
+	_objectMap = new ObjectMap[_objectMapCount];
+	std::vector<int>::iterator oit = _mapEntry->ObjectMap.begin();
+	std::vector<int>::iterator oend = _mapEntry->ObjectMap.end();
+	int ix = 0;
+	while (oit != oend)
+	{
+		_objectMap[ix].id = *oit;
+		_objectMap[ix].ObjectIndex = ((_objectMap[ix].id & 0x80000800) == 0) ? _objectMap[ix].id : -1;
+
+		ix++;
+		oit++;
+	}
+
+	// Extract 3D data
+	int texturedTriangles = 0;
+	int transparentTriangles = 0;
+	int toalObjectCount = 0;
+
+	int spriteCount = 0;
+
+	Point lb1, lb2;
+	lb1.X = 10000.0f;
+	lb2.X = -lb1.X;
+	lb1.Y = lb1.X;
+	lb2.Y = -lb1.X;
+	lb1.Z = lb1.X;
+	lb2.Z = -lb1.X;
+
+	int six = 0;
+
+	_pLocObjects = new CLocationObject[_objectCount];
+	_pLocSubObjects = new CLocationSubObject[GetInt(p3d2, 8, 4)];
+	CLocationSubObject* pCurSubObjPtr = _pLocSubObjects;
+
+	_ppObjects = new ModelObject * [_objectCount];
+	for (int i = 0; i < _objectCount; i++)
+	{
+		_pLocObjects[i].pSubObjects = pCurSubObjPtr;
+
+		int objectOffset = GetInt(p3d2, 0x30 + i * 4, 4) + 0x30;
+		int type = (int)GetInt(p3d2, objectOffset, 4);
+
+		_ppObjects[i] = new ModelObject();
+		ZeroMemory(_ppObjects[i], sizeof(ModelObject));
+		_ppObjects[i]->Index = i;
+
+		float ominx = 10000.0f, omaxx = -ominx;
+		float ominy = ominx, omaxy = -ominx;
+		float ominz = ominx, omaxz = -ominx;
+
+		if ((type & 0x80000000) != 0)
+		{
+			// Object visibility
+			_visibilityBuffer.visibility[i].x = -1.0f;
+		}
+
+		int unkownOffset = GetInt(p3d2, objectOffset + 0x1c, 4);
+
+		// Header is 10 longs
+		// Pointer to next sub object is first long in object
+
+		int subObjects = GetInt(p3d2, objectOffset + 12, 4);
+		toalObjectCount += subObjects;
+		int nextSubOffset = objectOffset + 40;
+
+		_ppObjects[i]->SubObjectCount = subObjects;
+		_ppObjects[i]->SubObjects = new ModelSubObject[subObjects];
+		ZeroMemory(_ppObjects[i]->SubObjects, subObjects * sizeof(ModelSubObject));
+
+		_pLocObjects[i].SubObjectCount = subObjects;
+
+		for (int j = 0; j < subObjects; j++)
+		{
+			float sminx = 10000.0f, smaxx = -sminx;
+			float sminy = sminx, smaxy = -sminx;
+			float sminz = sminx, smaxz = -sminx;
+
+			int thisSubOffset = nextSubOffset;
+			nextSubOffset = GetInt(p3d2, nextSubOffset, 4) + 0x30;
+
+			if (thisSubOffset != unkownOffset)
+			{
+				int points = GetInt(p3d2, thisSubOffset + 4, 4);
+				int flags = GetInt(p3d2, thisSubOffset + 8, 4);
+				int sid = GetInt(p3d2, thisSubOffset + 0xc, 4);
+				int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
+				if ((flags & SUBOBJECT_FLAGS_TEXTURED) == 0) tex = -1;
+
+				pCurSubObjPtr[j].Id = sid;
+				pCurSubObjPtr[j].TextureIndex = tex;
+				pCurSubObjPtr[j].VertexIndex = -1;
+				pCurSubObjPtr[j].VertexCount = 0;
+
+				if ((sid & 0x88000000) != 0)
+				{
+					int rid = (sid >> 16) & 0xffff;
+					for (int z = 0; z < _objectMapCount; z++)
+					{
+						if (_objectMap[z].id == sid || ((rid & 0x800) != 0 && _objectMap[z].id == rid))
+						{
+							// TODO: This is not right! Can be set multiple times
+							// TODO: May have to do a reverse mapping, setting the object id on the triangle
+							//_objectMap[z].SubObjectIndex = six;
+							_objectMap[z].SubObjectIndices.push_back(six);
+						}
+					}
+				}
+
+				if ((flags & SUBOBJECT_FLAGS_HIDDEN) != 0)
+				{
+					// Sub-object visibility
+					_visibilityBuffer.visibility[six].y = -1.0f;
+				}
+
+				// Sub-object transparency indicator
+				_visibilityBuffer.visibility[six].z = (flags & SUBOBJECT_FLAGS_ALPHA) ? 1.0f : 0.0f;
+
+				_ppObjects[i]->SubObjects[j].ModelIndex = i;
+				_ppObjects[i]->SubObjects[j].SubObjectIndex = six;
+				_ppObjects[i]->SubObjects[j].Flags = flags;
+				_ppObjects[i]->SubObjects[j].Texture = tex;
+				_ppObjects[i]->SubObjects[j].Active = ((flags & SUBOBJECT_FLAGS_HIDDEN) == 0);
+				_ppObjects[i]->SubObjects[j].ID = sid;
+				_ppObjects[i]->SubObjects[j].PointCount = points;
+				_ppObjects[i]->SubObjects[j].Points = new TLPoint[points];
+				_ppObjects[i]->SubObjects[j].BoundingBox.X1 = _ppObjects[i]->SubObjects[j].BoundingBox.Y1 = _ppObjects[i]->SubObjects[j].BoundingBox.Z1 = 10000.0f;
+				_ppObjects[i]->SubObjects[j].BoundingBox.X2 = _ppObjects[i]->SubObjects[j].BoundingBox.Y2 = _ppObjects[i]->SubObjects[j].BoundingBox.Z2 = -_ppObjects[i]->SubObjects[j].BoundingBox.X1;
+				_ppObjects[i]->SubObjects[j].Triangles = (points > 2) ? new Triangle[points - 2] : NULL;
+
+				if (points > 0)
+				{
+					CTextureGroup* stex = (tex >= 0) ? _allTextures.at(tex) : NULL;
+
+					if (points == 1)
+					{
+						// 2020-11-27 New sprite loader
+
+						// Find number of sub-sprites
+						int subSprites = GetInt(p3d2, thisSubOffset + 0x38, 4);
+						// Find sprite main point
+						int spoio = thisSubOffset + 0x44 + subSprites * 32;
+						int pointIndex = _objectCount + (GetInt(p3d2, thisSubOffset + 0x44 + subSprites * 32, 4) >> 4);
+						float cx = _points[pointIndex].X;
+						float cy = _points[pointIndex].Y;
+						float cz = _points[pointIndex].Z;
+
+						if (subSprites > 0)
+						{
+							// Find sprite texture dimensions
+							float sw = (stex != NULL) ? stex->pTexture->Width() : 1.0f;
+							float sh = (stex != NULL) ? stex->pTexture->Height() : 1.0f;
+							float ssw = ((float)GetInt(p3d2, thisSubOffset + 0x30, 4)) / 65536.0f;
+							float ssh = ((float)GetInt(p3d2, thisSubOffset + 0x34, 4)) / 65536.0f;
+
+							// Find sprite world dimensions
+							float sww = ((float)GetInt(p3d2, thisSubOffset + 0x28, 4)) / 65536.0f;
+							float swh = ((float)GetInt(p3d2, thisSubOffset + 0x2c, 4)) / 65536.0f;
+
+							for (int ss = 0; ss < subSprites; ss++)
+							{
+								// Find sub-sprite x & y offsets
+								float subSpriteOffsetX = ((float)GetInt(p3d2, thisSubOffset + 0x44 + ss * 32, 4)) / 65536.0f;
+								float subSpriteOffsetY = ((float)GetInt(p3d2, thisSubOffset + 0x48 + ss * 32, 4)) / 65536.0f;
+
+								// Find sub-sprite width & height
+								float subSpriteTexX1 = ((float)GetInt(p3d2, thisSubOffset + 0x54 + ss * 32, 4)) / 65536.0f;
+								float subSpriteTexY1 = ((float)GetInt(p3d2, thisSubOffset + 0x58 + ss * 32, 4)) / 65536.0f;
+								float subSpriteTexX2 = 1.0f + (((float)GetInt(p3d2, thisSubOffset + 0x5c + ss * 32, 4)) / 65536.0f);
+								float subSpriteTexY2 = 1.0f + (((float)GetInt(p3d2, thisSubOffset + 0x60 + ss * 32, 4)) / 65536.0f);
+
+								float subSpriteWidth = subSpriteTexX2 - subSpriteTexX1;
+								float subSpriteHeight = subSpriteTexY2 - subSpriteTexY1;
+
+								// Add sprite
+								SpriteInfo si;
+								si.TextureIndex = tex;
+								si.P.X = cx;
+								si.P.Y = cy;
+								si.P.Z = cz;
+								si.OX = (sww * subSpriteOffsetX) / ssw;
+								si.OY = (swh * subSpriteOffsetY) / ssh;
+								si.W = (sww * subSpriteWidth) / ssw;
+								si.H = (swh * subSpriteHeight) / ssh;
+								si.U1 = subSpriteTexX1 / sw;
+								si.V1 = subSpriteTexY1 / sh;
+								si.U2 = subSpriteTexX2 / sw;
+								si.V2 = subSpriteTexY2 / sh;
+								si.ObjectIndex = i;
+								si.SubObjectIndex = six;
+								si.SubObjectId = sid;
+
+								if (stex != NULL) stex->SpriteInfos.push_back(si);
+
+								spriteCount++;
+
+								// Get sprite bounding box
+								if ((si.P.X - si.W / 2) < sminx)
+								{
+									sminx = si.P.X - si.W / 2;
+								}
+								if ((si.P.X + si.W / 2) > smaxx)
+								{
+									smaxx = si.P.X + si.W / 2;
+								}
+								if ((si.P.Y - si.H) < sminy)
+								{
+									sminy = si.P.Y - si.H;
+								}
+								if (si.P.Y > smaxy)
+								{
+									smaxy = si.P.Y;
+								}
+								if ((si.P.Z - si.W / 2) < sminz)
+								{
+									sminz = si.P.Z - si.W / 2;
+								}
+								if ((si.P.Z + si.W / 2) > smaxz)
+								{
+									smaxz = si.P.Z + si.W / 2;
+								}
+							}
+
+							// 2020-11-27 End of new sprite loader
+						}
+						else
+						{
+							sminx = smaxx = cx;
+							sminy = smaxy = cy;
+							sminz = smaxz = cz;
+						}
+					}
+					else if (points >= 3)
+					{
+						Object obj;
+						obj.TextureIndex = tex;
+
+						CTexture* pt = (stex != NULL) ? stex->pTexture : NULL;
+						float tw = (pt != NULL) ? pt->Width() : 0.0f;
+						float th = (pt != NULL) ? pt->Height() : 0.0f;
+
+						// Test new triangulation
+						std::vector<TLPoint> vpoints;
+						for (int p = 0; p < points; p++)
+						{
+							TLPoint px = GetPoint(p3d2, thisSubOffset + 0x28, p, points, tw, th, _objectCount, i, six);
+							px.SubObjectId = j;
+
+							if ((flags & SUBOBJECT_FLAGS_ROTATEDTEXTURE) != 0)
+							{
+								float tu = px.U;
+								px.U = px.V;
+								px.V = tu;
+							}
+
+							_ppObjects[i]->SubObjects[j].Points[p] = px;
+
+							vpoints.push_back(px);
+
+							// Get bounding box
+							if (px.Point->X < sminx) sminx = px.Point->X;
+							if (px.Point->X > smaxx) smaxx = px.Point->X;
+							if (px.Point->Y < sminy) sminy = px.Point->Y;
+							if (px.Point->Y > smaxy) smaxy = px.Point->Y;
+							if (px.Point->Z < sminz) sminz = px.Point->Z;
+							if (px.Point->Z > smaxz) smaxz = px.Point->Z;
+						}
+
+						int startp = 0;
+						int tri = points - 2;
+						int pointsLeft = points;
+						int trix = 0;
+						while (pointsLeft > 2)
+						{
+							int prev1 = startp - 1;
+							if (prev1 < 0) prev1 += pointsLeft;
+							int prev2 = startp - 2;
+							if (prev2 < 0) prev2 += pointsLeft;
+
+							// If this + 2 previous points form a proper triangle, create it and remove previous point
+							TLPoint p0 = vpoints.at(startp);
+							TLPoint p1 = vpoints.at(prev1);
+							TLPoint p2 = vpoints.at(prev2);
+
+							Point v1;
+							v1.X = p0.Point->X - p1.Point->X;
+							v1.Y = p0.Point->Y - p1.Point->Y;
+							v1.Z = p0.Point->Z - p1.Point->Z;
+
+							float len = sqrt(v1.X * v1.X + v1.Y * v1.Y + v1.Z * v1.Z);
+							v1.X /= len;
+							v1.Y /= len;
+							v1.Z /= len;
+
+							Point v2;
+							v2.X = p1.Point->X - p2.Point->X;
+							v2.Y = p1.Point->Y - p2.Point->Y;
+							v2.Z = p1.Point->Z - p2.Point->Z;
+
+							len = sqrt(v2.X * v2.X + v2.Y * v2.Y + v2.Z * v2.Z);
+							v2.X /= len;
+							v2.Y /= len;
+							v2.Z /= len;
+
+							if (v1.X != v2.X || v1.Y != v2.Y || v1.Z != v2.Z)
+							{
+								// Points form a triangle
+								Triangle t1;
+								t1.ObjectId = i;
+								t1.SubObjectId = sid & 0xffff;
+								t1.P1 = p0;
+								t1.P2 = p2;
+								t1.P3 = p1;
+
+								obj.Triangles.push_back(t1);
+								if (stex != NULL)
+								{
+									if ((flags & SUBOBJECT_FLAGS_TRANSPARENT) == 0)
+									{
+										// Regular textured object
+										stex->Triangles.push_back(t1);
+										texturedTriangles++;
+										obj.VertexCount += 3;
+									}
+									else
+									{
+										// Transparent object
+										stex->TransparentTriangles.push_back(t1);
+										transparentTriangles++;
+									}
+								}
+
+								_ppObjects[i]->SubObjects[j].Triangles[trix++] = t1;
+
+								// Remove point at prev1
+								vpoints.erase(vpoints.begin() + prev1);
+								pointsLeft--;
+							}
+							else
+							{
+								// Points do not form a triangle
+								//t--;
+								if (pointsLeft == 3)
+								{
+									//break;
+								}
+							}
+
+							startp++;
+							if (startp >= pointsLeft) startp -= pointsLeft;
+						}
+
+						_objects.push_back(obj);
+					}
+					else
+					{
+						int debug = 0;
+					}
+				}
+			}
+
+			if (sminx < ominx)
+			{
+				ominx = sminx;
+			}
+			if (sminy < ominy)
+			{
+				ominy = sminy;
+			}
+			if (sminz < ominz)
+			{
+				ominz = sminz;
+			}
+			if (smaxx > omaxx)
+			{
+				omaxx = smaxx;
+			}
+			if (smaxy > omaxy)
+			{
+				omaxy = smaxy;
+			}
+			if (smaxz > omaxz)
+			{
+				omaxz = smaxz;
+			}
+
+			_ppObjects[i]->SubObjects[j].BoundingBox.X1 = sminx;
+			_ppObjects[i]->SubObjects[j].BoundingBox.X2 = smaxx;
+			_ppObjects[i]->SubObjects[j].BoundingBox.Y1 = sminy;
+			_ppObjects[i]->SubObjects[j].BoundingBox.Y2 = smaxy;
+			_ppObjects[i]->SubObjects[j].BoundingBox.Z1 = sminz;
+			_ppObjects[i]->SubObjects[j].BoundingBox.Z2 = smaxz;
+
+			six++;
+
+			if (nextSubOffset < thisSubOffset) break;
+		}
+
+		pCurSubObjPtr += subObjects;
+
+		_ppObjects[i]->BoundingBox.X1 = ominx;
+		_ppObjects[i]->BoundingBox.X2 = omaxx;
+		_ppObjects[i]->BoundingBox.Y1 = ominy;
+		_ppObjects[i]->BoundingBox.Y2 = omaxy;
+		_ppObjects[i]->BoundingBox.Z1 = ominz;
+		_ppObjects[i]->BoundingBox.Z2 = omaxz;
+
+		if (ominx < lb1.X)
+		{
+			lb1.X = ominx;
+		}
+		if (omaxx > lb2.X)
+		{
+			lb2.X = omaxx;
+		}
+		if (ominy < lb1.Y)
+		{
+			lb1.Y = ominy;
+		}
+		if (omaxy > lb2.Y)
+		{
+			lb2.Y = omaxy;
+		}
+		if (ominz < lb1.Z)
+		{
+			lb1.Z = ominz;
+		}
+		if (omaxz > lb2.Z)
+		{
+			lb2.Z = omaxz;
+		}
+	}
+
+	// Create points vertex buffer
+	D3D11_BUFFER_DESC vertexBufferDesc;
+	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	vertexBufferDesc.ByteWidth = sizeof(Point) * _verticeCount;
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexBufferDesc.CPUAccessFlags = 0;
+	vertexBufferDesc.MiscFlags = 0;
+	vertexBufferDesc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA vertexData;
+	vertexData.pSysMem = _points;
+	vertexData.SysMemPitch = 0;
+	vertexData.SysMemSlicePitch = 0;
+
+	dx.CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer, "Location Vertices");
+
+	// Create textured triangles
+	_texturedVerticeCount = texturedTriangles * 3;
+	TEXTURED_VERTEX* pTV = new TEXTURED_VERTEX[_texturedVerticeCount];
+	_transparentVerticeCount = transparentTriangles * 3;
+	COLOURED_VERTEX* pTTV = new COLOURED_VERTEX[_transparentVerticeCount];
+	std::vector<CTextureGroup*>::iterator tit = _allTextures.begin();
+	std::vector<CTextureGroup*>::iterator tend = _allTextures.end();
+	int tix = 0;
+	int ttix = 0;
+
+	while (tit != tend)
+	{
+		CTextureGroup* pTex = *tit;
+
+		int vertexStart = tix;
+
+		pTex->TransparentVertexStart = ttix;
+
+		std::vector<Triangle>::iterator trit = pTex->Triangles.begin();
+		std::vector<Triangle>::iterator trend = pTex->Triangles.end();
+		int curobid = -1;
+		int cursubobid = -1;
+		CLocationSubObject* pSub = NULL;
+		while (trit != trend)
+		{
+			Triangle* pTri = &(*trit);
+			if (pTri->ObjectId == 0 && pTri->SubObjectId == 0x004f)
+			{
+				int debug = 0;
+			}
+
+			if (pTri->ObjectId != curobid || pTri->SubObjectId != cursubobid)
+			{
+				pSub = NULL;
+
+				CLocationObject* pOb = &_pLocObjects[pTri->ObjectId];
+				for (int sx = 0; sx < pOb->SubObjectCount; sx++)
+				{
+					if ((pOb->pSubObjects[sx].Id & 0xffff) == pTri->SubObjectId)
+					{
+						pSub = &pOb->pSubObjects[sx];
+						if (pSub->VertexIndex < 0)
+						{
+							pSub->VertexIndex = tix;
+						}
+						break;
+					}
+				}
+			}
+
+			if (pSub != NULL)
+			{
+				pSub->VertexCount += 3;
+			}
+
+			pTV[tix].position.x = pTri->P1.Point->X;
+			pTV[tix].position.y = pTri->P1.Point->Y;
+			pTV[tix].position.z = pTri->P1.Point->Z;
+			pTV[tix].texture.x = pTri->P1.U;
+			pTV[tix].texture.y = pTri->P1.V;
+			pTV[tix].object.x = (float)pTri->P1.ObjectIndex;
+			pTV[tix].object.y = (float)pTri->P1.SubObjectIndex;
+			tix++;
+			pTV[tix].position.x = pTri->P2.Point->X;
+			pTV[tix].position.y = pTri->P2.Point->Y;
+			pTV[tix].position.z = pTri->P2.Point->Z;
+			pTV[tix].texture.x = pTri->P2.U;
+			pTV[tix].texture.y = pTri->P2.V;
+			pTV[tix].object.x = (float)pTri->P2.ObjectIndex;
+			pTV[tix].object.y = (float)pTri->P2.SubObjectIndex;
+			tix++;
+			pTV[tix].position.x = pTri->P3.Point->X;
+			pTV[tix].position.y = pTri->P3.Point->Y;
+			pTV[tix].position.z = pTri->P3.Point->Z;
+			pTV[tix].texture.x = pTri->P3.U;
+			pTV[tix].texture.y = pTri->P3.V;
+			pTV[tix].object.x = (float)pTri->P3.ObjectIndex;
+			pTV[tix].object.y = (float)pTri->P3.SubObjectIndex;
+			tix++;
+
+			trit++;
+		}
+
+		int vertexCount = tix - vertexStart;
+		if (vertexCount > 0)
+		{
+			pTex->Points.Add(vertexStart, vertexCount);
+		}
+
+		trit = pTex->TransparentTriangles.begin();
+		trend = pTex->TransparentTriangles.end();
+		while (trit != trend)
+		{
+			Triangle* pTri = &(*trit);
+
+			XMFLOAT4 transparentColour = GetTransparentColour(file, pTri->P1.ObjectIndex, pTri->P1.SubObjectId);
+
+			pTTV[ttix].position.x = pTri->P1.Point->X;
+			pTTV[ttix].position.y = pTri->P1.Point->Y;
+			pTTV[ttix].position.z = pTri->P1.Point->Z;
+			pTTV[ttix].position.w = 1.0f;
+			pTTV[ttix].colour = transparentColour;
+			pTTV[ttix].object.x = (float)pTri->P1.ObjectIndex;
+			pTTV[ttix].object.y = (float)pTri->P1.SubObjectIndex;
+			ttix++;
+			pTTV[ttix].position.x = pTri->P2.Point->X;
+			pTTV[ttix].position.y = pTri->P2.Point->Y;
+			pTTV[ttix].position.z = pTri->P2.Point->Z;
+			pTTV[ttix].position.w = 1.0f;
+			pTTV[ttix].colour = transparentColour;
+			pTTV[ttix].object.x = (float)pTri->P2.ObjectIndex;
+			pTTV[ttix].object.y = (float)pTri->P2.SubObjectIndex;
+			ttix++;
+			pTTV[ttix].position.x = pTri->P3.Point->X;
+			pTTV[ttix].position.y = pTri->P3.Point->Y;
+			pTTV[ttix].position.z = pTri->P3.Point->Z;
+			pTTV[ttix].position.w = 1.0f;
+			pTTV[ttix].colour = transparentColour;
+			pTTV[ttix].object.x = (float)pTri->P3.ObjectIndex;
+			pTTV[ttix].object.y = (float)pTri->P3.SubObjectIndex;
+			ttix++;
+
+			trit++;
+		}
+
+		pTex->TransparentVerticeCount = ttix - pTex->TransparentVertexStart;
+
+		tit++;
+	}
+
+	// Textured buffer
+	D3D11_BUFFER_DESC triBufferDesc;
+	triBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	triBufferDesc.ByteWidth = sizeof(TEXTURED_VERTEX) * _texturedVerticeCount;
+	triBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	triBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	triBufferDesc.MiscFlags = 0;
+	triBufferDesc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA triData;
+	triData.pSysMem = pTV;
+	triData.SysMemPitch = 0;
+	triData.SysMemSlicePitch = 0;
+
+	dx.CreateBuffer(&triBufferDesc, &triData, &_texturedVertexBuffer, "Location Textured Triangles");
+
+	delete[] pTV;
+
+	// Transparent buffer
+	if (_transparentVerticeCount > 0)
+	{
+		triBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		triBufferDesc.ByteWidth = sizeof(COLOURED_VERTEX) * _transparentVerticeCount;
+		triBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		triBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		triBufferDesc.MiscFlags = 0;
+		triBufferDesc.StructureByteStride = 0;
+
+		triData.pSysMem = pTTV;
+		triData.SysMemPitch = 0;
+		triData.SysMemSlicePitch = 0;
+
+		dx.CreateBuffer(&triBufferDesc, &triData, &_transparentVertexBuffer, "Location Transparent Triangles");
+	}
+	delete[] pTTV;
+
+	// Create sprite buffer
+
+	if (spriteCount > 0)
+	{
+		_spriteVerticeCount = spriteCount * 3 * 2;
+		pTV = new TEXTURED_VERTEX[_spriteVerticeCount];
+		tit = _allTextures.begin();
+		tend = _allTextures.end();
+		tix = 0;
+		while (tit != tend)
+		{
+			CTextureGroup* pTex = *tit;
+
+			pTex->SpriteVertexStart = tix;
+
+			std::vector<SpriteInfo>::iterator sit = pTex->SpriteInfos.begin();
+			std::vector<SpriteInfo>::iterator send = pTex->SpriteInfos.end();
+			while (sit != send)
+			{
+				SpriteInfo* spr = &(*sit);
+
+				pTV[tix].position.x = spr->P.X + spr->OX - spr->W / 2;
+				pTV[tix].position.y = spr->P.Y + spr->OY;
+				pTV[tix].position.z = spr->P.Z;
+				pTV[tix].texture.x = spr->U1;
+				pTV[tix].texture.y = spr->V1;
+				tix++;
+				pTV[tix].position.x = spr->P.X + spr->OX + spr->W / 2;
+				pTV[tix].position.y = spr->P.Y + spr->OY + spr->H;
+				pTV[tix].position.z = spr->P.Z;
+				pTV[tix].texture.x = spr->U2;
+				pTV[tix].texture.y = spr->V2;
+				tix++;
+				pTV[tix].position.x = spr->P.X + spr->OX - spr->W / 2;
+				pTV[tix].position.y = spr->P.Y + spr->OY;
+				pTV[tix].position.z = spr->P.Z;
+				pTV[tix].texture.x = spr->U2;
+				pTV[tix].texture.y = spr->V1;
+				tix++;
+
+				pTV[tix].position.x = spr->P.X + spr->OX - spr->W / 2;
+				pTV[tix].position.y = spr->P.Y + spr->OY;
+				pTV[tix].position.z = spr->P.Z;
+				pTV[tix].texture.x = spr->U1;
+				pTV[tix].texture.y = spr->V1;
+				tix++;
+				pTV[tix].position.x = spr->P.X + spr->OX - spr->W / 2;
+				pTV[tix].position.y = spr->P.Y + spr->OY + spr->H;
+				pTV[tix].position.z = spr->P.Z;
+				pTV[tix].texture.x = spr->U1;
+				pTV[tix].texture.y = spr->V2;
+				tix++;
+				pTV[tix].position.x = spr->P.X + spr->OX - spr->W / 2;
+				pTV[tix].position.y = spr->P.Y + spr->OY + spr->H;
+				pTV[tix].position.z = spr->P.Z;
+				pTV[tix].texture.x = spr->U2;
+				pTV[tix].texture.y = spr->V2;
+				tix++;
+
+				sit++;
+			}
+
+			pTex->SpriteVerticeCount = tix - pTex->SpriteVertexStart;
+
+			tit++;
+		}
+
+		triBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		triBufferDesc.ByteWidth = sizeof(TEXTURED_VERTEX) * _spriteVerticeCount;
+		triBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		triBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		triBufferDesc.MiscFlags = 0;
+		triBufferDesc.StructureByteStride = 0;
+
+		triData.pSysMem = pTV;
+		triData.SysMemPitch = 0;
+		triData.SysMemSlicePitch = 0;
+
+		dx.CreateBuffer(&triBufferDesc, &triData, &_spriteVertexBuffer, "Location Sprites");
+
+		delete[] pTV;
+	}
+
+	// Load alternative textures
+	if (pConfig->AlternativeMedia)
+	{
+		wchar_t alternateName[1024];
+		ZeroMemory(alternateName, sizeof(alternateName));
+		wcscat(alternateName, file.c_str());
+		wchar_t* pAlter = alternateName + file.size() - 3;
+		pAlter[0] = L'\\';
+		pAlter++;
+
+		tit = _allTextures.begin();
+		tend = _allTextures.end();
+		int tix = 0;
+		while (tit != tend)
+		{
+			_itow(tix, pAlter, 10);
+			wchar_t* pAlter2 = pAlter + wcslen(pAlter);
+			wcscat(pAlter2, L".png");
+
+			// TODO: If file exists, replace texture...
+			if (CFile::Exists(alternateName))
+			{
+				(*tit)->pTexture->Init(alternateName);
+			}
+
+			tix++;
+			tit++;
+		}
+	}
+
+	_visibilityChanged = TRUE;
+	_translationChanged = TRUE;
+
+	// Start default animations
+	BinaryData animbd = GetLocationData(0);
+	int animationCount = GetInt(animbd.Data, 0, 4);
+	for (int i = 0; i < animationCount && i < 50; i++)
+	{
+		int offset = GetInt(animbd.Data, 8 + i * 8, 4);
+		int trigger = GetInt(animbd.Data, offset + 8, 4);
+		if (trigger == 1)
+		{
+			StartIndexedAnimation(i);
+		}
+		else
+		{
+			// Check type, if 16, add to Elevations
+			int type = GetInt(animbd.Data, offset, 4);
+			if (type == 16)
+			{
+				Elevations.push_back(animbd.Data + offset);
+			}
+		}
+	}
+
+	_loading = FALSE;
+
+	return TRUE;
+	*/
+
+	return FALSE;
+}
+
+void CLocation::SetObjectVisibility(int objectId, BOOL visible)
+{
+	/*
+	if (_objectMap[objectId].ObjectIndex >= 0)
+	{
+		_visibilityBuffer.visibility[_objectMap[objectId].ObjectIndex].x = visible ? 1.0f : -1.0f;
+	}
+	//else if (_objectMap[objectId].SubObjectIndex >= 0)
+	//{
+	//	_visibility.visibility[_objectMap[objectId].SubObjectIndex].y = visible ? 1.0f : -1.0f;
+	//}
+	else if (_objectMap[objectId].SubObjectIndices.size() > 0)
+	{
+		for (auto it : _objectMap[objectId].SubObjectIndices)
+		{
+			_visibilityBuffer.visibility[it].y = visible ? 1.0f : -1.0f;
+		}
+	}
+	*/
+
+	//_visibilityBuffer.visibility[objectId].x = visible ? 1.0f : -1.0f;
+
+	/*
+	if (objectId >= 0 && objectId < _objectMapCount)
+	{
+		for (auto pVisibilityFloat : _objectMap[objectId].VisibilityFloatPointers)
+		{
+			*pVisibilityFloat = visible ? 1.0f : -1.0f;
+		}
+
+		_visibilityChanged = TRUE;
+	}
+	*/
+	int id = _objectMap[objectId].id;
+	if (id < 0x800)
+	{
+		ChangeVisibility(id, visible, FALSE, L"Script ");
+	}
+	else
+	{
+		// Hide master object(s) containing the item
+		Trace(L"Setting visibility of object ");
+		Trace(id, 16);
+		Trace(L" to ");
+		if (visible)
+		{
+			TraceLine(L"VISIBLE");
+		}
+		else
+		{
+			TraceLine(L"HIDDEN");
+		}
+
+		for (int i = 0; i < _subObjectCount; i++)
+		{
+			if (((_improvedObjectMap[i].SubObjectId >> 16) & 0xffff) == id)
+			{
+				_visibilityBuffer.visibility[_improvedObjectMap[i].ObjectIndex].x = visible ? 1.0f : -1.0f;
+			}
+		}
+	}
+}
+
+void CLocation::ChangeVisibility(int id, BOOL visible, BOOL setOnSubObjects, std::wstring header)
+{
+	Trace((LPWSTR)header.c_str());
+	Trace(L"Setting visibility of object ");
+	Trace(id, 16);
+	Trace(L" to ");
+	if (visible)
+	{
+		TraceLine(L"VISIBLE");
+	}
+	else
+	{
+		TraceLine(L"HIDDEN");
+	}
+
+	BOOL found = FALSE;
+	if ((id & 0x80000000) != 0)
+	{
+		int objectId = (id >> 16) & 0x7fff;
+		int subObjectId = id & 0xffff;
+		for (int i = 0; i < _subObjectCount; i++)
+		{
+			if (_improvedObjectMap[i].ObjectIndex == objectId && (_improvedObjectMap[i].SubObjectId & 0xffff) == subObjectId)
+			{
+				_visibilityBuffer.visibility[_improvedObjectMap[i].SubObjectIndex].y = visible ? 1.0f : -1.0f;
+				found = TRUE;
+			}
+		}
+	}
+	else if ((id & 0x800) != 0)
+	{
+		for (int i = 0; i < _subObjectCount; i++)
+		{
+			if (((_improvedObjectMap[i].SubObjectId >> 16) & 0xffff) == id)
+			{
+				_visibilityBuffer.visibility[_improvedObjectMap[i].SubObjectIndex].y = visible ? 1.0f : -1.0f;
+				found = TRUE;
+			}
+		}
+	}
+	else
+	{
+		_visibilityBuffer.visibility[id].x = visible ? 1.0f : -1.0f;
+
+		if (setOnSubObjects && FALSE)
+		{
+			for (int i = 0; i < _subObjectCount; i++)
+			{
+				if (_improvedObjectMap[i].ObjectIndex == id)
+				{
+					if ((_improvedObjectMap[i].SubObjectId & 0x80000000) == 0)
+					{
+						Trace(L"Setting object ");
+						Trace(id, 16);
+						Trace(L", sub-object ");
+						Trace(_improvedObjectMap[i].SubObjectId, 16);
+						Trace(L" visibility to ");
+						if (visible)
+						{
+							TraceLine(L"VISIBLE");
+						}
+						else
+						{
+							TraceLine(L"HIDDEN");
+						}
+						_visibilityBuffer.visibility[_improvedObjectMap[i].SubObjectIndex].y = visible ? 1.0f : -1.0f;
+					}
+					else
+					{
+						Trace(L"Visibility of object ");
+						Trace(id, 16);
+						Trace(L", sub-object ");
+						Trace(_improvedObjectMap[i].SubObjectId, 16);
+						Trace(L" remains ");
+						if (min(_visibilityBuffer.visibility[_improvedObjectMap[i].ObjectIndex].x, _visibilityBuffer.visibility[_improvedObjectMap[i].SubObjectIndex].y) > 0.0f)
+						{
+							TraceLine(L"VISIBLE");
+						}
+						else
+						{
+							TraceLine(L"HIDDEN");
+						}
+					}
+				}
+			}
+		}
+
+		found = TRUE;
+	}
+
+	if (!found)
+	{
+		int debug = 0;
+	}
+	_visibilityChanged = TRUE;
+}
+
+void CLocation::Animate()
+{
+	if (!_loading)
+	{
+		ULONGLONG now = GetTickCount64();
+		for (int i = 0; i < 50; i++)
+		{
+			if (Animations[i].Status == AnimationStatus::Running)
+			{
+				ULONGLONG frameTimeDiff = now - Animations[i].FrameTime;
+				if (frameTimeDiff >= Animations[i].FrameDuration)
+				{
+					Animations[i].FrameTime = now;
+					PBYTE pA = Animations[i].AnimDataPointer;
+
+					BOOL frameEnd = FALSE;
+					while (!frameEnd)
+					{
+						int p1 = GetInt(pA, 0, 4);
+						pA += 4;
+						if (p1 != -1)
+						{
+							switch (Animations[i].Type)
+							{
+							case 1:
+							{
+								// Texture switch
+								int objectId = Animations[i].ObjectId;
+								int subObjectId = Animations[i].Parameter;
+								int newTexture = p1;
+								// TODO: Change texture
+								// TODO: Get object, then get sub-object, find texture
+								// TODO: Find object in memory, find sub-object, find texture, set real texture
+
+								// Take 2, using list of objects and sub-objects to find texture and vertices/indexes
+								CLocationObject* lo = &_pLocObjects[objectId];
+								for (int soi = 0; soi < lo->SubObjectCount; soi++)
+								{
+									CLocationSubObject* pSub = &lo->pSubObjects[soi];
+									if ((pSub->Id & 0xffff) == subObjectId)
+									{
+										CTextureGroup* pTG = _allTextures.at(pSub->TextureIndex);
+										CTextureGroup* pNewT = _allTextures.at(newTexture);
+										if (pTG->SpriteVerticeCount > 0)
+										{
+											pTG->RealTexture = pNewT->pTexture;
+										}
+										else
+										{
+											// TODO: Test with ALL animations of type 1 (or type 4 subtype 1)
+											pTG->RemovePoints(pSub->VertexIndex, pSub->VertexCount);
+											pNewT->AddPoints(pSub->VertexIndex, pSub->VertexCount);
+											pSub->TextureIndex = newTexture;
+										}
+
+										break;
+									}
+								}
+
+								Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
+								pA += 4;
+								frameEnd = TRUE;
+								break;
+							}
+							case 2:
+							{
+								// Object translation
+								float x = ((float)p1) / 65536.0f;
+								float y = ((float)GetInt(pA, 0, 4)) / 65536.0f;
+								float z = ((float)GetInt(pA, 4, 4)) / 65536.0f;
+								Animations[i].FrameDuration = (DWORD)(GetInt(pA, 8, 4) * TIMER_SCALE);
+								pA += 12;
+								_translationBuffer.translation[Animations[i].ObjectId].x += x;
+								_translationBuffer.translation[Animations[i].ObjectId].y += y;
+								_translationBuffer.translation[Animations[i].ObjectId].z += z;
+								_translationChanged = TRUE;
+								PointingChanged = TRUE;
+								frameEnd = TRUE;
+								break;
+							}
+							case 3:
+							{
+								// Object visibility
+								// Get and hide object from parameter (must be set to -1 on initalization)
+								int objectToHide = Animations[i].Parameter;
+								int objectToShow = p1;
+								if (objectToShow >= 0)
+								{
+									Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
+									pA += 4;
+
+									if (objectToHide >= 0)
+									{
+										ChangeVisibility(objectToHide, FALSE, FALSE, L"Animation ");
+									}
+									ChangeVisibility(objectToShow, TRUE, FALSE, L"Animation ");
+									/*
+									if (objectToHide >= 0)
+									{
+										Trace(L"Setting visibility of object ");
+										Trace(objectToHide);
+										Trace(L" to HIDDEN");
+
+										TraceLine(objectToHide);
+										_visibilityBuffer.visibility[objectToHide].x = -1.0f;
+
+									}
+									Trace(L"Setting visibility of object ");
+									Trace(objectToShow);
+									Trace(L" to VISIBLE");
+
+									TraceLine(objectToShow);
+									_visibilityBuffer.visibility[objectToShow].x = 1.0f;
+									_visibilityChanged = TRUE;
+									*/
+
+									// Store object in parameter
+									Animations[i].Parameter = objectToShow;
+									PointingChanged = TRUE;
+								}
+
+								frameEnd = TRUE;
+								break;
+							}
+							case 4:
+							{
+								// All functions
+								switch (p1)
+								{
+								case 1:
+								{
+									// Texture switch
+									int objectId = GetInt(pA, 0, 4);
+									int subObjectId = GetInt(pA, 4, 4);
+									int newTexture = GetInt(pA, 8, 4);
+									pA += 12;
+									BinaryData bd3d2 = GetLocationData(4);
+									PBYTE p3d2 = bd3d2.Data;
+									int objectOffset = GetInt(p3d2, 0x30 + objectId * 4, 4) + 0x30;
+
+									int subObjects = GetInt(p3d2, objectOffset + 12, 4);
+									int nextSubOffset = objectOffset + 40;
+									for (int ts = 0; ts < subObjects; ts++)
+									{
+										int thisSubOffset = nextSubOffset;
+										nextSubOffset = GetInt(p3d2, nextSubOffset, 4) + 0x30;
+
+										int sid = GetInt(p3d2, thisSubOffset + 0xc, 4);
+										if ((sid & 0xffff) == subObjectId)
+										{
+											int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
+											CTextureGroup* pTG = _allTextures.at(tex);
+											if (newTexture != tex)
+											{
+												CTextureGroup* pNewT = _allTextures.at(newTexture);
+												pTG->RealTexture = pNewT->pTexture;
+											}
+											else
+											{
+												pTG->RealTexture = NULL;
+											}
+										}
+									}
+
+									break;
+								}
+								case 2:
+								{
+									// Object translation
+									int p1 = GetInt(pA, 0, 4);
+									int p2 = GetInt(pA, 4, 4);
+									int p3 = GetInt(pA, 8, 4);
+									int p4 = GetInt(pA, 12, 4);
+									int p5 = GetInt(pA, 16, 4);
+									pA += 20;
+
+									float x = ((float)p2) / 65536.0f;
+									float y = ((float)p3) / 65536.0f;
+									float z = ((float)p4) / 65536.0f;
+
+									Animations[i].FrameDuration = (DWORD)(p5 * TIMER_SCALE);
+									_translationBuffer.translation[p1].x += x;
+									_translationBuffer.translation[p1].y += y;
+									_translationBuffer.translation[p1].z += z;
+									_translationChanged = TRUE;
+									PointingChanged = TRUE;
+									frameEnd = TRUE;
+									break;
+								}
+								case 3:
+								{
+									// Object visibility
+									// Get and hide object from parameter (must be set to -1 on initalization)
+									int objectId = GetInt(pA, 0, 4);
+									int visibility = GetInt(pA, 4, 4);
+									pA += 8;
+
+									ChangeVisibility(objectId, visibility, FALSE, L"Animation 4.3 ");
+									/*
+									Trace(L"Setting visibility of object ");
+									Trace(objectId, 16);
+									Trace(L" to ");
+									if (visibility)
+									{
+										TraceLine(L"VISIBLE");
+									}
+									else
+									{
+										TraceLine(L"HIDDEN");
+									}
+
+									_visibilityBuffer.visibility[objectId].x = (visibility == 0) ? -1.0f : 1.0f;
+									_visibilityChanged = TRUE;
+									*/
+
+									PointingChanged = TRUE;
+									break;
+								}
+								case 5:
+								{
+									// Object + subobject visibility
+									int objectId = GetInt(pA, 0, 4);
+									int subObjectId = GetInt(pA, 4, 4);
+									int visibility = GetInt(pA, 8, 4);
+									pA += 12;
+
+									ChangeVisibility(0x80000000 | (objectId << 16) | subObjectId, visibility, FALSE, L"Animation type 4.5 ");
+
+									//for (int j = 0; j < _ppObjects[objectId]->SubObjectCount; j++)
+									//{
+									//	if ((_ppObjects[objectId]->SubObjects[j].ID & 0xffff) == subObjectId)
+									//	{
+											//Trace(L"Setting visibility of object ");
+											//Trace(objectId);
+											//Trace(L", sub-object ");
+											//Trace(subObjectId);
+											//Trace(L" to ");
+											//if (visibility)
+											//{
+											//	TraceLine(L"VISIBLE");
+											//}
+											//else
+											//{
+											//	TraceLine(L"HIDDEN");
+											//}
+
+											//_visibilityBuffer.visibility[_ppObjects[objectId]->SubObjects[j].SubObjectIndex].y = (visibility != 0) ? 1.0f : -1.0f;
+											//_visibilityChanged = TRUE;
+									//		break;
+									//	}
+									//}
+
+									PointingChanged = TRUE;
+									break;
+								}
+								case 6:
+								{
+									// Start indexed animation
+									int animix = GetInt(pA, 0, 4);
+									pA += 4;
+									StartIndexedAnimation(animix);
+									break;
+								}
+								case 7:
+								{
+									// Start indexed animation and wait for it to complete
+									int animix = GetInt(pA, 0, 4);
+									pA += 4;
+									StartIndexedAnimation(animix);
+									Animations[animix].ParentAnim = i;
+									Animations[i].Status = AnimationStatus::OnHold;
+									frameEnd = TRUE;
+									break;
+								}
+								case 8:
+								{
+									// Enable or disable path
+									int pix = GetInt(pA, 0, 4);
+									if (pix >= 0 && pix < _pathCount)
+									{
+										_paths[pix].enabled = GetInt(pA, 4, 4);
+									}
+									//_paths[pix].allowLeave = false;	TODO: Check if player is currently inside path, if yes, allow leave
+									pA += 8;
+									break;
+								}
+								}
+								break;
+							}
+							case 14:
+							{
+								// Animated texture
+								int  animation = p1;
+								int texture = GetInt(pA, 0, 4);
+								int duration = GetInt(pA, 4, 4);
+								pA -= 4;
+								CTextureGroup* pTG = _allTextures.at(animation);
+								if (pTG->AnimatedTextureIndex >= pTG->Textures.size() - 1)
+								{
+									pTG->AnimatedTextureIndex = 0;
+								}
+								_allTextures.at(texture)->RealTexture = pTG->Textures.at(pTG->AnimatedTextureIndex++);
+								Animations[i].FrameDuration = (DWORD)(duration * TIMER_SCALE);
+								frameEnd = TRUE;
+								break;
+							}
+							case 15:
+							{
+								// Textures
+								int objectId = Animations[i].ObjectId;
+								int subObjectId = Animations[i].Parameter;
+								int newTexture = p1;
+								// TODO: Change texture
+								// TODO: Get object, then get sub-object, find texture
+								// TODO: Find object in memory, find sub-object, find texture, set real texture
+
+								BinaryData bd3d2 = GetLocationData(4);
+								PBYTE p3d2 = bd3d2.Data;
+								int objectOffset = GetInt(p3d2, 0x30 + objectId * 4, 4) + 0x30;
+
+								int subObjects = GetInt(p3d2, objectOffset + 12, 4);
+								int nextSubOffset = objectOffset + 40;
+								for (int ts = 0; ts < subObjects; ts++)
+								{
+									int thisSubOffset = nextSubOffset;
+									nextSubOffset = GetInt(p3d2, nextSubOffset, 4) + 0x30;
+
+									int sid = GetInt(p3d2, thisSubOffset + 0xc, 4);
+									if ((sid & 0xffff) == subObjectId)
+									{
+										int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
+										CTextureGroup* pTG = _allTextures.at(tex);
+										CTextureGroup* pNewT = _allTextures.at(newTexture);
+										pTG->RealTexture = pNewT->pTexture;
+									}
+								}
+
+								Animations[i].FrameDuration = Animations[i].ConstantFrameDuration;
+								if (pA >= Animations[i].AnimDataPointerEnd)
+								{
+									pA = Animations[i].AnimDataPointerInit;
+								}
+
+								frameEnd = TRUE;
+								break;
+							}
+							case 16:
+							{
+								// Elevation, not animated
+								break;
+							}
+							}
+						}
+						else
+						{
+							// Post frame command (could be multiple)
+							int cmd = GetInt(pA, 0, 4);
+							pA += 4;
+							switch (cmd)
+							{
+							case 0:
+							{
+								// Go back, x times
+								int p2 = GetInt(pA, 0, 4);
+								int p3 = GetInt(pA, 4, 4);
+								int p4 = GetInt(pA, 8, 4);
+								if (p3 == -1)
+								{
+									// Initialization
+									p3 = p2;
+								}
+
+								SetInt(pA, 4, --p3, 4);
+
+								pA += 12;
+								if (p3 > 0)
+								{
+									pA -= (p4 + 4);
+								}
+								else
+								{
+									// Reset counter
+									SetInt(pA, -8, -1, 4);
+								}
+
+								break;
+							}
+							case 1:
+							{
+								// Go back, always
+								pA -= GetInt(pA, 0, 4);
+								break;
+							}
+							case 2:
+							{
+								// End animation
+								Animations[i].Status = AnimationStatus::Completed;
+								if (Animations[i].ParentAnim >= 0)
+								{
+									// Resume parent animation
+									Animations[Animations[i].ParentAnim].Status = AnimationStatus::Running;
+								}
+								frameEnd = TRUE;
+								break;
+							}
+							case 3:
+							{
+								// Set frame duration (and end frame)
+								Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
+								pA += 4;
+								frameEnd = TRUE;
+								break;
+							}
+							}
+						}
+					}
+
+					Animations[i].AnimDataPointer = pA;
+					Animations[i].FrameCounter++;
+				}
+			}
+		}
+	}
+}
+
+/*
+Another attempt to solve the visibiliy issues
+Make a simple list of a struct containing all sub-objects with info about master object, sub-object id and sub-object index
+*/

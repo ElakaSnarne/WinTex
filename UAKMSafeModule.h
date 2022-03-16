@@ -43,6 +43,8 @@ protected:
 
 	ID3D11Buffer* _vertexBuffer;
 	CTexture _texture;
+	bool _textureDirty;
+	DWORD _frameTimes[14];
 
 	ID3D11Buffer* _handVertexBuffer;
 	CTexture _handTexture;
@@ -54,7 +56,7 @@ protected:
 	DWORD _frameDelay;
 	ULONGLONG _frameTime;
 	int _startupFrame;
-	int _keyDown;
+	int _keyDown[14];
 	BYTE _enteredCode[8];
 	int _keyPos;
 

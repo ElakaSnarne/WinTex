@@ -695,6 +695,12 @@
     <ClInclude Include="D3DX10-NoWarn.h">
       <Filter>DirectX\Warning Wrappers</Filter>
     </ClInclude>
+    <ClInclude Include="LocationDataHeader.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectMap.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WinTex.rc">
