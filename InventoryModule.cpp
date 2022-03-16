@@ -546,7 +546,9 @@ void CInventoryModule::BeginAction()
 	}
 	else
 	{
-		if (CheckButton(_pBtnResume, x, y) || CheckButton(_pBtnUp, x, y) || CheckButton(_pBtnDown, x, y));
+		if (CheckButton(_pBtnResume, x, y) || CheckButton(_pBtnUp, x, y) || CheckButton(_pBtnDown, x, y)) {
+			return;
+		};
 	}
 }
 
