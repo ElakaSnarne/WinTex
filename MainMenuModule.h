@@ -139,8 +139,8 @@ protected:
 
 	static SaveMode SaveMode;
 
-	static void ConfigureControl(LPVOID data);
-	static void ConfigControlsCancel(LPVOID data);
+	static void ConfigureControl(InputAction data);
+	static void ConfigControlsCancel(InputAction data);
 	static BOOL ConfiguringControl;
 	static InputAction ControlInputAction;
 

@@ -66,17 +66,17 @@ std::string CDXControlButton::GetMapText(CControllerData* pControllerData)
 	return "";
 }
 
-CDXControlButton::CDXControlButton(LPSTR function, std::unordered_map<InputAction, InputMap>* pMapping, BOOL isJoystick, float w, float h, void(*onClick)(LPVOID), LPVOID data)
+CDXControlButton::CDXControlButton(LPSTR function, std::unordered_map<InputAction, InputMap>* pMapping, BOOL isJoystick, float w, float h, void(*onClick)(InputAction), InputAction action)
 {
 	_isBeingConfigured = FALSE;
-	_clicked = onClick;
-	_data = data;
+	_controlClicked = onClick;
+	_action = action;
 	_isJoystick = isJoystick;
 
 	_pText = new CDXText();
 	_pText->SetText(function);
 	CControllerData cdata;
-	InputMap map = (*pMapping)[(InputAction)(int)data];
+	InputMap map = (*pMapping)[action];
 	if (isJoystick)
 	{
 		cdata.Source = map.JoystickSource;
@@ -130,4 +130,11 @@ void CDXControlButton::SetMouseOver(BOOL mouseOver)
 void CDXControlButton::UpdateControlText(CControllerData* pControllerData)
 {
 	_binding.SetText((LPSTR)GetMapText(pControllerData).c_str());
+}
+
+void CDXControlButton::Click()
+{
+	if (_controlClicked != nullptr) {
+		_controlClicked(_action);
+	}
 }
