@@ -2699,7 +2699,7 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 	}
 	else if (file == L"ARBOR.AP")
 	{
-		ModifyLocationPoints(1023, 1028, -0.01f, 0.0f, 0.0f);		// Closet door
+		ModifyLocationPoints(1023, 1028, -0.1f, 0.0f, 0.0f);		// Closet door
 	}
 	else if (file == L"AV.AP")
 	{

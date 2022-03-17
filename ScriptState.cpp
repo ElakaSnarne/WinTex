@@ -15,6 +15,7 @@ void CScriptState::Clear()
 	ExecutionPointer = 0;
 	WaitingForMediaToFinish = FALSE;
 	WaitingForInput = FALSE;
+	WaitingForExternalModule = FALSE;
 	SelectedOption = 0;
 
 	AskAbout = FALSE;

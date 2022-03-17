@@ -20,6 +20,7 @@ public:
 	int ExecutionPointer;
 	BOOL WaitingForMediaToFinish;
 	BOOL WaitingForInput;
+	BOOL WaitingForExternalModule;
 	int SelectedOption;
 
 	BOOL AskAbout;
