@@ -131,3 +131,32 @@ void CDXControlButton::UpdateControlText(CControllerData* pControllerData)
 {
 	_binding.SetText((LPSTR)GetMapText(pControllerData).c_str());
 }
+
+void CDXControlButton::UpdateControlText(std::unordered_map<InputAction, InputMap>* pMapping, InputAction action)
+{
+	InputMap map = (*pMapping)[action];
+	CControllerData data;
+
+	if (action == InputAction::Action || action == InputAction::Cycle)
+	{
+		int debug = 0;
+	}
+
+	if (map.MouseKeySource != InputSource::Unknown)
+	{
+		data.Source = map.MouseKeySource;
+		data.Data = data.Offset = map.MouseKeyIdentifier;
+	}
+	else if (map.JoystickSource != InputSource::Unknown)
+	{
+		data.Source = map.JoystickSource;
+		data.Data = data.Offset = map.JoystickIdentifier;
+	}
+	else if (map.CurrentSource != InputSource::Unknown)
+	{
+		data.Source = map.CurrentSource;
+		data.Data = data.Offset = map.CurrentData;
+	}
+
+	_binding.SetText((LPSTR)GetMapText(&data).c_str());
+}
