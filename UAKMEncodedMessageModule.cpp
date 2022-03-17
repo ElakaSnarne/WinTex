@@ -47,6 +47,8 @@ CUAKMEncodedMessageModule::CUAKMEncodedMessageModule() : CModuleBase(ModuleType:
 
 	_charPos = -1;
 	_completed = false;
+
+	_textureDirty = true;
 }
 
 CUAKMEncodedMessageModule::~CUAKMEncodedMessageModule()
@@ -79,6 +81,12 @@ void CUAKMEncodedMessageModule::Render()
 {
 	if (_vertexBuffer != NULL)
 	{
+		if (_textureDirty)
+		{
+			UpdateTexture();
+			_textureDirty = false;
+		}
+
 		dx.Clear(0.0f, 0.0f, 0.0f);
 
 		dx.DisableZBuffer();
@@ -166,7 +174,7 @@ void CUAKMEncodedMessageModule::KeyDown(WPARAM key, LPARAM lParam)
 			}
 		}
 
-		UpdateTexture();
+		_textureDirty = true;
 
 		// Check if message is decoded, add score (hint state?)
 		_completed = CheckCompleted();
@@ -263,7 +271,7 @@ void CUAKMEncodedMessageModule::Initialize()
 		}
 	}
 
-	UpdateTexture();
+	_textureDirty = true;
 
 	// Calculate screen offsets
 	float w = (float)dx.GetWidth();
@@ -411,7 +419,8 @@ void CUAKMEncodedMessageModule::RenderText(char* pText, int yOffset, BOOL transp
 
 bool CUAKMEncodedMessageModule::CheckCompleted()
 {
-	for (int i = 0; i < 18 * 8; i++)
+	int len = strlen(pDec);
+	for (int i = 0; i < len; i++)
 	{
 		if (_pSaveMsg[i] != pDec[i])
 		{

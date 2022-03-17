@@ -9,6 +9,9 @@ int TornNoteDistances[] = { -22, 0, -57, 0, -44, 0, 123, -10, -117, 4, 117, -46,
 
 CUAKMTornNoteModule* CUAKMTornNoteModule::pUAKMTNM = NULL;
 
+#define PUZZLE_WIDTH	432.0f
+#define PUZZLE_HEIGHT	300.0f
+
 CUAKMTornNoteModule::CUAKMTornNoteModule(int item) : CModuleBase(ModuleType::TornNote)
 {
 	pUAKMTNM = this;
@@ -28,7 +31,7 @@ CUAKMTornNoteModule::CUAKMTornNoteModule(int item) : CModuleBase(ModuleType::Tor
 	_positionOffset = 0;
 	_vertexBuffer = NULL;
 
-	float width = 440.0f, height = 280.0f;
+	float width = PUZZLE_WIDTH, height = PUZZLE_HEIGHT;
 	float screenWidth = (float)dx.GetWidth();
 	float sx = screenWidth / width;
 	float sy = _screenHeight / height;
@@ -120,7 +123,7 @@ void CUAKMTornNoteModule::Render()
 		dx.Present(1, 0);
 	}
 
-	if (_completed &&  GetTickCount64() >= _timeToExit)
+	if (_completed && GetTickCount64() >= _timeToExit)
 	{
 		CInventoryModule::ExamineItemOnResume = _newItem;
 		CModuleController::Pop(this);
@@ -156,7 +159,6 @@ void CUAKMTornNoteModule::Initialize()
 	}
 
 	_caption.SetColours(0, 0xff00c300, 0xff24ff00, 0);
-
 	_caption.SetText(L"That completes it!  Now that it's assembled, I think I'll glue the pieces together so that they won't move.", CDXText::Alignment::Justify);
 
 	if (palIx >= 0)
@@ -191,6 +193,9 @@ void CUAKMTornNoteModule::Initialize()
 				// No need to load the placeholders
 				count = 26;
 			}
+
+			float left = (dx.GetWidth() - PUZZLE_WIDTH * _scale) / 2.0f;
+			float top = (dx.GetHeight() - PUZZLE_HEIGHT * _scale) / 2.0f;
 
 			for (int i = 0; i < count; i++)
 			{
@@ -228,8 +233,8 @@ void CUAKMTornNoteModule::Initialize()
 					// Get position, orientation and z-order from save data
 					id->Offset = _positionOffset + i * 6;
 
-					id->X = (CGameController::GetData(id->Offset + 0) + CGameController::GetData(id->Offset + 1) * 256) * _scale;
-					id->Y = (CGameController::GetData(id->Offset + 2) + CGameController::GetData(id->Offset + 3) * 256) * _scale;
+					id->X = left + (CGameController::GetData(id->Offset + 0) + CGameController::GetData(id->Offset + 1) * 256) * _scale;
+					id->Y = top + (CGameController::GetData(id->Offset + 2) + CGameController::GetData(id->Offset + 3) * 256) * _scale;
 					id->Z = CGameController::GetData(id->Offset + 4);
 					//id->Z = i;
 					id->Orientation = CGameController::GetData(id->Offset + 5);
@@ -328,7 +333,7 @@ CUAKMTornNoteModule::CNoteScrap* CUAKMTornNoteModule::HitTest(float mx, float my
 
 			// Now check pixel
 			LPBYTE pPixels = pN->RawImage + 4;
-			if (pPixels[cy*pN->OriginalWidth + cx] != 0)
+			if (pPixels[cy * pN->OriginalWidth + cx] != 0)
 			{
 				// All items from this point should be pushed down in z-order
 				std::vector<CNoteScrap*>::iterator fix = it + 1;

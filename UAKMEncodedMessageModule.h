@@ -29,6 +29,7 @@ protected:
 
 	ID3D11Buffer* _vertexBuffer;
 	CTexture _texture;
+	bool _textureDirty;
 
 	float _scale;
 	float _left;

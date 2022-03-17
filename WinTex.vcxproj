@@ -276,6 +276,8 @@
     <ClInclude Include="Hint.h" />
     <ClInclude Include="HintCategory.h" />
     <ClInclude Include="HintModule.h" />
+    <ClInclude Include="LocationDataHeader.h" />
+    <ClInclude Include="ObjectMap.h" />
     <ClInclude Include="PDExamStruct.h" />
     <ClInclude Include="PDLocationModule.h" />
     <ClInclude Include="MediaIdentifiers.h" />

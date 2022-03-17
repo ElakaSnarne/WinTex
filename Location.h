@@ -13,6 +13,7 @@
 #include "PointList.h"
 #include "LocationSprite.h"
 #include "LocationStructs.h"
+#include "ObjectMap.h"
 
 class CLocation
 {
@@ -21,6 +22,9 @@ public:
 	~CLocation();
 
 	BOOL Load(int locationFileIndex);
+
+	BOOL Load_Improved(int locationFileIndex);
+
 	void Render();
 
 	static void SetPosition(StartupPosition pos);
@@ -243,4 +247,7 @@ protected:
 
 	BinaryData GetLocationData(int index);
 	std::list<LPBYTE> Elevations;
+
+	ObjectVisibilityMapping* _improvedObjectMap;
+	void ChangeVisibility(int id, BOOL visible, BOOL setOnSubObjects, std::wstring header);
 };

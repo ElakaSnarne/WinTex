@@ -75,10 +75,16 @@ CUAKMSafeModule::CUAKMSafeModule(int parameter, BOOL alternatePalette) : CModule
 	_frameDelay = 0;
 	_frameTime = 0;
 
-	_keyDown = -1;
-
 	_flashingLightOn = FALSE;
 	_rollingLightPosition = 0;
+
+	_textureDirty = true;
+
+	for (int i = 0; i < 14; i++)
+	{
+		_keyDown[i] = -1;
+		_frameTimes[i] = 0;
+	}
 
 	Start();
 }
@@ -151,7 +157,7 @@ void CUAKMSafeModule::Initialize()
 		PartialRender(48, 307, 41, FALSE);
 	}
 
-	UpdateTexture();
+	_textureDirty = true;
 
 	_frameDelay = (DWORD)(30 * TIMER_SCALE);
 	_frameTime = GetTickCount64();
@@ -265,46 +271,55 @@ void CUAKMSafeModule::Render()
 				}
 			}
 		}
-		else if (_keyDown >= 0)
+		else
 		{
-			// Check delay, should render unpressed key?
-			auto duration = tick - _frameTime;
-			if (duration >= _frameDelay)
+			BOOL keyWasDown = FALSE;
+			for (int i = 0; i < 14; i++)
 			{
-				// Render key pressed
-				PartialRender(19 + _keyDown * 2, keyLocations[_keyDown * 2 + 0], keyLocations[_keyDown * 2 + 1] - 30, TRUE);
+				if (_keyDown[i] == 1)
+				{
+					// Check delay, should render unpressed key?
+					auto duration = tick - _frameTimes[i];
+					if (duration >= (DWORD)(12 * TIMER_SCALE))
+					{
+						// Render key pressed
+						PartialRender(19 + i * 2, keyLocations[i * 2], keyLocations[i * 2 + 1] - 30, TRUE);
 
-				if (_keyDown >= 0 && _keyDown < 12)
-				{
-					Number(_keyDown);
-					_keyDown = -1;
-				}
-				else if (_keyDown == 12)
-				{
-					Start();
-					_keyDown = -1;
-				}
-				else if (_keyDown == 13)
-				{
-					Enter();
+						if (i >= 0 && i < 12)
+						{
+							Number(i);
+							_keyDown[i] = -1;
+						}
+						else if (i == 12)
+						{
+							Start();
+							_keyDown[i] = -1;
+						}
+						else if (i == 13)
+						{
+							Enter();
+						}
+					}
+
+					keyWasDown = TRUE;
 				}
 			}
-		}
-		else if (!_ready && _keyDown == -1)
-		{
-			_ready = TRUE;
+
+			if (!keyWasDown && !_ready)
+			{
+				_ready = TRUE;
+			}
 		}
 
 		if (_startupFrame == 9)
 		{
 			BOOL newState = (tick / 250) & 1;
-			BOOL update = FALSE;
 			if (newState != _flashingLightOn)
 			{
 				// Change render state of light
 				PartialRender(newState ? 1 : 0, 461, 84, FALSE);
 				_flashingLightOn = newState;
-				update = TRUE;
+				_textureDirty = TRUE;
 			}
 
 			if (tick - _rollingLightTime >= (DWORD)TIMER_SCALE)
@@ -333,13 +348,13 @@ void CUAKMSafeModule::Render()
 					}
 				}
 
-				update = TRUE;
+				_textureDirty = TRUE;
 			}
+		}
 
-			if (update)
-			{
-				UpdateTexture();
-			}
+		if (_textureDirty)
+		{
+			UpdateTexture();
 		}
 
 		UINT stride = sizeof(TEXTURED_VERTEX);
@@ -442,10 +457,7 @@ void CUAKMSafeModule::PartialRender(int entry, int offsetX, int offsetY, BOOL up
 		}
 	}
 
-	if (updateTexture)
-	{
-		UpdateTexture();
-	}
+	_textureDirty = true;
 }
 
 void CUAKMSafeModule::Start()
@@ -497,14 +509,14 @@ void CUAKMSafeModule::Exit()
 
 void CUAKMSafeModule::Press(int key, int sound)
 {
-	_keyDown = key;
+	_keyDown[key] = 1;
 
 	// Render key pressed
 	PartialRender(19 + key * 2 + 1, keyLocations[key * 2 + 0], keyLocations[key * 2 + 1] - 30, TRUE);
 
 	// Set delay
 	_frameDelay = (DWORD)(12 * TIMER_SCALE);
-	_frameTime = GetTickCount64();
+	_frameTimes[key] = GetTickCount64();
 
 	// Play sound
 	_sound.Play(_safeSoundOffsets[sound % 12]);
@@ -516,7 +528,7 @@ void CUAKMSafeModule::Resize(int width, int height)
 
 void CUAKMSafeModule::BeginAction()
 {
-	if (_ready && _keyDown == -1)
+	if (_ready)
 	{
 		float x = (_cursorPosX - _left) / _scale;
 		float y = (_cursorPosY + _top) / _scale;

@@ -186,13 +186,6 @@ struct TranslationBufferType
 	XMFLOAT4 translation[256];
 };
 
-struct ObjectMap
-{
-	int id;
-	int ObjectIndex;
-	std::list<int> SubObjectIndices;
-};
-
 enum ActionType
 {
 	None = 0x00000000,
