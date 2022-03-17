@@ -2766,6 +2766,7 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 		ModifyLocationPoints(625, 628, 0.0f, 0.0f, 0.01f);			// Marcus Tucker door sign
 		ModifyLocationPoints(637, 640, 0.0f, 0.0f, -0.01f);			// Supervisors door sign
 		ModifyLocationPoints(649, 652, 0.0f, 0.0f, -0.01f);			// R&D door sign
+		ModifyLocationPoints(524, 531, 0.0f, 0.0f, 0.01f);			// Marcus Tucker's door
 	}
 	else if (file == L"HALL.AP")
 	{
@@ -2852,10 +2853,12 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 	}
 	else if (file == L"SAFEROOM.AP")
 	{
-		ModifyLocationPoints(104, 104, 0.0f, 0.0f, -0.01f);			// Trashcan
-		ModifyLocationPoints(106, 106, 0.0f, 0.0f, -0.01f);			// Trashcan
-		ModifyLocationPoints(109, 109, 0.0f, 0.0f, -0.01f);			// Trashcan
-		ModifyLocationPoints(111, 111, 0.0f, 0.0f, -0.01f);			// Trashcan
+		ModifyLocationPoints(104, 104, 0.0f, 0.0f, -0.01f);			// Door
+		ModifyLocationPoints(106, 106, 0.0f, 0.0f, -0.01f);			// Door
+		ModifyLocationPoints(109, 109, 0.0f, 0.0f, -0.01f);			// Door
+		ModifyLocationPoints(111, 111, 0.0f, 0.0f, -0.01f);			// Door
+		ModifyLocationPoints(418, 457, 0.0f, 0.1f, 0.0f);			// Trashcan
+		ModifyLocationPoints(476, 476, 0.0f, 0.15f, 0.0f);			// Cup with pencils
 	}
 	else if (file == L"SECRET.AP")
 	{
