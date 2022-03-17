@@ -22,9 +22,15 @@ public:
 	virtual void Resume();
 	virtual void Render();
 
+	static float _movement_left;
+	static float _movement_right;
+	static float _movement_forward;
+	static float _movement_backward;
 	static float _movement_x;
 	static float _movement_y;
 	static float _movement_z;
+	static float _smooth_movement_x;
+	static float _smooth_movement_z;
 	static float _speed;
 
 	static int CurrentAction;
