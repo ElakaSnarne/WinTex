@@ -30,7 +30,7 @@ BOOL CLocation::_loading = FALSE;
 #define SUBOBJECT_FLAGS_TOP				0x00000080
 //#define SUBOBJECT_FLAGS_DONT_???		0x00000100
 #define SUBOBJECT_FLAGS_OBJECTID		0x00000200
-#define SUBOBJECT_FLAGS_ROTATEDTEXTURE	0x00000800
+#define SUBOBJECT_FLAGS_SINGLE_COLOUR	0x00000800
 //#define SUBOBJECT_FLAGS_SIDE			0x00001000
 #define SUBOBJECT_FLAGS_HIDDEN			0x80000000
 
@@ -506,11 +506,13 @@ BOOL CLocation::Load(int locationFileIndex)
 							TLPoint px = GetPoint(p3d2, thisSubOffset + 0x28, p, points, tw, th, _objectCount, i, six);
 							px.SubObjectId = j;
 
-							if ((flags & SUBOBJECT_FLAGS_ROTATEDTEXTURE) != 0)
+							if ((flags & SUBOBJECT_FLAGS_SINGLE_COLOUR) != 0)
 							{
-								float tu = px.U;
-								px.U = px.V;
-								px.V = tu;
+								//float tu = px.U;
+								//px.U = px.V;
+								//px.V = tu;
+								px.U = 0.0f;
+								px.V = 0.0f;
 							}
 
 							_ppObjects[i]->SubObjects[j].Points[p] = px;
@@ -2833,6 +2835,13 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 		ModifyLocationPoints(1057, 1060, 0.0f, 0.0f, 0.01f);		// Door sign
 		ModifyLocationPoints(1069, 1072, -0.01f, 0.0f, 0.0f);		// Door sign
 		ModifyLocationPoints(1097, 1100, 0.01f, 0.0f, 0.0f);		// Door sign
+
+		ModifyLocationPoints(655, 655, 0.0f, 0.01f, 0.0f);			// Wall section
+		ModifyLocationPoints(662, 662, 0.0f, 0.01f, 0.0f);			// Wall section
+		ModifyLocationPoints(636, 636, 0.0f, 0.01f, 0.0f);			// Wall section
+		ModifyLocationPoints(675, 675, 0.0f, 0.01f, 0.0f);			// Wall section
+		ModifyLocationPoints(786, 786, 0.0f, 0.01f, 0.0f);			// Wall section
+		ModifyLocationPoints(789, 789, 0.0f, 0.01f, 0.0f);			// Wall section
 	}
 	else if (file == L"OBSERVE.AP")
 	{
