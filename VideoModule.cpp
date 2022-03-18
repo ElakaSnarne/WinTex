@@ -223,6 +223,10 @@ void CVideoModule::Resume()
 	//{
 	//	_scriptEngine->Resume(_scriptState, TRUE);
 	//}
+	if (_scriptState->WaitingForExternalModule)
+	{
+		_scriptEngine->Resume(_scriptState, TRUE);
+	}
 }
 
 void CVideoModule::Cursor(float x, float y, BOOL relative)

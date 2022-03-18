@@ -19,6 +19,7 @@ public:
 	std::string GetMapText(CControllerData* pControllerData);
 
 	void UpdateControlText(CControllerData* pControllerData);
+	void UpdateControlText(std::unordered_map<InputAction, InputMap>* pMapping, InputAction action);
 
 	void SetIsBeingConfigured(BOOL configuring) { _isBeingConfigured = configuring; }
 

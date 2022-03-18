@@ -467,8 +467,9 @@ void CLocationModule::Cursor(float x, float y, BOOL relative)
 		auto scale = pConfig->MouselookScaling;
 
 		_location.DeltaAngles(((float)delta_y) / 2000.0f * scale, ((float)delta_x) / 2000.0f * scale);
-		CenterMouse();
 	}
+
+	CenterMouse();
 }
 
 void CLocationModule::BeginAction()

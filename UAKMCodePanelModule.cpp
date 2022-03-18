@@ -376,11 +376,11 @@ void CUAKMCodePanelModule::BeginAction()
 
 			if (x >= x1 && x < x2 && y >= y1 && y < y2)
 			{
-				Trace(L"Clicked on button ");
-				Trace(i);
-				Trace(L" with ID ");
+				//Trace(L"Clicked on button ");
+				//Trace(i);
+				//Trace(L" with ID ");
 				hit = GetInt(scan, 10, 4);
-				TraceLine(hit);
+				//TraceLine(hit);
 				break;
 			}
 

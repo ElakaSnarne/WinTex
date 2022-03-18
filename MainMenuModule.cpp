@@ -134,6 +134,13 @@ void CMainMenuModule::ConfigCancel(LPVOID data)
 	pFontScaleSlider->CalculateSliderPosition();
 	pFontScaleSlider->UpdateValueText();
 
+	// TODO: Reload all previous control configuration
+	_controlMapping = CInputMapping::ControlsMap;
+
+	for (auto control : _mouseKeyControls)
+	{
+		control.second->UpdateControlText(&_controlMapping, control.first);
+	}
 }
 
 void CMainMenuModule::ConfigAccept(LPVOID data)

@@ -156,11 +156,12 @@ void CUAKMScript::Resume(CScriptState* pState, BOOL breakWait)
 	{
 		pState->WaitingForMediaToFinish = FALSE;
 		pState->WaitingForInput = FALSE;
+		pState->WaitingForExternalModule = FALSE;
 	}
 
 	//WCHAR buffer[40];
 
-	while (CModuleController::CurrentModule == pThisModule && pState->ExecutionPointer > -1 && pState->ExecutionPointer < pState->Length && pState->Script != NULL && !pState->WaitingForMediaToFinish && !pState->WaitingForInput)
+	while (CModuleController::CurrentModule == pThisModule && pState->ExecutionPointer > -1 && pState->ExecutionPointer < pState->Length && pState->Script != NULL && !pState->WaitingForMediaToFinish && !pState->WaitingForInput && !pState->WaitingForExternalModule)
 	{
 		//_itow(pState->ExecutionPointer, buffer, 16);
 		//OutputDebugString(buffer);
@@ -562,7 +563,7 @@ void CUAKMScript::Function_AF(CScriptState* pState)
 	{
 		// Pus' Shell game
 		CModuleController::Push(new CUAKMPusShellGameModule(i2, i3));
-		pState->WaitingForInput = TRUE;
+		pState->WaitingForExternalModule = TRUE;
 		break;
 	}
 	case 5:
@@ -597,7 +598,7 @@ void CUAKMScript::Function_AF(CScriptState* pState)
 		// Stasis chamber
 		CModuleController::Push(new CUAKMStasisModule(i2));
 		pState->WaitingForInput = TRUE;
-		pState->WaitingForMediaToFinish = TRUE;
+		//pState->WaitingForMediaToFinish = TRUE;
 		break;
 	}
 	case 10:

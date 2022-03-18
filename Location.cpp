@@ -2699,7 +2699,7 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 	}
 	else if (file == L"ARBOR.AP")
 	{
-		ModifyLocationPoints(1023, 1028, -0.01f, 0.0f, 0.0f);		// Closet door
+		ModifyLocationPoints(1023, 1028, -0.1f, 0.0f, 0.0f);		// Closet door
 	}
 	else if (file == L"AV.AP")
 	{
@@ -2766,6 +2766,7 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 		ModifyLocationPoints(625, 628, 0.0f, 0.0f, 0.01f);			// Marcus Tucker door sign
 		ModifyLocationPoints(637, 640, 0.0f, 0.0f, -0.01f);			// Supervisors door sign
 		ModifyLocationPoints(649, 652, 0.0f, 0.0f, -0.01f);			// R&D door sign
+		ModifyLocationPoints(524, 531, 0.0f, 0.0f, 0.01f);			// Marcus Tucker's door
 	}
 	else if (file == L"HALL.AP")
 	{
@@ -2852,10 +2853,12 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 	}
 	else if (file == L"SAFEROOM.AP")
 	{
-		ModifyLocationPoints(104, 104, 0.0f, 0.0f, -0.01f);			// Trashcan
-		ModifyLocationPoints(106, 106, 0.0f, 0.0f, -0.01f);			// Trashcan
-		ModifyLocationPoints(109, 109, 0.0f, 0.0f, -0.01f);			// Trashcan
-		ModifyLocationPoints(111, 111, 0.0f, 0.0f, -0.01f);			// Trashcan
+		ModifyLocationPoints(104, 104, 0.0f, 0.0f, -0.01f);			// Door
+		ModifyLocationPoints(106, 106, 0.0f, 0.0f, -0.01f);			// Door
+		ModifyLocationPoints(109, 109, 0.0f, 0.0f, -0.01f);			// Door
+		ModifyLocationPoints(111, 111, 0.0f, 0.0f, -0.01f);			// Door
+		ModifyLocationPoints(418, 457, 0.0f, 0.1f, 0.0f);			// Trashcan
+		ModifyLocationPoints(476, 476, 0.0f, 0.15f, 0.0f);			// Cup with pencils
 	}
 	else if (file == L"SECRET.AP")
 	{
@@ -3891,17 +3894,17 @@ void CLocation::SetObjectVisibility(int objectId, BOOL visible)
 	else
 	{
 		// Hide master object(s) containing the item
-		Trace(L"Setting visibility of object ");
-		Trace(id, 16);
-		Trace(L" to ");
-		if (visible)
-		{
-			TraceLine(L"VISIBLE");
-		}
-		else
-		{
-			TraceLine(L"HIDDEN");
-		}
+		//Trace(L"Setting visibility of object ");
+		//Trace(id, 16);
+		//Trace(L" to ");
+		//if (visible)
+		//{
+		//	TraceLine(L"VISIBLE");
+		//}
+		//else
+		//{
+		//	TraceLine(L"HIDDEN");
+		//}
 
 		for (int i = 0; i < _subObjectCount; i++)
 		{
@@ -3915,18 +3918,18 @@ void CLocation::SetObjectVisibility(int objectId, BOOL visible)
 
 void CLocation::ChangeVisibility(int id, BOOL visible, BOOL setOnSubObjects, std::wstring header)
 {
-	Trace((LPWSTR)header.c_str());
-	Trace(L"Setting visibility of object ");
-	Trace(id, 16);
-	Trace(L" to ");
-	if (visible)
-	{
-		TraceLine(L"VISIBLE");
-	}
-	else
-	{
-		TraceLine(L"HIDDEN");
-	}
+	//Trace((LPWSTR)header.c_str());
+	//Trace(L"Setting visibility of object ");
+	//Trace(id, 16);
+	//Trace(L" to ");
+	//if (visible)
+	//{
+	//	TraceLine(L"VISIBLE");
+	//}
+	//else
+	//{
+	//	TraceLine(L"HIDDEN");
+	//}
 
 	BOOL found = FALSE;
 	if ((id & 0x80000000) != 0)
@@ -3965,37 +3968,37 @@ void CLocation::ChangeVisibility(int id, BOOL visible, BOOL setOnSubObjects, std
 				{
 					if ((_improvedObjectMap[i].SubObjectId & 0x80000000) == 0)
 					{
-						Trace(L"Setting object ");
-						Trace(id, 16);
-						Trace(L", sub-object ");
-						Trace(_improvedObjectMap[i].SubObjectId, 16);
-						Trace(L" visibility to ");
-						if (visible)
-						{
-							TraceLine(L"VISIBLE");
-						}
-						else
-						{
-							TraceLine(L"HIDDEN");
-						}
+						//Trace(L"Setting object ");
+						//Trace(id, 16);
+						//Trace(L", sub-object ");
+						//Trace(_improvedObjectMap[i].SubObjectId, 16);
+						//Trace(L" visibility to ");
+						//if (visible)
+						//{
+						//	TraceLine(L"VISIBLE");
+						//}
+						//else
+						//{
+						//	TraceLine(L"HIDDEN");
+						//}
 						_visibilityBuffer.visibility[_improvedObjectMap[i].SubObjectIndex].y = visible ? 1.0f : -1.0f;
 					}
-					else
-					{
-						Trace(L"Visibility of object ");
-						Trace(id, 16);
-						Trace(L", sub-object ");
-						Trace(_improvedObjectMap[i].SubObjectId, 16);
-						Trace(L" remains ");
-						if (min(_visibilityBuffer.visibility[_improvedObjectMap[i].ObjectIndex].x, _visibilityBuffer.visibility[_improvedObjectMap[i].SubObjectIndex].y) > 0.0f)
-						{
-							TraceLine(L"VISIBLE");
-						}
-						else
-						{
-							TraceLine(L"HIDDEN");
-						}
-					}
+					//else
+					//{
+					//	Trace(L"Visibility of object ");
+					//	Trace(id, 16);
+					//	Trace(L", sub-object ");
+					//	Trace(_improvedObjectMap[i].SubObjectId, 16);
+					//	Trace(L" remains ");
+					//	if (min(_visibilityBuffer.visibility[_improvedObjectMap[i].ObjectIndex].x, _visibilityBuffer.visibility[_improvedObjectMap[i].SubObjectIndex].y) > 0.0f)
+					//	{
+					//		TraceLine(L"VISIBLE");
+					//	}
+					//	else
+					//	{
+					//		TraceLine(L"HIDDEN");
+					//	}
+					//}
 				}
 			}
 		}
@@ -4003,10 +4006,6 @@ void CLocation::ChangeVisibility(int id, BOOL visible, BOOL setOnSubObjects, std
 		found = TRUE;
 	}
 
-	if (!found)
-	{
-		int debug = 0;
-	}
 	_visibilityChanged = TRUE;
 }
 
