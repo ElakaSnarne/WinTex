@@ -13,9 +13,15 @@
 #include "AmbientAudio.h"
 #include "HintModule.h"
 
+float CLocationModule::_movement_forward = 0.0f;
+float CLocationModule::_movement_backward = 0.0f;
+float CLocationModule::_movement_left = 0.0f;
+float CLocationModule::_movement_right = 0.0f;
 float CLocationModule::_movement_x = 0.0f;
 float CLocationModule::_movement_y = 0.0f;
 float CLocationModule::_movement_z = 0.0f;
+float CLocationModule::_smooth_movement_x = 0.0f;
+float CLocationModule::_smooth_movement_z = 0.0f;
 float CLocationModule::_speed = 0.0f;
 
 int CLocationModule::CurrentAction = 0;
@@ -30,9 +36,15 @@ CLocationModule::CLocationModule(int locationId, int startupPosition) : CModuleB
 	CurrentAction = 0;
 	CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Crosshair;
 
+	_movement_forward = 0.0f;
+	_movement_backward = 0.0f;
+	_movement_left = 0.0f;
+	_movement_right = 0.0f;
 	_movement_x = 0.0f;
 	_movement_y = 0.0f;
 	_movement_z = 0.0f;
+	_smooth_movement_x = 0.0f;
+	_smooth_movement_z = 0.0f;
 	_speed = MOVEMENT_WALK_SPEED;
 
 	_oldPoint.x = 0;
@@ -181,10 +193,10 @@ void CLocationModule::Render()
 
 	if (!CAnimationController::HasAnim())
 	{
-		float mx = _movement_x;
-		float mz = _movement_z;
-		float tmx = _movement_x;
-		float tmz = _movement_z;
+		float mx {_movement_x};
+		float mz {_movement_z};
+		float tmx = mx;
+		float tmz = mz;
 
 		if (mx != 0.0 || mz != 0.0)
 		{
@@ -199,13 +211,21 @@ void CLocationModule::Render()
 			}
 		}
 
+		// Exponential interpolation
+		_smooth_movement_x = _smooth_movement_x * 0.85f + mx * 0.15f;
+		_smooth_movement_z = _smooth_movement_z * 0.85f + mz * 0.15f;
+		
+		// Damp out near-zero motion
+		if (abs(_smooth_movement_x) < 0.01f && _movement_x == 0.0f) { _smooth_movement_x = 0.0f; }
+		if (abs(_smooth_movement_z) < 0.01f && _movement_z == 0.0f) { _smooth_movement_z = 0.0f; }
+
 		int currentItemId = CGameController::GetCurrentItemId();
 		if (CurrentAction == ACTION_USE && currentItemId == -1)
 		{
 			CurrentAction = 0;
 		}
 
-		_location.Move(mx, _movement_y, mz, tmz);
+		_location.Move(_smooth_movement_x, _movement_y, _smooth_movement_z, tmz);
 
 		if (_location.PointingChanged)
 		{
@@ -516,22 +536,26 @@ void CLocationModule::Cycle()
 
 void CLocationModule::MoveForward(float v)
 {
-	_movement_z = -v;
+	_movement_forward = v;
+	_movement_z = _movement_backward - _movement_forward;
 }
 
 void CLocationModule::MoveBack(float v)
 {
-	_movement_z = v;
+	_movement_backward = v;
+	_movement_z = _movement_backward - _movement_forward;
 }
 
 void CLocationModule::MoveLeft(float v)
 {
-	_movement_x = v;
+	_movement_left = v;
+	_movement_x = _movement_left - _movement_right;
 }
 
 void CLocationModule::MoveRight(float v)
 {
-	_movement_x = -v;
+	_movement_right = v;
+	_movement_x = _movement_left - _movement_right;
 }
 
 void CLocationModule::MoveUp(float y)

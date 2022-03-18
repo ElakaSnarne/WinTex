@@ -675,17 +675,17 @@ void CMainMenuModule::Clear()
 	}
 }
 
-void CMainMenuModule::ConfigureControl(LPVOID data)
+void CMainMenuModule::ConfigureControl(InputAction data)
 {
 	ConfiguringControl = TRUE;
-	ControlInputAction = (InputAction)(int)data;
+	ControlInputAction = data;
 	_pCancelConfigControlBtn->SetVisible(TRUE);
 	_pConfigCancelBtn->SetVisible(FALSE);
 	_pConfigAcceptBtn->SetVisible(FALSE);
 	_pConfiguredControl->SetIsBeingConfigured(TRUE);
 }
 
-void CMainMenuModule::ConfigControlsCancel(LPVOID data)
+void CMainMenuModule::ConfigControlsCancel(InputAction data)
 {
 	ConfiguringControl = FALSE;
 	_pConfiguredControl->SetIsBeingConfigured(FALSE);
@@ -1157,44 +1157,47 @@ void CMainMenuModule::SetupConfigFrame()
 	// Make a copy of the current controls
 	_controlMapping = CInputMapping::ControlsMap;
 
-	_pCancelConfigControlBtn = new CDXButton("Cancel", 64.0f * pConfig->FontScale, 32.0f * ::pConfig->FontScale, ConfigControlsCancel);
+	// TODO: Change ConfigControlsCancel to take no params?
+	_pCancelConfigControlBtn = new CDXButton("Cancel", 64.0f * pConfig->FontScale, 32.0f * ::pConfig->FontScale, [](LPVOID) {
+		ConfigControlsCancel(InputAction::Cursor); 
+		});
 	_pCancelConfigControlBtn->SetVisible(FALSE);
 	_pConfigControl->AddChild(_pCancelConfigControlBtn, 24.0f, h - 72.0f - 54.0f * ::pConfig->FontScale);
 
 	_mouseKeyControls.clear();
-	_mouseKeyControls[InputAction::Cursor] = new CDXControlButton("Cursor", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Cursor);
-	_mouseKeyControls[InputAction::Action] = new CDXControlButton("Action", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Action);
-	_mouseKeyControls[InputAction::Cycle] = new CDXControlButton("Cycle", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Cycle);
-	_mouseKeyControls[InputAction::Back] = new CDXControlButton("Back", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Back);
-	_mouseKeyControls[InputAction::Travel] = new CDXControlButton("Travel", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Travel);
-	_mouseKeyControls[InputAction::Inventory] = new CDXControlButton("Inventory", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Inventory);
-	_mouseKeyControls[InputAction::Run] = new CDXControlButton("Run", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Run);
-	_mouseKeyControls[InputAction::Next] = new CDXControlButton("Next", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Next);
-	_mouseKeyControls[InputAction::Prev] = new CDXControlButton("Previous", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Prev);
-	_mouseKeyControls[InputAction::MoveForward] = new CDXControlButton("Move forward", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveForward);
-	_mouseKeyControls[InputAction::MoveBack] = new CDXControlButton("Move back", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveBack);
-	_mouseKeyControls[InputAction::MoveLeft] = new CDXControlButton("Move left", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveLeft);
-	_mouseKeyControls[InputAction::MoveRight] = new CDXControlButton("Move right", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveRight);
-	_mouseKeyControls[InputAction::MoveUp] = new CDXControlButton("Move up", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveUp);
-	_mouseKeyControls[InputAction::MoveDown] = new CDXControlButton("Move down", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveDown);
-	_mouseKeyControls[InputAction::Hints] = new CDXControlButton("Hints", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Hints);
+	_mouseKeyControls[InputAction::Cursor] = new CDXControlButton("Cursor", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Cursor);
+	_mouseKeyControls[InputAction::Action] = new CDXControlButton("Action", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Action);
+	_mouseKeyControls[InputAction::Cycle] = new CDXControlButton("Cycle", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Cycle);
+	_mouseKeyControls[InputAction::Back] = new CDXControlButton("Back", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Back);
+	_mouseKeyControls[InputAction::Travel] = new CDXControlButton("Travel", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Travel);
+	_mouseKeyControls[InputAction::Inventory] = new CDXControlButton("Inventory", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Inventory);
+	_mouseKeyControls[InputAction::Run] = new CDXControlButton("Run", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Run);
+	_mouseKeyControls[InputAction::Next] = new CDXControlButton("Next", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Next);
+	_mouseKeyControls[InputAction::Prev] = new CDXControlButton("Previous", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Prev);
+	_mouseKeyControls[InputAction::MoveForward] = new CDXControlButton("Move forward", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveForward);
+	_mouseKeyControls[InputAction::MoveBack] = new CDXControlButton("Move back", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveBack);
+	_mouseKeyControls[InputAction::MoveLeft] = new CDXControlButton("Move left", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveLeft);
+	_mouseKeyControls[InputAction::MoveRight] = new CDXControlButton("Move right", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveRight);
+	_mouseKeyControls[InputAction::MoveUp] = new CDXControlButton("Move up", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveUp);
+	_mouseKeyControls[InputAction::MoveDown] = new CDXControlButton("Move down", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveDown);
+	_mouseKeyControls[InputAction::Hints] = new CDXControlButton("Hints", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Hints);
 
 	_mouseKeyControls[InputAction::Cursor]->SetEnabled(FALSE);	// Should not be possible to reconfigure this one
 
 	_joystickControls.clear();
-	_joystickControls[InputAction::Cursor] = new CDXControlButton("Cursor", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Cursor);
-	_joystickControls[InputAction::Action] = new CDXControlButton("Action", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Action);
-	_joystickControls[InputAction::Cycle] = new CDXControlButton("Cycle", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Cycle);
-	_joystickControls[InputAction::Back] = new CDXControlButton("Back", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Back);
-	_joystickControls[InputAction::Travel] = new CDXControlButton("Travel", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Travel);
-	_joystickControls[InputAction::Inventory] = new CDXControlButton("Inventory", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Inventory);
-	_joystickControls[InputAction::Run] = new CDXControlButton("Run", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Run);
-	_joystickControls[InputAction::Next] = new CDXControlButton("Next", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Next);
-	_joystickControls[InputAction::Prev] = new CDXControlButton("Previous", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Prev);
-	_joystickControls[InputAction::MoveForward] = new CDXControlButton("Movement", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveForward);
-	_joystickControls[InputAction::MoveUp] = new CDXControlButton("Move up", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveUp);
-	_joystickControls[InputAction::MoveDown] = new CDXControlButton("Move down", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::MoveDown);
-	_joystickControls[InputAction::Hints] = new CDXControlButton("Hints", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, (LPVOID)InputAction::Hints);
+	_joystickControls[InputAction::Cursor] = new CDXControlButton("Cursor", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Cursor);
+	_joystickControls[InputAction::Action] = new CDXControlButton("Action", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Action);
+	_joystickControls[InputAction::Cycle] = new CDXControlButton("Cycle", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Cycle);
+	_joystickControls[InputAction::Back] = new CDXControlButton("Back", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Back);
+	_joystickControls[InputAction::Travel] = new CDXControlButton("Travel", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Travel);
+	_joystickControls[InputAction::Inventory] = new CDXControlButton("Inventory", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Inventory);
+	_joystickControls[InputAction::Run] = new CDXControlButton("Run", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Run);
+	_joystickControls[InputAction::Next] = new CDXControlButton("Next", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Next);
+	_joystickControls[InputAction::Prev] = new CDXControlButton("Previous", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Prev);
+	_joystickControls[InputAction::MoveForward] = new CDXControlButton("Movement", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveForward);
+	_joystickControls[InputAction::MoveUp] = new CDXControlButton("Move up", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveUp);
+	_joystickControls[InputAction::MoveDown] = new CDXControlButton("Move down", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveDown);
+	_joystickControls[InputAction::Hints] = new CDXControlButton("Hints", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Hints);
 
 	float x = 22.0f;
 

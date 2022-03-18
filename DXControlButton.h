@@ -9,9 +9,9 @@ class CControllerData;
 class CDXControlButton : public CDXButton
 {
 public:
-	CDXControlButton(LPSTR function, std::unordered_map<InputAction, InputMap>* pMapping, BOOL isJoystick, float w, float h, void(*onClick)(LPVOID) = NULL, LPVOID data = NULL);
+	CDXControlButton(LPSTR function, std::unordered_map<InputAction, InputMap>* pMapping, BOOL isJoystick, float w, float h, void(*onClick)(InputAction) = NULL, InputAction action = InputAction::Cursor);
 	~CDXControlButton();
-
+	virtual void Click();
 	virtual void Render();
 	virtual CDXControl* HitTest(float x, float y);
 	virtual void SetMouseOver(BOOL mouseOver);
@@ -29,4 +29,6 @@ protected:
 	BOOL _isJoystick;
 	CDXText _binding;
 	BOOL _isBeingConfigured;
+	void(*_controlClicked)(InputAction action);
+	InputAction _action;
 };
