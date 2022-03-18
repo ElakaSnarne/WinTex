@@ -137,6 +137,7 @@ void CDXControlButton::Click()
 	if (_controlClicked != nullptr) {
 		_controlClicked(_action);
 	}
+}
 
 void CDXControlButton::UpdateControlText(std::unordered_map<InputAction, InputMap>* pMapping, InputAction action)
 {
