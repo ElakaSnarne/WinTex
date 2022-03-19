@@ -1312,7 +1312,7 @@ void CUAKMScript::Function_97(CScriptState* pState)
 	DebugTrace(pState, L"Function_97 - Play Sound");
 	PlayAudio(pState, pState->Script[pState->ExecutionPointer++] - 1);
 
-	pState->WaitingForMediaToFinish = TRUE;
+	// pState->WaitingForMediaToFinish = TRUE;
 }
 
 void CUAKMScript::Function_99(CScriptState* pState)
