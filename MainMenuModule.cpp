@@ -514,12 +514,11 @@ void CMainMenuModule::LoadSetup()
 	while (ix < _saveGameControls.size() && ix < _savedGames.size())
 	{
 		CSaveGameControl* sgc = _saveGameControls.at(ix);
-		SaveGameInfo sgi = _savedGames.at(_loadTopIndex + ix);
 		if ((y + sgc->GetHeight()) > (h - (64 * pConfig->FontScale)))
 		{
 			break;
 		}
-
+		SaveGameInfo sgi = _savedGames.at(_loadTopIndex + ix);
 		sgc->SetInfo(sgi);
 		sgc->SetPosition(16.0f, static_cast<float>(y));
 		sgc->SetWidth(w - 80.0f);
@@ -539,7 +538,7 @@ void CMainMenuModule::LoadSetup()
 
 void CMainMenuModule::LoadScroll(int top)
 {
-	_loadTopIndex = min(_savedGames.size() - _loadVisibleSavesCount - 1, max(0, top));
+	_loadTopIndex = min(static_cast<int>(_savedGames.size()) - _loadVisibleSavesCount, max(0, top));
 	LoadSetup();
 }
 
