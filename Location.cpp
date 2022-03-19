@@ -2842,6 +2842,8 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 		ModifyLocationPoints(675, 675, 0.0f, 0.01f, 0.0f);			// Wall section
 		ModifyLocationPoints(786, 786, 0.0f, 0.01f, 0.0f);			// Wall section
 		ModifyLocationPoints(789, 789, 0.0f, 0.01f, 0.0f);			// Wall section
+		ModifyLocationPoints(301, 301, 0.0f, 0.01f, 0.0f);			// Wall section
+		ModifyLocationPoints(304, 304, 0.0f, 0.01f, 0.0f);			// Wall section
 	}
 	else if (file == L"OBSERVE.AP")
 	{
