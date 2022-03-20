@@ -94,5 +94,8 @@ protected:
 	virtual void Travel();
 	virtual void Hints();
 
+	virtual void SetCursorClipping();
+	virtual void UnsetCursorClipping();
+
 	void CycleItems(int direction);
 };
