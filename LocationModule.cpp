@@ -96,6 +96,7 @@ CLocationModule::~CLocationModule()
 void CLocationModule::Initialize()
 {
 	CenterMouse();
+	SetCursorClipping();
 
 	// Reset all timers
 	CGameController::ResetTimers();
@@ -439,11 +440,13 @@ void CLocationModule::Pause()
 	//_midi.Stop();
 
 	// TODO: When exiting this module, should put timers on hold
+	UnsetCursorClipping();
 }
 
 void CLocationModule::Resume()
 {
 	CenterMouse();
+	SetCursorClipping();
 
 	if (_actionScriptState->WaitingForInput)
 	{
@@ -453,6 +456,7 @@ void CLocationModule::Resume()
 
 void CLocationModule::Resize(int width, int height)
 {
+	
 }
 
 void CLocationModule::Cursor(float x, float y, BOOL relative)
@@ -621,4 +625,29 @@ void CLocationModule::CycleItems(int direction)
 void CLocationModule::Hints()
 {
 	CModuleController::Push(new CHintModule());
+}
+
+void CLocationModule::SetCursorClipping()
+{
+	if (!_cursorIsClipped) {
+		GetClipCursor(&_oldClippingArea);
+	}
+	RECT clientRect{ 0, 0, 0, 0 };
+	GetClientRect(_hWnd, &clientRect);
+	POINT clientOrigin{ 0, 0 };
+	ClientToScreen(_hWnd, &clientOrigin);
+	clientRect.left = clientOrigin.x;
+	clientRect.top = clientOrigin.y;
+	clientRect.right += clientOrigin.x;
+	clientRect.bottom += clientOrigin.y;
+	ClipCursor(&clientRect);
+	_cursorIsClipped = true;
+}
+
+void CLocationModule::UnsetCursorClipping()
+{
+	if (_cursorIsClipped) {
+		ClipCursor(&_oldClippingArea);
+		_cursorIsClipped = false;
+	}
 }
