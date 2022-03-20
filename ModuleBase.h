@@ -36,8 +36,7 @@ enum class ModuleType
 	Hints = 20,
 };
 
-class CModuleBase
-{
+class CModuleBase {
 public:
 	CModuleBase(ModuleType type);
 	virtual ~CModuleBase() {};
@@ -78,6 +77,8 @@ public:
 	virtual void Inventory() {}
 	virtual void Travel() {}
 	virtual void Hints() {}
+	virtual void SetCursorClipping() {};
+	virtual void UnsetCursorClipping() {};
 
 	float _cursorPosX = 0.0f;
 	float _cursorPosY = 0.0f;
@@ -96,4 +97,7 @@ protected:
 	int _cursorMaxY;
 
 	BOOL _initialized;
+
+	RECT _oldClippingArea;
+	bool _cursorIsClipped;
 };
