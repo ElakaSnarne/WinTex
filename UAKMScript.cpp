@@ -599,6 +599,7 @@ void CUAKMScript::Function_AF(CScriptState* pState)
 		CModuleController::Push(new CUAKMStasisModule(i2));
 		pState->WaitingForInput = TRUE;
 		//pState->WaitingForMediaToFinish = TRUE;
+		pState->WaitingForExternalModule = TRUE;
 		break;
 	}
 	case 10:

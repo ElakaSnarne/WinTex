@@ -83,6 +83,8 @@ public:
 	static int GetHintCategoryCount() { return Game->GetHintCategoryCount(); }
 	static CHintCategory* GetHintCategory(int index) { return Game->GetHintCategory(index); }
 
+	static CHintModule* GetHintModule() { return Game->GetHintModule(); }
+
 protected:
 	static CGameBase* Game;
 

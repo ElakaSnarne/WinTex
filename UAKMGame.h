@@ -3,6 +3,7 @@
 #include "GameBase.h"
 #include "UAKMScript.h"
 #include "UAKMScriptState.h"
+#include "UAKMHintModule.h"
 
 #define UAKM_SAVE_UNKNOWN1					0
 #define UAKM_SAVE_PLAYER					2
@@ -125,6 +126,8 @@ public:
 
 	virtual int GetLocationInitializationScriptId() { return 1000; }
 	virtual int GetLocationEnvironmentScriptId() { return 2000; }
+
+	virtual CHintModule* GetHintModule() { return new CUAKMHintModule(); }
 
 protected:
 	virtual int GetWord(int offset, BOOL signExtend = FALSE);

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Map.h"
-//#include "String.h"
 #include "Location.h"
 #include "DXText.h"
 #include "DXBitmap.h"
@@ -13,6 +12,7 @@
 #include "VideoModule.h"
 #include "LocationModule.h"
 #include "HintCategory.h"
+#include "HintModule.h"
 
 class CGameBase
 {
@@ -82,6 +82,8 @@ public:
 
 	int GetHintCategoryCount() { return _hintCategoryCount; }
 	CHintCategory* GetHintCategory(int index);
+
+	virtual CHintModule* GetHintModule() = NULL;
 
 protected:
 	virtual BOOL Init() = NULL;

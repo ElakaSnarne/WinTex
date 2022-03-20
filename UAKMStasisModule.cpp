@@ -5,6 +5,7 @@
 #include "MainMenuModule.h"
 #include "Utilities.h"
 #include "UAKMGame.h"
+#include "UAKMHintModule.h"
 
 int ProgressLightsXOffsets[] = { 108, 130, 152, 174, 241, 263, 285, 307, 377, 399, 421, 443 };
 
@@ -504,7 +505,7 @@ void CUAKMStasisModule::OnAction(int action)
 	}
 	else if (action == ACTION_STASIS_HINT)
 	{
-
+		CModuleController::Push(new CUAKMHintModule());
 	}
 	else if ((_stasisSettings & STASIS_SETTINGS_STATE_POWER) != 0)
 	{
