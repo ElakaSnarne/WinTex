@@ -335,3 +335,35 @@ void CFullScreenModule::Back()
 		CModuleController::Pop(this);
 	}
 }
+
+void CFullScreenModule::SetCursorClipping()
+{
+	RECT clientRect{};
+	GetClientRect(_hWnd, &clientRect);
+	SetCursorClipping(clientRect.left, clientRect.top,
+		clientRect.right, clientRect.bottom);
+}
+
+void CFullScreenModule::SetCursorClipping(int x1, int y1, int x2, int y2)
+{
+	if (!_cursorIsClipped) {
+		GetClipCursor(&_oldClippingArea);
+	}
+	POINT clientOrigin{ 0,0 };
+	ClientToScreen(_hWnd, &clientOrigin);
+	RECT clientRect{ x1, y1, x2, y2 };
+	clientRect.left += clientOrigin.x;
+	clientRect.top += clientOrigin.y;
+	clientRect.right += clientOrigin.x;
+	clientRect.bottom += clientOrigin.y;
+	ClipCursor(&clientRect);
+	_cursorIsClipped = true;
+}
+
+void CFullScreenModule::UnsetCursorClipping()
+{
+	if (_cursorIsClipped) {
+		ClipCursor(&_oldClippingArea);
+		_cursorIsClipped = false;
+	}
+}

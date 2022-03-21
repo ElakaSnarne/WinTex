@@ -45,6 +45,9 @@ void CModuleController::Pop(CModuleBase* pModule)
 
 	if (pModule != NULL)
 	{
+		if (CurrentModule == pModule) {
+			CurrentModule->Pause();
+		}
 		Modules.remove(pModule);
 
 		if (CurrentModule == pModule)
