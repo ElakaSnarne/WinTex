@@ -11,20 +11,7 @@
 #include "DXControlButton.h"
 #include "Gamepad.h"
 
-int CMainMenuModule::cfgWidth = 0;
-int CMainMenuModule::cfgHeight = 0;
-int CMainMenuModule::cfgMode = 0;
-int CMainMenuModule::cfgMIDIDevice = 0;
-BOOL CMainMenuModule::cfgFullscreen = FALSE;
-BOOL CMainMenuModule::cfgCaptions = TRUE;
-BOOL CMainMenuModule::cfgAlternativeMedia = FALSE;
-BOOL CMainMenuModule::cfgPlayMIDI = FALSE;
-BOOL CMainMenuModule::cfgInvertY = FALSE;
-float CMainMenuModule::cfgMouselookScaling = 1.0f;
-float CMainMenuModule::cfgFontScale = 1.0f;
-BOOL CMainMenuModule::cfgAnisotropicFiltering = TRUE;
-float CMainMenuModule::cfgVolume = 50.0f;
-float CMainMenuModule::cfgMIDIVolume = 50.0f;
+CConfiguration CMainMenuModule::cfg{};
 
 CDXScreen* CMainMenuModule::_pScreen = NULL;
 CDXFrame* CMainMenuModule::_pLoad = NULL;
@@ -110,23 +97,9 @@ void CMainMenuModule::Initialize()
 void CMainMenuModule::ConfigCancel(LPVOID data)
 {
 	_pScreen->PopModal();
-
 	// Revert config changes
-	cfgWidth = pConfig->Width;
-	cfgHeight = pConfig->Height;
-	cfgMode = pConfig->ScreenMode;
-	cfgFullscreen = pConfig->FullScreen;
-	cfgCaptions = pConfig->Captions;
-	cfgAlternativeMedia = pConfig->AlternativeMedia;
-	cfgPlayMIDI = pConfig->PlayMIDI;
-	cfgInvertY = pConfig->InvertY;
-	cfgMouselookScaling = pConfig->MouselookScaling;
-	cfgMIDIDevice = pConfig->MIDIDeviceId;
-	cfgFontScale = pConfig->FontScale;
-	cfgVolume = static_cast<float>(pConfig->Volume);
-	cfgMIDIVolume = static_cast<float>(pConfig->MIDIVolume);
-	cfgAnisotropicFiltering = pConfig->AnisotropicFilter;
-
+	cfg = *pConfig;
+	
 	pMIDIVolumeSlider->CalculateSliderPosition();
 	pMIDIVolumeSlider->UpdateValueText();
 	pVolumeSlider->CalculateSliderPosition();
@@ -149,53 +122,40 @@ void CMainMenuModule::ConfigAccept(LPVOID data)
 
 	// Set values back on configuration, change resolution if neccessary
 
-	BOOL change_size = (pConfig->Width != cfgWidth) || (pConfig->Height != cfgHeight);
-	BOOL change_fs = (pConfig->FullScreen != cfgFullscreen);
-	BOOL changeMIDIDevice = (pConfig->PlayMIDI && pConfig->MIDIDeviceId != cfgMIDIDevice);
-	BOOL changeFilter = (pConfig->AnisotropicFilter != cfgAnisotropicFiltering);
+	BOOL change_size = (pConfig->Width != cfg.Width) || (pConfig->Height != cfg.Height);
+	BOOL change_fs = (pConfig->FullScreen != cfg.FullScreen);
+	BOOL changeMIDIDevice = (pConfig->PlayMIDI && pConfig->MIDIDeviceId != cfg.MIDIDeviceId);
+	BOOL changeFilter = (pConfig->AnisotropicFilter != cfg.AnisotropicFilter);
 
-	pConfig->Width = cfgWidth;
-	pConfig->Height = cfgHeight;
-	pConfig->ScreenMode = cfgMode;
-	pConfig->FullScreen = cfgFullscreen;
-	pConfig->Captions = cfgCaptions;
-	pConfig->AlternativeMedia = cfgAlternativeMedia;
-	pConfig->PlayMIDI = cfgPlayMIDI;
-	pConfig->InvertY = cfgInvertY;
-	pConfig->MouselookScaling = cfgMouselookScaling;
-	pConfig->MIDIDeviceId = cfgMIDIDevice;
-	pConfig->FontScale = cfgFontScale;
-	pConfig->Volume = static_cast<int>(cfgVolume);
-	pConfig->MIDIVolume = static_cast<int>(cfgMIDIVolume);
-	pConfig->AnisotropicFilter = cfgAnisotropicFiltering;
+	*pConfig = cfg;
 	pConfig->Save();
 
 	if (change_fs)
 	{
-		dx.SetFullScreen(cfgFullscreen);
+		dx.SetFullScreen(cfg.FullScreen);
 	}
 
 	if (change_size)
 	{
-		dx.Resize(cfgWidth, cfgHeight);
+		dx.Resize(cfg.Width, cfg.Height);
 
-		CModuleController::Resize(cfgWidth, cfgHeight);
+		CModuleController::Resize(cfg.Width, cfg.Height);
 
 		CConstantBuffers::Setup2D(dx);
 	}
 
 	if (changeFilter)
 	{
-		dx.SelectSampler(cfgAnisotropicFiltering);
+		dx.SelectSampler(cfg.AnisotropicFilter);
 	}
 
 	if (changeMIDIDevice)
 	{
-		pMIDI->OpenDevice(cfgMIDIDevice);
+		pMIDI->OpenDevice(cfg.MIDIDeviceId);
 	}
 
-	pMIDI->SetVolume(((float)cfgMIDIVolume) / 100.0f);
-	CDXSound::SetVolume(((float)cfgVolume) / 100.0f);
+	pMIDI->SetVolume(((float)cfg.MIDIVolume) / 100.0f);
+	CDXSound::SetVolume(((float)cfg.Volume) / 100.0f);
 
 	// Apply and save controls
 	CInputMapping::ControlsMap = _controlMapping;
@@ -205,11 +165,11 @@ void CMainMenuModule::ConfigAccept(LPVOID data)
 
 void CMainMenuModule::ConfigPreviousResolution(LPVOID data)
 {
-	if (cfgMode > pConfig->MinAcceptedMode&& pConfig->pAdapter != NULL)
+	if (cfg.ScreenMode > pConfig->MinAcceptedMode&& pConfig->pAdapter != NULL)
 	{
-		cfgMode--;
-		cfgWidth = pConfig->pAdapter->_displayModeList[cfgMode].Width;
-		cfgHeight = pConfig->pAdapter->_displayModeList[cfgMode].Height;
+		cfg.ScreenMode--;
+		cfg.Width = pConfig->pAdapter->_displayModeList[cfg.ScreenMode].Width;
+		cfg.Height = pConfig->pAdapter->_displayModeList[cfg.ScreenMode].Height;
 
 		UpdateResolutionLabel();
 	}
@@ -217,11 +177,11 @@ void CMainMenuModule::ConfigPreviousResolution(LPVOID data)
 
 void CMainMenuModule::ConfigNextResolution(LPVOID data)
 {
-	if (pConfig->pAdapter != NULL && cfgMode < (static_cast<int>(pConfig->pAdapter->_numModes) - 1))
+	if (pConfig->pAdapter != NULL && cfg.ScreenMode < (static_cast<int>(pConfig->pAdapter->_numModes) - 1))
 	{
-		cfgMode++;
-		cfgWidth = pConfig->pAdapter->_displayModeList[cfgMode].Width;
-		cfgHeight = pConfig->pAdapter->_displayModeList[cfgMode].Height;
+		cfg.ScreenMode++;
+		cfg.Width = pConfig->pAdapter->_displayModeList[cfg.ScreenMode].Width;
+		cfg.Height = pConfig->pAdapter->_displayModeList[cfg.ScreenMode].Height;
 
 		UpdateResolutionLabel();
 	}
@@ -231,36 +191,36 @@ void CMainMenuModule::UpdateResolutionLabel()
 {
 	char buffer[40];
 	char* pp = buffer;
-	itoa(cfgWidth, pp, 10);
+	itoa(cfg.Width, pp, 10);
 	pp += strlen(pp);
 	strcat(pp, " x ");
 	pp += 3;
-	itoa(cfgHeight, pp, 10);
+	itoa(cfg.Height, pp, 10);
 
 	pResolution->SetText(buffer);
 }
 
 void CMainMenuModule::ConfigPreviousMIDIDevice(LPVOID data)
 {
-	if (pConfig->pMIDIDevices != NULL && cfgMIDIDevice > 0)
+	if (pConfig->MIDIDevices.size() != 0 && cfg.MIDIDeviceId > 0)
 	{
-		cfgMIDIDevice--;
+		cfg.MIDIDeviceId--;
 		UpdateMIDIDeviceLabel();
 	}
 }
 
 void CMainMenuModule::ConfigNextMIDIDevice(LPVOID data)
 {
-	if (pConfig->pMIDIDevices != NULL && cfgMIDIDevice < (pConfig->NumberOfMIDIOutDevices - 1))
+	if (pConfig->MIDIDevices.size() != 0 && cfg.MIDIDeviceId < (pConfig->NumberOfMIDIOutDevices - 1))
 	{
-		cfgMIDIDevice++;
+		cfg.MIDIDeviceId++;
 		UpdateMIDIDeviceLabel();
 	}
 }
 
 void CMainMenuModule::UpdateMIDIDeviceLabel()
 {
-	MIDIOUTCAPSA midiCaps = pConfig->pMIDIDevices[cfgMIDIDevice];
+	MIDIOUTCAPSA midiCaps = pConfig->MIDIDevices.at(cfg.MIDIDeviceId);
 	pMIDIDevice->SetText(midiCaps.szPname);
 }
 
@@ -374,6 +334,8 @@ void CMainMenuModule::Save(LPVOID data)
 
 void CMainMenuModule::Config(LPVOID data)
 {
+	cfg = *pConfig;
+	/*
 	cfgWidth = pConfig->Width;
 	cfgHeight = pConfig->Height;
 	cfgMode = pConfig->ScreenMode;
@@ -387,7 +349,7 @@ void CMainMenuModule::Config(LPVOID data)
 	cfgAnisotropicFiltering = pConfig->AnisotropicFilter;
 	cfgVolume = static_cast<float>(pConfig->Volume);
 	cfgMIDIVolume = static_cast<float>(pConfig->MIDIVolume);
-
+	*/
 	if (_pConfig == NULL)
 	{
 		((CMainMenuModule*)MainMenuModule)->SetupConfigFrame();
@@ -451,7 +413,7 @@ void CMainMenuModule::Resize(int width, int height)
 
 	Clear();
 
-	if (!cfgFullscreen)
+	if (!cfg.FullScreen)
 	{
 		int sw = GetSystemMetrics(SM_CXSCREEN);
 		int sh = GetSystemMetrics(SM_CYSCREEN);
@@ -1092,19 +1054,19 @@ void CMainMenuModule::SetupConfigFrame()
 	_pConfigVideo->AddChild(pResolution, checkBoxWidth - 60.0f, y);
 	y += buttonHeight;
 
-	_pConfigVideo->AddChild(new CDXCheckBox("Full screen", &cfgFullscreen, checkBoxWidth), 22.0f, y);
+	_pConfigVideo->AddChild(new CDXCheckBox("Full screen", &cfg.FullScreen, checkBoxWidth), 22.0f, y);
 	y += buttonHeight;
 
-	_pConfigVideo->AddChild(new CDXCheckBox("Captions", &cfgCaptions, checkBoxWidth), 22.0f, y);
+	_pConfigVideo->AddChild(new CDXCheckBox("Captions", &cfg.Captions, checkBoxWidth), 22.0f, y);
 	y += buttonHeight;
 
-	_pConfigVideo->AddChild(new CDXCheckBox("Alternative media", &cfgAlternativeMedia, checkBoxWidth), 22.0f, y);
+	_pConfigVideo->AddChild(new CDXCheckBox("Alternative media", &cfg.AlternativeMedia, checkBoxWidth), 22.0f, y);
 	y += buttonHeight;
 
-	_pConfigVideo->AddChild(new CDXCheckBox("Anisotropic filter", &cfgAnisotropicFiltering, checkBoxWidth), 22.0f, y);
+	_pConfigVideo->AddChild(new CDXCheckBox("Anisotropic filter", &cfg.AnisotropicFilter, checkBoxWidth), 22.0f, y);
 	y += buttonHeight;
 
-	_pConfigVideo->AddChild(pFontScaleSlider = new CDXSlider("Font scale", 1.0f, 3.0f, 0.25f, &cfgFontScale, 5), 22.0f, y);
+	_pConfigVideo->AddChild(pFontScaleSlider = new CDXSlider("Font scale", 1.0f, 3.0f, 0.25f, &cfg.FontScale, 5), 22.0f, y);
 
 	// Audio config
 	_pConfigAudio = new CDXTabItem(_pConfigTab, "Audio", tw, h - 80.0f);
@@ -1112,11 +1074,11 @@ void CMainMenuModule::SetupConfigFrame()
 
 	y = 46.0f;
 
-	_pConfigAudio->AddChild(pVolumeSlider = new CDXSlider("Volume", 0.0f, 100.0f, 1.0f, &cfgVolume, 0), 22.0f, y);
+	_pConfigAudio->AddChild(pVolumeSlider = new CDXSlider("Volume", 0.0f, 100.0f, 1.0f, &cfg.Volume, 0), 22.0f, y);
 	y += buttonHeight * 1.5f;
 
 	// MIDI
-	_pConfigAudio->AddChild(new CDXCheckBox("MIDI", &cfgPlayMIDI, checkBoxWidth), 22.0f, y);
+	_pConfigAudio->AddChild(new CDXCheckBox("MIDI", &cfg.PlayMIDI, checkBoxWidth), 22.0f, y);
 	y += buttonHeight;
 
 	CDXImageButton* pMLBtn = new CDXImageButton(0, ConfigPreviousMIDIDevice);
@@ -1133,7 +1095,7 @@ void CMainMenuModule::SetupConfigFrame()
 	_pConfigAudio->AddChild(pMIDIDevice, checkBoxWidth - 60.0f, y);
 	y += buttonHeight;
 
-	_pConfigAudio->AddChild(pMIDIVolumeSlider = new CDXSlider("MIDI volume", 0.0f, 100.0f, 1.0f, &cfgMIDIVolume, 0), 22.0f, y);
+	_pConfigAudio->AddChild(pMIDIVolumeSlider = new CDXSlider("MIDI volume", 0.0f, 100.0f, 1.0f, &cfg.MIDIVolume, 0), 22.0f, y);
 
 	// Control config
 	_pConfigControl = new CDXTabItem(_pConfigTab, "Controls", tw, h - 80.0f);
@@ -1150,7 +1112,7 @@ void CMainMenuModule::SetupConfigFrame()
 	_pConfigControlJoystick = new CDXTabItem(_pConfigControlTab, "Joystick", ctw, h - 80.0f);
 	_pConfigControlTab->AddChild(_pConfigControlJoystick, 0.0f, 10.0f);
 
-	_pConfigControl->AddChild(new CDXCheckBox("Invert Y", &cfgInvertY, checkBoxWidth), 22.0f, y);
+	_pConfigControl->AddChild(new CDXCheckBox("Invert Y", &cfg.InvertY, checkBoxWidth), 22.0f, y);
 	//y += buttonHeight;
 
 	// Make a copy of the current controls
@@ -1245,7 +1207,7 @@ void CMainMenuModule::SetupConfigFrame()
 	y += fontHeight;
 	_pConfigControlKeyMouse->AddChild(_mouseKeyControls[InputAction::Hints], x, y);
 	y += fontHeight * 2.0f;
-	_pConfigControlKeyMouse->AddChild(new CDXSlider("Mouse sensitivity", 0.25f, 2.0f, 0.05f, &cfgMouselookScaling, 2), x, y);
+	_pConfigControlKeyMouse->AddChild(new CDXSlider("Mouse sensitivity", 0.25f, 2.0f, 0.05f, &cfg.MouselookScaling, 2), x, y);
 	y += fontHeight * 2.0f;
 
 	/*
