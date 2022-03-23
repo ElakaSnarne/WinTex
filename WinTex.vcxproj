@@ -164,8 +164,10 @@
     <ClCompile Include="Hint.cpp" />
     <ClCompile Include="HintCategory.cpp" />
     <ClCompile Include="HintModule.cpp" />
+    <ClCompile Include="PDHintModule.cpp" />
     <ClCompile Include="ResumeGameModule.cpp" />
     <ClCompile Include="UAKMDMap.cpp" />
+    <ClCompile Include="UAKMHintModule.cpp" />
     <ClCompile Include="UAKMMap.cpp" />
     <ClCompile Include="PDDMap.cpp" />
     <ClCompile Include="DXControlButton.cpp" />
@@ -267,6 +269,7 @@
     <ClInclude Include="AreaData.h" />
     <ClInclude Include="BIC.h" />
     <ClInclude Include="BinaryData.h" />
+    <ClInclude Include="PDHintModule.h" />
     <ClInclude Include="D3D11-NoWarn.h" />
     <ClInclude Include="D3DX10-NoWarn.h" />
     <ClInclude Include="D3DX11-NoWarn.h" />
@@ -284,6 +287,7 @@
     <ClInclude Include="PDScriptState.h" />
     <ClInclude Include="ResumeGameModule.h" />
     <ClInclude Include="UAKMExamStruct.h" />
+    <ClInclude Include="UAKMHintModule.h" />
     <ClInclude Include="UAKMScriptState.h" />
     <ClInclude Include="DoubleData.h" />
     <ClInclude Include="DXControlButton.h" />

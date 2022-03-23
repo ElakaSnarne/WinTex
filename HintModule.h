@@ -15,11 +15,8 @@ public:
 	virtual void Cursor(float x, float y, BOOL relative);
 	virtual void BeginAction();
 	virtual void Back();
-	virtual void Render();
 
 protected:
-	virtual void Initialize();
-
 	std::list<CHintCategory*> _activeHintCategories;
 
 	CTexture _blankTexture;

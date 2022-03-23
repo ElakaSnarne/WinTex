@@ -4,6 +4,7 @@
 #include "PDScript.h"
 #include "PDScriptState.h"
 #include "PDLocationModule.h"
+#include "PDHintModule.h"
 
 // Verified
 #define PD_SAVE_PARAMETERS					0x1fa
@@ -131,6 +132,8 @@ public:
 
 	virtual int GetLocationInitializationScriptId() { return 0; }
 	virtual int GetLocationEnvironmentScriptId() { return 1; }
+
+	virtual CHintModule* GetHintModule() { return new CPDHintModule(); }
 
 protected:
 	virtual int GetWord(int offset, BOOL signExtend = FALSE);

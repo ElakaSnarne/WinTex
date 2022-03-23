@@ -624,7 +624,7 @@ void CLocationModule::CycleItems(int direction)
 
 void CLocationModule::Hints()
 {
-	CModuleController::Push(new CHintModule());
+	CModuleController::Push(CGameController::GetHintModule());
 }
 
 void CLocationModule::SetCursorClipping()
