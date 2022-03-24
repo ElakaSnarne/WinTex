@@ -279,6 +279,20 @@ void CModuleController::Resize(int width, int height)
 	_lock.Release();
 }
 
+void CModuleController::GotFocus()
+{
+	if (CurrentModule != NULL) {
+		CurrentModule->GotFocus();
+	}
+}
+
+void CModuleController::LostFocus()
+{
+	if (CurrentModule != NULL) {
+		CurrentModule->LostFocus();
+	}
+}
+
 void CModuleController::Resume()
 {
 	_lock.Lock();

@@ -45,6 +45,8 @@ public:
 
 	void Init();
 	virtual void Resize(int width, int height) = NULL;
+	virtual void GotFocus();
+	virtual void LostFocus();
 	virtual void Pause() {}
 	virtual void Resume() {}
 	virtual void Dispose() {}
@@ -77,8 +79,10 @@ public:
 	virtual void Inventory() {}
 	virtual void Travel() {}
 	virtual void Hints() {}
-	virtual void SetCursorClipping() {};
-	virtual void UnsetCursorClipping() {};
+	virtual void SetCursorClipping();
+	virtual void SetCursorClipping(int x1, int y1, int x2, int y2);
+	virtual void RefreshCursorClipping();
+	virtual void UnsetCursorClipping();
 
 	float _cursorPosX = 0.0f;
 	float _cursorPosY = 0.0f;
@@ -99,5 +103,7 @@ protected:
 	BOOL _initialized;
 
 	RECT _oldClippingArea;
+	RECT _currentClippingArea;
 	bool _cursorIsClipped;
+	bool _hasFocus {true};
 };

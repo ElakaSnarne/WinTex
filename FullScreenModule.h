@@ -67,7 +67,4 @@ protected:
 
 	// Input related
 	virtual void Back();
-	virtual void SetCursorClipping();
-	virtual void SetCursorClipping(int x1, int y1, int x2, int y2);
-	virtual void UnsetCursorClipping();
 };

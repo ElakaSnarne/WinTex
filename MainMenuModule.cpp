@@ -335,21 +335,6 @@ void CMainMenuModule::Save(LPVOID data)
 void CMainMenuModule::Config(LPVOID data)
 {
 	cfg = *pConfig;
-	/*
-	cfgWidth = pConfig->Width;
-	cfgHeight = pConfig->Height;
-	cfgMode = pConfig->ScreenMode;
-	cfgFullscreen = pConfig->FullScreen;
-	cfgCaptions = pConfig->Captions;
-	cfgAlternativeMedia = pConfig->AlternativeMedia;
-	cfgPlayMIDI = pConfig->PlayMIDI;
-	cfgInvertY = pConfig->InvertY;
-	cfgMouselookScaling = pConfig->MouselookScaling;
-	cfgFontScale = pConfig->FontScale;
-	cfgAnisotropicFiltering = pConfig->AnisotropicFilter;
-	cfgVolume = static_cast<float>(pConfig->Volume);
-	cfgMIDIVolume = static_cast<float>(pConfig->MIDIVolume);
-	*/
 	if (_pConfig == NULL)
 	{
 		((CMainMenuModule*)MainMenuModule)->SetupConfigFrame();

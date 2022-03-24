@@ -57,6 +57,10 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 {
 	switch (message)
 	{
+		case WM_ACTIVATEAPP:
+			PostThreadMessage(CModuleController::MainThreadId, message, wParam, lParam);
+			return 0;
+			break;
 		case WM_DESTROY:
 		{
 			// close the application entirely
@@ -187,6 +191,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 						if (GetMessage(&msg, NULL, 0, 0))
 						{
 							if (msg.message == WM_CLOSE) break;
+							else if (msg.message == WM_ACTIVATEAPP) {
+								if (msg.wParam == TRUE) {
+									CModuleController::GotFocus();
+								}
+								else {
+									CModuleController::LostFocus();
+								}
+							}
 							else if (msg.message == WM_DISPLAYCHANGE);// OutputDebugString(L"Display Change\r\n");
 							else if (msg.message == WM_MOUSEMOVE)
 							{
