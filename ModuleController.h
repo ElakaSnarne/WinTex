@@ -13,6 +13,9 @@ class CModuleController
 public:
 	static BOOL Init(CMap* map, CMap* dmap);
 
+	static void GotFocus();
+	static void LostFocus();
+
 	static void Push(CModuleBase* pModule, BOOL overrideCurrent = FALSE);
 	static void Pop(CModuleBase* pModule);
 	static void SendToBack(CModuleBase* pModule);

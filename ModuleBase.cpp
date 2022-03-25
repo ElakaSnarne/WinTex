@@ -15,6 +15,49 @@ CModuleBase::CModuleBase(ModuleType type)
 	_initialized = FALSE;
 }
 
+void CModuleBase::SetCursorClipping()
+{
+	RECT clientRect{};
+	GetClientRect(_hWnd, &clientRect);
+	SetCursorClipping(clientRect.left, clientRect.top,
+		clientRect.right, clientRect.bottom);
+}
+
+void CModuleBase::SetCursorClipping(int x1, int y1, int x2, int y2)
+{
+	if (!_cursorIsClipped) {
+		GetClipCursor(&_oldClippingArea);
+	}
+	POINT clientOrigin{0,0};
+	ClientToScreen(_hWnd, &clientOrigin);
+	RECT clientRect{ x1, y1, x2, y2 };
+	clientRect.left += clientOrigin.x;
+	clientRect.top += clientOrigin.y;
+	clientRect.right += clientOrigin.x;
+	clientRect.bottom += clientOrigin.y;
+	_currentClippingArea = clientRect;
+	ClipCursor(&clientRect);
+	_cursorIsClipped = true;
+}
+
+void CModuleBase::RefreshCursorClipping()
+{
+	if (_cursorIsClipped) {
+		ClipCursor(&_currentClippingArea);
+	}
+	else {
+		// TODO: Something, probably...
+	}
+}
+
+void CModuleBase::UnsetCursorClipping()
+{
+	if (_cursorIsClipped) {
+		ClipCursor(&_oldClippingArea);
+		_cursorIsClipped = false;
+	}
+}
+
 void CModuleBase::CenterMouse()
 {
 	if (GetForegroundWindow() == _hWnd)
@@ -36,6 +79,20 @@ void CModuleBase::Init()
 		_initialized = TRUE;
 		Initialize();
 	}
+}
+
+void CModuleBase::GotFocus()
+{
+	ShowCursor(false);
+	_hasFocus = true;
+	CenterMouse();
+	RefreshCursorClipping();
+}
+
+void CModuleBase::LostFocus()
+{
+	ShowCursor(true);
+	_hasFocus = false;
 }
 
 void CModuleBase::CreateTexturedRectangle(float top, float left, float bottom, float right, ID3D11Buffer** ppBuffer, char* pName)

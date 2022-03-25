@@ -22,7 +22,7 @@ void CDXSound::Init()
 {
 	XAudio2Create(&XAudio2, 0);
 	XAudio2->CreateMasteringVoice(&MasteringVoice);
-	SetVolume(((float)pConfig->Volume) / 100.0f);
+	SetVolume((pConfig->Volume) / 100.0f);
 }
 
 void CDXSound::Dispose()
