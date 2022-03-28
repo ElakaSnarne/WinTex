@@ -228,7 +228,7 @@ BOOL CLocation::Load(int locationFileIndex)
 	}
 
 	// Prepare the object mapping list
-	_objectMapCount = _mapEntry->ObjectMap.size();
+	_objectMapCount = static_cast<int>(_mapEntry->ObjectMap.size());
 	_objectMap = new ObjectMap[_objectMapCount];
 	std::vector<int>::iterator oit = _mapEntry->ObjectMap.begin();
 	std::vector<int>::iterator oend = _mapEntry->ObjectMap.end();
@@ -1657,9 +1657,9 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 			{
 				if (_paths[i].enabled)
 				{
-					for (size_t p1 = 0; p1 < _paths[i].Points.size(); p1++)
+					for (std::size_t p1 = 0; p1 < _paths[i].Points.size(); p1++)
 					{
-						int p2 = p1 + 1;
+						auto p2 = p1 + 1;
 						if (p2 == _paths[i].Points.size()) p2 = 0;
 
 						DPoint pt1 = _paths[i].Points.at(p1);
@@ -1722,7 +1722,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 									collision = TRUE;
 
 									closestPathIndex = i;
-									closestPathSubIndex = p1;
+									closestPathSubIndex = static_cast<int>(p1);
 								}
 							}
 						}
@@ -1798,7 +1798,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 					{
 						for (size_t p1 = 0; p1 < _paths[i].Points.size(); p1++)
 						{
-							int p2 = p1 + 1;
+							auto p2 = p1 + 1;
 							if (p2 == _paths[i].Points.size()) p2 = 0;
 
 							DPoint xpt1 = _paths[i].Points.at(p1);
@@ -1810,7 +1810,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 							{
 								newClosestD = newd;
 								newclosestpathindex = i;
-								newclosestPathSubIndex = p1;
+								newclosestPathSubIndex = static_cast<int>(p1);
 							}
 						}
 					}
@@ -1849,7 +1849,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 					{
 						for (size_t p1 = 0; p1 < _paths[i].Points.size(); p1++)
 						{
-							int p2 = p1 + 1;
+							auto p2 = p1 + 1;
 							if (p2 == _paths[i].Points.size()) p2 = 0;
 
 							DPoint xpt1 = _paths[i].Points.at(p1);
@@ -1861,7 +1861,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 							{
 								newClosestD = newd;
 								newclosestpathindex = i;
-								newclosestPathSubIndex = p1;
+								newclosestPathSubIndex = static_cast<int>(p1);
 							}
 						}
 					}

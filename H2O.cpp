@@ -291,8 +291,8 @@ BOOL CH2O::DecodeFrame()
 		if (_sourceVoice != NULL)
 		{
 			// Enqueue a couple of buffers	XAUDIO2_MAX_QUEUED_BUFFERS=64
-			int buffers = _audioBuffers.size();
-			for (int i = 0; i < buffers && i < 10; i++)
+			auto buffers = _audioBuffers.size();
+			for (std::size_t i = 0; i < buffers && i < 10; i++)
 			{
 				Buffer ab = _audioBuffers.front();
 				_audioBuffers.pop_front();

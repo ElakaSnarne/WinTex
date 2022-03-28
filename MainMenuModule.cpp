@@ -519,7 +519,7 @@ void CMainMenuModule::SaveIncrementSave(LPVOID data)
 	{
 		SaveGameInfo info = _saveControl->GetInfo();
 		LPWSTR fn = (LPWSTR)info.FileName.c_str();
-		int len = wcslen(fn);
+		auto len = wcslen(fn);
 
 		// Increment extension, fail if already 999
 		int index = _wtoi(fn + len - 3) + 1;
@@ -554,7 +554,7 @@ void CMainMenuModule::SaveSetup()
 
 	SaveGameInfo info;
 	info.FileName = L"GAMES\\";
-	int nameLength = CurrentGameInfo.Player.length();
+	auto nameLength = CurrentGameInfo.Player.length();
 	while (nameLength > 0 && CurrentGameInfo.Player.at(nameLength - 1) == ' ')
 	{
 		nameLength--;
@@ -566,7 +566,7 @@ void CMainMenuModule::SaveSetup()
 	}
 	info.FileName += L"00.";
 	// Append 3 digit number (from current savegame)
-	int lastDot = CurrentGameInfo.FileName.find_last_of('.');
+	auto lastDot = CurrentGameInfo.FileName.find_last_of('.');
 	int fileIndex = lastDot > 0 ? min(999, std::stoi(CurrentGameInfo.FileName.c_str() + lastDot + 1)) : 1;
 	if (fileIndex < 100)
 	{
@@ -773,7 +773,7 @@ void CMainMenuModule::BeginAction()
 					{
 						SaveMode = SaveMode::Comment;
 						SaveGameInfo info = _saveControl->GetInfo();
-						SaveTypedChars = info.Comment.length();
+						SaveTypedChars = static_cast<int>(info.Comment.length());
 						_caretPos = static_cast<int>(_saveControl->GetX() + 68 * pConfig->FontScale + ceil(TexFont.PixelWidth(_commentBuffer)));
 					}
 				}
@@ -923,7 +923,7 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 			{
 				SaveMode = SaveMode::Comment;
 				SaveGameInfo info = _saveControl->GetInfo();
-				SaveTypedChars = info.Comment.length();
+				SaveTypedChars = static_cast<int>(info.Comment.length());
 				_caretPos = static_cast<int>(_saveControl->GetX() + 68 * pConfig->FontScale);
 			}
 		}

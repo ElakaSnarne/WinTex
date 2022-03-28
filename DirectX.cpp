@@ -19,7 +19,7 @@ void SetDebugName(ID3D11DeviceChild* child, const char* name)
 {
 	if (child != nullptr && name != nullptr)
 	{
-		child->SetPrivateData(WKPDID_D3DDebugObjectName, strlen(name), name);
+		child->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<int>(strlen(name)), name);
 	}
 }
 
@@ -31,7 +31,7 @@ void SetDebugName(IUnknown* unk, const char* name)
 		unk->QueryInterface(IID_ID3D11DeviceChild, (void**)&child);
 		if (child != NULL)
 		{
-			child->SetPrivateData(WKPDID_D3DDebugObjectName, strlen(name), name);
+			child->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<int>(strlen(name)), name);
 		}
 	}
 }
