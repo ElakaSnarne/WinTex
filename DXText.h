@@ -24,8 +24,8 @@ public:
 
 	virtual void Render(float x, float y);
 
-	void SetText(char* text, Alignment alignment = Alignment::Left);
-	void SetText(char* text, Rect rect, Alignment alignment = Alignment::Left);
+	void SetText(char const* text, Alignment alignment = Alignment::Left);
+	void SetText(char const* text, Rect rect, Alignment alignment = Alignment::Left);
 	void SetText(LPCWSTR text, Alignment alignment = Alignment::Left);
 	void SetText(LPCWSTR text, Rect rect, Alignment alignment = Alignment::Left);
 
@@ -42,18 +42,18 @@ public:
 		CWordList();
 		~CWordList();
 
-		void Add(char* text, int chars, float pixels);
+		void Add(char const* text, int chars, float pixels);
 		CWordList* Next();
 		float Pixels();
-		char* Text();
+		char const* Text();
 		int Chars();
 
 		void SetNext(CWordList* pNext) { _next = pNext; }
 
 	protected:
-		CWordList(char* text, int chars, float pixels);
+		CWordList(char const* text, int chars, float pixels);
 
-		char* _text;
+		char const* _text;
 		int _chars;
 		float _pixels;
 

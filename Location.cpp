@@ -14,6 +14,8 @@
 #include <tuple>
 #include "Elevation.h"
 #include "LocationDataHeader.h"
+#include <algorithm>
+#include <string>
 
 BOOL CLocation::_loading = FALSE;
 
@@ -959,32 +961,15 @@ BOOL CLocation::Load(int locationFileIndex)
 	}
 
 	// Load alternative textures
-	if (pConfig->AlternativeMedia)
-	{
-		wchar_t alternateName[1024];
-		ZeroMemory(alternateName, sizeof(alternateName));
-		wcscat(alternateName, file.c_str());
-		wchar_t* pAlter = alternateName + file.size() - 3;
-		pAlter[0] = L'\\';
-		pAlter++;
-
-		tit = _allTextures.begin();
-		tend = _allTextures.end();
-		int tix = 0;
-		while (tit != tend)
-		{
-			_itow(tix, pAlter, 10);
-			wchar_t* pAlter2 = pAlter + wcslen(pAlter);
-			wcscat(pAlter2, L".png");
-
-			// TODO: If file exists, replace texture...
-			if (CFile::Exists(alternateName))
-			{
-				(*tit)->pTexture->Init(alternateName);
+	if (pConfig->AlternativeMedia) {
+		auto extensionlessName = std::wstring(begin(file), end(file) - 3) + L'\\';
+		int textureIndex{ 0 };
+		for (auto&& texture : _allTextures) {
+			auto alternateName = extensionlessName + std::to_wstring(textureIndex) + L".png";
+			if (CFile::Exists(alternateName.c_str())) {
+				texture->pTexture->Init(alternateName.c_str());
 			}
-
-			tix++;
-			tit++;
+			++textureIndex;
 		}
 	}
 

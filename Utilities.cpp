@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "LZ.h"
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <locale>
 #include <codecvt>
@@ -221,35 +223,33 @@ CCaption* GetFrameCaption(int frame)
 	return (it != end) ? *it : NULL;
 }
 
-void Trace(LPWSTR text)
+void Trace(LPCWSTR text)
 {
 	OutputDebugString(text);
 }
 
 void Trace(float val, int dc)
 {
-	wchar_t buffer[20];
 	if (val < 0 && ((int)val) == 0)
 	{
 		Trace(L"-");
 	}
-	_itow(static_cast<int>(val), buffer, 10);
-	Trace(buffer);
+	Trace(std::to_wstring(static_cast<int>(val)).c_str());
 	Trace(L".");
 	if (val < 0.0f) val = -val;
 	while (dc-- > 0)
 	{
 		val -= (int)val;
 		val *= 10;
-		_itow(static_cast<int>(val), buffer, 10);
-		Trace(buffer);
+		Trace(std::to_wstring(static_cast<int>(val)).c_str());
 	}
 }
 
 void Trace(int val, int rad)
 {
-	wchar_t buffer[20];
-	Trace(_itow(val, buffer, rad));
+	std::wstringstream buffer;
+	buffer << std::setbase(rad) << std::to_wstring(val);
+	Trace(buffer.str().c_str());
 }
 
 void TraceLine(LPWSTR text) { Trace(text); Trace(L"\r\n"); }

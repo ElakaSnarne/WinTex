@@ -189,15 +189,8 @@ void CMainMenuModule::ConfigNextResolution(LPVOID data)
 
 void CMainMenuModule::UpdateResolutionLabel()
 {
-	char buffer[40];
-	char* pp = buffer;
-	itoa(cfg.Width, pp, 10);
-	pp += strlen(pp);
-	strcat(pp, " x ");
-	pp += 3;
-	itoa(cfg.Height, pp, 10);
-
-	pResolution->SetText(buffer);
+	auto labelText = std::to_string(cfg.Width) + " x " + std::to_string(cfg.Height);
+	pResolution->SetText(labelText.c_str());
 }
 
 void CMainMenuModule::ConfigPreviousMIDIDevice(LPVOID data)
@@ -242,8 +235,8 @@ std::string IntToString(int value, int size)
 {
 	char buffer[10];
 	char format[20];
-	sprintf(format, "%%0%ii", size);
-	sprintf(buffer, format, value);
+	sprintf_s(format, 20, "%%0%ii", size);
+	sprintf_s(buffer, 10, format, value);
 	return buffer;
 }
 
@@ -1051,7 +1044,7 @@ void CMainMenuModule::SetupConfigFrame()
 	_pConfigVideo->AddChild(new CDXCheckBox("Anisotropic filter", &cfg.AnisotropicFilter, checkBoxWidth), 22.0f, y);
 	y += buttonHeight;
 
-	_pConfigVideo->AddChild(pFontScaleSlider = new CDXSlider("Font scale", 1.0f, 3.0f, 0.25f, &cfg.FontScale, 5), 22.0f, y);
+	_pConfigVideo->AddChild(pFontScaleSlider = new CDXSlider("Font scale", 1.0f, 3.0f, 0.25f, &cfg.FontScale, 2), 22.0f, y);
 
 	// Audio config
 	_pConfigAudio = new CDXTabItem(_pConfigTab, "Audio", tw, h - 80.0f);

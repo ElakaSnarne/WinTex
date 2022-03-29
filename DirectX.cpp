@@ -1,18 +1,16 @@
 #include "DirectX.h"
 #include "resource.h"
 #include "Globals.h"
+#include <sstream>
+#include <string>
 
 void Disaster(HRESULT hr, LPWSTR text)
 {
-	WCHAR buffer[256];
-	buffer[0] = 0;
-	LPWSTR ptr = buffer;
-	wcscat(ptr, text);
-	ptr += wcslen(ptr);
-	ptr = wcscat(ptr, L" : ");
-	ptr += 3;
-	_itow(hr, ptr, 16);
-	MessageBox(NULL, buffer, L"Disaster!", 0);
+	std::wstringstream value;
+	value << std::hex << hr;
+	auto buffer = std::wstring(text) + L" : " + value.str();
+	
+	MessageBox(NULL, buffer.c_str(), L"Disaster!", 0);
 }
 
 void SetDebugName(ID3D11DeviceChild* child, const char* name)

@@ -5,6 +5,7 @@
 #include "DXScreen.h"
 #include <iomanip>
 #include <sstream>
+#include <string>
 
 CTexture CDXSlider::_sliderTexBackground;
 CTexture CDXSlider::_sliderTexSlider;
@@ -205,19 +206,10 @@ void CDXSlider::Render()
 void CDXSlider::UpdateValueText()
 {
 	Rect rc{ 0,0,TexFont.Height(),_pTValue->Width() };
-	if (_precision == 0)
-	{
-		char buffer[20];
-		itoa((int)*_pValue, buffer, 10);
-		_pTValue->SetText(buffer, rc, CDXText::Alignment::Center);
-	}
-	else
-	{
 		std::stringstream stream;
-		stream << std::fixed << std::setprecision(2) << *_pValue;
+		stream << std::fixed << std::setprecision(_precision) << *_pValue;
 		std::string data = stream.str();
-		_pTValue->SetText((char*)data.c_str(), rc, CDXText::Alignment::Center);
-	}
+		_pTValue->SetText(data.c_str(), rc, CDXText::Alignment::Center);
 }
 
 void CDXSlider::CalculateSliderPosition()
