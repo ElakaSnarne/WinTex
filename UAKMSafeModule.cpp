@@ -516,7 +516,7 @@ void CUAKMSafeModule::Press(int key, int sound)
 
 	// Set delay
 	_frameDelay = (DWORD)(12 * TIMER_SCALE);
-	_frameTimes[key] = GetTickCount64();
+	_frameTimes[key] = static_cast<DWORD>(GetTickCount64());
 
 	// Play sound
 	_sound.Play(_safeSoundOffsets[sound % 12]);

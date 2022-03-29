@@ -23,7 +23,7 @@ DoubleData LoadDoubleEntry(LPCWSTR fileName, int itemIndex);
 CCaption* GetFrameCaption(int frame);
 
 void SetGamePath(LPWSTR path);
-void Trace(LPWSTR text);
+void Trace(LPCWSTR text);
 void Trace(float val, int dc = 2);
 void Trace(int val, int rad = 10);
 void TraceLine(LPWSTR text);

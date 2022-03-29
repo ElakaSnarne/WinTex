@@ -60,7 +60,7 @@ CDXText::CWordList::CWordList()
 	_last = NULL;
 }
 
-CDXText::CWordList::CWordList(char* text, int chars, float pixels)
+CDXText::CWordList::CWordList(char const* text, int chars, float pixels)
 {
 	_text = text;
 	_chars = chars;
@@ -69,7 +69,7 @@ CDXText::CWordList::CWordList(char* text, int chars, float pixels)
 	_last = NULL;
 }
 
-void CDXText::CWordList::Add(char* text, int chars, float pixels)
+void CDXText::CWordList::Add(char const* text, int chars, float pixels)
 {
 	CWordList* pWL = new CWordList(text, chars, pixels);
 	if (_next == NULL) _next = pWL;
@@ -98,7 +98,7 @@ float CDXText::CWordList::Pixels()
 	return _pixels;
 }
 
-char* CDXText::CWordList::Text()
+char const* CDXText::CWordList::Text()
 {
 	return _text;
 }
@@ -118,7 +118,7 @@ void CDXText::SetText(LPCWSTR text, Alignment alignment)
 	SetText(text, rc, alignment);
 }
 
-void CDXText::SetText(char* text, Alignment alignment)
+void CDXText::SetText(char const* text, Alignment alignment)
 {
 	Rect rc;
 	rc.Top = 0;
@@ -128,8 +128,9 @@ void CDXText::SetText(char* text, Alignment alignment)
 	SetText(text, rc, alignment);
 }
 
-void CDXText::SetText(char* text, Rect rect, Alignment alignment)
+void CDXText::SetText(char const* text, Rect rect, Alignment alignment)
 {
+	// TODO: Refactor to take a std::string text argument rather than char* ?
 	if (_vertexBuffer != NULL)
 	{
 		_vertexBuffer->Release();
@@ -139,8 +140,8 @@ void CDXText::SetText(char* text, Rect rect, Alignment alignment)
 	_lines = 0;
 
 	CWordList wl;
-	char* scan = text;
-	char* start = scan;
+	auto scan = text;
+	auto start = scan;
 	float pixels = 0.0f;
 	float spaceWidth = TexFont.SpaceWidth();
 	_printableCharacters = 0;

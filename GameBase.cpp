@@ -51,7 +51,7 @@ BOOL CGameBase::LoadIcons(BinaryData bd)
 		for (int i = 0; i < (count - 2) && i < 12; i++)
 		{
 			PBYTE pIcon = bd.Data + GetInt(bd.Data, 2 + i * 4, 4);
-			int size = (int)bd.Data + GetInt(bd.Data, 6 + i * 4, 4) - (int)pIcon;
+			int size = static_cast<int>(bd.Data + GetInt(bd.Data, 6 + i * 4, 4) - pIcon);
 			PBYTE pEnd = pIcon + size;
 			if (size > 1)
 			{

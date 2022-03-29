@@ -11,7 +11,7 @@ public:
 
 	virtual void Render();
 
-	void SetText(char* text);
+	void SetText(const char* text);
 	void SetColours(int colour1, int colour2, int colour3, int colour4);
 
 private:

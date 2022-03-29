@@ -38,12 +38,12 @@ void CDXListBox::Init(std::vector<ListBoxItem> items, float btnX)
 
 		std::list<PointUV> points = TexFont.Create((*it).Text.c_str(), TRUE);
 		lbi.StartVertex = totalVertices;
-		lbi.VerticeCount = points.size();
+		lbi.VerticeCount = static_cast<int>(points.size());
 		lbi.MouseOver = FALSE;
 
 		_items.push_back(lbi);
 
-		totalVertices += points.size();
+		totalVertices += static_cast<int>(points.size());
 		lines.push_back(points);
 
 		std::list<PointUV>::iterator pit = points.begin();
@@ -104,7 +104,7 @@ void CDXListBox::Init(std::vector<ListBoxItem> items, float btnX)
 			std::list<PointUV> points = *lit;
 
 			// Add to offset list first point and number of points
-			_listBoxVerticeInfo.push_back(pix * 65536 + points.size());
+			_listBoxVerticeInfo.push_back(pix * 65536 + static_cast<int>(points.size()));
 
 			std::list<PointUV>::iterator pit = points.begin();
 			std::list<PointUV>::iterator pend = points.end();
@@ -146,7 +146,7 @@ void CDXListBox::Init(std::vector<ListBoxItem> items, float btnX)
 	_h = 2.0f + _items.size() * lineHeight;
 	_y = (dx.GetHeight() - _h - 64.0f * pConfig->FontScale);
 
-	_visibleItemsCount = items.size();
+	_visibleItemsCount = static_cast<int>(items.size());
 
 	_x = max(0.0f, btnX - _w / 2.0f);
 }

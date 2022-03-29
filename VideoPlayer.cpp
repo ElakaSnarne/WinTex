@@ -1,4 +1,5 @@
 #include "VideoPlayer.h"
+#include <string>
 
 #pragma comment(linker, \
     "\"/manifestdependency:type='Win32' "\
@@ -224,13 +225,10 @@ HRESULT __stdcall CVideoPlayer::Invoke(IMFAsyncResult* pAsyncResult)
 	// Get the event type. 
 	hr = pEvent->GetType(&meType);
 
-	char buffer[128];
-	itoa(meType, buffer, 10);
-	OutputDebugStringA(buffer);
-	buffer[0] = '\r';
-	buffer[1] = '\n';
-	buffer[2] = 0;
-	OutputDebugStringA(buffer);
+	auto buffer = std::to_string(meType);
+	OutputDebugStringA(buffer.c_str());
+	buffer = "\r\n\0";
+	OutputDebugStringA(buffer.c_str());
 
 	if (meType == MESessionClosed || meType == MESessionStopped || meType == MEEndOfStream || meType == MEStreamStopped || meType == MESourceStopped || meType == MEEndOfPresentation)
 	{

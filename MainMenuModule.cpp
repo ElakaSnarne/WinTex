@@ -189,15 +189,8 @@ void CMainMenuModule::ConfigNextResolution(LPVOID data)
 
 void CMainMenuModule::UpdateResolutionLabel()
 {
-	char buffer[40];
-	char* pp = buffer;
-	itoa(cfg.Width, pp, 10);
-	pp += strlen(pp);
-	strcat(pp, " x ");
-	pp += 3;
-	itoa(cfg.Height, pp, 10);
-
-	pResolution->SetText(buffer);
+	auto labelText = std::to_string(cfg.Width) + " x " + std::to_string(cfg.Height);
+	pResolution->SetText(labelText.c_str());
 }
 
 void CMainMenuModule::ConfigPreviousMIDIDevice(LPVOID data)
@@ -242,8 +235,8 @@ std::string IntToString(int value, int size)
 {
 	char buffer[10];
 	char format[20];
-	sprintf(format, "%%0%ii", size);
-	sprintf(buffer, format, value);
+	sprintf_s(format, 20, "%%0%ii", size);
+	sprintf_s(buffer, 10, format, value);
 	return buffer;
 }
 
@@ -519,7 +512,7 @@ void CMainMenuModule::SaveIncrementSave(LPVOID data)
 	{
 		SaveGameInfo info = _saveControl->GetInfo();
 		LPWSTR fn = (LPWSTR)info.FileName.c_str();
-		int len = wcslen(fn);
+		auto len = wcslen(fn);
 
 		// Increment extension, fail if already 999
 		int index = _wtoi(fn + len - 3) + 1;
@@ -554,7 +547,7 @@ void CMainMenuModule::SaveSetup()
 
 	SaveGameInfo info;
 	info.FileName = L"GAMES\\";
-	int nameLength = CurrentGameInfo.Player.length();
+	auto nameLength = CurrentGameInfo.Player.length();
 	while (nameLength > 0 && CurrentGameInfo.Player.at(nameLength - 1) == ' ')
 	{
 		nameLength--;
@@ -566,7 +559,7 @@ void CMainMenuModule::SaveSetup()
 	}
 	info.FileName += L"00.";
 	// Append 3 digit number (from current savegame)
-	int lastDot = CurrentGameInfo.FileName.find_last_of('.');
+	auto lastDot = CurrentGameInfo.FileName.find_last_of('.');
 	int fileIndex = lastDot > 0 ? min(999, std::stoi(CurrentGameInfo.FileName.c_str() + lastDot + 1)) : 1;
 	if (fileIndex < 100)
 	{
@@ -773,7 +766,7 @@ void CMainMenuModule::BeginAction()
 					{
 						SaveMode = SaveMode::Comment;
 						SaveGameInfo info = _saveControl->GetInfo();
-						SaveTypedChars = info.Comment.length();
+						SaveTypedChars = static_cast<int>(info.Comment.length());
 						_caretPos = static_cast<int>(_saveControl->GetX() + 68 * pConfig->FontScale + ceil(TexFont.PixelWidth(_commentBuffer)));
 					}
 				}
@@ -923,7 +916,7 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 			{
 				SaveMode = SaveMode::Comment;
 				SaveGameInfo info = _saveControl->GetInfo();
-				SaveTypedChars = info.Comment.length();
+				SaveTypedChars = static_cast<int>(info.Comment.length());
 				_caretPos = static_cast<int>(_saveControl->GetX() + 68 * pConfig->FontScale);
 			}
 		}
@@ -1051,7 +1044,7 @@ void CMainMenuModule::SetupConfigFrame()
 	_pConfigVideo->AddChild(new CDXCheckBox("Anisotropic filter", &cfg.AnisotropicFilter, checkBoxWidth), 22.0f, y);
 	y += buttonHeight;
 
-	_pConfigVideo->AddChild(pFontScaleSlider = new CDXSlider("Font scale", 1.0f, 3.0f, 0.25f, &cfg.FontScale, 5), 22.0f, y);
+	_pConfigVideo->AddChild(pFontScaleSlider = new CDXSlider("Font scale", 1.0f, 3.0f, 0.25f, &cfg.FontScale, 2), 22.0f, y);
 
 	// Audio config
 	_pConfigAudio = new CDXTabItem(_pConfigTab, "Audio", tw, h - 80.0f);

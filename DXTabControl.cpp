@@ -13,7 +13,7 @@ CDXTabControl::~CDXTabControl()
 
 void CDXTabControl::Render()
 {
-	int elementCount = _childElements.size();
+	auto elementCount = _childElements.size();
 	float elementWidth = _w / elementCount;
 	float x = _x;
 	float y = _y + 20.0f;
@@ -33,7 +33,7 @@ void CDXTabControl::MouseButtonDown()
 
 CDXControl* CDXTabControl::HitTest(float x, float y)
 {
-	int elementCount = _childElements.size();
+	auto elementCount = _childElements.size();
 	float elementWidth = _w / elementCount;
 	float cx = _x;
 	float cy = _y + 20.0f;

@@ -146,7 +146,7 @@ BOOL CTexture::Init(int width, int height, D3D11_USAGE usageFlags, DWORD miscFla
 	return ret;
 }
 
-BOOL CTexture::Init(PWSTR file)
+BOOL CTexture::Init(PCWSTR file)
 {
 	Dispose();
 
