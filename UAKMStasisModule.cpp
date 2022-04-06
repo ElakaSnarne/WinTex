@@ -31,7 +31,8 @@ ControlCoordinates StasisControlCoordinates[] = {
 	{ KEYCODE_NONE, 0, 47, 91, 286, 380, ACTION_STASIS_ADRENALINE },
 	{ KEYCODE_NONE, 0, 47, 91, 385, 482, ACTION_STASIS_SHOCK },
 	{ KEYCODE_NONE, 0, 142, 269, 446, 478, ACTION_STASIS_OXYGEN },
-	{ KEYCODE_H, 0, 113, 137, 210, 258, ACTION_STASIS_HINT } };
+	{ KEYCODE_H, 0, 113, 137, 210, 258, ACTION_STASIS_HINT },
+	{ KEYCODE_NONE, 0, 0, 479, 0, 639, ACTION_STASIS_OTHER_CLICK}}; // This must be the final entry
 
 char* Entry = "I've seen consoles like this before.  The four buttons along the top must administer injections.  The two slider controls look like they regulate the air temperature and oxygen level inside the cryonic tube.  I seem to remember that slider mechanisms like these are really sensitive and need to be moved slowly.  Well, first things first, I'll need to turn this thing on.";
 char* SliderWarning = "\nHmmm ... that yellow warning light doesn't look good ... maybe I should move the slider back to where it was and try again.";
@@ -484,6 +485,11 @@ void CUAKMStasisModule::RenderControl(int index, int state)
 
 void CUAKMStasisModule::OnAction(int action)
 {
+	if (_stasisStages == 0 && CAnimationController::IsDone() == FALSE) {
+		// Skip opening dialogue
+		CAnimationController::Skip();
+		return;
+	}
 	if (action == ACTION_STASIS_POWER)
 	{
 		// Clear caption
