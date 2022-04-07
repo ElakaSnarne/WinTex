@@ -415,20 +415,29 @@ void CUAKMStasisModule::PowerOnContinue()
 
 void CUAKMStasisModule::PowerOff()
 {
-	_stasisSettings &= 0xfffe;
-	RenderChamber();
+	//_stasisSettings &= 0xfffe;
+	//RenderChamber();
 
-	if ((_stasisSettings & STASIS_SETTINGS_UNKNOWN2) != 0)
-	{
-		// Same as last OR
-	}
+	//if ((_stasisSettings & STASIS_SETTINGS_UNKNOWN2) != 0)
+	//{
+	//	// Same as last OR
+	//}
 
-	_stasisSettings &= 0xccff;
-	_stasisSettings |= (STASIS_SETTINGS_STATE_FAILURE | STASIS_SETTINGS_FAILED_ON);
+	//_stasisSettings &= 0xccff;
+	//_stasisSettings |= (STASIS_SETTINGS_STATE_FAILURE | STASIS_SETTINGS_FAILED_ON);
 
-	RenderControl(STASIS_CONTROL_ONOFF, 0);
+	//RenderControl(STASIS_CONTROL_ONOFF, 0);
 
-	UpdateTexture();
+	//UpdateTexture();
+
+	// Set progress back on save game
+	CGameController::SetData(UAKM_SAVE_STASIS_SETTINGS, _stasisSettings & 0xff);
+	CGameController::SetData(UAKM_SAVE_STASIS_SETTINGS + 1, (_stasisSettings >> 8) & 0xff);
+	CGameController::SetData(UAKM_SAVE_STASIS_STAGES, _stasisStages & 0xff);
+	CGameController::SetData(UAKM_SAVE_STASIS_STAGES + 1, (_stasisStages >> 8) & 0xff);
+
+	CGameController::SetParameter(_parameter, 3);	// Death, not supposed to turn it off
+	CModuleController::Pop(this);
 }
 
 void CUAKMStasisModule::SlideOut()

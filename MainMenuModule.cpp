@@ -267,6 +267,8 @@ void CMainMenuModule::UpdateMIDIDeviceLabel()
 void CMainMenuModule::NewGame(LPVOID data)
 {
 	pMIDI->Stop();
+	CAmbientAudio::StopAll();
+	CAmbientAudio::Clear();
 	CurrentGameInfo.Player = "TEX";
 	CurrentGameInfo.FileName = L"GAMES\\TEX___00.000";
 	EnableSaveAndResume(TRUE);
@@ -499,6 +501,7 @@ void CMainMenuModule::LoadGame(SaveGameInfo info)
 	pt.y = dx.GetHeight() / 2;
 	ClientToScreen(_hWnd, &pt);
 	SetCursorPos(pt.x, pt.y);
+	CAmbientAudio::StopAll();
 	CAmbientAudio::Clear();
 	CGameController::LoadGame((LPWSTR)info.FileName.c_str());
 	EnableSaveAndResume(TRUE);

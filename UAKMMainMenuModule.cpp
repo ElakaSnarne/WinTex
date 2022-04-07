@@ -3,6 +3,7 @@
 #include "DXImageButton.h"
 #include "resource.h"
 #include "Utilities.h"
+#include "AmbientAudio.h"
 
 CUAKMMainMenuModule::CUAKMMainMenuModule()
 {
@@ -15,12 +16,16 @@ CUAKMMainMenuModule::~CUAKMMainMenuModule()
 void CUAKMMainMenuModule::Intro(LPVOID data)
 {
 	pMIDI->Stop();
+	CAmbientAudio::StopAll();
+	CAmbientAudio::Clear();
 	CGameController::LoadFromDMap(29);
 }
 
 void CUAKMMainMenuModule::Credits(LPVOID data)
 {
 	pMIDI->Stop();
+	CAmbientAudio::StopAll();
+	CAmbientAudio::Clear();
 	CGameController::LoadFromDMap(41);
 }
 

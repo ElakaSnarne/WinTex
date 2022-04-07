@@ -4050,9 +4050,6 @@ void CLocation::Animate()
 								int objectId = Animations[i].ObjectId;
 								int subObjectId = Animations[i].Parameter;
 								int newTexture = p1;
-								// TODO: Change texture
-								// TODO: Get object, then get sub-object, find texture
-								// TODO: Find object in memory, find sub-object, find texture, set real texture
 
 								// Take 2, using list of objects and sub-objects to find texture and vertices/indexes
 								CLocationObject* lo = &_pLocObjects[objectId];
@@ -4069,7 +4066,6 @@ void CLocation::Animate()
 										}
 										else
 										{
-											// TODO: Test with ALL animations of type 1 (or type 4 subtype 1)
 											pTG->RemovePoints(pSub->VertexIndex, pSub->VertexCount);
 											pNewT->AddPoints(pSub->VertexIndex, pSub->VertexCount);
 											pSub->TextureIndex = newTexture;
@@ -4116,25 +4112,6 @@ void CLocation::Animate()
 										ChangeVisibility(objectToHide, FALSE, FALSE, L"Animation ");
 									}
 									ChangeVisibility(objectToShow, TRUE, FALSE, L"Animation ");
-									/*
-									if (objectToHide >= 0)
-									{
-										Trace(L"Setting visibility of object ");
-										Trace(objectToHide);
-										Trace(L" to HIDDEN");
-
-										TraceLine(objectToHide);
-										_visibilityBuffer.visibility[objectToHide].x = -1.0f;
-
-									}
-									Trace(L"Setting visibility of object ");
-									Trace(objectToShow);
-									Trace(L" to VISIBLE");
-
-									TraceLine(objectToShow);
-									_visibilityBuffer.visibility[objectToShow].x = 1.0f;
-									_visibilityChanged = TRUE;
-									*/
 
 									// Store object in parameter
 									Animations[i].Parameter = objectToShow;
@@ -4218,22 +4195,6 @@ void CLocation::Animate()
 									pA += 8;
 
 									ChangeVisibility(objectId, visibility, FALSE, L"Animation 4.3 ");
-									/*
-									Trace(L"Setting visibility of object ");
-									Trace(objectId, 16);
-									Trace(L" to ");
-									if (visibility)
-									{
-										TraceLine(L"VISIBLE");
-									}
-									else
-									{
-										TraceLine(L"HIDDEN");
-									}
-
-									_visibilityBuffer.visibility[objectId].x = (visibility == 0) ? -1.0f : 1.0f;
-									_visibilityChanged = TRUE;
-									*/
 
 									PointingChanged = TRUE;
 									break;
@@ -4247,30 +4208,6 @@ void CLocation::Animate()
 									pA += 12;
 
 									ChangeVisibility(0x80000000 | (objectId << 16) | subObjectId, visibility, FALSE, L"Animation type 4.5 ");
-
-									//for (int j = 0; j < _ppObjects[objectId]->SubObjectCount; j++)
-									//{
-									//	if ((_ppObjects[objectId]->SubObjects[j].ID & 0xffff) == subObjectId)
-									//	{
-											//Trace(L"Setting visibility of object ");
-											//Trace(objectId);
-											//Trace(L", sub-object ");
-											//Trace(subObjectId);
-											//Trace(L" to ");
-											//if (visibility)
-											//{
-											//	TraceLine(L"VISIBLE");
-											//}
-											//else
-											//{
-											//	TraceLine(L"HIDDEN");
-											//}
-
-											//_visibilityBuffer.visibility[_ppObjects[objectId]->SubObjects[j].SubObjectIndex].y = (visibility != 0) ? 1.0f : -1.0f;
-											//_visibilityChanged = TRUE;
-									//		break;
-									//	}
-									//}
 
 									PointingChanged = TRUE;
 									break;
@@ -4332,9 +4269,6 @@ void CLocation::Animate()
 								int objectId = Animations[i].ObjectId;
 								int subObjectId = Animations[i].Parameter;
 								int newTexture = p1;
-								// TODO: Change texture
-								// TODO: Get object, then get sub-object, find texture
-								// TODO: Find object in memory, find sub-object, find texture, set real texture
 
 								BinaryData bd3d2 = GetLocationData(4);
 								PBYTE p3d2 = bd3d2.Data;
@@ -4444,8 +4378,3 @@ void CLocation::Animate()
 		}
 	}
 }
-
-/*
-Another attempt to solve the visibiliy issues
-Make a simple list of a struct containing all sub-objects with info about master object, sub-object id and sub-object index
-*/

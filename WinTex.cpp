@@ -57,25 +57,25 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 {
 	switch (message)
 	{
-		case WM_DESTROY:
-		{
-			// close the application entirely
-			_runDXThread = FALSE;
-			PostQuitMessage(0);
-			return 0;
-		}
-		case WM_KEYUP:
-		case WM_KEYDOWN:
-		{
-			PostThreadMessage(CModuleController::D3DThreadId, message, wParam, lParam);
-			return 0;
-			break;
-		}
-		case WM_SIZE:
-		{
-			dx.Resize(lParam & 0x7fff, (lParam >> 16) & 0x7fff);
-			break;
-		}
+	case WM_DESTROY:
+	{
+		// close the application entirely
+		_runDXThread = FALSE;
+		PostQuitMessage(0);
+		return 0;
+	}
+	case WM_KEYUP:
+	case WM_KEYDOWN:
+	{
+		PostThreadMessage(CModuleController::D3DThreadId, message, wParam, lParam);
+		return 0;
+		break;
+	}
+	case WM_SIZE:
+	{
+		dx.Resize(lParam & 0x7fff, (lParam >> 16) & 0x7fff);
+		break;
+	}
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
@@ -188,7 +188,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 						{
 							if (msg.message == WM_CLOSE) break;
 							else if (msg.message == WM_DISPLAYCHANGE);// OutputDebugString(L"Display Change\r\n");
-							else if (msg.message == WM_MOUSEMOVE)
+							else if (msg.message == WM_MOUSEMOVE && GetFocus() == _hWnd)
 							{
 								POINT pt;
 								pt.x = (msg.lParam) & 0xffff;
