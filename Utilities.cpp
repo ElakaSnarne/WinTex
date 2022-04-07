@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "LZ.h"
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <locale>
 #include <codecvt>
@@ -35,7 +37,7 @@ BinaryData LoadEntry(LPCWSTR fileName, int itemIndex)
 	BinaryData bd;
 	ZeroMemory(&bd, sizeof(bd));
 
-	int nameLen = wcslen(fileName);
+	auto nameLen = wcslen(fileName);
 	if ((_pathLen + nameLen) < MAX_PATH)
 	{
 		CopyMemory(_fileName + _pathLen, fileName, (nameLen + 1) * 2);
@@ -110,7 +112,7 @@ DoubleData LoadDoubleEntry(LPCWSTR fileName, int itemIndex)
 
 	// Read 2 sequential files (typically palette + image)
 
-	int nameLen = wcslen(fileName);
+	auto nameLen = wcslen(fileName);
 	if ((_pathLen + nameLen) < MAX_PATH)
 	{
 		CopyMemory(_fileName + _pathLen, fileName, (nameLen + 1) * 2);
@@ -207,7 +209,7 @@ DoubleData LoadDoubleEntry(LPCWSTR fileName, int itemIndex)
 
 void SetGamePath(LPWSTR path)
 {
-	_pathLen = wcslen(path);
+	_pathLen = static_cast<int>(wcslen(path));
 	gamePath = new WCHAR[_pathLen + 1];
 	CopyMemory(gamePath, path, (_pathLen + 1) * 2);
 	CopyMemory(_fileName, path, _pathLen * 2);
@@ -221,35 +223,33 @@ CCaption* GetFrameCaption(int frame)
 	return (it != end) ? *it : NULL;
 }
 
-void Trace(LPWSTR text)
+void Trace(LPCWSTR text)
 {
 	OutputDebugString(text);
 }
 
 void Trace(float val, int dc)
 {
-	wchar_t buffer[20];
 	if (val < 0 && ((int)val) == 0)
 	{
 		Trace(L"-");
 	}
-	_itow(static_cast<int>(val), buffer, 10);
-	Trace(buffer);
+	Trace(std::to_wstring(static_cast<int>(val)).c_str());
 	Trace(L".");
 	if (val < 0.0f) val = -val;
 	while (dc-- > 0)
 	{
 		val -= (int)val;
 		val *= 10;
-		_itow(static_cast<int>(val), buffer, 10);
-		Trace(buffer);
+		Trace(std::to_wstring(static_cast<int>(val)).c_str());
 	}
 }
 
 void Trace(int val, int rad)
 {
-	wchar_t buffer[20];
-	Trace(_itow(val, buffer, rad));
+	std::wstringstream buffer;
+	buffer << std::setbase(rad) << std::to_wstring(val);
+	Trace(buffer.str().c_str());
 }
 
 void TraceLine(LPWSTR text) { Trace(text); Trace(L"\r\n"); }
@@ -317,14 +317,14 @@ float GetRegistryFloat(HKEY key, LPCWSTR valueName, float defaultValue)
 void SetRegistryFloat(HKEY key, LPCWSTR valueName, float value)
 {
 	std::wstring data = std::to_wstring(value);
-	RegSetValueEx(key, valueName, 0, REG_SZ, (PBYTE)data.c_str(), data.length());
+	RegSetValueEx(key, valueName, 0, REG_SZ, (PBYTE)data.c_str(), static_cast<int>(data.length()));
 }
 
 void DebugTrace(CScriptState* pState, LPWSTR text)
 {
 	if (pState->DebugMode)
 	{
-		Trace((int)pState, 16);
+		Trace(static_cast<int>(reinterpret_cast<uintptr_t>(pState)), 16);
 		Trace(L" - ");
 		Trace(pState->ExecutionPointer - 1, 16);
 		Trace(L" - ");

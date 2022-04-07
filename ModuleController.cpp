@@ -45,6 +45,9 @@ void CModuleController::Pop(CModuleBase* pModule)
 
 	if (pModule != NULL)
 	{
+		if (CurrentModule == pModule) {
+			CurrentModule->Pause();
+		}
 		Modules.remove(pModule);
 
 		if (CurrentModule == pModule)
@@ -274,6 +277,20 @@ void CModuleController::Resize(int width, int height)
 	}
 
 	_lock.Release();
+}
+
+void CModuleController::GotFocus()
+{
+	if (CurrentModule != NULL) {
+		CurrentModule->GotFocus();
+	}
+}
+
+void CModuleController::LostFocus()
+{
+	if (CurrentModule != NULL) {
+		CurrentModule->LostFocus();
+	}
 }
 
 void CModuleController::Resume()

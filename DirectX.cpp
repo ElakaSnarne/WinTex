@@ -1,25 +1,23 @@
 #include "DirectX.h"
 #include "resource.h"
 #include "Globals.h"
+#include <sstream>
+#include <string>
 
 void Disaster(HRESULT hr, LPWSTR text)
 {
-	WCHAR buffer[256];
-	buffer[0] = 0;
-	LPWSTR ptr = buffer;
-	wcscat(ptr, text);
-	ptr += wcslen(ptr);
-	ptr = wcscat(ptr, L" : ");
-	ptr += 3;
-	_itow(hr, ptr, 16);
-	MessageBox(NULL, buffer, L"Disaster!", 0);
+	std::wstringstream value;
+	value << std::hex << hr;
+	auto buffer = std::wstring(text) + L" : " + value.str();
+	
+	MessageBox(NULL, buffer.c_str(), L"Disaster!", 0);
 }
 
 void SetDebugName(ID3D11DeviceChild* child, const char* name)
 {
 	if (child != nullptr && name != nullptr)
 	{
-		child->SetPrivateData(WKPDID_D3DDebugObjectName, strlen(name), name);
+		child->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<int>(strlen(name)), name);
 	}
 }
 
@@ -31,7 +29,7 @@ void SetDebugName(IUnknown* unk, const char* name)
 		unk->QueryInterface(IID_ID3D11DeviceChild, (void**)&child);
 		if (child != NULL)
 		{
-			child->SetPrivateData(WKPDID_D3DDebugObjectName, strlen(name), name);
+			child->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<int>(strlen(name)), name);
 		}
 	}
 }

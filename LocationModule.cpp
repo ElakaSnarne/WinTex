@@ -462,7 +462,7 @@ void CLocationModule::Resize(int width, int height)
 void CLocationModule::Cursor(float x, float y, BOOL relative)
 {
 	// Change view angle
-	if (CAnimationController::NoAnimOrWave() && (CInputMapping::IgnoreNextMouseInput == FALSE))
+	if (_hasFocus && CAnimationController::NoAnimOrWave() && (CInputMapping::IgnoreNextMouseInput == FALSE))
 	{
 		float delta_x = relative ? x : x - dx.GetWidth() / 2;
 		float delta_y = relative ? y : y - dx.GetHeight() / 2;
@@ -625,29 +625,4 @@ void CLocationModule::CycleItems(int direction)
 void CLocationModule::Hints()
 {
 	CModuleController::Push(CGameController::GetHintModule());
-}
-
-void CLocationModule::SetCursorClipping()
-{
-	if (!_cursorIsClipped) {
-		GetClipCursor(&_oldClippingArea);
-	}
-	RECT clientRect{ 0, 0, 0, 0 };
-	GetClientRect(_hWnd, &clientRect);
-	POINT clientOrigin{ 0, 0 };
-	ClientToScreen(_hWnd, &clientOrigin);
-	clientRect.left = clientOrigin.x;
-	clientRect.top = clientOrigin.y;
-	clientRect.right += clientOrigin.x;
-	clientRect.bottom += clientOrigin.y;
-	ClipCursor(&clientRect);
-	_cursorIsClipped = true;
-}
-
-void CLocationModule::UnsetCursorClipping()
-{
-	if (_cursorIsClipped) {
-		ClipCursor(&_oldClippingArea);
-		_cursorIsClipped = false;
-	}
 }

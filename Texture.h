@@ -12,7 +12,7 @@ public:
 	~CTexture();
 
 	BOOL Init(int width, int height, D3D11_USAGE usageFlags = D3D11_USAGE_DYNAMIC, DWORD miscFlags = 0, ID3D11Device* pD3D = NULL);
-	BOOL Init(PWSTR file);
+	BOOL Init(PCWSTR file);
 	BOOL Init(PBYTE pImage, DWORD size, char* name);
 	BOOL Init(PBYTE pImage, DWORD size, DWORD offset, PINT pPalette, int transparentIndex, char* name, int sx = 0, int sy = 0, int sw = -1, int sh = -1, bool rawImage = false, int rawWidth = 0, int rawHeight = 0);
 	void Dispose();

@@ -47,7 +47,7 @@ void CMIDIPlayer::OpenDevice(UINT deviceId)
 	CloseDevice();
 	if (midiOutOpen(&_handle, deviceId, NULL, NULL, CALLBACK_NULL) == MMSYSERR_NOERROR)
 	{
-		SetVolume(((float)pConfig->MIDIVolume) / 100.0f);
+		SetVolume((pConfig->MIDIVolume) / 100.0f);
 	}
 }
 

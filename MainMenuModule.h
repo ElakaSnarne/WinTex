@@ -63,6 +63,7 @@ protected:
 	static void ConfigPreviousMIDIDevice(LPVOID data);
 	static void ConfigNextMIDIDevice(LPVOID data);
 
+	/*
 	static int cfgWidth;
 	static int cfgHeight;
 	static int cfgMode;
@@ -77,6 +78,8 @@ protected:
 	static float cfgMIDIVolume;
 	static BOOL cfgInvertY;
 	static float cfgMouselookScaling;
+	*/
+	static CConfiguration cfg;
 
 	static void UpdateResolutionLabel();
 	static void UpdateMIDIDeviceLabel();

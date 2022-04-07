@@ -11,33 +11,9 @@
 #define CONFIG_FLAGS_INVERTY			256
 #define CONFIG_FLAGS_ANISOTROPICFILTER	512
 
-CConfiguration::CConfiguration(LPWSTR gameName)
+CConfiguration::CConfiguration() {};
+CConfiguration::CConfiguration(LPWSTR gameName) : _gameName{gameName}
 {
-	_gameName = gameName;
-
-	Width = 640;
-	Height = 480;
-	ScreenMode = -1;
-	pAdapter = NULL;
-
-	FullScreen = FALSE;
-	MinAcceptedMode = 0;
-
-	Captions = TRUE;
-	AlternativeMedia = FALSE;
-
-	PlayMIDI = TRUE;
-	NumberOfMIDIOutDevices = 0;
-	MIDIDeviceId = -1;
-
-	InvertY = FALSE;
-	MouselookScaling = 1.0f;
-	FontScale = 1.0f;
-
-	AnisotropicFilter = TRUE;
-	Volume = 100;
-	MIDIVolume = 100;
-
 	// Read from registry
 	HKEY hk;
 	std::wstring key = L"SOFTWARE\\Access Software\\" + _gameName;
@@ -57,8 +33,8 @@ CConfiguration::CConfiguration(LPWSTR gameName)
 
 		MIDIDeviceId = GetRegistryInt(hk, L"MIDIDeviceId", -1);
 		FontScale = max(1.0f, min(GetRegistryFloat(hk, L"FontScale", 1.0f), 3.0f));
-		Volume = max(0, min(GetRegistryInt(hk, L"Volume", 100), 100));
-		MIDIVolume = max(0, min(GetRegistryInt(hk, L"MIDIVolume", 100), 100));
+		Volume = max(0, min(GetRegistryFloat(hk, L"Volume", 100.0f), 100.0f));
+		MIDIVolume = max(0, min(GetRegistryFloat(hk, L"MIDIVolume", 100.0f), 100.0f));
 
 		RegCloseKey(hk);
 	}
@@ -104,29 +80,14 @@ CConfiguration::CConfiguration(LPWSTR gameName)
 
 	// Get list of MIDI devices
 	NumberOfMIDIOutDevices = midiOutGetNumDevs();
-	pMIDIDevices = new MIDIOUTCAPSA[NumberOfMIDIOutDevices];
-	if (pMIDIDevices != NULL)
-	{
-		for (int midiDeviceId = 0; midiDeviceId < NumberOfMIDIOutDevices; midiDeviceId++)
-		{
-			MIDIOUTCAPSA midiCaps;
-			if (midiOutGetDevCapsA(midiDeviceId, &midiCaps, sizeof(midiCaps)) == MMSYSERR_NOERROR)
-			{
-				pMIDIDevices[midiDeviceId] = midiCaps;
-			}
-			else
-			{
-				ZeroMemory(&pMIDIDevices[midiDeviceId], sizeof(midiCaps));
-			}
+	for (int midiDeviceID{ 0 }; midiDeviceID < NumberOfMIDIOutDevices; ++midiDeviceID) {
+		MIDIOUTCAPSA midiCaps;
+		if (midiOutGetDevCapsA(midiDeviceID, &midiCaps, sizeof(midiCaps)) == MMSYSERR_NOERROR) {
+			MIDIDevices.push_back(midiCaps);
 		}
-	}
-}
-
-CConfiguration::~CConfiguration()
-{
-	if (pMIDIDevices != NULL)
-	{
-		delete[] pMIDIDevices;
+		else {
+			MIDIDevices.push_back({});
+		}
 	}
 }
 
@@ -152,8 +113,8 @@ void CConfiguration::Save()
 		RegSetValueEx(hk, L"MIDIDeviceId", 0, REG_DWORD, (PBYTE)&MIDIDeviceId, sizeof(MIDIDeviceId));
 		SetRegistryFloat(hk, L"MouselookScaling", MouselookScaling);
 		SetRegistryFloat(hk, L"FontScale", FontScale);
-		SetRegistryInt(hk, L"Volume", Volume);
-		SetRegistryInt(hk, L"MIDIVolume", MIDIVolume);
+		SetRegistryFloat(hk, L"Volume", Volume);
+		SetRegistryFloat(hk, L"MIDIVolume", MIDIVolume);
 
 		RegCloseKey(hk);
 	}

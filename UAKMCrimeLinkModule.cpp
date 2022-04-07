@@ -274,6 +274,7 @@ void CUAKMCrimeLinkModule::Pause()
 		CGameController::SetData(UAKM_SAVE_CRIMELINK_SELECTIONS + i * 2, PlayerSelections[i] & 0xFF);
 		CGameController::SetData(UAKM_SAVE_CRIMELINK_SELECTIONS + i * 2 + 1, PlayerSelections[i] >> 8);
 	}
+	UnsetCursorClipping();
 }
 
 void CUAKMCrimeLinkModule::SetCursorArea(int x1, int y1, int x2, int y2)
@@ -286,6 +287,8 @@ void CUAKMCrimeLinkModule::SetCursorArea(int x1, int y1, int x2, int y2)
 	_cursorMaxX = static_cast<int>(_left + x2 * _scale);
 	_cursorMinY = static_cast<int>(_top + y1 * _scale);
 	_cursorMaxY = static_cast<int>(_top + y2 * _scale);
+	SetCursorClipping(_cursorMinX, _cursorMinY,
+					  _cursorMaxX, _cursorMaxY);
 }
 
 POINT CUAKMCrimeLinkModule::GetMouseOver()

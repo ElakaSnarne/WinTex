@@ -14,6 +14,8 @@
 #include <tuple>
 #include "Elevation.h"
 #include "LocationDataHeader.h"
+#include <algorithm>
+#include <string>
 
 BOOL CLocation::_loading = FALSE;
 
@@ -228,7 +230,7 @@ BOOL CLocation::Load(int locationFileIndex)
 	}
 
 	// Prepare the object mapping list
-	_objectMapCount = _mapEntry->ObjectMap.size();
+	_objectMapCount = static_cast<int>(_mapEntry->ObjectMap.size());
 	_objectMap = new ObjectMap[_objectMapCount];
 	std::vector<int>::iterator oit = _mapEntry->ObjectMap.begin();
 	std::vector<int>::iterator oend = _mapEntry->ObjectMap.end();
@@ -959,32 +961,15 @@ BOOL CLocation::Load(int locationFileIndex)
 	}
 
 	// Load alternative textures
-	if (pConfig->AlternativeMedia)
-	{
-		wchar_t alternateName[1024];
-		ZeroMemory(alternateName, sizeof(alternateName));
-		wcscat(alternateName, file.c_str());
-		wchar_t* pAlter = alternateName + file.size() - 3;
-		pAlter[0] = L'\\';
-		pAlter++;
-
-		tit = _allTextures.begin();
-		tend = _allTextures.end();
-		int tix = 0;
-		while (tit != tend)
-		{
-			_itow(tix, pAlter, 10);
-			wchar_t* pAlter2 = pAlter + wcslen(pAlter);
-			wcscat(pAlter2, L".png");
-
-			// TODO: If file exists, replace texture...
-			if (CFile::Exists(alternateName))
-			{
-				(*tit)->pTexture->Init(alternateName);
+	if (pConfig->AlternativeMedia) {
+		auto extensionlessName = std::wstring(begin(file), end(file) - 3) + L'\\';
+		int textureIndex{ 0 };
+		for (auto&& texture : _allTextures) {
+			auto alternateName = extensionlessName + std::to_wstring(textureIndex) + L".png";
+			if (CFile::Exists(alternateName.c_str())) {
+				texture->pTexture->Init(alternateName.c_str());
 			}
-
-			tix++;
-			tit++;
+			++textureIndex;
 		}
 	}
 
@@ -1657,9 +1642,9 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 			{
 				if (_paths[i].enabled)
 				{
-					for (size_t p1 = 0; p1 < _paths[i].Points.size(); p1++)
+					for (std::size_t p1 = 0; p1 < _paths[i].Points.size(); p1++)
 					{
-						int p2 = p1 + 1;
+						auto p2 = p1 + 1;
 						if (p2 == _paths[i].Points.size()) p2 = 0;
 
 						DPoint pt1 = _paths[i].Points.at(p1);
@@ -1722,7 +1707,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 									collision = TRUE;
 
 									closestPathIndex = i;
-									closestPathSubIndex = p1;
+									closestPathSubIndex = static_cast<int>(p1);
 								}
 							}
 						}
@@ -1798,7 +1783,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 					{
 						for (size_t p1 = 0; p1 < _paths[i].Points.size(); p1++)
 						{
-							int p2 = p1 + 1;
+							auto p2 = p1 + 1;
 							if (p2 == _paths[i].Points.size()) p2 = 0;
 
 							DPoint xpt1 = _paths[i].Points.at(p1);
@@ -1810,7 +1795,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 							{
 								newClosestD = newd;
 								newclosestpathindex = i;
-								newclosestPathSubIndex = p1;
+								newclosestPathSubIndex = static_cast<int>(p1);
 							}
 						}
 					}
@@ -1849,7 +1834,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 					{
 						for (size_t p1 = 0; p1 < _paths[i].Points.size(); p1++)
 						{
-							int p2 = p1 + 1;
+							auto p2 = p1 + 1;
 							if (p2 == _paths[i].Points.size()) p2 = 0;
 
 							DPoint xpt1 = _paths[i].Points.at(p1);
@@ -1861,7 +1846,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 							{
 								newClosestD = newd;
 								newclosestpathindex = i;
-								newclosestPathSubIndex = p1;
+								newclosestPathSubIndex = static_cast<int>(p1);
 							}
 						}
 					}

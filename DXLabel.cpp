@@ -34,7 +34,7 @@ void CDXLabel::Render()
 	_text->Render(_x, _y);
 }
 
-void CDXLabel::SetText(char* text)
+void CDXLabel::SetText(const char* text)
 {
 	_text->SetText(text);
 }
