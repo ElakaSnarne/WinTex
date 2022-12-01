@@ -220,7 +220,7 @@ void CConstantBuffers::SetupVOP(CDirectX& dx, float w, float h, float camera_x, 
 	XMMATRIX vm = XMMatrixLookAtLH(position, lookAt, up);
 	XMMATRIX om = XMMatrixOrthographicLH(w, h, 0.1f, 1000.0f);
 
-	float fieldOfView = (float)XM_PI / 4.0f;
+	float fieldOfView = (float)XM_PI / 4.0f / 0.95f;
 	float screenAspect = w / h;
 	XMMATRIX pm = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, 0.1f, 1000.0f);
 
