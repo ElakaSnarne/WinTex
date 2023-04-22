@@ -406,7 +406,6 @@ void CUAKMGame::SetItemState(int item, int state)
 		}
 		else if (state == 1)
 		{
-			// TODO: Do not add if item already in inventory!
 			BOOL alreadyInInventory = FALSE;
 			for (int i = 0; i < count; i++)
 			{

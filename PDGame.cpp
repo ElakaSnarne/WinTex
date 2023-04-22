@@ -104,29 +104,21 @@ void CPDGame::NewGame()
 
 	//SetData(UAKM_SAVE_DESCRIPTION, "Tex's Office");
 
-	//SYSTEMTIME sysTime;
-	//GetSystemTime(&sysTime);
+	SYSTEMTIME sysTime;
+	GetSystemTime(&sysTime);
 	_gameData[PD_SAVE_GAME_DAY] = 1;
-	//_data[UAKM_SAVE_YEAR] = sysTime.wYear;
-	//_data[UAKM_SAVE_MONTH] = sysTime.wMonth;
-	//_data[UAKM_SAVE_DAY] = sysTime.wDay;
-	//_data[UAKM_SAVE_HOUR] = sysTime.wHour;
-	//_data[UAKM_SAVE_MINUTE] = sysTime.wMinute;
-	//_data[UAKM_SAVE_SECOND] = sysTime.wSecond;
+	_gameData[PD_SAVE_YEAR] = sysTime.wYear;
+	_gameData[PD_SAVE_MONTH] = sysTime.wMonth;
+	_gameData[PD_SAVE_DAY] = sysTime.wDay;
+	_gameData[PD_SAVE_HOUR] = sysTime.wHour;
+	_gameData[PD_SAVE_MINUTE] = sysTime.wMinute;
+	_gameData[PD_SAVE_SECOND] = sysTime.wSecond;
 
 	//UAKM_SAVE_MAP_ENTRY				0x14a
 	//UAKM_SAVE_DMAP_ENTRY				0x150
 	//SetData(UAKM_SAVE_CODED_MESSAGE, "YE UANE CIAFWBHED RIPB AEEIWALHEAL  YWLU CUAXLWLR AL  LUE XPWLE WA LUE  GIODEA GALE UILEO AL LUE PXPAO LWHE.LUE EAXXYIBD LIDARWX XWOWCIA.       ");
 
 	//UAKM_SAVE_SCRIPT_ID				0x4c9
-
-	//SetAskAboutState(0, 1);		// Rook Garner
-	//SetAskAboutState(1, 1);		// Chelsee Bando
-	//SetAskAboutState(2, 1);		// Louie Lamintz
-	//SetAskAboutState(3, 1);		// Francesca Lucido
-	//SetAskAboutState(4, 1);		// Sal Lucido
-	//SetAskAboutState(5, 1);		// Ardo Newpop
-	//SetAskAboutState(17, 1);	// Colonel
 
 	//SetData(UAKM_SAVE_TRAVEL + 5, 1);	// Allow travel to Tex's Office
 
@@ -140,8 +132,36 @@ void CPDGame::NewGame()
 	//	delete[] bd.Data;
 	//}
 
-	//LoadFromDMap(0);
-	LoadFromMap(1, 0);
+	// Enable Travel to Tex' Office, Tex' Bedroom, Tex' Computer Room
+
+	// Enable AskAbouts: 0,1,2,3,6,7,9,40,56,61
+	SetAskAboutState(0, 1);		// Enable AskAbout Tex Murphy
+	SetAskAboutState(1, 1);		// Enable AskAbout Chelsee Bando
+	SetAskAboutState(2, 1);		// Enable AskAbout Louie LaMintz
+	SetAskAboutState(3, 1);		// Enable AskAbout Rook Garner
+	SetAskAboutState(6, 1);		// Enable AskAbout Gordon Fitzpatrick
+	SetAskAboutState(7, 1);		// Enable AskAbout Thomas Malloy
+	SetAskAboutState(9, 1);		// Enable AskAbout Nilo
+	SetAskAboutState(40, 1);	// Enable AskAbout Tyson Matthews
+	SetAskAboutState(56, 1);	// Enable AskAbout Newspaper photo of Malloy
+	SetAskAboutState(61, 1);	// Enable AskAbout Sandra
+
+	// Unknowns 10 and 11 set to 2 and 1
+
+	// Parameter 0x19a, 0 = Entertainment Level, 1 = Game Player Level
+
+	SetWord(PD_SAVE_CASH, 4000);
+	SetItemState(0, 1);	// Cash
+	SetItemState(1, 1);	// Photo of Malloy
+	SetItemState(2, 1);	// Credit card
+	SetItemState(4, 1);	// Fitzpatrick's card
+
+	// Unknowns 12 to 16 set to 0,1,1,1,1
+
+	// Clear some tables (hints?)
+
+	LoadFromDMap(42);
+	//LoadFromMap(1, 0);
 }
 
 BYTE CPDGame::GetParameter(int index)
@@ -153,6 +173,10 @@ void CPDGame::SetParameter(int index, BYTE value)
 {
 	if (index >= 0 && index < 1024)
 	{
+		if (index == 0x1a8)
+		{
+			int debug = 0;
+		}
 		_gameData[PD_SAVE_PARAMETERS + index] = value;
 	}
 }
@@ -183,21 +207,72 @@ void CPDGame::SetData(int offset, char* text)
 
 BYTE CPDGame::GetAskAboutState(int index)
 {
-	return 0;
+	return (index >= 0 && index < 200) ? _gameData[PD_SAVE_ASK_ABOUT_STATES + index] : 0;
 }
 
 void CPDGame::SetAskAboutState(int index, BYTE state)
 {
+	if (index >= 0 && index <= 100)
+	{
+		_gameData[PD_SAVE_ASK_ABOUT_STATES + index] = state;
+
+		// Add or remove from list
+		int count = GetAskAboutCount();
+		if (state == 0 || state == 2)
+		{
+			int i = 0;
+			for (i = 0; i < count && i < 50; i++)
+			{
+				if (_gameData[PD_SAVE_ASK_ABOUTS + i] == index)
+				{
+					for (; i < count && i < 49; i++)
+					{
+						_gameData[PD_SAVE_ASK_ABOUTS + i] = _gameData[PD_SAVE_ASK_ABOUTS + i + 1];
+					}
+					_gameData[PD_SAVE_ASK_ABOUTS + count] = -1;
+
+					_gameData[PD_SAVE_ASK_ABOUT_COUNT]--;
+
+					break;
+				}
+			}
+		}
+		else if (state == 1)
+		{
+			// Check if state already set
+			for (int i = 0; i < count; i++)
+			{
+				if (_gameData[PD_SAVE_ASK_ABOUTS + i] == index)
+				{
+					return;
+				}
+			}
+
+			_gameData[PD_SAVE_ASK_ABOUTS + count] = index;
+			_gameData[PD_SAVE_ASK_ABOUT_COUNT]++;
+		}
+		else
+		{
+			int debug = 0;
+		}
+
+		_gameData[PD_SAVE_ASK_ABOUT_STATES + index] = state;
+	}
+	else
+	{
+		int debug = 0;
+	}
+
 }
 
 int CPDGame::GetAskAboutCount()
 {
-	return 0;
+	return _gameData[PD_SAVE_ASK_ABOUT_COUNT];
 }
 
 int CPDGame::GetAskAboutId(int index)
 {
-	return 0;
+	return (index >= 0 && index < 100) ? _gameData[PD_SAVE_ASK_ABOUTS + index] : -1;
 }
 
 int CPDGame::GetScore()
@@ -266,7 +341,6 @@ void CPDGame::SetItemState(int item, int state)
 		}
 		else if (state == 1)
 		{
-			// TODO: Do not add if item already in inventory!
 			BOOL alreadyInInventory = FALSE;
 			for (int i = 0; i < count; i++)
 			{
@@ -451,4 +525,14 @@ BOOL CPDGame::LoadIcons()
 	}
 
 	return result;
+}
+
+int CPDGame::GetBuyableItemCount()
+{
+	return 0;
+}
+
+int CPDGame::GetBuyableItemId(int index)
+{
+	return -1;
 }

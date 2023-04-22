@@ -75,6 +75,7 @@ void CVideoPlayer::Init(HWND hWnd, LPCTSTR fileName)
 		IMFTopology* pTopology = NULL;
 		hr = MFCreateTopology(&pTopology);
 
+
 		DWORD cSourceStreams = 0;
 		pPD->GetStreamDescriptorCount(&cSourceStreams);
 
@@ -92,11 +93,11 @@ void CVideoPlayer::Init(HWND hWnd, LPCTSTR fileName)
 
 				GUID guidMajorType;
 				hr = pHandler->GetMajorType(&guidMajorType);
-				if (MFMediaType_Audio == guidMajorType)
+				if (guidMajorType == MFMediaType_Audio)
 				{
 					hr = MFCreateAudioRendererActivate(&pSinkActivate);
 				}
-				else if (MFMediaType_Video == guidMajorType)
+				else if (guidMajorType == MFMediaType_Video)
 				{
 					hr = MFCreateVideoRendererActivate(hWnd, &pSinkActivate);
 				}
@@ -117,6 +118,12 @@ void CVideoPlayer::Init(HWND hWnd, LPCTSTR fileName)
 					hr = pOutputNode->SetUINT32(MF_TOPONODE_NOSHUTDOWN_ON_REMOVE, TRUE);
 
 					hr = pSourceNode->ConnectOutput(0, pOutputNode, 0);
+
+					if (guidMajorType == MFMediaType_Video)
+					{
+						// TODO: Attach screen grabber
+						//hr = MFCreateSampleGrabberSinkActivate()
+					}
 				}
 			}
 		}
@@ -124,7 +131,6 @@ void CVideoPlayer::Init(HWND hWnd, LPCTSTR fileName)
 		hr = _pSession->SetTopology(0, pTopology);
 
 		//IMFMediaEventGenerator* pMEG = NULL;
-
 
 		PROPVARIANT varStart;
 		PropVariantInit(&varStart);
@@ -151,13 +157,13 @@ void MediaPlayerCallback::OnMediaPlayerEvent(MFP_EVENT_HEADER* pEventHeader)
 
 	switch (pEventHeader->eEventType)
 	{
-		case MFP_EVENT_TYPE_MEDIAITEM_CREATED:
-			g_pPlayer->OnMediaItemCreated(MFP_GET_MEDIAITEM_CREATED_EVENT(pEventHeader));
-			break;
+	case MFP_EVENT_TYPE_MEDIAITEM_CREATED:
+		g_pPlayer->OnMediaItemCreated(MFP_GET_MEDIAITEM_CREATED_EVENT(pEventHeader));
+		break;
 
-		case MFP_EVENT_TYPE_MEDIAITEM_SET:
-			g_pPlayer->OnMediaItemSet(MFP_GET_MEDIAITEM_SET_EVENT(pEventHeader));
-			break;
+	case MFP_EVENT_TYPE_MEDIAITEM_SET:
+		g_pPlayer->OnMediaItemSet(MFP_GET_MEDIAITEM_SET_EVENT(pEventHeader));
+		break;
 	}
 }
 
@@ -232,6 +238,7 @@ HRESULT __stdcall CVideoPlayer::Invoke(IMFAsyncResult* pAsyncResult)
 
 	if (meType == MESessionClosed || meType == MESessionStopped || meType == MEEndOfStream || meType == MEStreamStopped || meType == MESourceStopped || meType == MEEndOfPresentation)
 	{
+		_pSession->Stop();
 		_done = TRUE;
 	}
 	else
@@ -261,4 +268,14 @@ HRESULT __stdcall CVideoPlayer::Invoke(IMFAsyncResult* pAsyncResult)
 	pEvent->Release();
 
 	return S_OK;
+}
+
+void CVideoPlayer::Skip()
+{
+	if (_pSession != NULL)
+	{
+		_pSession->Stop();
+	}
+
+	//_done = TRUE;
 }

@@ -14,7 +14,7 @@ public:
 	void CloseDevice();
 	void OpenDevice(UINT deviceId);
 
-	void Init(BinaryData data);
+	virtual void Init(BinaryData data);
 	void Stop();
 	void Start();
 	void Pause();
@@ -29,6 +29,7 @@ protected:
 	DWORD _midiThreadId;
 
 	static BOOL _midiEnabled;
+	virtual DWORD Player();
 	static DWORD WINAPI PlayerThread(LPVOID lpParameter);
 
 	static LPBYTE _channels[16];

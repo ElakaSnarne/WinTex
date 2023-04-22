@@ -87,15 +87,9 @@ protected:
 	void LoadPaths();
 	void LoadTextures();
 
-	ID3D11Buffer* _vertexBuffer;
-	ID3D11Buffer* _indexBuffer;
-
-	Point* _points;
 	int _verticeCount;
-	int _indexCount;
-
-	int* _pIndexes;
-	std::vector<int> _indexes;
+	Point* _points;
+	ID3D11Buffer* _vertexBuffer;
 
 	static BOOL _loading;
 
@@ -250,4 +244,25 @@ protected:
 
 	ObjectVisibilityMapping* _improvedObjectMap;
 	void ChangeVisibility(int id, BOOL visible, BOOL setOnSubObjects, std::wstring header);
+
+#ifdef DEBUG
+	void RenderPoints();
+	void RenderLines();
+	void RenderPath();
+public:
+	static BOOL _renderTextured;
+	static BOOL _renderPoints;
+	static BOOL _renderLines;
+	static BOOL _renderPaths;
+	static BOOL _disableClipping;
+
+	ID3D11Buffer* _pathVertexBuffer;
+	ID3D11Buffer* _pathIndexBuffer;
+	int _pathIndexCount;
+
+	ID3D11Buffer* _indexBuffer;
+	int _indexCount;
+	int* _pIndexes;
+	std::vector<int> _indexes;
+#endif
 };

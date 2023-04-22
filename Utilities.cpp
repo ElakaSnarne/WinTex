@@ -248,7 +248,7 @@ void Trace(float val, int dc)
 void Trace(int val, int rad)
 {
 	std::wstringstream buffer;
-	buffer << std::setbase(rad) << std::to_wstring(val);
+	buffer << std::setbase(rad) << val;// std::to_wstring(val);
 	Trace(buffer.str().c_str());
 }
 

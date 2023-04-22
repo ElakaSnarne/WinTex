@@ -6,6 +6,7 @@
 #include "LocationModule.h"
 #include "VideoModule.h"
 #include "AmbientAudio.h"
+#include "AnimationController.h"
 
 #define TRAVEL_MAP_FILE	0
 //Chandler Ave
@@ -72,6 +73,8 @@ CUAKMTravelModule::~CUAKMTravelModule()
 
 void CUAKMTravelModule::Initialize()
 {
+	CAnimationController::Clear();
+
 	_cursorPosX = dx.GetWidth() / 2.0f;
 	_cursorPosY = dx.GetHeight() / 2.0f;
 

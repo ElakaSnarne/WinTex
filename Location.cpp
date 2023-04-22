@@ -19,6 +19,14 @@
 
 BOOL CLocation::_loading = FALSE;
 
+#ifdef DEBUG
+BOOL CLocation::_disableClipping = FALSE;
+BOOL CLocation::_renderTextured = TRUE;
+BOOL CLocation::_renderPoints = FALSE;
+BOOL CLocation::_renderLines = FALSE;
+BOOL CLocation::_renderPaths = FALSE;
+#endif
+
 #define CLOSE	1.0f
 
 #define OBJECT_FLAGS_HIDDEN				0x80000000
@@ -87,13 +95,7 @@ CLocation::CLocation()
 	HitSubObject = -1;
 	ObjectIndex = -1;
 
-	_vertexBuffer = NULL;
-	_indexBuffer = NULL;
 	_points = NULL;
-	_verticeCount = 0;
-	_indexCount = 0;
-
-	_pIndexes = NULL;
 
 	_texturedVertexBuffer = NULL;
 	_texturedVerticeCount = 0;
@@ -123,6 +125,17 @@ CLocation::CLocation()
 	ZeroMemory(Animations, 50 * sizeof(Animation));
 
 	_locationData = NULL;
+
+#ifdef DEBUG
+	_pathVertexBuffer = NULL;
+	_pathIndexBuffer = NULL;
+	_pathIndexCount = 0;
+	_vertexBuffer = NULL;
+	_indexBuffer = NULL;
+	_verticeCount = 0;
+	_indexCount = 0;
+	_pIndexes = NULL;
+#endif
 }
 
 CLocation::~CLocation()
@@ -508,6 +521,11 @@ BOOL CLocation::Load(int locationFileIndex)
 							TLPoint px = GetPoint(p3d2, thisSubOffset + 0x28, p, points, tw, th, _objectCount, i, six);
 							px.SubObjectId = j;
 
+#ifdef DEBUG
+							int pix = GetInt(p3d2, thisSubOffset + 0x28 + p * 4, 4) >> 4;
+							_indexes.push_back(pix);
+#endif
+
 							if ((flags & SUBOBJECT_FLAGS_SINGLE_COLOUR) != 0)
 							{
 								//float tu = px.U;
@@ -529,6 +547,13 @@ BOOL CLocation::Load(int locationFileIndex)
 							if (px.Point->Z < sminz) sminz = px.Point->Z;
 							if (px.Point->Z > smaxz) smaxz = px.Point->Z;
 						}
+
+						// Add point back to origin
+#ifdef DEBUG
+						int pix = GetInt(p3d2, thisSubOffset + 0x28, 4) >> 4;
+						_indexes.push_back(pix);
+						_indexes.push_back(-1);	// Indicate new linestrip follows
+#endif
 
 						int startp = 0;
 						int tri = points - 2;
@@ -694,6 +719,37 @@ BOOL CLocation::Load(int locationFileIndex)
 			lb2.Z = omaxz;
 		}
 	}
+
+#ifdef DEBUG
+	// Create index buffer
+	_indexCount = _indexes.size();
+	if (_indexCount > 0)
+	{
+		_pIndexes = new int[_indexCount];
+
+		for (int i = 0; i < _indexCount; i++)
+		{
+			int cix = _indexes.at(i);
+			if (cix >= 0) cix += _objectCount;
+			_pIndexes[i] = cix;
+		}
+
+		D3D11_BUFFER_DESC indexBufferDesc;
+		indexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		indexBufferDesc.ByteWidth = sizeof(int) * _indexCount;
+		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		indexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		indexBufferDesc.MiscFlags = 0;
+		indexBufferDesc.StructureByteStride = 0;
+
+		D3D11_SUBRESOURCE_DATA indexData;
+		indexData.pSysMem = _pIndexes;
+		indexData.SysMemPitch = 0;
+		indexData.SysMemSlicePitch = 0;
+
+		dx.CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer, "Location Lines");
+	}
+#endif
 
 	// Create points vertex buffer
 	D3D11_BUFFER_DESC vertexBufferDesc;
@@ -1068,11 +1124,21 @@ void CLocation::Clear()
 		_locationData = NULL;
 	}
 
+#ifdef DEBUG
 	if (_indexBuffer != NULL)
 	{
 		_indexBuffer->Release();
 		_indexBuffer = NULL;
 	}
+
+	if (_pIndexes != NULL)
+	{
+		delete[] _pIndexes;
+		_pIndexes = NULL;
+	}
+
+	_indexes.clear();
+#endif
 
 	if (_vertexBuffer != NULL)
 	{
@@ -1109,12 +1175,6 @@ void CLocation::Clear()
 		texit++;
 	}
 
-	if (_pIndexes != NULL)
-	{
-		delete[] _pIndexes;
-		_pIndexes = NULL;
-	}
-
 	if (_texturedVertexBuffer != NULL)
 	{
 		_texturedVertexBuffer->Release();
@@ -1129,7 +1189,6 @@ void CLocation::Clear()
 
 	_allTextures.clear();
 	_objects.clear();
-	_indexes.clear();
 
 	if (_spriteVertexBuffer != NULL)
 	{
@@ -1316,7 +1375,18 @@ void CLocation::Render()
 	wm = tm * rm2 * rm1;
 	CConstantBuffers::SetWorld(dx, &wm);
 
-	RenderTextured();
+#ifdef DEBUG
+	if (_renderTextured)
+	{
+#endif
+		RenderTextured();
+#ifdef DEBUG
+	}
+
+	if (_renderLines) RenderLines();
+	if (_renderPoints) RenderPoints();
+	if (_renderPaths) RenderPath();
+#endif
 
 	CShaders::SelectOrthoShader();
 	dx.DisableZBuffer();
@@ -1614,7 +1684,11 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 		double nz = _z + (mz * cos(_angle2) + mx * sin(_angle2));
 
 		// Check for collision with path objects
+#ifdef DEBUG
+		BOOL collision = !_disableClipping;
+#else
 		BOOL collision = TRUE;
+#endif
 
 		DPoint pp1{ -_x, 0.0, -_z };
 		DPoint pp2{ -nx, 0.0, -nz };
@@ -1866,131 +1940,141 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 		_z = (float)nz;
 
 		// Check elevation
-		int eix = -1;
-		for (auto el : Elevations)
+#ifdef DEBUG
+		if (!_disableClipping)
+#endif
 		{
-			eix++;
-			Elevation* pE = (Elevation*)el;
-			float x1 = ((float)pE->X1) / 65536.0f;
-			float y1 = ((float)pE->Y1) / 65536.0f;
-			float z1 = ((float)pE->Z1) / 65536.0f;
-			float x2 = ((float)pE->X2) / 65536.0f;
-			float y2 = ((float)pE->Y2) / 65536.0f;
-			float z2 = ((float)pE->Z2) / 65536.0f;
-
-			float stepHeight = ((float)pE->StepHeight) / 65536.0f;
-			float stepLength = ((float)pE->StepLength) / 65536.0f;
-			float stepWidth = ((float)pE->StepWidth) / 65536.0f;
-
-			int numberOfSteps = pE->NumberOfSteps;
-			float len = ((float)pE->HorizontalLength) / 65536.0f;
-			float xv = ((float)pE->DirectionX) / 65536.0f;
-			float zv = ((float)pE->DirectionZ) / 65536.0f;
-
-			float halfStepWidthX = abs(zv) * stepWidth / 1;
-			float halfStepWidthZ = abs(xv) * stepWidth / 1;
-
-			float x11 = x1 + halfStepWidthX;
-			float x12 = x1 - halfStepWidthX;
-			float x21 = x2 + halfStepWidthX;
-			float x22 = x2 - halfStepWidthX;
-			float z11 = z1 + halfStepWidthZ;
-			float z12 = z1 - halfStepWidthZ;
-			float z21 = z2 + halfStepWidthZ;
-			float z22 = z2 - halfStepWidthZ;
-
-			float xt1 = min(min(min(x11, x12), x21), x22), xt2 = max(max(max(x11, x12), x21), x22);
-			float zt1 = min(min(min(z11, z12), z21), z22), zt2 = max(max(max(z11, z12), z21), z22);
-
-			if (-nx >= xt1 && -nx <= xt2 && -nz >= zt1 && -nz <= zt2)
+			int eix = -1;
+			for (auto el : Elevations)
 			{
-				float cy = -_y_elevation;
+				eix++;
+				Elevation* pE = (Elevation*)el;
+				float x1 = ((float)pE->X1) / 65536.0f;
+				float y1 = ((float)pE->Y1) / 65536.0f;
+				float z1 = ((float)pE->Z1) / 65536.0f;
+				float x2 = ((float)pE->X2) / 65536.0f;
+				float y2 = ((float)pE->Y2) / 65536.0f;
+				float z2 = ((float)pE->Z2) / 65536.0f;
 
-				float miny = min(y1, y2), maxy = max(y1, y2);
-				if ((cy + 3) >= miny && (cy - 3) <= maxy)
+				float stepHeight = ((float)pE->StepHeight) / 65536.0f;
+				float stepLength = ((float)pE->StepLength) / 65536.0f;
+				float stepWidth = ((float)pE->StepWidth) / 65536.0f;
+
+				int numberOfSteps = pE->NumberOfSteps;
+				float len = ((float)pE->HorizontalLength) / 65536.0f;
+				float xv = ((float)pE->DirectionX) / 65536.0f;
+				float zv = ((float)pE->DirectionZ) / 65536.0f;
+
+				float halfStepWidthX = abs(zv) * stepWidth / 1;
+				float halfStepWidthZ = abs(xv) * stepWidth / 1;
+
+				float x11 = x1 + halfStepWidthX;
+				float x12 = x1 - halfStepWidthX;
+				float x21 = x2 + halfStepWidthX;
+				float x22 = x2 - halfStepWidthX;
+				float z11 = z1 + halfStepWidthZ;
+				float z12 = z1 - halfStepWidthZ;
+				float z21 = z2 + halfStepWidthZ;
+				float z22 = z2 - halfStepWidthZ;
+
+				float xt1 = min(min(min(x11, x12), x21), x22), xt2 = max(max(max(x11, x12), x21), x22);
+				float zt1 = min(min(min(z11, z12), z21), z22), zt2 = max(max(max(z11, z12), z21), z22);
+
+				if (-nx >= xt1 && -nx <= xt2 && -nz >= zt1 && -nz <= zt2)
 				{
-					//Trace(L"Inside elevation ");
-					//TraceLine(eix);
-					//Trace(L"Current elevation: ");
-					//TraceLine(cy);
-					//Trace(L"Elevation anim: ");
-					//Trace(y1);
-					//Trace(L", ");
-					//TraceLine(y2);
-					//Trace(L"Elevation diff: ");
-					//Trace(cy + y1);
-					//Trace(L", ");
-					//TraceLine(cy + y2);
+					float cy = -_y_elevation;
 
-					// TODO: Calculate full step index, then sub step value
-					// TODO: Should only move up on ~10% of step length?
-
-					// Find percentage position along elevation
-					double p = (1 - abs(zv * (z21 + nz) + xv * (x21 + nx)) / len);
-					double sp = 1.0 / numberOfSteps;
-					double t = p / sp;
-					double t2 = (double)((int)t);
-					double t3 = t - t2;
-					//Trace(L"t=");
-					//TraceLine((float)t);
-					//Trace(L"t2=");
-					//TraceLine((float)t2);
-					//Trace(L"t3=");
-					//TraceLine((float)t3);
-					if (t3 >= 0.2 && t3 < 0.5)
+					float miny = min(y1, y2), maxy = max(y1, y2);
+					if ((cy + 3) >= miny && (cy - 3) <= maxy)
 					{
-						t2 += (t3 - 0.2) / 0.3;
-					}
-					else if (t3 >= 0.5)
-					{
-						t2 += 1.0;
+						//Trace(L"Inside elevation ");
+						//TraceLine(eix);
+						//Trace(L"Current elevation: ");
+						//TraceLine(cy);
+						//Trace(L"Elevation anim: ");
+						//Trace(y1);
+						//Trace(L", ");
+						//TraceLine(y2);
+						//Trace(L"Elevation diff: ");
+						//Trace(cy + y1);
+						//Trace(L", ");
+						//TraceLine(cy + y2);
+
+						// TODO: Calculate full step index, then sub step value
+						// TODO: Should only move up on ~10% of step length?
+
+						// Find percentage position along elevation
+						double p = (1 - abs(zv * (z21 + nz) + xv * (x21 + nx)) / len);
+						double sp = 1.0 / numberOfSteps;
+						double t = p / sp;
+						double t2 = (double)((int)t);
+						double t3 = t - t2;
+						//Trace(L"t=");
+						//TraceLine((float)t);
+						//Trace(L"t2=");
+						//TraceLine((float)t2);
+						//Trace(L"t3=");
+						//TraceLine((float)t3);
+						if (t3 >= 0.2 && t3 < 0.5)
+						{
+							t2 += (t3 - 0.2) / 0.3;
+						}
+						else if (t3 >= 0.5)
+						{
+							t2 += 1.0;
+						}
+
+						//t2 += min(t3, 0.5);
+						//if (t3 < 0.5) t2 += t3;// (t3 / 0.5);
+						//Trace(L"SP=");
+						//TraceLine((float)sp);
+						//int t = (int)(p * 1000) % (int)(sp * 1000);
+						//Trace(L"T2=");
+						//TraceLine(t2);
+
+						double d = -(y1 + stepHeight * t2);
+
+						/*
+						// Movement is inside an elevation rectangle
+						if (xv == 0.0f)
+						{
+							// Elevation is in z-direction
+							//d = -(y2 + (y1 - y2) * zv * (z21 + nz) / len);
+							d = -(y1 + stepHeight * t2);
+						}
+						else if (zv == 0.0f)
+						{
+							// Elevation is in x-direction
+							//d = -(y2 + (y1 - y2) * xv * (x21 + nx) / len);
+							d = -(y1 + stepHeight * t2);
+						}
+						*/
+
+						_y_elevation = static_cast<float>(d + 1.5f);
 					}
 
-					//t2 += min(t3, 0.5);
-					//if (t3 < 0.5) t2 += t3;// (t3 / 0.5);
-					//Trace(L"SP=");
-					//TraceLine((float)sp);
-					//int t = (int)(p * 1000) % (int)(sp * 1000);
-					//Trace(L"T2=");
-					//TraceLine(t2);
-
-					double d = -(y1 + stepHeight * t2);
-
-					/*
-					// Movement is inside an elevation rectangle
-					if (xv == 0.0f)
-					{
-						// Elevation is in z-direction
-						//d = -(y2 + (y1 - y2) * zv * (z21 + nz) / len);
-						d = -(y1 + stepHeight * t2);
-					}
-					else if (zv == 0.0f)
-					{
-						// Elevation is in x-direction
-						//d = -(y2 + (y1 - y2) * xv * (x21 + nx) / len);
-						d = -(y1 + stepHeight * t2);
-					}
-					*/
-
-					_y_elevation = static_cast<float>(d + 1.5f);
+					//TraceLine(L"");
 				}
-
-				//TraceLine(L"");
 			}
 		}
 	}
 
 	if (my != 0.0f)
 	{
-		//#ifndef DEBUG
-		if (_y >= _y_max && _y <= _y_min)
+		float miny = _y_min;
+		float maxy = _y_max;
+#ifdef DEBUG
+		if (_disableClipping)
+		{
+			miny = 1000;
+			maxy = -1000;
+		}
+#endif
+		if (_y >= maxy && _y <= miny)
 		{
 			// Allow movement up/down to limits
-			_y += (my < 0.0f) ? max(my, _y_max - _y) : min(my, _y_min - _y);
+			_y += (my < 0.0f) ? max(my, maxy - _y) : min(my, miny - _y);
 		}
-		//#else
-		//		_y += my;
-		//#endif
 	}
 
 	UpdateSprites();
@@ -2065,6 +2149,94 @@ void CLocation::LoadPaths()
 		}
 		else break;
 	}
+
+#ifdef DEBUG
+	// Create path vertice buffer
+	Point* pPV = new Point[pathVerticeCount];
+	if (pPV != NULL)
+	{
+		int pi = 0;
+		for (auto pt : points)
+		{
+			pPV[pi].X = pt.X;
+			pPV[pi].Y = pt.Y;
+			pPV[pi].Z = pt.Z;
+			pi++;
+		}
+
+		D3D11_BUFFER_DESC vertexBufferDesc;
+		vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		vertexBufferDesc.ByteWidth = sizeof(Point) * pathVerticeCount;
+		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		vertexBufferDesc.MiscFlags = 0;
+		vertexBufferDesc.StructureByteStride = 0;
+
+		D3D11_SUBRESOURCE_DATA vertexData;
+		vertexData.pSysMem = pPV;
+		vertexData.SysMemPitch = 0;
+		vertexData.SysMemSlicePitch = 0;
+
+		dx.CreateBuffer(&vertexBufferDesc, &vertexData, &_pathVertexBuffer, "Path Vertices");
+
+		delete pPV;
+	}
+
+	int faceCount = GetInt(ppath, 0x1a, 2);
+	std::vector<int> lines;
+	os = 0x80 + pathVerticeCount * 12;
+	for (int f = 0; f < faceCount; f++)
+	{
+		if (GetInt(ppath, os, 4) == 0x45434146)
+		{
+			int faceSize = GetInt(ppath, os + 4, 4);
+			int vertCount = GetInt(ppath, os + 8, 4);
+
+			for (int v = 0; v < vertCount; v++)
+			{
+				int pix = GetInt(ppath, os + 0x15 + v * 2, 2);
+				lines.push_back(pix);
+			}
+
+			if (vertCount > 2)
+			{
+				int pix = GetInt(ppath, os + 0x15, 2);
+				lines.push_back(pix);
+			}
+			lines.push_back(-1);
+
+			os += faceSize;
+		}
+		else break;
+	}
+
+	_pathIndexCount = lines.size();
+	int* pPI = new int[_pathIndexCount];
+	if (pPI != NULL)
+	{
+		for (int c = 0; c < _pathIndexCount; c++)
+		{
+			pPI[c] = lines.at(c);
+		}
+
+		D3D11_BUFFER_DESC indexBufferDesc;
+		indexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		indexBufferDesc.ByteWidth = sizeof(int) * _pathIndexCount;
+		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		indexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		indexBufferDesc.MiscFlags = 0;
+		indexBufferDesc.StructureByteStride = 0;
+
+		D3D11_SUBRESOURCE_DATA indexData;
+		indexData.pSysMem = pPI;
+		indexData.SysMemPitch = 0;
+		indexData.SysMemSlicePitch = 0;
+
+		dx.CreateBuffer(&indexBufferDesc, &indexData, &_pathIndexBuffer, "Path Indexes");
+
+		delete pPI;
+	}
+#endif
 }
 
 TLPoint CLocation::GetSpritePoint(PBYTE p3d2, int offset, int index, int objectCount, int object, int subObject)
@@ -4363,3 +4535,40 @@ void CLocation::Animate()
 		}
 	}
 }
+
+#ifdef DEBUG
+void CLocation::RenderPoints()
+{
+	UINT stride = sizeof(Point);
+	UINT offset = 0;
+	dx.SetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+	dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+	CShaders::SelectBasicShader();
+	dx.Draw(_verticeCount, 0);
+}
+
+void CLocation::RenderLines()
+{
+	UINT stride = sizeof(Point);
+	UINT offset = 0;
+	dx.SetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+	dx.SetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+	CShaders::SelectBasicShader();
+	dx.DrawIndexed(_indexCount, 0, 0);
+}
+
+void CLocation::RenderPath()
+{
+	UINT stride = sizeof(Point);
+	UINT offset = 0;
+	dx.SetVertexBuffers(0, 1, &_pathVertexBuffer, &stride, &offset);
+	dx.SetIndexBuffer(_pathIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+	CShaders::SelectBasicShader();
+	dx.DrawIndexed(_pathIndexCount, 0, 0);
+}
+#endif

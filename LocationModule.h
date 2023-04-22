@@ -35,6 +35,10 @@ public:
 
 	static int CurrentAction;
 
+#ifdef DEBUG
+	virtual void KeyDown(WPARAM key, LPARAM lParam);
+#endif
+
 protected:
 	virtual void Initialize();
 

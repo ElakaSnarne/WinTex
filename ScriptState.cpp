@@ -17,11 +17,13 @@ void CScriptState::Clear()
 	WaitingForInput = FALSE;
 	WaitingForExternalModule = FALSE;
 	SelectedOption = 0;
+	SelectedValue = 0;
 
 	AskAbout = FALSE;
 	Offer = FALSE;
-	OfferMode = FALSE;
 	TopItemOffset = 0;
+
+	Mode = InteractionMode::None;
 
 	AllowedAction = 0;
 	QueryAction = FALSE;

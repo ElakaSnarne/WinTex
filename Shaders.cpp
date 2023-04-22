@@ -10,6 +10,8 @@ CDXShader* CShaders::_texFontShader_AA = NULL;
 CDXShader* CShaders::_multiColouredFontShader = NULL;
 CDXShader* CShaders::_colourShader = NULL;
 CDXShader* CShaders::_transparentColourShader = NULL;
+CDXShader* CShaders::_yuvShader = NULL;
+CDXShader* CShaders::_basicShader = NULL;
 
 const char* vertexShaderProfile = "vs_5_0";
 const char* pixelShaderProfile = "ps_5_0";
@@ -126,6 +128,35 @@ void CShaders::SelectTransparentColourShader()
 	_transparentColourShader->Activate(&dx);
 }
 
+void CShaders::SelectYUVShader()
+{
+	if (_yuvShader == NULL)
+	{
+		D3D11_INPUT_ELEMENT_DESC tsied[] =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+		_yuvShader = new CDXShader(&dx, IDR_SHADER, "OrthoVS", vertexShaderProfile, "YUVPS", pixelShaderProfile, tsied, 2);
+	}
+
+	_yuvShader->Activate(&dx);
+}
+
+void CShaders::SelectBasicShader()
+{
+	if (_basicShader == NULL)
+	{
+		D3D11_INPUT_ELEMENT_DESC tsied[] =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+		_basicShader = new CDXShader(&dx, IDR_SHADER, "BasicVS", vertexShaderProfile, "BasicPS", pixelShaderProfile, tsied, 1);
+	}
+
+	_basicShader->Activate(&dx);
+}
+
 void CShaders::Dispose()
 {
 	if (_orthoShader != NULL)
@@ -162,5 +193,17 @@ void CShaders::Dispose()
 	{
 		_transparentColourShader->Dispose();
 		_transparentColourShader = NULL;
+	}
+
+	if (_yuvShader != NULL)
+	{
+		_yuvShader->Dispose();
+		_yuvShader = NULL;
+	}
+
+	if (_basicShader != NULL)
+	{
+		_basicShader->Dispose();
+		_basicShader = NULL;
 	}
 }

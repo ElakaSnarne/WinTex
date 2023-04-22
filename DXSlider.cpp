@@ -11,7 +11,7 @@ CTexture CDXSlider::_sliderTexBackground;
 CTexture CDXSlider::_sliderTexSlider;
 CTexture CDXSlider::_sliderTexSliderMouseOver;
 
-CDXSlider::CDXSlider(char* text, float minValue, float maxValue, float step, float* pValue, int precision)
+CDXSlider::CDXSlider(char* text, float minValue, float maxValue, float step, float* pValue, int precision, float sliderX)
 {
 	_textX = 0;
 	_precision = precision;
@@ -21,6 +21,7 @@ CDXSlider::CDXSlider(char* text, float minValue, float maxValue, float step, flo
 	_minimum = minValue;
 	_maximum = maxValue;
 	_step = step;
+	_sliderX = sliderX;
 
 	CalculateSliderPosition();
 
@@ -37,7 +38,7 @@ CDXSlider::CDXSlider(char* text, float minValue, float maxValue, float step, flo
 	if (pVB != NULL)
 	{
 		// Background
-		float x1 = 250.0f;
+		float x1 = _sliderX;
 		float x2 = x1 + _w;
 		float y1 = 0.0f;
 		float y2 = -32.0f;
@@ -181,7 +182,8 @@ void CDXSlider::Render()
 	UINT offset = 0;
 	dx.SetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 
-	XMMATRIX wm = XMMatrixTranslation(_x, -_y, 0.0f);
+	//XMMATRIX wm = XMMatrixTranslation(_x, -_y, 0.0f);
+	XMMATRIX wm = XMMatrixTranslation(0.0f, -_y, 0.0f);
 	CConstantBuffers::SetWorld(dx, &wm);
 
 	// Render background
@@ -191,7 +193,7 @@ void CDXSlider::Render()
 	dx.Draw(6, 0);
 
 	// Draw slider element
-	wm = XMMatrixTranslation(_x + 250.0f + _sliderPosition, -4.0f - _y, 0.0f);
+	wm = XMMatrixTranslation(_sliderX + _sliderPosition, -4.0f - _y, 0.0f);
 	CConstantBuffers::SetWorld(dx, &wm);
 
 	pRV = _mouseOver ? _sliderTexSliderMouseOver.GetTextureRV() : _sliderTexSlider.GetTextureRV();
@@ -200,16 +202,16 @@ void CDXSlider::Render()
 
 	// Draw text
 	_pTLabel->Render(_textX + _x, _y + 8.0f);
-	_pTValue->Render(_textX + _x + 250.0f, _y + 32.0f);
+	_pTValue->Render(_textX + _sliderX, _y + 32.0f);
 }
 
 void CDXSlider::UpdateValueText()
 {
 	Rect rc{ 0,0,TexFont.Height(),_pTValue->Width() };
-		std::stringstream stream;
-		stream << std::fixed << std::setprecision(_precision) << *_pValue;
-		std::string data = stream.str();
-		_pTValue->SetText(data.c_str(), rc, CDXText::Alignment::Center);
+	std::stringstream stream;
+	stream << std::fixed << std::setprecision(_precision) << *_pValue;
+	std::string data = stream.str();
+	_pTValue->SetText(data.c_str(), rc, CDXText::Alignment::Center);
 }
 
 void CDXSlider::CalculateSliderPosition()
@@ -224,7 +226,7 @@ void CDXSlider::CalculateSliderPosition()
 
 CDXControl* CDXSlider::HitTest(float x, float y)
 {
-	return (_visible && x >= (_x + 252.0f + _sliderPosition) && y >= (_y + 6.0f) && x < (_x + 258.0f + _sliderPosition) && y < (_y + 30.0f)) ? this : NULL;
+	return (_visible && x >= (_sliderX + 2.0f + _sliderPosition) && y >= (_y + 6.0f) && x < (_sliderX + 8.0f + _sliderPosition) && y < (_y + 30.0f)) ? this : NULL;
 }
 
 void CDXSlider::Drag(float x, float y)
@@ -232,8 +234,8 @@ void CDXSlider::Drag(float x, float y)
 	float span = _maximum - _minimum;
 	if (span > 0.0f && _step > 0.0f)
 	{
-		float min_x_pos = _x + 252.0f;
-		float max_x_pos = _x + 358.0f;
+		float min_x_pos = _sliderX + 2.0f;
+		float max_x_pos = _sliderX + 108.0f;
 
 		float pos_x = max(min_x_pos, min(max_x_pos, x)) - min_x_pos;
 		int positions = 1 + static_cast<int>(span / _step);

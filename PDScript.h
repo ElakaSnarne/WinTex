@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ScriptBase.h"
+#include <set>
 
 class CPDScript : public CScriptBase
 {
@@ -13,6 +14,8 @@ public:
 	//virtual void Init(LPBYTE script, int length, bool owner);
 	virtual int GetCurrentActions(CScriptState* pState, int currentObjectIndex);
 	virtual void PermformAction(CScriptState* pState, int id, int action, int item);
+
+	virtual void SelectDialogueOption(CScriptState* pState, int option);
 
 protected:
 	void Function_00(CScriptState* pState);
@@ -173,4 +176,7 @@ protected:
 	void AddCaption(CScriptState* pState, BOOL TexTalk);
 
 	int _alternatingIndex;
+
+	std::set<int> _women{ 1,8,13,14,20,25,57,61,62 };
+	std::set<int> _men{ 0,2,3,4,5,6,7,9,11,16,17,18,21,23,26,28,33,34,40,41,50 };
 };

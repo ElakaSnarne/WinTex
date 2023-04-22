@@ -110,6 +110,8 @@ int CDXText::CWordList::Chars()
 
 void CDXText::SetText(LPCWSTR text, Alignment alignment)
 {
+	_wstring = text;
+
 	Rect rc;
 	rc.Top = 0;
 	rc.Left = 10.0f;
@@ -120,6 +122,8 @@ void CDXText::SetText(LPCWSTR text, Alignment alignment)
 
 void CDXText::SetText(char const* text, Alignment alignment)
 {
+	_string = text;
+
 	Rect rc;
 	rc.Top = 0;
 	rc.Left = 10.0f;
@@ -130,6 +134,8 @@ void CDXText::SetText(char const* text, Alignment alignment)
 
 void CDXText::SetText(char const* text, Rect rect, Alignment alignment)
 {
+	_string = text;
+
 	// TODO: Refactor to take a std::string text argument rather than char* ?
 	if (_vertexBuffer != NULL)
 	{
@@ -342,6 +348,8 @@ void CDXText::SetText(char const* text, Rect rect, Alignment alignment)
 
 void CDXText::SetText(LPCWSTR text, Rect rect, Alignment alignment)
 {
+	_wstring = text;
+
 	if (_vertexBuffer != NULL)
 	{
 		_vertexBuffer->Release();

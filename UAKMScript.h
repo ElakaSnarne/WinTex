@@ -14,6 +14,8 @@ public:
 	virtual int GetCurrentActions(CScriptState* pState, int currentObjectIndex);
 	virtual void PermformAction(CScriptState* pState, int id, int action, int item);
 
+	virtual void SelectDialogueOption(CScriptState* pState, int option);
+
 protected:
 	void Function_80(CScriptState* pState);
 	void Function_81(CScriptState* pState);

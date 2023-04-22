@@ -12,6 +12,7 @@
 #include "MainMenuModule.h"
 #include "PictureModule.h"
 #include "PDGame.h"
+#include <algorithm>
 
 CPDScript::CPDScript()
 {
@@ -279,7 +280,8 @@ void CPDScript::Function_03(CScriptState* pState)
 void CPDScript::Function_04(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_04");
-	pState->ExecutionPointer = -1;
+	//pState->ExecutionPointer = -1;
+	pState->ExecutionPointer += 2;	// Jump to address if skip requested (enter pressed)
 
 	//text += $"If byte_2A851E <> 0 jump to {GetInt(data, offset, 2):X4}";
 	//offset += 2;
@@ -417,7 +419,7 @@ void CPDScript::Function_10(CScriptState* pState)
 
 void CPDScript::Function_11(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_11");
+	DebugTrace(pState, L"Function_11 - Jump on Item State = X");
 
 	// word, byte, word
 	//text += $"If X[{GetInt(data, offset, 2):X4}] = {GetInt(data, offset + 2, 1):X2} jump to {GetInt(data, offset + 3, 2):X4}";
@@ -425,15 +427,7 @@ void CPDScript::Function_11(CScriptState* pState)
 	int item = GetInt(pState->Script, pState->ExecutionPointer, 2);
 	int state = pState->Script[pState->ExecutionPointer + 2];
 
-	if (CGameController::GetItemState(item) == state)
-	{
-		int address = GetInt(pState->Script, pState->ExecutionPointer + 3, 2);
-		pState->ExecutionPointer = address;
-	}
-	else
-	{
-		pState->ExecutionPointer += 5;
-	}
+	pState->ExecutionPointer = (CGameController::GetItemState(item) == state) ? GetInt(pState->Script, pState->ExecutionPointer + 3, 2) : pState->ExecutionPointer + 5;
 }
 
 void CPDScript::Function_12(CScriptState* pState)
@@ -474,13 +468,13 @@ void CPDScript::Function_14(CScriptState* pState)
 
 	// Conversations & media
 	// Load files from DMAP.LZ
-	int fileIndex = pState->Script[pState->ExecutionPointer];
+	int ix = pState->Script[pState->ExecutionPointer];
 	int unknown = pState->Script[pState->ExecutionPointer + 1];
 
 	//CGameController::SetData(UAKM_SAVE_DMAP_ENTRY, ix);
 	//CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 1);
 
-	CModuleController::Push(new CVideoModule(VideoType::Scripted, fileIndex));
+	CModuleController::Push(new CVideoModule(VideoType::Scripted, ix, unknown));
 
 	pState->ExecutionPointer = -1;
 	//pState->WaitingForInput = TRUE;
@@ -508,12 +502,20 @@ void CPDScript::Function_17(CScriptState* pState)
 
 void CPDScript::Function_18(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_18");
+	DebugTrace(pState, L"Function_18 - Jump on player Y > value");
 
 	// word, word
+	int ytest = GetInt(pState->Script, pState->ExecutionPointer, 2);
+	if (ytest & 0x8000)
+	{
+		ytest |= ~0xffff;
+	}
+
+	float ylimit = ((float)ytest) / 16.0f;
+	float playerY = -_pLoc->GetPlayerPosition().Y;
+	pState->ExecutionPointer = (playerY > ylimit) ? GetInt(pState->Script, pState->ExecutionPointer + 2, 2) : pState->ExecutionPointer + 4;
+
 	//text += $"If word_2A9102 <= {GetInt(data, offset, 2):X4} jump to {GetInt(data, offset + 2, 2):X4}";
-	//offset += 4;
-	pState->ExecutionPointer += 4;
 }
 
 void CPDScript::Function_19(CScriptState* pState)
@@ -597,9 +599,6 @@ void CPDScript::Function_1E(CScriptState* pState)
 	int timer = pState->Script[pState->ExecutionPointer];
 	int duration = GetInt(pState->Script, pState->ExecutionPointer + 1, 2);
 	CGameController::SetTimer(timer, duration);
-	pState->ExecutionPointer += 4;
-
-
 	pState->ExecutionPointer += 3;
 }
 
@@ -674,12 +673,13 @@ void CPDScript::Function_25(CScriptState* pState)
 
 void CPDScript::Function_26(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_26");
+	DebugTrace(pState, L"Function_26 - Add Cash");
 
 	// word
-	//text += $"Cash += {GetInt(data, offset, 2)}";
-	int cash = GetInt(pState->Script, pState->ExecutionPointer, 2);
-	// TODO: Add cash
+	int cashToAdd = GetInt(pState->Script, pState->ExecutionPointer, 2);
+	int currentCash = CGameController::GetWord(PD_SAVE_CASH);
+	CGameController::SetWord(PD_SAVE_CASH, currentCash + cashToAdd);
+
 	pState->ExecutionPointer += 2;
 }
 
@@ -700,15 +700,18 @@ void CPDScript::Function_28(CScriptState* pState)
 	DebugTrace(pState, L"Function_28");
 	// byte
 	//text += $"Set OnReturnContinueAtScriptID = {GetInt(data, offset++, 1):X2}";
+	pState->ExecutionPointer++;
 }
 
 void CPDScript::Function_29(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_29");
-	pState->ExecutionPointer = -1;
 
-	int cash = GetInt(pState->Script, pState->ExecutionPointer, 2);
-	// TODO: Remove cash
+	// word
+	int cashToRemove = GetInt(pState->Script, pState->ExecutionPointer, 2);
+	int currentCash = CGameController::GetWord(PD_SAVE_CASH);
+	CGameController::SetWord(PD_SAVE_CASH, currentCash - cashToRemove);
+
 	pState->ExecutionPointer += 2;
 }
 
@@ -740,11 +743,14 @@ void CPDScript::Function_2D(CScriptState* pState)
 
 void CPDScript::Function_2E(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_2E");
+	DebugTrace(pState, L"Function_2E - If AskAboutState[x]=y go to z");
 
 	// byte, byte, word
-	//text += $"If Y[{GetInt(data, offset, 1):X2}]={GetInt(data, offset + 1, 1):X2} jump to {GetInt(data, offset + 2, 2):X4}";
-	pState->ExecutionPointer += 4;
+	int ix = pState->Script[pState->ExecutionPointer];
+	int val = pState->Script[pState->ExecutionPointer + 1];
+	int address = GetInt(pState->Script, pState->ExecutionPointer + 2, 2);
+
+	pState->ExecutionPointer = (CGameController::GetAskAboutState(ix) == val) ? address : pState->ExecutionPointer + 4;
 }
 
 void CPDScript::Function_2F(CScriptState* pState)
@@ -757,15 +763,15 @@ void CPDScript::Function_2F(CScriptState* pState)
 
 	switch (function)
 	{
-		case 5:
-		{
-			// Vidphone
-			break;
-		}
-		default:
-		{
-			break;
-		}
+	case 5:
+	{
+		// Vidphone
+		break;
+	}
+	default:
+	{
+		break;
+	}
 	}
 
 	pState->ExecutionPointer += 5;
@@ -807,7 +813,104 @@ void CPDScript::Function_34(CScriptState* pState)
 	// word, word, word
 	//text += $"Display options\r\n\t\tA - {stringList[GetInt(data, offset, 2)]}\r\n\t\tB - {stringList[GetInt(data, offset + 2, 2)]}\r\n\t\tC - {stringList[GetInt(data, offset + 4, 2)]}";
 	//	pState->LastDialoguePoint = pState->ExecutionPointer - 1;
-	pState->ExecutionPointer += 6;
+	//pState->ExecutionPointer += 6;
+	//pState->WaitingForInput = TRUE;
+
+	pState->LastDialoguePoint = pState->ExecutionPointer - 1;
+
+	//ClearCaption();
+
+	char* pT[3];
+	//float w = 0.0f;
+	for (int i = 0; i < 3; i++)
+	{
+		int v = i + 1;
+		int stringOffset = GetInt(pState->Script, pState->ExecutionPointer, 2);
+		pState->ExecutionPointer += 2;
+		pT[i] = (char*)(pState->Script + stringOffset);
+
+		if (pT[i] != NULL && pT[i][0] == '^')
+		{
+			v = atoi(pT[i] + 1);
+			// Get correct string (next in list)
+			while (pT[i][0] != 0) pT[i]++;
+			pT[i]++;
+		}
+
+		DialogueOptions[i].SetValue(v);
+
+		//w = max(Font.PixelWidth(pT[i]), w);
+	}
+
+	DialogueOptionsCount = (strlen(pT[2]) == 0) ? (strlen(pT[1]) == 0) ? 1 : 2 : 3;
+
+	float w = 0.0f;
+	float h = 0.0f;
+	// TODO: Make a max size based on number of dialogue options, calculate required size for all items
+	float maxw = (dx.GetWidth() - 64.0f * pConfig->FontScale * DialogueOptionsCount) / DialogueOptionsCount;
+	for (int i = 0; i < 3; i++)
+	{
+		Size sz = TexFont.GetSize(pT[i], maxw);
+		if (sz.Width > w)
+		{
+			w = sz.Width;
+		}
+		if (sz.Height > h)
+		{
+			h = sz.Height;
+		}
+	}
+
+	// TODO: Should calculate height, in case the text needs to be wrapped...
+
+	Size sz;
+	sz.Width = w;
+	sz.Height = h;
+
+	float dow = w + 64.0f * pConfig->FontScale;
+	float sx = (dx.GetWidth() - DialogueOptionsCount * dow) / DialogueOptionsCount;
+	/*
+	if (sx < 10.0f)
+	{
+		// TODO: Either need multi-line, or will need different y-position for options
+
+		// TODO: Attempt 1, multi line
+		float allowedSpace = (dx.GetWidth() - DialogueOptionsCount * 74.0f) / DialogOptionsCount;
+		for (int i = 0; i < DialogueOptionsCount; i++)
+		{
+			sz = Font.GetSize(pT[i], allowedSpace);
+		}
+	}
+	*/
+
+	if (DialogueOptionsCount == 1)
+	{
+		// Center
+		DialogueOptions[0].SetText(pT[0], sz, (dx.GetWidth() - dow) / 2.0f);
+	}
+	else if (DialogueOptionsCount == 2)
+	{
+		// Center left, center right
+		float sx3 = sx / 3.0f;
+		DialogueOptions[0].SetText(pT[0], sz, sx3);
+		DialogueOptions[1].SetText(pT[1], sz, dx.GetWidth() - dow - sx3);
+	}
+	else if (DialogueOptionsCount == 3)
+	{
+		// Left, center, right
+		DialogueOptions[0].SetText(pT[0], sz, 0.0f);
+		DialogueOptions[1].SetText(pT[1], sz, (dx.GetWidth() - dow) / 2.0f);
+		DialogueOptions[2].SetText(pT[2], sz, dx.GetWidth() - dow);
+	}
+
+	pState->SelectedOption = -1;
+
+	pState->AskAbout = FALSE;
+	pState->Offer = FALSE;
+	pState->Buy = FALSE;
+
+	// Should now wait for input
+	pState->WaitingForInput = TRUE;
 }
 
 void CPDScript::Function_35(CScriptState* pState)
@@ -839,8 +942,11 @@ void CPDScript::Function_37(CScriptState* pState)
 	DebugTrace(pState, L"Function_37");
 
 	// word, word
+	int cashTest = GetInt(pState->Script, pState->ExecutionPointer, 2);
+	int address = GetInt(pState->Script, pState->ExecutionPointer + 2, 2);
+	pState->ExecutionPointer = address;
 	//text += $"If Cash >= {GetInt(data, offset, 2)} jump to {GetInt(data, offset + 2, 2):X4} (otherwise ask to convert points)";
-	pState->ExecutionPointer += 4;
+	//pState->ExecutionPointer += 4;
 }
 
 void CPDScript::Function_38(CScriptState* pState)
@@ -857,9 +963,23 @@ void CPDScript::Function_39(CScriptState* pState)
 
 void CPDScript::Function_3A(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_3A");
-	// Possibly preparing ending (attitude)
-	//text += "??? Possibly setting A[0] to 0, 1 or 2";
+	DebugTrace(pState, L"Function_3A - Identify gender of Ask About");
+
+	if (_women.find(pState->SelectedValue) != _women.end())
+	{
+		// She
+		CGameController::SetParameter(0, 0);
+	}
+	else if (_men.find(pState->SelectedValue) != _men.end())
+	{
+		// He
+		CGameController::SetParameter(0, 1);
+	}
+	else if (pState->SelectedValue == 2)
+	{
+		// It
+		CGameController::SetParameter(0, 2);
+	}
 }
 
 void CPDScript::Function_3B(CScriptState* pState)
@@ -889,7 +1009,7 @@ void CPDScript::Function_3D(CScriptState* pState)
 void CPDScript::Function_3E(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_3E");
-	pState->ExecutionPointer = -1;
+	//pState->ExecutionPointer = -1;
 
 	// word, word, word
 	// Ask about/offer
@@ -898,8 +1018,16 @@ void CPDScript::Function_3E(CScriptState* pState)
 
 	//string topic = (type == 0) ? PDData.GetAskAboutName(index) : PDData.GetItemName(index);
 
+	if (pState->SelectedValue == index)
+	{
+		pState->ExecutionPointer = GetInt(pState->Script, pState->ExecutionPointer + 4, 2);
+	}
+	else
+	{
+		pState->ExecutionPointer += 6;
+	}
+
 	//text += $"If ??? {type:X4} - {index:X4} - Ask About {PDData.GetAskAboutName(index)} or Offer {PDData.GetItemName(index)} ??? jump to {GetInt(data, offset + 4, 2):X4}";
-	pState->ExecutionPointer += 6;
 }
 
 void CPDScript::Function_3F(CScriptState* pState)
@@ -993,11 +1121,11 @@ void CPDScript::Function_47(CScriptState* pState)
 
 void CPDScript::Function_48(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_48");
+	DebugTrace(pState, L"Function_48 - Jump on A[X] != Y");
 
 	// word, byte, word
 	//text += $"If A[{GetInt(data, offset, 2):X4}] <> {GetInt(data, offset + 2, 1):X2} jump to {GetInt(data, offset + 3, 2):X4}";
-	pState->ExecutionPointer = (CGameController::GetParameter(GetInt(pState->Script, pState->ExecutionPointer, 2)) == pState->Script[pState->ExecutionPointer + 2]) ? GetInt(pState->Script, pState->ExecutionPointer + 3, 2) : pState->ExecutionPointer + 5;
+	pState->ExecutionPointer = (CGameController::GetParameter(GetInt(pState->Script, pState->ExecutionPointer, 2)) != pState->Script[pState->ExecutionPointer + 2]) ? GetInt(pState->Script, pState->ExecutionPointer + 3, 2) : pState->ExecutionPointer + 5;
 }
 
 void CPDScript::Function_49(CScriptState* pState)
@@ -1186,10 +1314,17 @@ void CPDScript::Function_54(CScriptState* pState)
 
 void CPDScript::Function_55(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_55");
+	DebugTrace(pState, L"Function_55 - Load MIDI");
 
 	// word, word
 	//text += $"Load MIDI from file {GetInt(data, offset, 2):X4}, entry {GetInt(data, offset + 2, 2):X4}";
+
+	int file = GetInt(pState->Script, pState->ExecutionPointer, 2);
+	int entry = GetInt(pState->Script, pState->ExecutionPointer + 2, 2);
+	std::wstring fileName = CGameController::GetFileName(file);
+	BinaryData bd = LoadEntry(fileName.c_str(), entry);
+	pMIDI->Init(bd);
+
 	pState->ExecutionPointer += 4;
 }
 
@@ -1214,9 +1349,10 @@ void CPDScript::Function_58(CScriptState* pState)
 
 void CPDScript::Function_59(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_59");
+	DebugTrace(pState, L"Function_59 - Stop MIDI");
 
 	//text += "??? Do something if byte_283ED1 = 0";
+	pMIDI->Stop();
 }
 
 void CPDScript::Function_5A(CScriptState* pState)
@@ -1316,7 +1452,8 @@ void CPDScript::Function_63(CScriptState* pState)
 
 	// word
 	//text += $"If MIDI enabled? jump to {GetInt(data, offset, 2):X4}";
-	pState->ExecutionPointer += 2;
+	pState->ExecutionPointer = GetInt(pState->Script, pState->ExecutionPointer, 2);
+	//pState->ExecutionPointer += 2;
 }
 
 void CPDScript::Function_64(CScriptState* pState)
@@ -1541,17 +1678,19 @@ void CPDScript::Function_7E(CScriptState* pState)
 void CPDScript::Function_7F(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_7F - Allow or deny skipping media");
-	//pState->AllowSkip = pState->Script[pState->ExecutionPointer++];
+	CGameController::CanCancelVideo(pState->Script[pState->ExecutionPointer++] == 0);
 }
 
 void CPDScript::Function_80(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_80 - Set fullscreen video mode?");
+	videoMode = VideoMode::FullScreen;
 }
 
 void CPDScript::Function_81(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_81 - Set embedded video mode?");
+	videoMode = VideoMode::Embedded;
 }
 
 void CPDScript::Function_82(CScriptState* pState)
@@ -1813,5 +1952,36 @@ void CPDScript::PlayVideo(CScriptState* pState, int index, int rate)
 	if (fn != L"")
 	{
 		CAnimationController::Load(fn.c_str(), fm.Entry);
+	}
+}
+
+void CPDScript::SelectDialogueOption(CScriptState* pState, int option)
+{
+	pState->SelectedOption = option;
+
+	if (option >= 1 && option <= 3)
+	{
+		if (pState->WaitingForInput)
+		{
+			//pState->OfferMode = FALSE;
+			pState->Mode = InteractionMode::None;
+			Resume(pState, TRUE);
+		}
+	}
+	else if (option == 4)
+	{
+		pState->AskAbout = TRUE;
+		pState->Mode = InteractionMode::AskAbout;
+		//pState->TopItemOffset
+	}
+	else if (option == 6)
+	{
+		pState->Buy = TRUE;
+		pState->Mode = InteractionMode::Buy;
+	}
+	else if (option == 7)
+	{
+		pState->Offer = TRUE;
+		pState->Mode = InteractionMode::Offer;
 	}
 }

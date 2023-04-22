@@ -14,28 +14,12 @@
 #include "ModuleController.h"
 #include "DXFont.h"
 #include "MIDIPlayer.h"
+#include "PDMIDIPlayer.h"
+#include "Enums.h"
 
 extern float twopi;
 
 class CAnimBase;
-
-enum class VideoMode
-{
-	Embedded = 0,
-	FullScreen = 1
-};
-
-enum class ConversationOption
-{
-	None = 0,
-	A = 1,
-	B = 2,
-	C = 3,
-
-	AskAbout = 4,
-	Offer = 7,
-	Abort = 99,
-};
 
 extern CDirectX dx;
 extern VideoMode videoMode;

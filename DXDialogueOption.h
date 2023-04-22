@@ -22,8 +22,12 @@ public:
 
 	void Resize(int index, int width, int height);
 
+	void SetValue(int value) { _value = value; }
+	int GetValue() { return _value; }
+
 protected:
 	static CTexture _texBubble;
 	std::string _text;
 	Size _sz;
+	int _value;
 };

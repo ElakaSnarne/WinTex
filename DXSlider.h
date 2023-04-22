@@ -6,7 +6,7 @@
 class CDXSlider : public CDXControl
 {
 public:
-	CDXSlider(char* text, float minValue, float maxValue, float step, float* pValue, int precision);
+	CDXSlider(char* text, float minValue, float maxValue, float step, float* pValue, int precision, float sliderX);
 	~CDXSlider();
 
 	static void Init();
@@ -31,6 +31,7 @@ protected:
 
 	float _textX;
 	float _textY;
+	float _sliderX;
 
 	float _sliderPosition;
 

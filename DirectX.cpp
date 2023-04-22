@@ -4,6 +4,8 @@
 #include <sstream>
 #include <string>
 
+#define D3D11_CREATE_DEVICE_VIDEO_SUPPORT	0x800
+
 void Disaster(HRESULT hr, LPWSTR text)
 {
 	std::wstringstream value;
@@ -90,6 +92,7 @@ BOOL CDirectX::Init(HWND hWnd, int width, int height, BOOL windowed, BOOL anisot
 	scd.SampleDesc.Count = 8;
 	scd.Windowed = windowed;
 
+	// TODO: Check if creation fails when VIDEO_SUPPORT is requested, re-attempt creation without (will have to disable external video playback)
 	HRESULT hr;
 	//short buffer[128];
 	D3D_FEATURE_LEVEL features = D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_0;
@@ -99,9 +102,9 @@ BOOL CDirectX::Init(HWND hWnd, int width, int height, BOOL windowed, BOOL anisot
 			D3D_DRIVER_TYPE_HARDWARE,													// Driver type
 			NULL,																		// Software
 #ifdef _DEBUG
-			D3D11_CREATE_DEVICE_DEBUG | D3D11_CREATE_DEVICE_BGRA_SUPPORT,				// Flags, debug mode
+			D3D11_CREATE_DEVICE_DEBUG | D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_VIDEO_SUPPORT,				// Flags, debug mode
 #else
-			D3D11_CREATE_DEVICE_BGRA_SUPPORT,											// Flags, release mode
+			D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_VIDEO_SUPPORT,		// Flags, release mode
 #endif
 			& features,																	// Feature levels list
 			1,																			// Number of feature levels

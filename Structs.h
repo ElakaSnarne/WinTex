@@ -45,14 +45,14 @@ struct COLOURED_VERTEX_ORTHO
 
 struct VOPBufferType
 {
-	XMMATRIX  view;
-	XMMATRIX  ortho;
-	XMMATRIX  projection;
+	XMMATRIX view;
+	XMMATRIX ortho;
+	XMMATRIX projection;
 };
 
 struct WorldBufferType
 {
-	XMMATRIX  world;
+	XMMATRIX world;
 };
 
 struct MultiColouredFontBufferType

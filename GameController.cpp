@@ -9,9 +9,11 @@ BOOL CGameController::CanCancelTravel = TRUE;
 
 std::unordered_map<int, std::wstring> CGameController::AskAboutMap;
 std::unordered_map<int, std::wstring> CGameController::ItemMap;
+std::unordered_map<int, std::wstring> CGameController::BuyableItemMap;
 
 BOOL CGameController::ItemsChanged = FALSE;
 BOOL CGameController::AskAboutChanged = FALSE;
+BOOL CGameController::BuyChanged = FALSE;
 
 std::unordered_map<int, std::wstring> CGameController::_lSituations;
 std::unordered_map<int, std::wstring> CGameController::_dSituations;
@@ -101,6 +103,16 @@ void CGameController::SetItemName(int index, std::wstring name)
 std::wstring CGameController::GetItemName(int index)
 {
 	return ItemMap[index];
+}
+
+void CGameController::SetBuyableItemName(int index, std::wstring name)
+{
+	BuyableItemMap[index] = name;
+}
+
+std::wstring CGameController::GetBuyableItemName(int index)
+{
+	return BuyableItemMap[index];
 }
 
 void CGameController::SetAskAboutName(int index, std::wstring name)

@@ -45,6 +45,8 @@ public:
 	virtual void SetData(int offset, BYTE value) = NULL;
 	virtual void SetData(int offset, char* text) = NULL;
 	virtual LPBYTE GetDataPointer() { return _gameData; };
+	virtual int GetWord(int offset, BOOL signExtend = FALSE) = NULL;
+	virtual void SetWord(int offset, int value) = NULL;
 
 	virtual BYTE GetAskAboutState(int index) = NULL;
 	virtual void SetAskAboutState(int index, BYTE value) = NULL;
@@ -75,7 +77,9 @@ public:
 
 	virtual void SetItemExamined(int itemId, int conditionalScore) = NULL;
 
+	BOOL _allowCancelVideo;
 	virtual BOOL CanCancelVideo() = NULL;
+	virtual void CanCancelVideo(BOOL allow) { _allowCancelVideo = allow; }
 
 	virtual int GetLocationInitializationScriptId() = NULL;
 	virtual int GetLocationEnvironmentScriptId() = NULL;
@@ -85,11 +89,14 @@ public:
 
 	virtual CHintModule* GetHintModule() = NULL;
 
+	virtual void SetSelectedItem(int item) { _selectedItem = item; }
+	virtual int GetSelectedItem(int item) { return _selectedItem; }
+
+	virtual int GetBuyableItemCount() { return 0; }
+	virtual int GetBuyableItemId(int index) { return -1; }
+
 protected:
 	virtual BOOL Init() = NULL;
-
-	virtual int GetWord(int offset, BOOL signExtend = FALSE) = NULL;
-	virtual void SetWord(int offset, int value) = NULL;
 
 	virtual BOOL LoadIcons() { return FALSE; }
 	BOOL LoadIcons(BinaryData bd);
@@ -104,4 +111,6 @@ protected:
 
 	std::unordered_map<int, CHintCategory*> _hintCategories;
 	int _hintCategoryCount;
+
+	int _selectedItem;
 };

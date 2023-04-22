@@ -15,16 +15,13 @@ CPDMainMenuModule::~CPDMainMenuModule()
 void CPDMainMenuModule::Intro(LPVOID data)
 {
 	pMIDI->Stop();
-
-	// CharCode.30, find out which entry that is in dmap
-	//CGameController::LoadFromDMap(29);
+	CGameController::LoadFromDMap(30);
 }
 
 void CPDMainMenuModule::Credits(LPVOID data)
 {
 	pMIDI->Stop();
-
-	//CGameController::LoadFromDMap(41);
+	CGameController::LoadFromDMap(57);
 }
 
 void CPDMainMenuModule::SetupScreen()
@@ -81,9 +78,9 @@ void CPDMainMenuModule::SetupScreen()
 
 	CDXButton* pConfigBtn = _pScreen->AddButton(pCf, btnRight, btnTop, maxw, 32.0f * pConfig->FontScale, Config);
 	CDXButton* pIntroBtn = _pScreen->AddButton(pIn, btnRight, btnMiddle, maxw, 32.0f * pConfig->FontScale, Intro);
-	pIntroBtn->SetEnabled(FALSE);
+	//pIntroBtn->SetEnabled(FALSE);
 	CDXButton* pCreditsBtn = _pScreen->AddButton(pCr, btnRight, btnBottom, maxw, 32.0f * pConfig->FontScale, Credits);
-	pCreditsBtn->SetEnabled(FALSE);
+	//pCreditsBtn->SetEnabled(FALSE);
 
 	// Add resume (only visible when game is in progress) and quit (always visible, but ask if game in progress)
 	_btnMainResume = _pScreen->AddButton(pRe, moonCenterX - (maxw + 32.0f * pConfig->FontScale) / 2.0f, btnTop - 64.0f * pConfig->FontScale, maxw, 32.0f * pConfig->FontScale, Resume);

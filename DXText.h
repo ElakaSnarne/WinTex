@@ -18,6 +18,9 @@ public:
 	CDXText();
 	~CDXText();
 
+	std::string _string;
+	std::wstring _wstring;
+
 	void SetColours(int colour);
 	void SetColours(int colour1, int colour2);
 	void SetColours(int colour1, int colour2, int colour3, int colour4);

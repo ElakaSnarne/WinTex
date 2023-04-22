@@ -66,7 +66,7 @@ std::string CDXControlButton::GetMapText(CControllerData* pControllerData)
 	return "";
 }
 
-CDXControlButton::CDXControlButton(LPSTR function, std::unordered_map<InputAction, InputMap>* pMapping, BOOL isJoystick, float w, float h, void(*onClick)(InputAction), InputAction action)
+CDXControlButton::CDXControlButton(LPSTR function, std::unordered_map<InputAction, InputMap>* pMapping, BOOL isJoystick, float w, float h, float textX, void(*onClick)(InputAction), InputAction action)
 {
 	_isBeingConfigured = FALSE;
 	_controlClicked = onClick;
@@ -96,7 +96,7 @@ CDXControlButton::CDXControlButton(LPSTR function, std::unordered_map<InputActio
 	_w = max(w, textW);
 	_h = TexFont.Height() * pConfig->FontScale;
 
-	_textX = 0.0f;
+	_textX = textX;
 
 	_type = ControlType::Control;
 }
@@ -112,8 +112,8 @@ void CDXControlButton::Render()
 	_binding.SetColours(_isBeingConfigured ? 0xff00ff00 : (_mouseOver && _enabled) ? 0xffffffff : 0x80ffffff);
 
 	float fontHeight = TexFont.Height();
-	_pText->Render(_textX + _x, _y + fontHeight * pConfig->FontScale);
-	_binding.Render(_textX + _x + 279, _y + fontHeight * pConfig->FontScale);
+	_pText->Render(_x, _y + fontHeight * pConfig->FontScale);
+	_binding.Render(_textX, _y + fontHeight * pConfig->FontScale);
 }
 
 CDXControl* CDXControlButton::HitTest(float x, float y)

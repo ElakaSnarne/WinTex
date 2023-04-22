@@ -53,13 +53,7 @@ CLocationModule::CLocationModule(int locationId, int startupPosition) : CModuleB
 	_scriptEngine = CGameController::GetScriptEngine();
 	_scriptEngine->_pLoc = &_location;
 
-	_actionText[0].SetText("Look");
-	_actionText[1].SetText("Move");
-	_actionText[2].SetText("Get");
-	_actionText[3].SetText("On/off");
-	_actionText[4].SetText("Talk");
-	_actionText[5].SetText("Open");
-	_actionText[6].SetText("Use");
+	Resize(0, 0);
 
 	_actionScriptState = CGameController::GetScriptState();
 	_environmentScriptState = CGameController::GetScriptState();
@@ -180,7 +174,7 @@ void CLocationModule::Render()
 	}
 
 	CAnimationController::UpdateAndRender();
-	if (CAnimationController::IsDone())
+	if (CAnimationController::IsDone())// && CModuleController::CurrentModule == this && CModuleController::NextModule == NULL)
 	{
 		if (_actionScriptState->WaitingForMediaToFinish)
 		{
@@ -194,8 +188,8 @@ void CLocationModule::Render()
 
 	if (!CAnimationController::HasAnim())
 	{
-		float mx {_movement_x};
-		float mz {_movement_z};
+		float mx{ _movement_x };
+		float mz{ _movement_z };
 		float tmx = mx;
 		float tmz = mz;
 
@@ -215,7 +209,7 @@ void CLocationModule::Render()
 		// Exponential interpolation
 		_smooth_movement_x = _smooth_movement_x * 0.85f + mx * 0.15f;
 		_smooth_movement_z = _smooth_movement_z * 0.85f + mz * 0.15f;
-		
+
 		// Damp out near-zero motion
 		if (abs(_smooth_movement_x) < 0.01f && _movement_x == 0.0f) { _smooth_movement_x = 0.0f; }
 		if (abs(_smooth_movement_z) < 0.01f && _movement_z == 0.0f) { _smooth_movement_z = 0.0f; }
@@ -456,7 +450,13 @@ void CLocationModule::Resume()
 
 void CLocationModule::Resize(int width, int height)
 {
-	
+	_actionText[0].SetText("Look");
+	_actionText[1].SetText("Move");
+	_actionText[2].SetText("Get");
+	_actionText[3].SetText("On/off");
+	_actionText[4].SetText("Talk");
+	_actionText[5].SetText("Open");
+	_actionText[6].SetText("Use");
 }
 
 void CLocationModule::Cursor(float x, float y, BOOL relative)
@@ -616,13 +616,39 @@ void CLocationModule::CycleItems(int direction)
 		CycleActions(FALSE);
 	}
 
-//#ifdef DEBUG
-//	// Move object at cursor up or down
-//	_location.MoveObject(direction);
-//#endif
+	//#ifdef DEBUG
+	//	// Move object at cursor up or down
+	//	_location.MoveObject(direction);
+	//#endif
 }
 
 void CLocationModule::Hints()
 {
 	CModuleController::Push(CGameController::GetHintModule());
 }
+
+#ifdef DEBUG
+void CLocationModule::KeyDown(WPARAM key, LPARAM lParam)
+{
+	if (key == VK_F1)
+	{
+		_location._renderPoints = !_location._renderPoints;
+	}
+	else if (key == VK_F2)
+	{
+		_location._renderLines = !_location._renderLines;
+	}
+	else if (key == VK_F3)
+	{
+		_location._renderPaths = !_location._renderPaths;
+	}
+	else if (key == VK_F4)
+	{
+		_location._renderTextured = !_location._renderTextured;
+	}
+	else if (key == VK_F5)
+	{
+		_location._disableClipping = !_location._disableClipping;
+	}
+}
+#endif

@@ -44,6 +44,8 @@ public:
 	static BYTE GetData(int offset) { return Game->GetData(offset); }
 	static void SetData(int offset, BYTE value) { Game->SetData(offset, value); }
 	static LPBYTE GetDataPointer() { return Game->GetDataPointer(); }
+	static WORD GetWord(int offset) { return Game->GetWord(offset); }
+	static void SetWord(int offset, WORD value) { Game->SetWord(offset, value); }
 
 	static void SetItemState(int item, int state);
 	static int GetItemState(int item);
@@ -65,6 +67,7 @@ public:
 
 	static BOOL ItemsChanged;
 	static BOOL AskAboutChanged;
+	static BOOL BuyChanged;
 
 	static void LoadFromDMap(int entry) { Game->LoadFromDMap(entry); }
 
@@ -74,6 +77,7 @@ public:
 
 	static BOOL CanCancelTravel;
 	static BOOL CanCancelVideo() { return Game->CanCancelVideo(); }
+	static void CanCancelVideo(BOOL allow) { Game->CanCancelVideo(allow); }
 
 	static int GetLocationInitializationScriptId() { return Game->GetLocationInitializationScriptId(); }
 	static int GetLocationEnvironmentScriptId() { return Game->GetLocationEnvironmentScriptId(); }
@@ -85,6 +89,13 @@ public:
 
 	static CHintModule* GetHintModule() { return Game->GetHintModule(); }
 
+	static void SetSelectedItem(int item) { Game->SetSelectedItem(item); }
+
+	static int GetBuyableItemCount() { return Game->GetBuyableItemCount(); }
+	static int GetBuyableItemId(int index) { return Game->GetBuyableItemId(index); }
+	static void SetBuyableItemName(int index, std::wstring name);
+	static std::wstring GetBuyableItemName(int index);
+
 protected:
 	static CGameBase* Game;
 
@@ -92,6 +103,7 @@ protected:
 
 	static std::unordered_map<int, std::wstring> AskAboutMap;
 	static std::unordered_map<int, std::wstring> ItemMap;
+	static std::unordered_map<int, std::wstring> BuyableItemMap;
 
 	static std::unordered_map<int, std::wstring> _lSituations;
 	static std::unordered_map<int, std::wstring> _dSituations;

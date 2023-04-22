@@ -10,6 +10,8 @@ CVideoModule::CVideoModule(VideoType type, int dmapIndex, int activeScript) : CM
 {
 	Type = type;
 
+	std::wstring test = CGameController::GetFileName(dmapIndex);
+
 	// Get DMAPData, copy script, reset pointer or set to active script
 	_scriptEngine = CGameController::GetScriptEngine();
 	_scriptEngine->_mapEntry = CModuleController::pDMap->Get(dmapIndex);
@@ -19,6 +21,11 @@ CVideoModule::CVideoModule(VideoType type, int dmapIndex, int activeScript) : CM
 		BinaryData bd = LoadEntry(fileName.c_str(), _scriptEngine->_mapEntry->ScriptFileEntry);
 		_scriptState = CGameController::GetScriptState();
 		_scriptState->Init(bd.Data, bd.Length, fileName.c_str(), _scriptEngine->_mapEntry->ScriptFileEntry);
+
+		//if (activeScript < 0)
+		{
+			activeScript = 0;
+		}
 		if (activeScript >= 0)
 		{
 			_scriptState->ExecutionPointer = _scriptState->GetScript(activeScript);
@@ -104,13 +111,12 @@ void CVideoModule::Render()
 				DialogueOptions[2].Render();
 			}
 
-			if (_scriptState->AskAbout || _scriptState->Offer)
+			if (_scriptState->AskAbout || _scriptState->Offer || _scriptState->Buy)
 			{
-				BOOL recreate = ((_scriptState->AskAbout && CGameController::AskAboutChanged) || (_scriptState->Offer && CGameController::ItemsChanged));
+				BOOL recreate = ((_scriptState->AskAbout && CGameController::AskAboutChanged) || (_scriptState->Offer && CGameController::ItemsChanged) || (_scriptState->Buy && CGameController::BuyChanged));
 
 				if (_scriptState->TopItemOffset < 0 || recreate)
 				{
-					// TODO: Create new buffers...
 					std::vector<ListBoxItem> items;
 					if (_scriptState->AskAbout)
 					{
@@ -128,15 +134,32 @@ void CVideoModule::Render()
 					else if (_scriptState->Offer)
 					{
 						int itemCount = CGameController::GetItemCount();
+						//itemCount = 10;
 						for (int i = 0; i < 256 && i < itemCount; i++)
 						{
 							ListBoxItem lbi;
 							lbi.Id = CGameController::GetItemId(i);
+							//lbi.Id = i;
 							lbi.Text = CGameController::GetItemName(lbi.Id);
 							items.push_back(lbi);
 						}
 
 						CGameController::ItemsChanged = FALSE;
+					}
+					else if (_scriptState->Buy)
+					{
+						int itemCount = CGameController::GetBuyableItemCount();
+						//itemCount = 10;
+						for (int i = 0; i < 256 && i < itemCount; i++)
+						{
+							ListBoxItem lbi;
+							lbi.Id = CGameController::GetBuyableItemId(i);
+							//lbi.Id = i;
+							lbi.Text = CGameController::GetBuyableItemName(lbi.Id);
+							items.push_back(lbi);
+						}
+
+						CGameController::BuyChanged = FALSE;
 					}
 
 					_scriptState->TopItemOffset = 0;
@@ -179,17 +202,17 @@ void CVideoModule::Render()
 
 void CVideoModule::DialogueOptionA(LPVOID data)
 {
-	SelectOption(1);
+	SelectOption(DialogueOptions[0].GetValue());
 }
 
 void CVideoModule::DialogueOptionB(LPVOID data)
 {
-	SelectOption(2);
+	SelectOption(DialogueOptions[1].GetValue());
 }
 
 void CVideoModule::DialogueOptionC(LPVOID data)
 {
-	SelectOption(3);
+	SelectOption(DialogueOptions[2].GetValue());
 }
 
 void CVideoModule::SelectOption(int option)
@@ -257,29 +280,30 @@ void CVideoModule::Cursor(float x, float y, BOOL relative)
 
 void CVideoModule::BeginAction()
 {
-	if (CGameController::CanCancelVideo())
+	//if (CGameController::CanCancelVideo())
 	{
 		CAnimationController::Skip();
 
 		float x = _cursorPosX;
 		float y = _cursorPosY;
 
-		if (_scriptState->WaitingForInput && (_scriptState->AskAbout || _scriptState->Offer))
+		if (_scriptState->WaitingForInput && (_scriptState->AskAbout || _scriptState->Offer || _scriptState->Buy))
 		{
 			int hitId = _listBox.HitTestLB(x, y);
 			if (hitId >= 0)
 			{
 				// Set item id and option and resume script
-				int option = _scriptState->AskAbout ? 4 : _scriptState->Offer ? 7 : -1;
-				CGameController::SetParameter(99, hitId);
+				int option = _scriptState->AskAbout ? 4 : _scriptState->Offer ? 7 : _scriptState->Buy ? 6 : -1;
+				CGameController::SetSelectedItem(hitId);
 				_scriptState->SelectedOption = option;
+				_scriptState->SelectedValue = hitId;
 				_scriptEngine->Resume(_scriptState, TRUE);
 			}
 		}
 
 		for (int i = 0; i < 3; i++)
 		{
-			if (DialogueOptionsCount > i&& DialogueOptions[i].HitTest(x, y) != NULL)
+			if (DialogueOptionsCount > i && DialogueOptions[i].HitTest(x, y) != NULL)
 			{
 				DialogueOptions[i].Click();
 				break;

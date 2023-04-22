@@ -165,6 +165,7 @@
     <ClCompile Include="HintCategory.cpp" />
     <ClCompile Include="HintModule.cpp" />
     <ClCompile Include="PDHintModule.cpp" />
+    <ClCompile Include="PDMIDIPlayer.cpp" />
     <ClCompile Include="ResumeGameModule.cpp" />
     <ClCompile Include="UAKMDMap.cpp" />
     <ClCompile Include="UAKMHintModule.cpp" />
@@ -249,7 +250,6 @@
     <ClCompile Include="UAKMScript.cpp" />
     <ClCompile Include="Utilities.cpp" />
     <ClCompile Include="VideoModule.cpp" />
-    <ClCompile Include="VideoPlayer.cpp" />
     <ClCompile Include="Wave.cpp" />
     <ClCompile Include="WinTex.cpp" />
     <ClCompile Include="Mutex.cpp" />
@@ -269,6 +269,7 @@
     <ClInclude Include="AreaData.h" />
     <ClInclude Include="BIC.h" />
     <ClInclude Include="BinaryData.h" />
+    <ClInclude Include="Enums.h" />
     <ClInclude Include="PDHintModule.h" />
     <ClInclude Include="D3D11-NoWarn.h" />
     <ClInclude Include="D3DX10-NoWarn.h" />
@@ -284,6 +285,7 @@
     <ClInclude Include="PDExamStruct.h" />
     <ClInclude Include="PDLocationModule.h" />
     <ClInclude Include="MediaIdentifiers.h" />
+    <ClInclude Include="PDMIDIPlayer.h" />
     <ClInclude Include="PDScriptState.h" />
     <ClInclude Include="ResumeGameModule.h" />
     <ClInclude Include="UAKMExamStruct.h" />
@@ -381,7 +383,6 @@
     <ClInclude Include="UAKMScript.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="VideoModule.h" />
-    <ClInclude Include="VideoPlayer.h" />
     <ClInclude Include="Wave.h" />
     <ClInclude Include="Mutex.h" />
   </ItemGroup>

@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <unordered_map>
 #include <string>
+#include "Enums.h"
 
 class CScriptState
 {
@@ -22,10 +23,12 @@ public:
 	BOOL WaitingForInput;
 	BOOL WaitingForExternalModule;
 	int SelectedOption;
+	int SelectedValue;
 
 	BOOL AskAbout;
 	BOOL Offer;
-	BOOL OfferMode;
+	BOOL Buy;
+
 	int TopItemOffset;
 
 	int AllowedAction;
@@ -39,6 +42,8 @@ public:
 	int Length;
 
 	BOOL DebugMode;
+
+	InteractionMode Mode;
 
 protected:
 	std::unordered_map<int, int> _scriptEntries;
