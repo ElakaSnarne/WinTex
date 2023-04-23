@@ -19,8 +19,15 @@ public:
 
 	void Select();
 
+	virtual void SetColours(int colour1, int colour2, int colour3, int colour4);
+
 private:
 	static CTexture _texBackgroundTabItem;
 
 	CDXTabControl* _pOwner;
+
+	int _colour1;
+	int _colour2;
+	int _colour3;
+	int _colour4;
 };

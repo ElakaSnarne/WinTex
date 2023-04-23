@@ -25,6 +25,8 @@ public:
 
 	BOOL IsJoystickConfigControl() { return _isJoystick; }
 
+	virtual void SetColours(int colour1, int colour2, int colour3, int colour4);
+
 protected:
 	BOOL _isJoystick;
 	CDXText _binding;

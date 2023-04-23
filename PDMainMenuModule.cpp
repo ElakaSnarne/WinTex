@@ -91,6 +91,8 @@ void CPDMainMenuModule::SetupScreen()
 	_btnMainResume->SetVisible(FALSE);
 
 	_pScreen->AddButton(pQu, moonCenterX - (maxw + 32.0f * pConfig->FontScale) / 2.0f, btnBottom + 64.0f * pConfig->FontScale, maxw, 32.0f * pConfig->FontScale, Quit);
+
+	_pScreen->SetColours(0, 0, -1, 0);
 }
 
 void CPDMainMenuModule::Render()
@@ -130,4 +132,22 @@ void CPDMainMenuModule::Render()
 	CModuleController::Cursors[0].Render();
 
 	dx.Present(1, 0);
+}
+
+void CPDMainMenuModule::SetupConfigFrame()
+{
+	CMainMenuModule::SetupConfigFrame();
+
+	// Update colours on config controls
+	_pConfig->SetColours(0, 0, -1, 0);
+}
+
+void CPDMainMenuModule::SetupLoadFrame()
+{
+	CMainMenuModule::SetupLoadFrame();
+}
+
+void CPDMainMenuModule::SetupSaveFrame()
+{
+	CMainMenuModule::SetupSaveFrame();
 }

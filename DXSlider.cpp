@@ -250,3 +250,9 @@ void CDXSlider::Drag(float x, float y)
 		}
 	}
 }
+
+void CDXSlider::SetColours(int colour1, int colour2, int colour3, int colour4)
+{
+	_pTLabel->SetColours(colour1, colour2, colour3, colour4);
+	_pTValue->SetColours(colour1, colour2, colour3, colour4);
+}

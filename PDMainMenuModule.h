@@ -13,6 +13,10 @@ public:
 protected:
 	virtual void SetupScreen();
 
+	virtual void SetupConfigFrame();
+	virtual void SetupLoadFrame();
+	virtual void SetupSaveFrame();
+
 	static void Intro(LPVOID data);
 	static void Credits(LPVOID data);
 };

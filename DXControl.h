@@ -62,6 +62,8 @@ public:
 	virtual void SetEnabled(BOOL enabled) { _enabled = enabled; }
 	virtual BOOL GetEnabled() { return _enabled; }
 
+	virtual void SetColours(int colour1, int colour2, int colour3, int colour4) {}
+
 protected:
 	float _x;
 	float _y;

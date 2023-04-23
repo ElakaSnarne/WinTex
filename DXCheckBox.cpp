@@ -145,3 +145,8 @@ void CDXCheckBox::Render()
 	// Draw text
 	_pText->Render(_textX + _x, _y + 8);
 }
+
+void CDXCheckBox::SetColours(int colour1, int colour2, int colour3, int colour4)
+{
+	_pText->SetColours(colour1, colour2, colour3, colour4);
+}

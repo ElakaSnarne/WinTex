@@ -108,8 +108,9 @@ CDXControlButton::~CDXControlButton()
 void CDXControlButton::Render()
 {
 	// Draw text
-	_pText->SetColours(_isBeingConfigured ? 0xff00ff00 : (_mouseOver && _enabled) ? 0xffffffff : 0x80ffffff);
-	_binding.SetColours(_isBeingConfigured ? 0xff00ff00 : (_mouseOver && _enabled) ? 0xffffffff : 0x80ffffff);
+	int mask = _isBeingConfigured ? 0xff00ff00 : (_mouseOver && _enabled) ? 0xffffffff : 0x80ffffff;
+	_pText->SetColours(Colour1&mask, Colour2 & mask, Colour3 & mask, Colour4 & mask);
+	_binding.SetColours(Colour1 & mask, Colour2 & mask, Colour3 & mask, Colour4 & mask);
 
 	float fontHeight = TexFont.Height();
 	_pText->Render(_x, _y + fontHeight * pConfig->FontScale);
@@ -166,4 +167,10 @@ void CDXControlButton::UpdateControlText(std::unordered_map<InputAction, InputMa
 	}
 
 	_binding.SetText((LPSTR)GetMapText(&data).c_str());
+}
+
+void CDXControlButton::SetColours(int colour1, int colour2, int colour3, int colour4)
+{
+	_pText->SetColours(colour1, colour2, colour3, colour4);
+	_binding.SetColours(colour1, colour2, colour3, colour4);
 }

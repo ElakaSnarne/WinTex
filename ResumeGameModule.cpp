@@ -71,12 +71,13 @@ void CResumeGameModule::Initialize()
 	float fx = (w - fw) / 2.0f;
 	float fy = (h - fh) / 2.0f;
 
+	_pFrame->SetColours(HeaderColour1, HeaderColour2, HeaderColour3, HeaderColour4);
+
 	_pFrame->AddChild(_pLine1, fx + 8.0f, fy + lineHeight * 2);
 	_pFrame->AddChild(_pLine2, fx + 8.0f, fy + lineHeight * 3);
 	_pBtnYes = _pFrame->AddButton(pY, fx + 8.0f, fy + lineHeight * 4.5f, maxbtnw, 20.0f, NULL);
 	_pBtnNo = _pFrame->AddButton(pN, fx + fw - maxbtnw - 32.0f * pConfig->FontScale - 8.0f, fy + lineHeight * 4.5f, maxbtnw, 20.0f, NULL);
 	_pFrame->SetPosition(fx, fy);
-	_pFrame->SetColours(HeaderColour1, HeaderColour2, HeaderColour3, HeaderColour4);
 }
 
 void CResumeGameModule::Cursor(float x, float y, BOOL relative)

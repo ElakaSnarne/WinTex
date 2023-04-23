@@ -22,6 +22,8 @@ public:
 	virtual CDXControl* HitTest(float x, float y);
 	void Drag(float x, float y);
 
+	virtual void SetColours(int colour1, int colour2, int colour3, int colour4);
+
 protected:
 	static CTexture _sliderTexBackground;
 	static CTexture _sliderTexSlider;
