@@ -188,7 +188,6 @@ void CAnimBase::Update()
 			//OutputDebugString(_itow(_videoFramePointer, buffer, 16));
 			//OutputDebugString(L"\r\n");
 			//if (DecodeVideoFrame())
-			int test = _framePointer;
 			//if (_lock.Lock())
 			{
 				if (DecodeFrame())
@@ -221,12 +220,20 @@ void CAnimBase::Update()
 				if (_lastFrameUpdate == 0) _lastFrameUpdate = diff - _frameTime;
 				_lastFrameUpdate += _frameTime;
 
-				//if (_framePointer >= test && _audioFramesProcessed >= _audioFramesQueued)
-				//if (_framePointer == test && _audioFramesProcessed == _audioFramesQueued)
-				if ((_framePointer == 0 || _framePointer >= _inputBufferLength) && _audioFramesProcessed == _audioFramesQueued)
+				if (_framePointer >= _inputBufferLength && _audioFramesProcessed == _audioFramesQueued)
 				{
 					_done = TRUE;
 				}
+
+				//if ((_framePointer == 0 || _framePointer >= _inputBufferLength) && _audioFramesProcessed == _audioFramesQueued)
+				//{
+				//
+				//	if ((_videoFramePointer > 0 && _videoFramePointer < _inputBufferLength) || _audioFramePointer > 0 && _audioFramePointer < _inputBufferLength)
+				//	{
+				//		return;
+				//	}
+				//	_done = TRUE;
+				//}
 
 				//_lock.Release();
 			}

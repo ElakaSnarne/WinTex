@@ -20,7 +20,7 @@ BOOL CPTF::Init(LPBYTE pData, int length)
 		_texture.Init(_width, _height);
 
 		// Find video and audio pointers
-		_framePointer = 0;
+		_framePointer = 0x40;
 		int framePtr = 0x40;
 		while (framePtr < _inputBufferLength && (_videoFramePointer == 0 || _audioFramePointer == 0))
 		{
@@ -39,9 +39,10 @@ BOOL CPTF::Init(LPBYTE pData, int length)
 			framePtr += frameSize;
 		}
 
-		if (_audioFramePointer != NULL)
+		if (_audioFramePointer != NULL && _videoFramePointer == NULL)
 		{
 			// Prepare for audio playback
+			_framePointer = _inputBufferLength;
 		}
 	}
 
