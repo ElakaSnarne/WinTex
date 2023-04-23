@@ -80,7 +80,7 @@
 //#define PD_SAVE_TRAVEL_BACKUP				0x8c2
 //#define PD_SAVE_UNKNOWN7					0x8e9
 
-#define PD_MAX_ITEM_COUNT					142
+#define PD_MAX_ITEM_COUNT					300
 
 class CPDGame : public CGameBase
 {

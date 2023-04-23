@@ -21,11 +21,24 @@ public:
 	static int GetWidestName();
 	static int GetItemNameWidth(int id);
 
+	static void SetTextColours(int colour1, int colour2, int colour3, int colour4)
+	{
+		Colour1 = colour1;
+		Colour2 = colour2;
+		Colour3 = colour3;
+		Colour4 = colour4;
+	}
+
 protected:
 	static ID3D11Buffer* _vertexBuffer;
 
 	static ID3D11Texture2D* _texture;
 	static ID3D11ShaderResourceView* _textureRV;
+
+	static int Colour1;
+	static int Colour2;
+	static int Colour3;
+	static int Colour4;
 
 	class Inventory
 	{
@@ -34,7 +47,7 @@ protected:
 		~Inventory();
 
 		void Render(float x, float y);
-		void RenderName(float x, float y, BOOL highlight = FALSE);
+		void RenderName(float x, float y, int colour1, int colour2, int colour3, int colour4, BOOL highlight = FALSE);
 		void RenderImage(float x, float y, BOOL highlight = FALSE);
 
 		float NameWidth() { return Text.Width(); }

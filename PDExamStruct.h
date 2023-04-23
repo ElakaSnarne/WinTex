@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 
+#pragma pack(1)
 typedef struct PDExamStruct
 {
 	short Id;
@@ -21,3 +22,4 @@ typedef struct PDExamStruct
 	BYTE Unknown2;
 	short HintState;
 };
+#pragma pack(8)

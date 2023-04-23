@@ -343,7 +343,10 @@
       <Filter>Modules\PD</Filter>
     </ClCompile>
     <ClCompile Include="PDMIDIPlayer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>PD</Filter>
+    </ClCompile>
+    <ClCompile Include="PDInventoryModule.cpp">
+      <Filter>Modules\PD</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -710,11 +713,14 @@
     <ClInclude Include="PDHintModule.h">
       <Filter>Modules\PD</Filter>
     </ClInclude>
-    <ClInclude Include="PDMIDIPlayer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Enums.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="PDMIDIPlayer.h">
+      <Filter>PD</Filter>
+    </ClInclude>
+    <ClInclude Include="PDInventoryModule.h">
+      <Filter>Modules\PD</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -165,6 +165,7 @@
     <ClCompile Include="HintCategory.cpp" />
     <ClCompile Include="HintModule.cpp" />
     <ClCompile Include="PDHintModule.cpp" />
+    <ClCompile Include="PDInventoryModule.cpp" />
     <ClCompile Include="PDMIDIPlayer.cpp" />
     <ClCompile Include="ResumeGameModule.cpp" />
     <ClCompile Include="UAKMDMap.cpp" />
@@ -283,6 +284,7 @@
     <ClInclude Include="LocationDataHeader.h" />
     <ClInclude Include="ObjectMap.h" />
     <ClInclude Include="PDExamStruct.h" />
+    <ClInclude Include="PDInventoryModule.h" />
     <ClInclude Include="PDLocationModule.h" />
     <ClInclude Include="MediaIdentifiers.h" />
     <ClInclude Include="PDMIDIPlayer.h" />

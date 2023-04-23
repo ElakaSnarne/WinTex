@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LocationModule.h"
+#include "PDInventoryModule.h"
 
 class CPDLocationModule : public CLocationModule
 {
@@ -19,5 +20,10 @@ public:
 		_unavailableActionColour2 = 0xff000000;
 		_unavailableActionColour3 = 0xff808080;
 		_unavailableActionColour4 = 0xff000000;
+	}
+
+	virtual void Inventory()
+	{
+		CModuleController::Push(new CPDInventoryModule());
 	}
 };

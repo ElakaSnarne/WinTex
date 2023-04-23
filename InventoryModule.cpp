@@ -13,31 +13,28 @@
 #define INVENTORY_WIDTH	108.0f
 #define INVENTORY_HEIGHT 80.0f
 
-#define EXAMINE_ITEM_ID				0
-#define EXAMINE_ADD_ITEM_ID			1
-#define EXAMINE_PARAMETER_A_INDEX	2
-#define EXAMINE_PARAMETER_A_VALUE	3
-#define EXAMINE_ASK_ABOUT1			4
-#define EXAMINE_ASK_ABOUT2			5
-#define EXAMINE_TRAVEL1				6
-#define EXAMINE_TRAVEL2				7
-#define EXAMINE_FILE				8
-#define EXAMINE_ENTRY				9
-#define EXAMINE_DESCRIPTION			10
-#define EXAMINE_FLAGS				14
-#define EXAMINE_RATE				15
-#define EXAMINE_HINT_STATE			17
-
-#define EXAMINE_FLAG_VIDEO			1
-#define EXAMINE_FLAG_IMAGE			2
-#define EXAMINE_FLAG_TEXT			4
-#define EXAMINE_FLAG_SPECIAL		8
+//#define EXAMINE_ITEM_ID				0
+//#define EXAMINE_ADD_ITEM_ID			1
+//#define EXAMINE_PARAMETER_A_INDEX	2
+//#define EXAMINE_PARAMETER_A_VALUE	3
+//#define EXAMINE_ASK_ABOUT1			4
+//#define EXAMINE_ASK_ABOUT2			5
+//#define EXAMINE_TRAVEL1				6
+//#define EXAMINE_TRAVEL2				7
+//#define EXAMINE_FILE				8
+//#define EXAMINE_ENTRY				9
+//#define EXAMINE_DESCRIPTION			10
+//#define EXAMINE_FLAGS				14
+//#define EXAMINE_RATE				15
+//#define EXAMINE_HINT_STATE			17
 
 #define ITEM_NOTE_SCRAPS			33
 #define ITEM_SHREDDED_NOTE			57
 #define ITEM_NEWSPAPER				94
 #define ITEM_ENCODED_NOTE			95
 #define ITEM_NOTE_SCRAPS_2			139
+
+CInventoryModule* CInventoryModule::Instance = NULL;
 
 int CInventoryModule::_selectedItemId = -1;
 int CInventoryModule::_draggingItemId = -1;
@@ -81,6 +78,8 @@ CInventoryModule::CInventoryModule() : CModuleBase(ModuleType::Inventory)
 
 	_text.SetColours(0xff000000, 0xff00c300, 0xff24ff00, 0xff000000);
 	_fullRect = { 0,0,0,0 };
+
+	Instance = this;
 }
 
 CInventoryModule::~CInventoryModule()
@@ -379,67 +378,7 @@ short comboHintStateScoreTable[] = { 0,11,2,75,26,12,39,108,49,135,52,145,76,234
 
 void CInventoryModule::OnExamine(LPVOID data)
 {
-	if (_selectedItemId >= 0)
-	{
-		_anim = NULL;
-
-		ExminationData* pExam = (ExminationData*)(_examData + 4 + _selectedItemId * _examStructSize);
-
-		_examFileName[5] = (WCHAR)('0' + (pExam->File >> 4));
-
-		char* pDesc = (char*)(pExam->DescriptionOffset + _examData);
-		pAddCaptions->clear();
-
-		std::list<CCaption*>* pOld = pDisplayCaptions;
-		pDisplayCaptions = pAddCaptions;
-		pAddCaptions = pOld;
-		ClearCaptions(pOld);
-		Rect rect{ 0.0f, 0.0f, 1000.0f, static_cast<float>(_limitedRect.right - _limitedRect.left) };
-		_text.SetText(pDesc, rect);
-		_lineCount = _text.Lines();
-		_lineAdjustment = max(0, min(_lineCount - _visibleLineCount, _lineCount));
-		UpdateButtons();
-
-		if ((pExam->Flags & EXAMINE_FLAG_VIDEO) != 0)
-		{
-			BinaryData bd = LoadEntry(_examFileName, pExam->Entry);
-			_anim = CAnimationController::Load(bd, 2);
-		}
-		else if ((pExam->Flags & EXAMINE_FLAG_IMAGE) != 0)
-		{
-			DoubleData dd = LoadDoubleEntry(_examFileName, pExam->Entry);
-			_anim = CAnimationController::LoadImage(dd, 320, 240, 2);
-		}
-		else if (pExam->Flags == 0)
-		{
-			// Special examine module required (newspaper, shredded/torn notes etc)
-			if (_selectedItemId == ITEM_NOTE_SCRAPS || _selectedItemId == ITEM_NOTE_SCRAPS_2 || _selectedItemId == ITEM_SHREDDED_NOTE)
-			{
-				CModuleController::Push(new CUAKMTornNoteModule(_selectedItemId));
-			}
-			else if (_selectedItemId == ITEM_NEWSPAPER)
-			{
-				// Show newspaper
-				CModuleController::Push(new CUAKMNewsPaperModule());
-			}
-			else if (_selectedItemId == ITEM_ENCODED_NOTE)
-			{
-				CModuleController::Push(new CUAKMEncodedMessageModule());
-			}
-		}
-
-		int extraScore = 0;
-		if (_selectedItemId == 55 || _selectedItemId == 76 || _selectedItemId == 94 || _selectedItemId == 106 || _selectedItemId == 134)
-		{
-			extraScore = 4;
-		}
-		else if (_selectedItemId == 85)
-		{
-			extraScore = 14;
-		}
-
-		CGameController::SetItemExamined(_selectedItemId, extraScore);
-	}
+	Instance->Examine();
 }
 
 void CInventoryModule::OnUse(LPVOID data)
@@ -452,6 +391,11 @@ void CInventoryModule::OnUse(LPVOID data)
 }
 
 void CInventoryModule::OnResume(LPVOID data)
+{
+	Instance->Resume();
+}
+
+void CInventoryModule::Resume()
 {
 	if (_anim == NULL)
 	{
@@ -647,4 +591,69 @@ void CInventoryModule::Next()
 void CInventoryModule::Prev()
 {
 	ScrollUp(NULL);
+}
+
+void CInventoryModule::Examine()
+{
+	if (_selectedItemId >= 0)
+	{
+		_anim = NULL;
+
+		ExminationData* pExam = (ExminationData*)(_examData + 4 + _selectedItemId * _examStructSize);
+
+		_examFileName[5] = (WCHAR)('0' + (pExam->File >> 4));
+
+		char* pDesc = (char*)(pExam->DescriptionOffset + _examData);
+		pAddCaptions->clear();
+
+		std::list<CCaption*>* pOld = pDisplayCaptions;
+		pDisplayCaptions = pAddCaptions;
+		pAddCaptions = pOld;
+		ClearCaptions(pOld);
+		Rect rect{ 0.0f, 0.0f, 1000.0f, static_cast<float>(_limitedRect.right - _limitedRect.left) };
+		_text.SetText(pDesc, rect);
+		_lineCount = _text.Lines();
+		_lineAdjustment = max(0, min(_lineCount - _visibleLineCount, _lineCount));
+		UpdateButtons();
+
+		if ((pExam->Flags & EXAMINE_FLAG_VIDEO) != 0)
+		{
+			BinaryData bd = LoadEntry(_examFileName, pExam->Entry);
+			_anim = CAnimationController::Load(bd, 2);
+		}
+		else if ((pExam->Flags & EXAMINE_FLAG_IMAGE) != 0)
+		{
+			DoubleData dd = LoadDoubleEntry(_examFileName, pExam->Entry);
+			_anim = CAnimationController::LoadImage(dd, 320, 240, 2);
+		}
+		else if (pExam->Flags == 0)
+		{
+			// Special examine module required (newspaper, shredded/torn notes etc)
+			if (_selectedItemId == ITEM_NOTE_SCRAPS || _selectedItemId == ITEM_NOTE_SCRAPS_2 || _selectedItemId == ITEM_SHREDDED_NOTE)
+			{
+				CModuleController::Push(new CUAKMTornNoteModule(_selectedItemId));
+			}
+			else if (_selectedItemId == ITEM_NEWSPAPER)
+			{
+				// Show newspaper
+				CModuleController::Push(new CUAKMNewsPaperModule());
+			}
+			else if (_selectedItemId == ITEM_ENCODED_NOTE)
+			{
+				CModuleController::Push(new CUAKMEncodedMessageModule());
+			}
+		}
+
+		int extraScore = 0;
+		if (_selectedItemId == 55 || _selectedItemId == 76 || _selectedItemId == 94 || _selectedItemId == 106 || _selectedItemId == 134)
+		{
+			extraScore = 4;
+		}
+		else if (_selectedItemId == 85)
+		{
+			extraScore = 14;
+		}
+
+		CGameController::SetItemExamined(_selectedItemId, extraScore);
+	}
 }

@@ -3,9 +3,13 @@
 #include "DXImageButton.h"
 #include "resource.h"
 #include "Utilities.h"
+#include "ResumeGameModule.h"
 
 CPDMainMenuModule::CPDMainMenuModule()
 {
+	CDXButton::SetButtonColours(0, 0, -1, 0);
+	CResumeGameModule::SetTextColours(0, 0, 0xffff0000, 0);
+	CResumeGameModule::SetHeaderColours(0, 0, -1, 0);
 }
 
 CPDMainMenuModule::~CPDMainMenuModule()

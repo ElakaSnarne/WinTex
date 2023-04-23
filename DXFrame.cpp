@@ -166,3 +166,8 @@ void CDXFrame::Dispose()
 {
 	_texBackground.Dispose();
 }
+
+void CDXFrame::SetColours(int colour1, int colour2, int colour3, int colour4)
+{
+	_pText->SetColours(colour1, colour2, colour3, colour4);
+}

@@ -26,6 +26,8 @@ public:
 	virtual void GotFocus();
 	virtual void LostFocus();
 
+	void SetColours(int colour1, int colour2, int colour3, int colour4);
+
 protected:
 	CDXFrame() {}
 	static CTexture _texBackground;
