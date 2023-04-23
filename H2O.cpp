@@ -722,106 +722,12 @@ void CH2O::PatternCopy(int val)
 			for (int i = 0; i < 4; i++)
 			{
 				int function = (functions >> (i * 4)) & 0xf;
-				switch (function)
+				for (int b = 0; b < 4; b++)
 				{
-				case 0:
-				{
-					// No function
-					break;
-				}
-				case 1:
-				{
-					// Load and store single byte
-					_pVideoOutputBuffer[(_y + i) * _width + _x] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 2:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 1] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 3:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 1] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 4:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 2] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 5:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 2] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 6:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 1] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 2] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 7:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 0] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 1] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 2] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 8:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 3] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 9:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 3] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 10:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 1] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 3] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 11:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 0] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 1] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 3] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 12:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 2] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 3] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 13:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 0] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 2] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 3] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 14:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 1] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 2] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 3] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
-				case 15:
-				{
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 0] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 1] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 2] = _pDecodingBuffer[_inputOffset++];
-					_pVideoOutputBuffer[(_y + i) * _width + _x + 3] = _pDecodingBuffer[_inputOffset++];
-					break;
-				}
+					if ((function & (1 << b)) != 0)
+					{
+						_pVideoOutputBuffer[(_y + i) * _width + _x + b] = _pDecodingBuffer[_inputOffset++];
+					}
 				}
 			}
 
