@@ -381,3 +381,8 @@ int CItems::GetItemNameWidth(int id)
 {
 	return static_cast<int>(_items[id]->NameWidth());
 }
+
+void CItems::SetItemName(int id, std::wstring text)
+{
+	_items[id]->SetItemName(text);
+}

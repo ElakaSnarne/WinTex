@@ -297,7 +297,7 @@ int CPDGame::GetItemId(int index)
 	int id = -1;
 	if (index < count)
 	{
-		id = _gameData[PD_SAVE_INVENTORY + index];
+		id = GetInt(_gameData, PD_SAVE_INVENTORY + index * 2, 2);
 	}
 
 	return id;
@@ -321,11 +321,11 @@ void CPDGame::SetItemState(int item, int state)
 		{
 			for (int i = 0; i < count && i < PD_MAX_ITEM_COUNT; i++)
 			{
-				if (_gameData[PD_SAVE_INVENTORY + i] == item)
+				if (GetInt(_gameData, PD_SAVE_INVENTORY + i * 2, 2) == item)
 				{
 					for (int j = i + 1; j < count && j < PD_MAX_ITEM_COUNT; j++)
 					{
-						_gameData[PD_SAVE_INVENTORY + j - 1] = _gameData[PD_SAVE_INVENTORY + j];
+						SetInt(_gameData, PD_SAVE_INVENTORY + (j - 1) * 2, GetInt(_gameData, PD_SAVE_INVENTORY + j * 2, 2), 2);
 					}
 
 					_gameData[PD_SAVE_ITEM_COUNT]--;
@@ -334,9 +334,9 @@ void CPDGame::SetItemState(int item, int state)
 				}
 			}
 
-			if (_gameData[PD_SAVE_CURRENT_ITEM] == item)
+			if (GetInt(_gameData, PD_SAVE_CURRENT_ITEM, 2) == item)
 			{
-				_gameData[PD_SAVE_CURRENT_ITEM] = -1;
+				SetInt(_gameData, PD_SAVE_CURRENT_ITEM, -1, 2);
 			}
 		}
 		else if (state == 1)
@@ -344,7 +344,7 @@ void CPDGame::SetItemState(int item, int state)
 			BOOL alreadyInInventory = FALSE;
 			for (int i = 0; i < count; i++)
 			{
-				if (_gameData[PD_SAVE_INVENTORY + i] == item)
+				if (GetInt(_gameData, PD_SAVE_INVENTORY + i * 2, 2) == item)
 				{
 					alreadyInInventory = TRUE;
 					break;
@@ -353,9 +353,9 @@ void CPDGame::SetItemState(int item, int state)
 
 			if (!alreadyInInventory)
 			{
-				_gameData[PD_SAVE_INVENTORY + count] = item;
+				SetInt(_gameData, PD_SAVE_INVENTORY + count * 2, item, 2);
 				_gameData[PD_SAVE_ITEM_COUNT]++;
-				_gameData[PD_SAVE_CURRENT_ITEM] = item;
+				SetInt(_gameData, PD_SAVE_CURRENT_ITEM, item, 2);
 			}
 		}
 	}
@@ -363,7 +363,8 @@ void CPDGame::SetItemState(int item, int state)
 
 int CPDGame::GetCurrentItemId()
 {
-	return (_gameData[PD_SAVE_CURRENT_ITEM] == 0xff) ? -1 : _gameData[PD_SAVE_CURRENT_ITEM];
+	int itemId = GetInt(_gameData, PD_SAVE_CURRENT_ITEM, 2);
+	return (itemId == 0xffff) ? -1 : itemId;
 }
 
 void CPDGame::SetCurrentItemId(int item)
@@ -374,31 +375,31 @@ void CPDGame::SetCurrentItemId(int item)
 int CPDGame::SelectNextItem()
 {
 	int count = _gameData[PD_SAVE_ITEM_COUNT];
-	int currentItem = _gameData[PD_SAVE_CURRENT_ITEM];
+	int currentItem = GetInt(_gameData, PD_SAVE_CURRENT_ITEM, 2);
 	int newIndex = IndexOfItemId(currentItem) + 1;
 	if (newIndex >= count)
 	{
 		newIndex = -1;
 	}
 
-	_gameData[PD_SAVE_CURRENT_ITEM] = newIndex < 0 ? -1 : _gameData[PD_SAVE_INVENTORY + newIndex];
+	SetInt(_gameData, PD_SAVE_CURRENT_ITEM, newIndex < 0 ? -1 : GetInt(_gameData, PD_SAVE_INVENTORY + newIndex * 2, 2), 2);
 
-	return _gameData[PD_SAVE_CURRENT_ITEM];
+	return GetInt(_gameData, PD_SAVE_CURRENT_ITEM, 2);
 }
 
 int CPDGame::SelectPreviousItem()
 {
 	int count = _gameData[PD_SAVE_ITEM_COUNT];
-	int currentItem = _gameData[PD_SAVE_CURRENT_ITEM];
+	int currentItem = GetInt(_gameData, PD_SAVE_CURRENT_ITEM, 2);
 	int newIndex = IndexOfItemId(currentItem) - 1;
 	if (newIndex < -1)
 	{
 		newIndex = count - 1;
 	}
 
-	_gameData[PD_SAVE_CURRENT_ITEM] = newIndex < 0 ? -1 : _gameData[PD_SAVE_INVENTORY + newIndex];
+	SetInt(_gameData, PD_SAVE_CURRENT_ITEM, newIndex < 0 ? -1 : GetInt(_gameData, PD_SAVE_INVENTORY + newIndex * 2, 2), 2);
 
-	return _gameData[PD_SAVE_CURRENT_ITEM];
+	return GetInt(_gameData, PD_SAVE_CURRENT_ITEM, 2);
 }
 
 BYTE CPDGame::GetHintState(int index)
@@ -497,6 +498,13 @@ void CPDGame::SetWord(int offset, int value)
 	{
 		_gameData[offset] = value;
 		_gameData[offset + 1] = value >> 8;
+
+		if (offset == PD_SAVE_CASH)
+		{
+			// Update item text
+			std::wstring cash = CGameController::GetItemName(0) + L" $" + std::to_wstring(GetInt(_gameData, PD_SAVE_CASH, 2));
+			CItems::SetItemName(0, cash);
+		}
 	}
 }
 
@@ -505,7 +513,7 @@ int CPDGame::IndexOfItemId(int item)
 	int count = _gameData[PD_SAVE_ITEM_COUNT];
 	for (int i = 0; i < count; i++)
 	{
-		if (_gameData[PD_SAVE_INVENTORY + i] == item)
+		if (GetInt(_gameData, PD_SAVE_INVENTORY + i * 2, 2) == item)
 		{
 			return i;
 		}

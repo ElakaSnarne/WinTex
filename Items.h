@@ -29,6 +29,8 @@ public:
 		Colour4 = colour4;
 	}
 
+	static void SetItemName(int id, std::wstring text);
+
 protected:
 	static ID3D11Buffer* _vertexBuffer;
 
@@ -51,6 +53,7 @@ protected:
 		void RenderImage(float x, float y, BOOL highlight = FALSE);
 
 		float NameWidth() { return Text.Width(); }
+		void SetItemName(std::wstring text) { Text.SetText(text.c_str()); }
 
 	protected:
 		int Id;

@@ -37,6 +37,7 @@
 #define PD_SAVE_ITEM_COUNT					0x7f7
 
 #define PD_SAVE_CURRENT_ITEM				0x7fb
+#define PD_SAVE_CURRENT_ITEM_HIGH			0x7fc
 
 //#define PD_SAVE_UNKNOWN6					0x51b
 
