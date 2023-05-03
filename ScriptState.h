@@ -13,6 +13,15 @@ public:
 	virtual void Init(LPBYTE script, int length, std::wstring file, int entry) = NULL;
 	void Clear();
 
+	int GetInt(int offset, int size);
+	int Read8();
+	int Read8s();
+	int Read16();
+	int Read16s();
+	int Read32();
+	float Read16_16();
+	float Read12_4();
+
 	std::wstring ScriptFile;
 	int ScriptEntry;
 

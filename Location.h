@@ -23,11 +23,10 @@ public:
 
 	BOOL Load(int locationFileIndex);
 
-	BOOL Load_Improved(int locationFileIndex);
-
 	void Render();
 
 	static void SetPosition(StartupPosition pos);
+	static void SetPosition(float x, float y, float z, float angle);
 	void Move(float mx, float my, float mz, float tmx);
 	void DeltaAngles(float angle1, float angle2);
 
@@ -48,7 +47,11 @@ public:
 
 	double GetPlayerDistanceFromPoint(double x, double z);
 	Point GetPlayerPosition();
+	Point GetUnadjustedPlayerPosition();
 	SpritePosInfo GetSpriteInfo(int index);
+
+	static void SetMinY(float minY);
+	static void SetMaxY(float maxY);
 
 	CMapData* _mapEntry;
 	//CDMap::DMapEntry _dmapEntry;
@@ -65,7 +68,9 @@ public:
 	static float _y_min;
 	static float _y_max;
 
-	void MoveObject(int direction);
+#ifdef DEBUG
+	void MoveObject(float delta, BOOL X, BOOL Y, BOOL Z);
+#endif
 
 protected:
 	int _currentLocationId;

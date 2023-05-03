@@ -91,6 +91,43 @@ void CPDGame::LoadGame(LPWSTR fileName)
 
 void CPDGame::SaveGame(LPWSTR fileName)
 {
+	// TODO: Move to shared code
+	CFile file;
+	if (file.Open(fileName, CFile::Mode::Write))
+	{
+		// Populate situation description
+		std::wstring sit;
+		//if (_gameData[PD_SAVE_DMAP_FLAG] == 0)
+		//{
+		//	// Location
+		//	sit = CGameController::GetSituationDescriptionL(_gameData[PD_SAVE_MAP_ENTRY]);
+		//}
+		//else
+		//{
+		//	// Dialogue
+		//	sit = CGameController::GetSituationDescriptionD(_gameData[PD_SAVE_DMAP_ENTRY]);
+		//}
+
+		//memset(_gameData + PD_SAVE_LOCATION, ' ', 30);
+		//for (int i = 0; i < sit.size() && i < 0x1e; i++)
+		//{
+		//	_gameData[PD_SAVE_LOCATION + i] = sit[i] & 0xFF;
+		//}
+
+		SYSTEMTIME time;
+		GetLocalTime(&time);
+		//_gameData[PD_SAVE_GAME_DAY] = min(7, max(1, _gameData[PD_SAVE_PARAMETERS + 250]));
+		_gameData[PD_SAVE_YEAR] = (BYTE)(time.wYear & 0xff);
+		_gameData[PD_SAVE_YEAR + 1] = (BYTE)((time.wYear >> 8) & 0xff);
+		_gameData[PD_SAVE_MONTH] = (BYTE)time.wMonth;
+		_gameData[PD_SAVE_DAY] = (BYTE)time.wDay;
+		_gameData[PD_SAVE_HOUR] = (BYTE)time.wHour;
+		_gameData[PD_SAVE_MINUTE] = (BYTE)time.wMinute;
+		_gameData[PD_SAVE_SECOND] = (BYTE)time.wSecond;
+
+		file.Write(_gameData, PD_SAVE_SIZE);
+		file.Close();
+	}
 }
 
 void CPDGame::NewGame()
@@ -149,6 +186,7 @@ void CPDGame::NewGame()
 	// Unknowns 10 and 11 set to 2 and 1
 
 	// Parameter 0x19a, 0 = Entertainment Level, 1 = Game Player Level
+	_gameData[PD_SAVE_PARAMETERS_GAME_LEVEL] = 1;
 
 	SetWord(PD_SAVE_CASH, 4000);
 	SetItemState(0, 1);	// Cash
@@ -173,10 +211,6 @@ void CPDGame::SetParameter(int index, BYTE value)
 {
 	if (index >= 0 && index < 1024)
 	{
-		if (index == 0x1a8)
-		{
-			int debug = 0;
-		}
 		_gameData[PD_SAVE_PARAMETERS + index] = value;
 	}
 }

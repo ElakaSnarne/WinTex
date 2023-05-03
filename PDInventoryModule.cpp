@@ -32,7 +32,8 @@ void CPDInventoryModule::Examine()
 
 		PDExamStruct* pExam = (PDExamStruct*)(_examData + 8 + _selectedItemId * sizeof(PDExamStruct));
 
-		_examFileName[5] = hex[pExam->ExamFileNumber];
+		_examFileName[4] = hex[(pExam->ExamFileNumber >> 4) & 0xf];
+		_examFileName[5] = hex[(pExam->ExamFileNumber) & 0xf];
 
 		char* pDesc = (char*)(pExam->DescriptionOffset + _examData);
 		pAddCaptions->clear();

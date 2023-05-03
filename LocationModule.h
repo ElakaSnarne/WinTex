@@ -37,6 +37,7 @@ public:
 
 #ifdef DEBUG
 	virtual void KeyDown(WPARAM key, LPARAM lParam);
+	virtual void MouseWheel(int scroll);
 #endif
 
 protected:

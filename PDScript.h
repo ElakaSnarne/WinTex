@@ -168,9 +168,9 @@ protected:
 
 	void(CPDScript::* _functions[147])(CScriptState* pState);
 
-	void PlayAudio(CScriptState* pState, int index);
-	void PlaySound(CScriptState* pState, int index);
-	void PlayVideo(CScriptState* pState, int index, int rate);
+	void PlayAudio(int index);
+	void PlaySound(int index);
+	void PlayVideo(int index, int rate);
 	void Show(CScriptState* pState, int index);
 
 	void AddCaption(CScriptState* pState, BOOL TexTalk);

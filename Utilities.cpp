@@ -253,6 +253,7 @@ void Trace(int val, int rad)
 }
 
 void TraceLine(LPWSTR text) { Trace(text); Trace(L"\r\n"); }
+void TraceLine(LPCWSTR text) { Trace(text); Trace(L"\r\n"); }
 void TraceLine(float val, int dc) { Trace(val, dc); Trace(L"\r\n"); }
 void TraceLine(int val, int rad) { Trace(val, rad); Trace(L"\r\n"); }
 
@@ -346,4 +347,14 @@ void SwapCaptions()
 	pDisplayCaptions = pAddCaptions;
 	pAddCaptions = pOld;
 	ClearCaptions(pOld);
+}
+
+float From12_4(int v)
+{
+	return ((float)v) / 16.0f;
+}
+
+float From16_16(int v)
+{
+	return ((float)v) / 65536.0f;
 }

@@ -2,6 +2,9 @@
 #include "Utilities.h"
 #include "MediaIdentifiers.h"
 
+#define H2O_MAX_AUDIO_BUFFERS	20
+#define H2O_AUDIO_BUFFER_SIZE	20000
+
 CH2O::CH2O()
 {
 	_channels = 0;
@@ -9,12 +12,18 @@ CH2O::CH2O()
 	_remainingLength = 0;
 	_audioCompressed = FALSE;
 
-	for (int i = 0; i < H2O_MAX_AUDIO_BUFFERS; i++)
+	if (_lock.Lock())
 	{
-		_audioOutputBuffer[i] = new BYTE[H2O_AUDIO_BUFFER_SIZE];
-		ZeroMemory(_audioOutputBuffer[i], H2O_AUDIO_BUFFER_SIZE);
+		_ppAudioOutputBuffers = new LPBYTE[H2O_MAX_AUDIO_BUFFERS];
+		for (int i = 0; i < H2O_MAX_AUDIO_BUFFERS; i++)
+		{
+			_ppAudioOutputBuffers[i] = new BYTE[H2O_AUDIO_BUFFER_SIZE];
+			ZeroMemory(_ppAudioOutputBuffers[i], H2O_AUDIO_BUFFER_SIZE);
+		}
+		_audioOutputBufferIndex = 0;
+
+		_lock.Release();
 	}
-	_audioOutputBufferIndex = 0;
 
 	_minimumBitCount = 0;
 	_pDecodingTable = new int[65536];
@@ -28,9 +37,17 @@ CH2O::CH2O()
 
 CH2O::~CH2O()
 {
-	for (int i = 0; i < H2O_MAX_AUDIO_BUFFERS; i++)
+	if (_ppAudioOutputBuffers != NULL)
 	{
-		delete[] _audioOutputBuffer[i];
+		for (int i = 0; i < H2O_MAX_AUDIO_BUFFERS; i++)
+		{
+			if (_ppAudioOutputBuffers[i] != NULL)
+			{
+				delete[] _ppAudioOutputBuffers[i];
+			}
+		}
+
+		delete[] _ppAudioOutputBuffers;
 	}
 
 	if (_pDecodingTable != NULL)
@@ -411,24 +428,28 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 
 				if (_audioCompressed)
 				{
-					outputOffset += DecodeH2OAudio(_pInputBuffer + dataOffset, _audioOutputBuffer[_audioOutputBufferIndex] + outputOffset, chunkSize);
+					outputOffset += DecodeH2OAudio(_pInputBuffer + dataOffset, _ppAudioOutputBuffers[_audioOutputBufferIndex] + outputOffset, chunkSize);
 				}
 				else
 				{
-					CopyMemory(_audioOutputBuffer[_audioOutputBufferIndex], _pInputBuffer + dataOffset, chunkSize);
+					CopyMemory(_ppAudioOutputBuffers[_audioOutputBufferIndex], _pInputBuffer + dataOffset, chunkSize);
 					outputOffset += chunkSize;
 				}
 
 				Buffer ab;
 				ab.Frame = _frame;
 				ab.Size = outputOffset;
-				ab.pData = _audioOutputBuffer[_audioOutputBufferIndex];
+				ab.pData = _ppAudioOutputBuffers[_audioOutputBufferIndex];
 				if (_audioBuffers.size() >= H2O_MAX_AUDIO_BUFFERS)
 				{
 					Trace(L"WARNING! Too many buffers in use: ");
 					TraceLine((int)_audioBuffers.size());
 				}
-				_audioBuffers.push_back(ab);
+				if (_lock.Lock())
+				{
+					_audioBuffers.push_back(ab);
+					_lock.Release();
+				}
 
 				_remainingAudioLength -= outputOffset;
 
@@ -465,9 +486,6 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 		// This is the initial audio frame, should enqueue a few to avoid clicking
 		if (!video && initialAudioBuffer && _sourceVoice != NULL)
 		{
-			Trace(L"Initial audio at frame ");
-			TraceLine(_frame);
-
 			for (int i = 0; i < H2O_MAX_AUDIO_BUFFERS / 2; i++)
 			{
 				if (!ProcessFrame(offset, video))
@@ -476,26 +494,25 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 				}
 			}
 
-			auto buffers = _audioBuffers.size();
-			for (std::size_t i = 0; i < buffers && i < H2O_MAX_AUDIO_BUFFERS; i++)
+			if (_lock.Lock())
 			{
-				Buffer ab = _audioBuffers.front();
-				_audioBuffers.pop_front();
+				auto buffers = _audioBuffers.size();
+				for (std::size_t i = 0; i < buffers && i < H2O_MAX_AUDIO_BUFFERS; i++)
+				{
+					Buffer ab = _audioBuffers.front();
+					_audioBuffers.pop_front();
 
-				XAUDIO2_BUFFER buf = { 0 };
-				buf.AudioBytes = ab.Size;
-				buf.pAudioData = ab.pData;
-				//if (_remainingAudioLength == 0) buf.Flags = XAUDIO2_END_OF_STREAM;
+					XAUDIO2_BUFFER buf = { 0 };
+					buf.AudioBytes = ab.Size;
+					buf.pAudioData = ab.pData;
+					//if (_remainingAudioLength == 0) buf.Flags = XAUDIO2_END_OF_STREAM;
 
-				Trace(L"Enqueing buffer ");
-				Trace((int)i);
-				Trace(L" at address ");
-				Trace((long)ab.pData, 16);
-				TraceLine(L"");
+					_sourceVoice->SubmitSourceBuffer(&buf);
 
-				_sourceVoice->SubmitSourceBuffer(&buf);
+					_audioFramesQueued++;
+				}
 
-				_audioFramesQueued++;
+				_lock.Release();
 			}
 		}
 

@@ -273,7 +273,6 @@ void CLocationModule::Render()
 		{
 			actions |= ACTION_USE;
 			useYellow = (CurrentObjectIndex >= 0);
-
 		}
 		int action = CurrentAction;
 
@@ -615,11 +614,6 @@ void CLocationModule::CycleItems(int direction)
 	{
 		CycleActions(FALSE);
 	}
-
-	//#ifdef DEBUG
-	//	// Move object at cursor up or down
-	//	_location.MoveObject(direction);
-	//#endif
 }
 
 void CLocationModule::Hints()
@@ -649,6 +643,19 @@ void CLocationModule::KeyDown(WPARAM key, LPARAM lParam)
 	else if (key == VK_F5)
 	{
 		_location._disableClipping = !_location._disableClipping;
+	}
+}
+
+void CLocationModule::MouseWheel(int scroll)
+{
+	// Modify translation of current object
+	BOOL ctrl = (GetKeyState(VK_CONTROL) & 0x80) != 0;
+	SHORT alt = (GetKeyState(VK_LMENU) & 0x80) != 0;
+	SHORT shift = (GetKeyState(VK_LSHIFT) & 0x80) != 0;
+
+	if (ctrl || alt || shift)
+	{
+		_location.MoveObject(scroll > 0 ? 0.1f : -0.1f, ctrl, alt, shift);
 	}
 }
 #endif

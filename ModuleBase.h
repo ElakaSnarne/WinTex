@@ -34,6 +34,7 @@ enum class ModuleType
 	Stasis = 18,
 	ResumeGame = 19,
 	Hints = 20,
+	VidPhone = 21
 };
 
 class CModuleBase {
@@ -105,5 +106,5 @@ protected:
 	RECT _oldClippingArea;
 	RECT _currentClippingArea;
 	bool _cursorIsClipped;
-	bool _hasFocus {true};
+	bool _hasFocus{ true };
 };

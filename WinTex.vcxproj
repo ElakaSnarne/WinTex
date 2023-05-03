@@ -167,6 +167,7 @@
     <ClCompile Include="PDHintModule.cpp" />
     <ClCompile Include="PDInventoryModule.cpp" />
     <ClCompile Include="PDMIDIPlayer.cpp" />
+    <ClCompile Include="PDVidPhoneModule.cpp" />
     <ClCompile Include="ResumeGameModule.cpp" />
     <ClCompile Include="UAKMDMap.cpp" />
     <ClCompile Include="UAKMHintModule.cpp" />
@@ -289,6 +290,7 @@
     <ClInclude Include="MediaIdentifiers.h" />
     <ClInclude Include="PDMIDIPlayer.h" />
     <ClInclude Include="PDScriptState.h" />
+    <ClInclude Include="PDVidPhoneModule.h" />
     <ClInclude Include="ResumeGameModule.h" />
     <ClInclude Include="UAKMExamStruct.h" />
     <ClInclude Include="UAKMHintModule.h" />

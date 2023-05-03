@@ -348,6 +348,9 @@
     <ClCompile Include="PDInventoryModule.cpp">
       <Filter>Modules\PD</Filter>
     </ClCompile>
+    <ClCompile Include="PDVidPhoneModule.cpp">
+      <Filter>Modules\PD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DXFrame.h">
@@ -720,6 +723,9 @@
       <Filter>PD</Filter>
     </ClInclude>
     <ClInclude Include="PDInventoryModule.h">
+      <Filter>Modules\PD</Filter>
+    </ClInclude>
+    <ClInclude Include="PDVidPhoneModule.h">
       <Filter>Modules\PD</Filter>
     </ClInclude>
   </ItemGroup>

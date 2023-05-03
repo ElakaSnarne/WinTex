@@ -23,10 +23,19 @@
 #define PD_SAVE_COMMENT						0x41
 #define PD_SAVE_PADDING1					0xd0
 
+#define PD_SAVE_LOCATION_A					0xd1
+#define PD_SAVE_LOCATION_B					0x14a
+
 #define PD_SAVE_TIMERS_INITIAL				0x15a
 #define PD_SAVE_TIMERS_CURRENT				0x19a
 #define PD_SAVE_TIMERS						0x1da
 #define PD_SAVE_PARAMETERS					0x1fa
+
+#define PD_SAVE_MAP_FLAG					0x2f6
+
+#define PD_SAVE_PARAMETERS_GAME_LEVEL		0x394
+
+#define PD_SAVE_ITEM_STATES					0x499
 
 #define PD_SAVE_ASK_ABOUT_COUNT				0x6dd
 
@@ -50,6 +59,7 @@
 #define PD_SAVE_SCORE						0x1189
 #define PD_SAVE_CASH						0x118b
 
+#define PD_SAVE_UNKNOWN12					0x11f2
 #define PD_SAVE_SIZE						0x11f3
 
 // Unverified
@@ -61,7 +71,6 @@
 //#define PD_SAVE_UNKNOWN2					0x14c
 //#define PD_SAVE_DMAP_ENTRY					0x150
 //#define PD_SAVE_UNKNOWN3					0x152
-#define PD_SAVE_ITEM_STATES					0x2fa
 //#define PD_SAVE_HINT_STATES					0x388
 //#define PD_SAVE_COLONELS_SAFE_CODE			0x431
 //#define PD_SAVE_CODED_MESSAGE				0x435
@@ -76,7 +85,6 @@
 //#define PD_SAVE_HINT_CATEGORY_STATES		0x5ae
 //#define PD_SAVE_CHAPTER						0x636
 //#define PD_SAVE_AF_ACTIONS					0x638
-//#define PD_SAVE_DMAP_FLAG					0x69c
 //#define PD_SAVE_PUZZLE_DATA					0x69d
 //#define PD_SAVE_TRAVEL_BACKUP				0x8c2
 //#define PD_SAVE_UNKNOWN7					0x8e9

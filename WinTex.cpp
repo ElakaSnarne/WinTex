@@ -340,7 +340,7 @@ DWORD WINAPI TimerThread(LPVOID lpParameter)
 		ULONGLONG now = GetTickCount64();
 		CGameController::Tick((int)(now - time));
 		time = now;
-
+	
 		Sleep(50);
 	}
 

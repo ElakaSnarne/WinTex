@@ -27,6 +27,7 @@ void Trace(LPCWSTR text);
 void Trace(float val, int dc = 2);
 void Trace(int val, int rad = 10);
 void TraceLine(LPWSTR text);
+void TraceLine(LPCWSTR text);
 void TraceLine(float val, int dc = 2);
 void TraceLine(int val, int rad = 10);
 
@@ -46,3 +47,6 @@ void DebugTrace(CScriptState* pState, LPWSTR text);
 std::string ToString(LPCWSTR str);
 
 void SwapCaptions();
+
+float From12_4(int v);
+float From16_16(int v);

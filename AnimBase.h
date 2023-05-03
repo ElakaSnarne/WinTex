@@ -36,7 +36,7 @@ public:
 
 		if (_sourceVoice != NULL)
 		{
-			//if (_lock.Lock())
+			if (_lock.Lock())
 			{
 				if (_audioBuffers.size() > 0)
 				{
@@ -52,7 +52,7 @@ public:
 					_audioFramesQueued++;
 				}
 
-				//_lock.Release();
+				_lock.Release();
 			}
 		}
 	}

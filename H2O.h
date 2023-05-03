@@ -2,9 +2,6 @@
 
 #include "AnimBase.h"
 
-#define H2O_MAX_AUDIO_BUFFERS	100
-#define H2O_AUDIO_BUFFER_SIZE	441000
-
 class CH2O : public CAnimBase
 {
 public:
@@ -26,7 +23,7 @@ protected:
 	int _remainingLength;
 	BOOL _audioCompressed;
 
-	LPBYTE _audioOutputBuffer[H2O_MAX_AUDIO_BUFFERS];
+	LPBYTE* _ppAudioOutputBuffers;
 	int _audioOutputBufferIndex;
 
 	int _minimumBitCount;
