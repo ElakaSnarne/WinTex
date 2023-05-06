@@ -117,8 +117,10 @@ void CVideoModule::Render()
 
 				if (_scriptState->TopItemOffset < 0 || recreate)
 				{
+					int valToFind = -1;
+
 					std::vector<ListBoxItem> items;
-					if (_scriptState->AskAbout)
+					if (_scriptState->AskAbout && !_scriptState->AskingAboutBuyables)
 					{
 						int askAboutCount = CGameController::GetAskAboutCount();
 						for (int i = 0; i < 256 && i < askAboutCount; i++)
@@ -130,40 +132,49 @@ void CVideoModule::Render()
 						}
 
 						CGameController::AskAboutChanged = FALSE;
+						valToFind = 4;
 					}
 					else if (_scriptState->Offer)
 					{
 						int itemCount = CGameController::GetItemCount();
-						//itemCount = 10;
 						for (int i = 0; i < 256 && i < itemCount; i++)
 						{
 							ListBoxItem lbi;
 							lbi.Id = CGameController::GetItemId(i);
-							//lbi.Id = i;
 							lbi.Text = CGameController::GetItemName(lbi.Id);
 							items.push_back(lbi);
 						}
 
 						CGameController::ItemsChanged = FALSE;
+						valToFind = 7;
 					}
-					else if (_scriptState->Buy)
+					else if (_scriptState->Buy || (_scriptState->AskAbout && _scriptState->AskingAboutBuyables))
 					{
 						int itemCount = CGameController::GetBuyableItemCount();
-						//itemCount = 10;
 						for (int i = 0; i < 256 && i < itemCount; i++)
 						{
 							ListBoxItem lbi;
 							lbi.Id = CGameController::GetBuyableItemId(i);
-							//lbi.Id = i;
 							lbi.Text = CGameController::GetBuyableItemName(lbi.Id);
 							items.push_back(lbi);
 						}
 
 						CGameController::BuyChanged = FALSE;
+						valToFind = _scriptState->Buy ? 6 : 4;
 					}
 
 					_scriptState->TopItemOffset = 0;
-					_listBox.Init(items, DialogueOptions[0].GetX() + DialogueOptions[0].GetWidth() / 2.0f);
+					// TODO: Popup should be over correct button
+					int ix = 0;
+					if (DialogueOptions[1].GetValue() == valToFind)
+					{
+						ix = 1;
+					}
+					else if (DialogueOptions[2].GetValue() == valToFind)
+					{
+						ix = 2;
+					}
+					_listBox.Init(items, DialogueOptions[ix].GetX() + DialogueOptions[ix].GetWidth() / 2.0f);
 				}
 
 				_listBox.Render();
@@ -228,8 +239,6 @@ void CVideoModule::SelectDialogueOption(int option)
 	_scriptState->TopItemOffset = -1;
 	_scriptEngine->SelectDialogueOption(_scriptState, option);
 }
-
-// TODO: When asking about topics, may have to regenerate the ask about list, as things may have been added or even removed...
 
 void CVideoModule::Resize(int width, int height)
 {

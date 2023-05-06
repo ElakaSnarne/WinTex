@@ -37,6 +37,7 @@ public:
 	BOOL AskAbout;
 	BOOL Offer;
 	BOOL Buy;
+	BOOL AskingAboutBuyables;
 
 	int TopItemOffset;
 

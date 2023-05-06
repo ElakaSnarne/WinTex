@@ -94,6 +94,7 @@ public:
 
 	virtual int GetBuyableItemCount() { return 0; }
 	virtual int GetBuyableItemId(int index) { return -1; }
+	virtual void SetBuyableItemState(int index, int state) { }
 
 protected:
 	virtual BOOL Init() = NULL;

@@ -93,6 +93,7 @@ public:
 
 	static int GetBuyableItemCount() { return Game->GetBuyableItemCount(); }
 	static int GetBuyableItemId(int index) { return Game->GetBuyableItemId(index); }
+	static void SetBuyableItemState(int index, int state) { Game->SetBuyableItemState(index, state); }
 	static void SetBuyableItemName(int index, std::wstring name);
 	static std::wstring GetBuyableItemName(int index);
 

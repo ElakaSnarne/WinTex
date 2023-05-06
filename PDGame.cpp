@@ -246,7 +246,7 @@ BYTE CPDGame::GetAskAboutState(int index)
 
 void CPDGame::SetAskAboutState(int index, BYTE state)
 {
-	if (index >= 0 && index <= 100)
+	if (index >= 0 && index <= 125)
 	{
 		_gameData[PD_SAVE_ASK_ABOUT_STATES + index] = state;
 
@@ -339,6 +339,11 @@ int CPDGame::GetItemId(int index)
 
 int CPDGame::GetItemState(int item)
 {
+	if (item >= 0 && item < PD_MAX_ITEM_COUNT)
+	{
+		return _gameData[PD_SAVE_ITEM_STATES + item];
+	}
+
 	return 0;
 }
 
@@ -577,4 +582,9 @@ int CPDGame::GetBuyableItemCount()
 int CPDGame::GetBuyableItemId(int index)
 {
 	return -1;
+}
+
+void CPDGame::SetBuyableItemState(int index, int state)
+{
+
 }

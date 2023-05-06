@@ -159,6 +159,7 @@ public:
 
 	virtual int GetBuyableItemCount();
 	virtual int GetBuyableItemId(int index);
+	virtual void SetBuyableItemState(int index, int state);
 
 protected:
 	virtual int GetWord(int offset, BOOL signExtend = FALSE);

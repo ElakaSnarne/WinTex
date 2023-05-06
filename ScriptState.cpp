@@ -22,6 +22,8 @@ void CScriptState::Clear()
 
 	AskAbout = FALSE;
 	Offer = FALSE;
+	Buy = FALSE;
+	AskingAboutBuyables = FALSE;
 	TopItemOffset = 0;
 
 	Mode = InteractionMode::None;

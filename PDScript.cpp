@@ -14,6 +14,7 @@
 #include "PDGame.h"
 #include <algorithm>
 #include "PDVidPhoneModule.h"
+#include "PDRitzSecurityKeypadModule.h"
 
 CPDScript::CPDScript()
 {
@@ -400,11 +401,12 @@ void CPDScript::Function_0F(CScriptState* pState)
 
 	Point ppos = _pLoc->GetPlayerPosition();
 
-	float x = (ix != -1) ? ppos.X : From12_4(ix);
-	float y = (iy != -1) ? ppos.Y : From12_4(iy);
-	float z = (iz != -1) ? ppos.Z : From12_4(iz);
+	float x = (ix == -1) ? -ppos.X : -From12_4(ix);
+	float y = (iy == -1) ? ppos.Y : From12_4(iy);
+	float z = (iz == -1) ? -ppos.Z : -From12_4(iz);
+	float angle = (ia == -1) ? CLocation::_angle2 : -(XM_PI * ia) / 1800.0f;
 
-	CLocation::SetPosition(x, y, z, -(XM_PI * ia) / 1800.0f);
+	CLocation::SetPosition(x, y, z, angle);
 }
 
 void CPDScript::Function_10(CScriptState* pState)
@@ -418,14 +420,13 @@ void CPDScript::Function_10(CScriptState* pState)
 
 void CPDScript::Function_11(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_11 - Jump on Item State = X");
-
+	DebugTrace(pState, L"Function_11 - Jump on Item State X = Y");
 	// word, byte, word
-	//text += $"If X[{GetInt(data, offset, 2):X4}] = {GetInt(data, offset + 2, 1):X2} jump to {GetInt(data, offset + 3, 2):X4}";
 
 	int item = pState->Read16();
 	int state = pState->Read8();
 	int address = pState->Read16();
+
 	if (CGameController::GetItemState(item) == state)
 	{
 		pState->ExecutionPointer = address;
@@ -578,11 +579,11 @@ void CPDScript::Function_1C(CScriptState* pState)
 
 void CPDScript::Function_1D(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_1D");
-
+	DebugTrace(pState, L"Function_1D - Set AskAboutState[X] to Y");
 	// byte, byte
-	//text += $"??? {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 1):X2}";
-	pState->ExecutionPointer += 2;
+	int askAboutIndex = pState->Read8();
+	int state = pState->Read8();
+	CGameController::SetAskAboutState(askAboutIndex, state);
 }
 
 void CPDScript::Function_1E(CScriptState* pState)
@@ -750,10 +751,17 @@ void CPDScript::Function_2F(CScriptState* pState)
 
 	switch (function)
 	{
+		// From 0 to 45
 	case 5:
 	{
 		// Vidphone
 		CModuleController::Push(new CPDVidPhoneModule());
+		break;
+	}
+	case 34:
+	{
+		// Ritz door security keypad
+		CModuleController::Push(new CPDRitzSecurityKeypadModule());
 		break;
 	}
 	default:
@@ -1462,9 +1470,9 @@ void CPDScript::Function_6A(CScriptState* pState)
 
 void CPDScript::Function_6B(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_6B");
+	DebugTrace(pState, L"Function_6B - Set AskAbouts to Buyables");
 
-	//text += $"???";
+	pState->AskingAboutBuyables = TRUE;
 }
 
 void CPDScript::Function_6C(CScriptState* pState)
@@ -1476,10 +1484,12 @@ void CPDScript::Function_6C(CScriptState* pState)
 
 void CPDScript::Function_6D(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_6D");
-
+	DebugTrace(pState, L"Function_6D - Set Buyable Item State");
 	// byte, byte
-	pState->ExecutionPointer += 2;
+
+	int item = pState->Read8();
+	int state = pState->Read8();
+	CGameController::SetBuyableItemState(item, state);
 }
 
 void CPDScript::Function_6E(CScriptState* pState)
@@ -1789,6 +1799,7 @@ void CPDScript::Function_92(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_92");
 
+	// AskAbout base index?
 	// byte
 	//text += $"??? byte_2A89BB = 0 or 100+{GetInt(data, offset++, 1)}";
 	pState->ExecutionPointer++;
