@@ -179,8 +179,6 @@ void CAnimBase::Update()
 		ULONGLONG diff = tick - _lastFrameUpdate;
 		if (diff >= _frameTime)
 		{
-			_frame++;
-
 			//wchar_t buffer[10];
 			//OutputDebugString(L"Decoding video frame ");
 			//OutputDebugString(_itow(_frame, buffer, 10));
@@ -192,6 +190,8 @@ void CAnimBase::Update()
 			{
 				if (DecodeFrame())
 				{
+					_frame++;
+
 					// Replace texture if new video frame is required (frame time has lapsed, video frame exists)
 					ID3D11Texture2D* pTex = _texture.GetTexture();
 					if (pTex != NULL)

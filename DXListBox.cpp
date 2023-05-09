@@ -6,6 +6,15 @@
 
 CTexture CDXListBox::_texBackground;
 
+int CDXListBox::_greyColour1 = 0;
+int CDXListBox::_greyColour2 = 0xffc3c3c3;
+int CDXListBox::_greyColour3 = 0xffc3c3c3;
+int CDXListBox::_greyColour4 = 0;
+int CDXListBox::_blackColour1 = 0;
+int CDXListBox::_blackColour2 = 0xff000000;
+int CDXListBox::_blackColour3 = 0xff000000;
+int CDXListBox::_blackColour4 = 0;
+
 CDXListBox::CDXListBox()
 {
 	_topIndex = 0;
@@ -183,7 +192,6 @@ void CDXListBox::Render()
 	CShaders::SelectOrthoShader();
 	dx.Draw(5 * 6, 0);
 
-	CDXFont::SelectFontColour(0xffffffff);
 	CShaders::SelectTexFontShader();
 
 	// Draw selection background
@@ -194,6 +202,8 @@ void CDXListBox::Render()
 		CConstantBuffers::SetWorld(dx, &wm);
 		dx.Draw(3 * 6, 5 * 6);
 	}
+
+	CDXFont::SelectFontColour(_greyColour1, _greyColour2, _greyColour3, _greyColour4);
 
 	// Draw text
 	wm = XMMatrixTranslation(_x, -_y - 20.0f * pConfig->FontScale, -0.5f);
@@ -245,7 +255,7 @@ void CDXListBox::Render()
 			}
 
 			// Draw selection
-			CDXFont::SelectFontColour(0xff000000);
+			CDXFont::SelectFontColour(_blackColour1, _blackColour2, _blackColour3, _blackColour4);
 
 			if ((_topIndex + _highlightIndex) >= _items.size())
 			{
@@ -289,7 +299,7 @@ int CDXListBox::HitTestLB(float x, float y)
 	_highlightIndex = -1;
 	float lineHeight = (TexFont.Height() + 2) * pConfig->FontScale;
 
-	if (x >= _x && x < (_x + _w) && y > _y&& y < (_y + _h - 1.0f))
+	if (x >= _x && x < (_x + _w) && y > _y && y < (_y + _h - 1.0f))
 	{
 		_highlightIndex = static_cast<int>((y - _y) / lineHeight);
 		int selectedIndex = _topIndex + _highlightIndex;

@@ -16,12 +16,19 @@
 #include "LocationModule.h"
 #include "PDMap.h"
 #include "PDDMap.h"
+#include "ResumeGameModule.h"
 
 BOOL CPDGame::Init()
 {
 	if (CModuleController::Init(new CPDMap(), new CPDDMap()) && LoadIcons() && CItems::Init())
 	{
 		CAnimationController::SetCaptionColours(0xff000000, 0xff000000, 0xff00c300, 0xff000000, 0xff000000, 0xff000000, 0xff0096ff, 0xff000000);
+		CDXListBox::SetGreyColours(0, 0, 0xffc3c3c3, 0);
+		CDXListBox::SetBlackColours(0, 0, 0xff000000, 0);
+		CDXButton::SetButtonColours(0, 0, -1, 0);
+		CResumeGameModule::SetTextColours(0, 0, 0xffff0000, 0);
+		CResumeGameModule::SetHeaderColours(0, 0, -1, 0);
+		CDXDialogueOption::SetColours(0, 0, 0xff000000, 0);
 
 		// Make sure Tex player exists
 		if (!CFile::Exists(L"PLAYERS\\TEX___00.PLR"))
@@ -87,6 +94,49 @@ void CPDGame::KeyUp(WPARAM key, LPARAM lParam)
 
 void CPDGame::LoadGame(LPWSTR fileName)
 {
+	BYTE data[PD_SAVE_SIZE];
+	CFile file;
+	if (file.Open(fileName))
+	{
+		int read = file.Read(data, PD_SAVE_SIZE);
+		file.Close();
+
+		if (read == PD_SAVE_SIZE)
+		{
+			CopyMemory(_gameData, data, PD_SAVE_SIZE);
+
+			// Validate inventory, check current item
+			int currentItem = _gameData[PD_SAVE_CURRENT_ITEM];
+			if (currentItem != 0xff)
+			{
+				int itemCount = _gameData[PD_SAVE_ITEM_COUNT];
+				bool found = false;
+				for (int i = 0; i < itemCount; i++)
+				{
+					if (GetInt(_gameData, PD_SAVE_INVENTORY + i * 2, 2) == currentItem)
+					{
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					SetInt(_gameData, PD_SAVE_CURRENT_ITEM, -1, 2);
+				}
+			}
+
+			// Should now load location or dialogue
+			if (_gameData[PD_SAVE_MAP_FLAG])
+			{
+				CModuleController::Push(new CLocationModule(_gameData[PD_SAVE_MAP_ENTRY_A], 0));// CGameController::GetParameter(249)));
+			}
+			else
+			{
+				CModuleController::Push(new CVideoModule(VideoType::Scripted, _gameData[PD_SAVE_DMAP_ENTRY_A], GetWord(PD_SAVE_SCRIPT_ID)));
+			}
+		}
+	}
 }
 
 void CPDGame::SaveGame(LPWSTR fileName)
@@ -248,8 +298,6 @@ void CPDGame::SetAskAboutState(int index, BYTE state)
 {
 	if (index >= 0 && index <= 125)
 	{
-		_gameData[PD_SAVE_ASK_ABOUT_STATES + index] = state;
-
 		// Add or remove from list
 		int count = GetAskAboutCount();
 		if (state == 0 || state == 2)
@@ -285,18 +333,9 @@ void CPDGame::SetAskAboutState(int index, BYTE state)
 			_gameData[PD_SAVE_ASK_ABOUTS + count] = index;
 			_gameData[PD_SAVE_ASK_ABOUT_COUNT]++;
 		}
-		else
-		{
-			int debug = 0;
-		}
 
 		_gameData[PD_SAVE_ASK_ABOUT_STATES + index] = state;
 	}
-	else
-	{
-		int debug = 0;
-	}
-
 }
 
 int CPDGame::GetAskAboutCount()
@@ -576,15 +615,67 @@ BOOL CPDGame::LoadIcons()
 
 int CPDGame::GetBuyableItemCount()
 {
-	return 0;
+	return GetInt(_gameData, PD_SAVE_BUYABLES_COUNT, 2);
 }
 
 int CPDGame::GetBuyableItemId(int index)
 {
+	if (index >= 0 && index < 25)
+	{
+		return GetInt(_gameData, PD_SAVE_BUYABLES + index * 2, 2);
+	}
+
 	return -1;
 }
 
 void CPDGame::SetBuyableItemState(int index, int state)
 {
+	if (index >= 0 && index < 25)
+	{
+		// Add or remove from list
+		int count = GetBuyableItemCount();
+		if (state == 0 || state == 2)
+		{
+			int i = 0;
+			for (i = 0; i < count && i < 25; i++)
+			{
+				if (_gameData[PD_SAVE_BUYABLES + i * 2] == index)
+				{
+					for (; i < count && i < 25; i++)
+					{
+						_gameData[PD_SAVE_BUYABLES + i * 2] = _gameData[PD_SAVE_BUYABLES + (i + 1) * 2];
+					}
+					_gameData[PD_SAVE_BUYABLES + count] = -1;
 
+					_gameData[PD_SAVE_BUYABLES_COUNT]--;
+
+					break;
+				}
+			}
+		}
+		else if (state == 1)
+		{
+			// Check if state already set
+			for (int i = 0; i < count; i++)
+			{
+				if (_gameData[PD_SAVE_BUYABLES + i * 2] == index)
+				{
+					return;
+				}
+			}
+
+			_gameData[PD_SAVE_BUYABLES + count * 2] = index;
+			_gameData[PD_SAVE_BUYABLES_COUNT]++;
+		}
+		else
+		{
+			int debug = 0;
+		}
+
+		_gameData[PD_SAVE_BUYABLES_ASK_ABOUT_STATES + index] = state;
+	}
+	else
+	{
+		int debug = 0;
+	}
 }

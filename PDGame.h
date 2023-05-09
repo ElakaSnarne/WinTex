@@ -23,8 +23,11 @@
 #define PD_SAVE_COMMENT						0x41
 #define PD_SAVE_PADDING1					0xd0
 
-#define PD_SAVE_LOCATION_A					0xd1
-#define PD_SAVE_LOCATION_B					0x14a
+#define PD_SAVE_MAP_ENTRY_A					0xd1
+#define PD_SAVE_DMAP_ENTRY_A				0xd3
+//#define PD_SAVE_UNKNOWN						0xd7
+#define PD_SAVE_MAP_ENTRY_B					0x14a
+#define PD_SAVE_DMAP_ENTRY_B				0x150
 
 #define PD_SAVE_TIMERS_INITIAL				0x15a
 #define PD_SAVE_TIMERS_CURRENT				0x19a
@@ -37,11 +40,16 @@
 
 #define PD_SAVE_ITEM_STATES					0x499
 
+#define PD_SAVE_SCRIPT_ID					0x6b5
+
 #define PD_SAVE_ASK_ABOUT_COUNT				0x6dd
 
 #define PD_SAVE_CURRENT_ASK					0x6e1
 
 #define PD_SAVE_ASK_ABOUTS					0x6e7
+
+#define PD_SAVE_BUYABLES_COUNT				0x7b1
+#define PD_SAVE_BUYABLES					0x7b9
 
 #define PD_SAVE_ITEM_COUNT					0x7f7
 
@@ -53,6 +61,7 @@
 #define PD_SAVE_INVENTORY					0x801
 
 #define PD_SAVE_ASK_ABOUT_STATES			0xabd
+#define PD_SAVE_BUYABLES_ASK_ABOUT_STATES	0xb22
 
 #define PD_SAVE_TRAVEL						0x10c1
 

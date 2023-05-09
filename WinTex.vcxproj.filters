@@ -357,6 +357,9 @@
     <ClCompile Include="PDCrosswordModule.cpp">
       <Filter>Modules\PD</Filter>
     </ClCompile>
+    <ClCompile Include="PDTravelModule.cpp">
+      <Filter>Modules\PD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DXFrame.h">
@@ -738,6 +741,9 @@
       <Filter>Modules\PD</Filter>
     </ClInclude>
     <ClInclude Include="PDCrosswordModule.h">
+      <Filter>Modules\PD</Filter>
+    </ClInclude>
+    <ClInclude Include="PDTravelModule.h">
       <Filter>Modules\PD</Filter>
     </ClInclude>
   </ItemGroup>

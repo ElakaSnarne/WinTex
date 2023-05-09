@@ -36,6 +36,8 @@ CVideoModule::CVideoModule(VideoType type, int dmapIndex, int activeScript) : CM
 			_scriptState->ExecutionPointer = 0;
 		}
 	}
+
+	_askAboutBase = 0;
 }
 
 CVideoModule::CVideoModule(VideoType type, LPCWSTR fileName, int itemIndex) : CModuleBase(ModuleType::Video)
@@ -150,6 +152,8 @@ void CVideoModule::Render()
 					}
 					else if (_scriptState->Buy || (_scriptState->AskAbout && _scriptState->AskingAboutBuyables))
 					{
+						_askAboutBase = 0x3f;
+
 						int itemCount = CGameController::GetBuyableItemCount();
 						for (int i = 0; i < 256 && i < itemCount; i++)
 						{
@@ -164,7 +168,7 @@ void CVideoModule::Render()
 					}
 
 					_scriptState->TopItemOffset = 0;
-					// TODO: Popup should be over correct button
+					// Make list appear over the correct button
 					int ix = 0;
 					if (DialogueOptions[1].GetValue() == valToFind)
 					{
@@ -280,7 +284,7 @@ void CVideoModule::Cursor(float x, float y, BOOL relative)
 			}
 		}
 
-		if (_scriptState->AskAbout || _scriptState->Offer)
+		if (_scriptState->AskAbout || _scriptState->Offer || _scriptState->Buy)
 		{
 			_listBox.HitTestLB(x, y);
 		}
@@ -289,7 +293,9 @@ void CVideoModule::Cursor(float x, float y, BOOL relative)
 
 void CVideoModule::BeginAction()
 {
-	//if (CGameController::CanCancelVideo())
+#ifndef DEBUG
+	if (CGameController::CanCancelVideo())
+#endif
 	{
 		CAnimationController::Skip();
 
@@ -303,9 +309,9 @@ void CVideoModule::BeginAction()
 			{
 				// Set item id and option and resume script
 				int option = _scriptState->AskAbout ? 4 : _scriptState->Offer ? 7 : _scriptState->Buy ? 6 : -1;
-				CGameController::SetSelectedItem(hitId);
+				CGameController::SetSelectedItem(hitId + _askAboutBase);
 				_scriptState->SelectedOption = option;
-				_scriptState->SelectedValue = hitId;
+				_scriptState->SelectedValue = hitId + _askAboutBase;
 				_scriptEngine->Resume(_scriptState, TRUE);
 			}
 		}

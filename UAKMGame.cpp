@@ -325,16 +325,8 @@ void CUAKMGame::SetAskAboutState(int index, BYTE state)
 			_gameData[UAKM_SAVE_ASK_ABOUTS + count] = index;
 			_gameData[UAKM_SAVE_ASK_ABOUT_COUNT]++;
 		}
-		else
-		{
-			int debug = 0;
-		}
 
 		_gameData[UAKM_SAVE_ASK_ABOUT_STATES + index] = state;
-	}
-	else
-	{
-		int debug = 0;
 	}
 }
 

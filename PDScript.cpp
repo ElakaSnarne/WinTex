@@ -452,7 +452,12 @@ void CPDScript::Function_13(CScriptState* pState)
 	int locationId = pState->Read8();
 	int startupPosition = pState->Read8();
 	//CGameController::SetData(UAKM_SAVE_MAP_ENTRY, locationId);
+
+	CGameController::SetData(PD_SAVE_MAP_ENTRY_A, locationId);
+	CGameController::SetData(PD_SAVE_MAP_ENTRY_B, locationId);
 	CGameController::SetData(PD_SAVE_MAP_FLAG, 1);
+
+	CGameController::AutoSave();
 
 	CModuleController::Push(new CPDLocationModule(locationId, startupPosition));
 	pState->ExecutionPointer = -1;
@@ -471,8 +476,11 @@ void CPDScript::Function_14(CScriptState* pState)
 	int ix = pState->Read8();
 	int unknown = pState->Read8();
 
-	//CGameController::SetData(UAKM_SAVE_DMAP_ENTRY, ix);
+	CGameController::SetData(PD_SAVE_DMAP_ENTRY_A, ix);
+	CGameController::SetData(PD_SAVE_DMAP_ENTRY_B, ix);
 	CGameController::SetData(PD_SAVE_MAP_FLAG, 0);
+
+	CGameController::AutoSave();
 
 	CModuleController::Push(new CVideoModule(VideoType::Scripted, ix, unknown));
 

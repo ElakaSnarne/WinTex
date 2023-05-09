@@ -1,15 +1,11 @@
 #include "PDMainMenuModule.h"
 #include "GameController.h"
-#include "DXImageButton.h"
 #include "resource.h"
 #include "Utilities.h"
 #include "ResumeGameModule.h"
 
 CPDMainMenuModule::CPDMainMenuModule()
 {
-	CDXButton::SetButtonColours(0, 0, -1, 0);
-	CResumeGameModule::SetTextColours(0, 0, 0xffff0000, 0);
-	CResumeGameModule::SetHeaderColours(0, 0, -1, 0);
 }
 
 CPDMainMenuModule::~CPDMainMenuModule()
@@ -72,9 +68,7 @@ void CPDMainMenuModule::SetupScreen()
 	float btnBottom = btnMiddle + 64.0f * pConfig->FontScale;
 
 	CDXButton* pNewGameBtn = _pScreen->AddButton(pNG, btnLeft, btnTop, maxw, 32.0f * pConfig->FontScale, NewGame);
-	//pNewGameBtn->SetEnabled(FALSE);
 	CDXButton* pLoadBtn = new CDXButton(pLG, maxw, 32.0f * pConfig->FontScale, Load);
-	pLoadBtn->SetEnabled(FALSE);
 	_pScreen->AddChild(pLoadBtn, btnLeft, btnMiddle);
 	_btnMainSave = new CDXButton(pSG, maxw, 32.0f * pConfig->FontScale, Save);
 	_btnMainSave->SetEnabled(FALSE);
@@ -84,7 +78,6 @@ void CPDMainMenuModule::SetupScreen()
 	CDXButton* pIntroBtn = _pScreen->AddButton(pIn, btnRight, btnMiddle, maxw, 32.0f * pConfig->FontScale, Intro);
 	//pIntroBtn->SetEnabled(FALSE);
 	CDXButton* pCreditsBtn = _pScreen->AddButton(pCr, btnRight, btnBottom, maxw, 32.0f * pConfig->FontScale, Credits);
-	//pCreditsBtn->SetEnabled(FALSE);
 
 	// Add resume (only visible when game is in progress) and quit (always visible, but ask if game in progress)
 	_btnMainResume = _pScreen->AddButton(pRe, moonCenterX - (maxw + 32.0f * pConfig->FontScale) / 2.0f, btnTop - 64.0f * pConfig->FontScale, maxw, 32.0f * pConfig->FontScale, Resume);

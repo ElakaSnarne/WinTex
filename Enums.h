@@ -49,6 +49,5 @@ enum class ModuleType
 	ResumeGame = 19,
 	Hints = 20,
 	VidPhone = 21,
-	RitzCodePanel = 22,
-	Crossword = 23,
+	Crossword = 22,
 };

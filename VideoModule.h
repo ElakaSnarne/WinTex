@@ -47,4 +47,6 @@ protected:
 	virtual void Cursor(float x, float y, BOOL relative);
 	virtual void BeginAction();
 	virtual void Back();
+
+	int _askAboutBase;
 };

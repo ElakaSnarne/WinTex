@@ -8,4 +8,11 @@ CPDCrosswordModule::~CPDCrosswordModule()
 {
 }
 
-// SPECIAL.AP 54-56
+void CPDCrosswordModule::Render()
+{
+}
+
+void CPDCrosswordModule::Initialize()
+{
+	// SPECIAL.AP 54-56
+}

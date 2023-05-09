@@ -5,6 +5,11 @@
 
 CTexture CDXDialogueOption::_texBubble;
 
+int CDXDialogueOption::_textColour1 = 0x00000000;
+int CDXDialogueOption::_textColour2 = 0xff000000;
+int CDXDialogueOption::_textColour3 = 0xff000000;
+int CDXDialogueOption::_textColour4 = 0x00000000;
+
 CDXDialogueOption::CDXDialogueOption()
 {
 	_pText = new CDXText();
@@ -145,7 +150,8 @@ void CDXDialogueOption::Render()
 	dx.Draw(36, 0);
 
 	// Draw text
-	_pText->SetColours((_mouseOver && _enabled) ? 0xff000000 : 0x80000000);
+	int mask = (_mouseOver && _enabled) ? -1 : 0x80ffffff;
+	_pText->SetColours(_textColour1 & mask, _textColour2 & mask, _textColour3 & mask, _textColour4 & mask);
 	_pText->Render(_textX + _x, _y + 32 * pConfig->FontScale - _pText->Lines() * TexFont.Height() * pConfig->FontScale / 2.0f);
 }
 

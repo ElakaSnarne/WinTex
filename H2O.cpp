@@ -342,10 +342,10 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 						int g = _colourTranslationTable[_pInputBuffer[paletteOffset++]];
 						int b = _colourTranslationTable[_pInputBuffer[paletteOffset++]];
 
-						//if (videoMode == VideoMode::Embedded && j < 32)
-						//{
-						//	r = g = b = 0;
-						//}
+						if (videoMode == VideoMode::Embedded && c < 32)
+						{
+							r = g = b = 0;
+						}
 
 						int col = 0xff000000 | b | (g << 8) | (r << 16);
 						_pPalette[currentIndex++] = col;
@@ -423,7 +423,7 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 
 					initialAudioBuffer = TRUE;
 
-					_startAudioOnFrame = (_width > 0 && _height > 0) ? _frame + 4 : _frame;
+					_startAudioOnFrame = (_width > 0 && _height > 0) ? _frame + 4 : 0;
 				}
 
 				if (_audioCompressed)
@@ -475,7 +475,7 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 			}
 		}
 
-		if (_sourceVoice != NULL && _startAudioOnFrame > 0 && _frame == _startAudioOnFrame)
+		if (_sourceVoice != NULL && _startAudioOnFrame >= 0 && _frame == _startAudioOnFrame)
 		{
 			_sourceVoice->Start(0, 0);
 			_startAudioOnFrame = -1;
