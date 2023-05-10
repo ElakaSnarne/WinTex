@@ -265,37 +265,37 @@ std::list<PointUV> CDXFont::Create(LPCWSTR text, BOOL texFont)
 			float u2 = u1 + fx / (texFont ? 3584.0f : 5760.0f);
 
 			PointUV pt;
-			pt.x = x;
+			pt.x = floor(x);
 			pt.y = 0.0f;
 			pt.u = u1;
 			pt.v = v1;
 			points.push_back(pt);
 
-			pt.x = x + scaledFx;
+			pt.x = floor(x + scaledFx);
 			pt.y = 0.0f;
 			pt.u = u2;
 			pt.v = v1;
 			points.push_back(pt);
 
-			pt.x = x + scaledFx;
+			pt.x = floor(x + scaledFx);
 			pt.y = fh;
 			pt.u = u2;
 			pt.v = v2;
 			points.push_back(pt);
 
-			pt.x = x;
+			pt.x = floor(x);
 			pt.y = 0.0f;
 			pt.u = u1;
 			pt.v = v1;
 			points.push_back(pt);
 
-			pt.x = x + scaledFx;
+			pt.x = floor(x + scaledFx);
 			pt.y = fh;
 			pt.u = u2;
 			pt.v = v2;
 			points.push_back(pt);
 
-			pt.x = x;
+			pt.x = floor(x);
 			pt.y = fh;
 			pt.u = u1;
 			pt.v = v2;

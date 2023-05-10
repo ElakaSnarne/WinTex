@@ -451,11 +451,13 @@ void CPDScript::Function_13(CScriptState* pState)
 
 	int locationId = pState->Read8();
 	int startupPosition = pState->Read8();
+	int unknown = pState->Read8();
 	//CGameController::SetData(UAKM_SAVE_MAP_ENTRY, locationId);
 
 	CGameController::SetData(PD_SAVE_MAP_ENTRY_A, locationId);
 	CGameController::SetData(PD_SAVE_MAP_ENTRY_B, locationId);
-	CGameController::SetData(PD_SAVE_MAP_FLAG, 1);
+	//CGameController::SetData(PD_SAVE_MAP_FLAG_A, 1);
+	CGameController::SetData(PD_SAVE_MAP_FLAG_B, 1);
 
 	CGameController::AutoSave();
 
@@ -478,7 +480,8 @@ void CPDScript::Function_14(CScriptState* pState)
 
 	CGameController::SetData(PD_SAVE_DMAP_ENTRY_A, ix);
 	CGameController::SetData(PD_SAVE_DMAP_ENTRY_B, ix);
-	CGameController::SetData(PD_SAVE_MAP_FLAG, 0);
+	//CGameController::SetData(PD_SAVE_MAP_FLAG_A, 0);
+	CGameController::SetData(PD_SAVE_MAP_FLAG_B, 0);
 
 	CGameController::AutoSave();
 
@@ -664,9 +667,8 @@ void CPDScript::Function_24(CScriptState* pState)
 
 void CPDScript::Function_25(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_25");
-
-	//text += $"???";
+	DebugTrace(pState, L"Function_25 - Set Embedded Video Mode");
+	videoMode = VideoMode::Embedded;
 }
 
 void CPDScript::Function_26(CScriptState* pState)
@@ -1454,14 +1456,15 @@ void CPDScript::Function_69(CScriptState* pState)
 	int sound = pState->Read8();
 	float x = pState->Read12_4();
 	float z = pState->Read12_4();
-	int v = pState->Read16();
+	double v = pState->Read16();
+	v *= v;
 
 	Point player = _pLoc->GetPlayerPosition();
 	double dx = player.X - x;
 	double dz = player.Z - z;
 	double distance = sqrt(dx * dx + dz * dz);
 
-	CAmbientAudio::SetVolume(sound - 1, (100.0f - (float)min(100.0f, max(0, distance - v))) / 100.0f);
+	CAmbientAudio::SetVolume(sound - 1, max(0.0f, min(1.0f, 1.2f - (float)(distance / v))));
 
 	// TODO: Work out what the pan should be
 	float pan = 0.0f;

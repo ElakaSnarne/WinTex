@@ -34,6 +34,8 @@ public:
 
 	virtual void Click();
 
+	void SetPDColours();
+
 protected:
 	void(*_clicked)(SaveGameInfo info);
 

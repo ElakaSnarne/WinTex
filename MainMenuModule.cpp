@@ -234,15 +234,6 @@ void CMainMenuModule::Resume(LPVOID data)
 	CModuleController::SendToBack(MainMenuModule);
 }
 
-std::string IntToString(int value, int size)
-{
-	char buffer[10];
-	char format[20];
-	sprintf_s(format, 20, "%%0%ii", size);
-	sprintf_s(buffer, 10, format, value);
-	return buffer;
-}
-
 bool CompareSaveGames(const SaveGameInfo& first, const SaveGameInfo& second)
 {
 	unsigned int i = 0;
@@ -263,67 +254,17 @@ void CMainMenuModule::Load(LPVOID data)
 		((CMainMenuModule*)MainMenuModule)->SetupLoadFrame();
 	}
 
-	// Get list of current save games
-	_savedGames.clear();
-	WIN32_FIND_DATA fd;
-	HANDLE hFF = FindFirstFile(L"GAMES\\*.*", &fd);
-	BYTE buffer[0xd1];
-	if (hFF != INVALID_HANDLE_VALUE)
-	{
-		do
-		{
-			if (fd.nFileSizeLow > 0)
-			{
-				std::wstring name = std::wstring(fd.cFileName);
-				if (name != L"SAVEGAME.000")
-				{
-					// Real file, load header and extract info
-					CFile file;
-					std::wstring fileName = L"GAMES\\" + name;
-					if (file.Open((LPWSTR)fileName.c_str()))
-					{
-						if (file.Read(buffer, 0xd0) == 0xd0)
-						{
-							SaveGameInfo info;
-							info.FileName = fileName;
-							info.Player = std::string((const char*)(buffer + UAKM_SAVE_PLAYER), UAKM_SAVE_LOCATION - UAKM_SAVE_PLAYER);
-							info.Location = std::string((const char*)(buffer + UAKM_SAVE_LOCATION), UAKM_SAVE_GAME_DAY - UAKM_SAVE_LOCATION);
-							info.DayInGame = std::string("Day ") + std::to_string(buffer[UAKM_SAVE_GAME_DAY]);
-							info.DateTime = IntToString(buffer[UAKM_SAVE_YEAR] | (buffer[UAKM_SAVE_YEAR + 1] << 8), 4) + "-" + IntToString(buffer[UAKM_SAVE_MONTH], 2) + +"-" + IntToString(buffer[UAKM_SAVE_DAY], 2) + " " + IntToString(buffer[UAKM_SAVE_HOUR], 2) + ":" + IntToString(buffer[UAKM_SAVE_MINUTE], 2) + ":" + IntToString(buffer[UAKM_SAVE_SECOND], 2);
-							info.Comment = std::string((const char*)(buffer + UAKM_SAVE_COMMENT), UAKM_SAVE_PADDING1 - UAKM_SAVE_COMMENT);
-
-							_savedGames.push_back(info);
-						}
-
-						file.Close();
-					}
-				}
-			}
-
-		} while (FindNextFile(hFF, &fd));
-
-		FindClose(hFF);
-	}
-
-	// Sort list (by last written or by save game date?)
-	std::sort(_savedGames.begin(), _savedGames.end());
-
-	LoadSetup();
-
-	_pScreen->ShowModal(_pLoad);
+	((CMainMenuModule*)MainMenuModule)->SetupLoad();
 }
 
 void CMainMenuModule::Save(LPVOID data)
 {
-	// TODO: Ask for file name
-	//CGameController::SaveGame(L"games\\savegame.999");
-
 	if (_pSave == NULL)
 	{
 		((CMainMenuModule*)MainMenuModule)->SetupSaveFrame();
 	}
 
-	SaveSetup();
+	((CMainMenuModule*)MainMenuModule)->SetupSave();
 
 	_pScreen->ShowModal(_pSave);
 }
@@ -444,6 +385,7 @@ void CMainMenuModule::LoadGame(SaveGameInfo info)
 	SetCursorPos(pt.x, pt.y);
 	CAmbientAudio::StopAll();
 	CAmbientAudio::Clear();
+	videoMode = VideoMode::FullScreen;
 	CGameController::LoadGame((LPWSTR)info.FileName.c_str());
 	EnableSaveAndResume(TRUE);
 }
@@ -542,6 +484,7 @@ void CMainMenuModule::SaveIncrementSave(LPVOID data)
 	}
 }
 
+/*
 void CMainMenuModule::SaveSetup()
 {
 	SaveMode = SaveMode::Extension;
@@ -595,6 +538,7 @@ void CMainMenuModule::SaveSetup()
 	info.DateTime = IntToString(st.wYear, 4) + "-" + IntToString(st.wMonth, 2) + +"-" + IntToString(st.wDay, 2) + " " + IntToString(st.wHour, 2) + ":" + IntToString(st.wMinute, 2) + ":" + IntToString(st.wSecond, 2);
 	_saveControl->SetInfo(info);
 }
+*/
 
 void CMainMenuModule::Clear()
 {

@@ -358,3 +358,12 @@ float From16_16(int v)
 {
 	return ((float)v) / 65536.0f;
 }
+
+std::string IntToString(int value, int size)
+{
+	char buffer[10];
+	char format[20];
+	sprintf_s(format, 20, "%%0%ii", size);
+	sprintf_s(buffer, 10, format, value);
+	return buffer;
+}

@@ -127,13 +127,13 @@ void CPDGame::LoadGame(LPWSTR fileName)
 			}
 
 			// Should now load location or dialogue
-			if (_gameData[PD_SAVE_MAP_FLAG])
+			if (_gameData[PD_SAVE_MAP_FLAG_B])
 			{
-				CModuleController::Push(new CLocationModule(_gameData[PD_SAVE_MAP_ENTRY_A], 0));// CGameController::GetParameter(249)));
+				CModuleController::Push(new CPDLocationModule(_gameData[PD_SAVE_MAP_ENTRY_B], _gameData[PD_SAVE_STARTUP_POSITION]));
 			}
 			else
 			{
-				CModuleController::Push(new CVideoModule(VideoType::Scripted, _gameData[PD_SAVE_DMAP_ENTRY_A], GetWord(PD_SAVE_SCRIPT_ID)));
+				CModuleController::Push(new CVideoModule(VideoType::Scripted, _gameData[PD_SAVE_DMAP_ENTRY_B], GetWord(PD_SAVE_SCRIPT_ID)));
 			}
 		}
 	}
@@ -645,7 +645,7 @@ void CPDGame::SetBuyableItemState(int index, int state)
 					{
 						_gameData[PD_SAVE_BUYABLES + i * 2] = _gameData[PD_SAVE_BUYABLES + (i + 1) * 2];
 					}
-					_gameData[PD_SAVE_BUYABLES + count] = -1;
+					SetWord(PD_SAVE_BUYABLES + count * 2, -1);
 
 					_gameData[PD_SAVE_BUYABLES_COUNT]--;
 
@@ -658,13 +658,13 @@ void CPDGame::SetBuyableItemState(int index, int state)
 			// Check if state already set
 			for (int i = 0; i < count; i++)
 			{
-				if (_gameData[PD_SAVE_BUYABLES + i * 2] == index)
+				if (GetInt(_gameData, PD_SAVE_BUYABLES + i * 2, 2) == index)
 				{
 					return;
 				}
 			}
 
-			_gameData[PD_SAVE_BUYABLES + count * 2] = index;
+			SetWord(PD_SAVE_BUYABLES + count * 2, index);
 			_gameData[PD_SAVE_BUYABLES_COUNT]++;
 		}
 		else
@@ -673,9 +673,5 @@ void CPDGame::SetBuyableItemState(int index, int state)
 		}
 
 		_gameData[PD_SAVE_BUYABLES_ASK_ABOUT_STATES + index] = state;
-	}
-	else
-	{
-		int debug = 0;
 	}
 }

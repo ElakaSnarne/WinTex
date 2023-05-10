@@ -12,6 +12,8 @@ public:
 
 protected:
 	virtual void SetupScreen();
+	virtual void SetupSave();
+	virtual void SetupLoad();
 
 	virtual void SetupConfigFrame();
 	virtual void SetupLoadFrame();

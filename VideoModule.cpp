@@ -309,9 +309,9 @@ void CVideoModule::BeginAction()
 			{
 				// Set item id and option and resume script
 				int option = _scriptState->AskAbout ? 4 : _scriptState->Offer ? 7 : _scriptState->Buy ? 6 : -1;
-				CGameController::SetSelectedItem(hitId + _askAboutBase);
+				CGameController::SetSelectedItem(hitId + ((option == 4) ? _askAboutBase : 0));
 				_scriptState->SelectedOption = option;
-				_scriptState->SelectedValue = hitId + _askAboutBase;
+				_scriptState->SelectedValue = hitId + ((option == 4) ? _askAboutBase : 0);
 				_scriptEngine->Resume(_scriptState, TRUE);
 			}
 		}

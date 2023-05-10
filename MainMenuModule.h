@@ -44,6 +44,9 @@ protected:
 	virtual void SetupLoadFrame();
 	virtual void SetupSaveFrame();
 
+	virtual void SetupSave() = NULL;
+	virtual void SetupLoad() = NULL;
+
 	static void NewGame(LPVOID data);
 	static void Resume(LPVOID data);
 	static void Load(LPVOID data);
@@ -108,7 +111,6 @@ protected:
 	static int _loadVisibleSavesCount;
 	static void LoadScroll(int top);
 
-	static void SaveSetup();
 	static void SaveCancel(LPVOID data);
 	static void SaveSave(LPVOID data);
 	static void SaveIncrementSave(LPVOID data);

@@ -226,3 +226,19 @@ void CSaveGameControl::SetComment(std::string comment)
 	_info.Comment = comment;
 	_tComment2.SetText((char*)comment.c_str());
 }
+
+void CSaveGameControl::SetPDColours()
+{
+	_tFileName1.SetColours(0, 0, 0xff3c0c9e, 0);
+	_tFileName2.SetColours(0, 0, 0xffae0000, 0);
+	_tPlayer1.SetColours(0, 0, 0xff3c0c9e, 0);
+	_tPlayer2.SetColours(0, 0, 0xffae0000, 0);
+	_tDay1.SetColours(0, 0, 0xff3c0c9e, 0);
+	_tDay2.SetColours(0, 0, 0xffae0000, 0);
+	_tDateTime1.SetColours(0, 0, 0xff3c0c9e, 0);
+	_tDateTime2.SetColours(0, 0, 0xffae0000, 0);
+	_tLocation1.SetColours(0, 0, 0xff3c0c9e, 0);
+	_tLocation2.SetColours(0, 0, 0xffae0000, 0);
+	_tComment1.SetColours(0, 0, 0xff3c0c9e, 0);
+	_tComment2.SetColours(0, 0, 0xffae0000, 0);
+}

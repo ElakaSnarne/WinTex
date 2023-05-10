@@ -50,3 +50,5 @@ void SwapCaptions();
 
 float From12_4(int v);
 float From16_16(int v);
+
+std::string IntToString(int value, int size);

@@ -25,6 +25,7 @@
 
 #define PD_SAVE_MAP_ENTRY_A					0xd1
 #define PD_SAVE_DMAP_ENTRY_A				0xd3
+#define PD_SAVE_MAP_FLAG_A					0xd5
 //#define PD_SAVE_UNKNOWN						0xd7
 #define PD_SAVE_MAP_ENTRY_B					0x14a
 #define PD_SAVE_DMAP_ENTRY_B				0x150
@@ -34,9 +35,11 @@
 #define PD_SAVE_TIMERS						0x1da
 #define PD_SAVE_PARAMETERS					0x1fa
 
-#define PD_SAVE_MAP_FLAG					0x2f6
+#define PD_SAVE_MAP_FLAG_B					0x2f6
 
 #define PD_SAVE_PARAMETERS_GAME_LEVEL		0x394
+
+#define PD_SAVE_STARTUP_POSITION			0x3e4
 
 #define PD_SAVE_ITEM_STATES					0x499
 
