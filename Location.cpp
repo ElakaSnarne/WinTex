@@ -3591,6 +3591,10 @@ void CLocation::Animate()
 								int  animation = p1;
 								int texture = GetInt(pA, 0, 4);
 								int duration = GetInt(pA, 4, 4);
+								if (duration == 0)
+								{
+									duration = 3;// TODO: Find out what the default value should be (0 in 3 or 4 PD locations, no UAKM locations)
+								}
 								pA -= 4;
 								CTextureGroup* pTG = _allTextures.at(animation);
 								if (pTG->AnimatedTextureIndex >= pTG->Textures.size() - 1)

@@ -305,13 +305,13 @@ void CPDGame::SetAskAboutState(int index, BYTE state)
 			int i = 0;
 			for (i = 0; i < count && i < 50; i++)
 			{
-				if (_gameData[PD_SAVE_ASK_ABOUTS + i] == index)
+				if (GetInt(_gameData, PD_SAVE_ASK_ABOUTS + i * 2, 2) == index)
 				{
 					for (; i < count && i < 49; i++)
 					{
-						_gameData[PD_SAVE_ASK_ABOUTS + i] = _gameData[PD_SAVE_ASK_ABOUTS + i + 1];
+						SetInt(_gameData, PD_SAVE_ASK_ABOUTS + i * 2, GetInt(_gameData, PD_SAVE_ASK_ABOUTS + (i + 1) * 2, 2), 2);
 					}
-					_gameData[PD_SAVE_ASK_ABOUTS + count] = -1;
+					SetInt(_gameData, PD_SAVE_ASK_ABOUTS + count * 2, -1, 2);
 
 					_gameData[PD_SAVE_ASK_ABOUT_COUNT]--;
 
@@ -324,13 +324,13 @@ void CPDGame::SetAskAboutState(int index, BYTE state)
 			// Check if state already set
 			for (int i = 0; i < count; i++)
 			{
-				if (_gameData[PD_SAVE_ASK_ABOUTS + i] == index)
+				if (GetInt(_gameData, PD_SAVE_ASK_ABOUTS + i * 2, 2) == index)
 				{
 					return;
 				}
 			}
 
-			_gameData[PD_SAVE_ASK_ABOUTS + count] = index;
+			SetInt(_gameData, PD_SAVE_ASK_ABOUTS + count * 2, index, 2);
 			_gameData[PD_SAVE_ASK_ABOUT_COUNT]++;
 		}
 
@@ -345,7 +345,7 @@ int CPDGame::GetAskAboutCount()
 
 int CPDGame::GetAskAboutId(int index)
 {
-	return (index >= 0 && index < 100) ? _gameData[PD_SAVE_ASK_ABOUTS + index] : -1;
+	return (index >= 0 && index < 50) ? GetInt(_gameData, PD_SAVE_ASK_ABOUTS + index * 2, 2) : -1;
 }
 
 int CPDGame::GetScore()
