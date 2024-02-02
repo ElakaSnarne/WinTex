@@ -12,10 +12,10 @@
 #include "Utilities.h"
 #include "Math.h"
 #include <tuple>
-#include "Elevation.h"
 #include "LocationDataHeader.h"
 #include <algorithm>
 #include <string>
+#include "IntersectionInfo.h"
 
 BOOL CLocation::_loading = FALSE;
 
@@ -27,7 +27,9 @@ BOOL CLocation::_renderLines = FALSE;
 BOOL CLocation::_renderPaths = FALSE;
 #endif
 
-#define CLOSE	1.0f
+//#define CLOSE							
+const double maxClipDistance = 2.0 / 3.0;
+const double maxClipDistanceSquared = maxClipDistance * maxClipDistance;
 
 #define OBJECT_FLAGS_HIDDEN				0x80000000
 #define SUBOBJECT_FLAGS_TRANSPARENT		0x00000001
@@ -74,10 +76,12 @@ float CLocation::_y = 0.0f;
 float CLocation::_z = 0.0f;
 float CLocation::_angle1 = 0.0f;
 float CLocation::_angle2 = 0.0f;
-float CLocation::_y_adj = 0.0f;
+float CLocation::_y_player_adjustment = 0.0f;
+float CLocation::_y_player_adjustment_min = 0.0f;
+float CLocation::_y_player_adjustment_max = 0.0f;
 float CLocation::_y_elevation = 0.0f;
-float CLocation::_y_min = 0.0f;
-float CLocation::_y_max = 0.0f;
+
+CElevation* CLocation::_pCurrentElevation = NULL;
 
 CLocation::CLocation()
 {
@@ -110,8 +114,12 @@ CLocation::CLocation()
 	_z = 0.0f;
 	_angle1 = 0.0f;
 	_angle2 = 0.0f;
-	_y_adj = 0.0f;
+	_y_player_adjustment = 0.0f;
+	_y_player_adjustment_min = 0.0f;
+	_y_player_adjustment_max = 0.0f;
 	_y_elevation = 0.0f;
+
+	_pCurrentElevation = NULL;
 
 	_spriteVertexBuffer = NULL;
 	_spriteVerticeCount = 0;
@@ -231,7 +239,7 @@ BOOL CLocation::Load(int locationFileIndex)
 	}
 
 	// Prepare the visibility buffer
-	for (int i = 0; i < 3000; i++)
+	for (int i = 0; i < sizeof(_visibilityBuffer.visibility) / sizeof(XMFLOAT4); i++)
 	{
 		_visibilityBuffer.visibility[i] = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
@@ -580,32 +588,33 @@ BOOL CLocation::Load(int locationFileIndex)
 							if (v1.X != v2.X || v1.Y != v2.Y || v1.Z != v2.Z)
 							{
 								// Points form a triangle
-								Triangle t1;
-								t1.ObjectId = i;
-								t1.SubObjectId = sid & 0xffff;
-								t1.P1 = p0;
-								t1.P2 = p2;
-								t1.P3 = p1;
+								Triangle t;
+								t.ObjectId = i;
+								t.SubObjectId = sid & 0xffff;
+								t.Flags = _ppObjects[i]->SubObjects[j].Flags;
+								t.P1 = p0;
+								t.P2 = p2;
+								t.P3 = p1;
 
-								obj.Triangles.push_back(t1);
+								obj.Triangles.push_back(t);
 								if (stex != NULL)
 								{
 									if ((flags & SUBOBJECT_FLAGS_TRANSPARENT) == 0)
 									{
 										// Regular textured object
-										stex->Triangles.push_back(t1);
+										stex->Triangles.push_back(t);
 										texturedTriangles++;
 										obj.VertexCount += 3;
 									}
 									else
 									{
 										// Transparent object
-										stex->TransparentTriangles.push_back(t1);
+										stex->TransparentTriangles.push_back(t);
 										transparentTriangles++;
 									}
 								}
 
-								_ppObjects[i]->SubObjects[j].Triangles[trix++] = t1;
+								_ppObjects[i]->SubObjects[j].Triangles[trix++] = t;
 
 								// Remove point at prev1
 								vpoints.erase(vpoints.begin() + prev1);
@@ -779,11 +788,6 @@ BOOL CLocation::Load(int locationFileIndex)
 		while (trit != trend)
 		{
 			Triangle* pTri = &(*trit);
-			if (pTri->ObjectId == 0 && pTri->SubObjectId == 0x004f)
-			{
-				int debug = 0;
-			}
-
 			if (pTri->ObjectId != curobid || pTri->SubObjectId != cursubobid)
 			{
 				pSub = NULL;
@@ -803,6 +807,8 @@ BOOL CLocation::Load(int locationFileIndex)
 				}
 			}
 
+			float shaderParameter = (pTri->Flags & SUBOBJECT_FLAGS_ALPHA) != 0 ? 1.0f : 0.0f;
+
 			if (pSub != NULL)
 			{
 				pSub->VertexCount += 3;
@@ -815,6 +821,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			pTV[tix].texture.y = pTri->P1.V;
 			pTV[tix].object.x = (float)pTri->P1.ObjectIndex;
 			pTV[tix].object.y = (float)pTri->P1.SubObjectIndex;
+			pTV[tix].objectParameters.x = shaderParameter;
 			tix++;
 			pTV[tix].position.x = pTri->P2.Point->X;
 			pTV[tix].position.y = pTri->P2.Point->Y;
@@ -823,6 +830,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			pTV[tix].texture.y = pTri->P2.V;
 			pTV[tix].object.x = (float)pTri->P2.ObjectIndex;
 			pTV[tix].object.y = (float)pTri->P2.SubObjectIndex;
+			pTV[tix].objectParameters.x = shaderParameter;
 			tix++;
 			pTV[tix].position.x = pTri->P3.Point->X;
 			pTV[tix].position.y = pTri->P3.Point->Y;
@@ -831,6 +839,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			pTV[tix].texture.y = pTri->P3.V;
 			pTV[tix].object.x = (float)pTri->P3.ObjectIndex;
 			pTV[tix].object.y = (float)pTri->P3.SubObjectIndex;
+			pTV[tix].objectParameters.x = shaderParameter;
 			tix++;
 
 			trit++;
@@ -857,6 +866,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			pTTV[ttix].colour = transparentColour;
 			pTTV[ttix].object.x = (float)pTri->P1.ObjectIndex;
 			pTTV[ttix].object.y = (float)pTri->P1.SubObjectIndex;
+			pTV[tix].objectParameters.x = 1.0f;
 			ttix++;
 			pTTV[ttix].position.x = pTri->P2.Point->X;
 			pTTV[ttix].position.y = pTri->P2.Point->Y;
@@ -865,6 +875,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			pTTV[ttix].colour = transparentColour;
 			pTTV[ttix].object.x = (float)pTri->P2.ObjectIndex;
 			pTTV[ttix].object.y = (float)pTri->P2.SubObjectIndex;
+			pTV[tix].objectParameters.x = 1.0f;
 			ttix++;
 			pTTV[ttix].position.x = pTri->P3.Point->X;
 			pTTV[ttix].position.y = pTri->P3.Point->Y;
@@ -873,6 +884,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			pTTV[ttix].colour = transparentColour;
 			pTTV[ttix].object.x = (float)pTri->P3.ObjectIndex;
 			pTTV[ttix].object.y = (float)pTri->P3.SubObjectIndex;
+			pTV[tix].objectParameters.x = 1.0f;
 			ttix++;
 
 			trit++;
@@ -1035,7 +1047,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			int type = GetInt(animbd.Data, offset, 4);
 			if (type == 16)
 			{
-				Elevations.push_back(animbd.Data + offset);
+				Elevations.push_back(new CElevation((Elevation*)(animbd.Data + offset)));
 			}
 		}
 	}
@@ -1339,16 +1351,6 @@ void CLocation::LoadTextures()
 	}
 
 	delete[] tex;
-
-	for (auto it : transparentTextures)
-	{
-		if (opaqueTextures[it.first] == it.second)
-		{
-			Trace(L"Texture ");
-			Trace(it.first);
-			TraceLine(L" is both transparent and opaque");
-		}
-	}
 }
 
 void CLocation::Render()
@@ -1368,9 +1370,11 @@ void CLocation::Render()
 	CConstantBuffers::Setup3D(dx);
 	dx.EnableZBuffer();
 
+	UpdateY();
+
 	XMMATRIX rm1 = XMMatrixRotationX(_angle1);
 	XMMATRIX rm2 = XMMatrixRotationY(_angle2);
-	XMMATRIX tm = XMMatrixTranslation(_x, _y + _y_adj + _y_elevation, _z);
+	XMMATRIX tm = XMMatrixTranslation(_x, _y, _z);
 
 	XMMATRIX wm;
 	wm = tm * rm2 * rm1;
@@ -1399,7 +1403,7 @@ void CLocation::Render()
 	char xbuffer[40];
 	_gcvt_s(xbuffer, sizeof(xbuffer), -_x, 3);
 	char ybuffer[40];
-	_gcvt_s(ybuffer, sizeof(ybuffer), -(_y + _y_adj + _y_elevation), 3);
+	_gcvt_s(ybuffer, sizeof(ybuffer), -_y, 3);
 	char zbuffer[40];
 	_gcvt_s(zbuffer, sizeof(zbuffer), -_z, 3);
 	char a1buffer[40];
@@ -1546,19 +1550,22 @@ void CLocation::SetPosition(StartupPosition pos)
 {
 	_x = pos.X;
 	_y = pos.Y;
-	_y_adj = -pos.Elevation;
+	_y_player_adjustment = pos.InitialEyeLevel;
+	_y_player_adjustment_min = pos.MinYAdj;
+	_y_player_adjustment_max = pos.MaxYAdj;
 	_y_elevation = pos.Elevation;
+
 	_z = pos.Z;
 	_angle1 = 0.0f;
 	_angle2 = pos.Angle;
-	_y_min = pos.MinY;
-	_y_max = pos.MaxY;
+
+	_pCurrentElevation = NULL;
 }
 
 void CLocation::SetPosition(float x, float y, float z, float angle)
 {
 	_x = x;
-	_y = y;
+	_y = y;	// SAJ: When set from script, this will have to be updated!
 	_z = z;
 	_angle2 = angle;
 }
@@ -1711,87 +1718,62 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 			double closest_u = 0.0;
 			double closest_dist = 10000.0;
 			double closest_dp = 10000.0;
-			Line closestLine;
-			closestLine.P1.X = 0.0;
-			closestLine.P1.Y = 0.0;
-			closestLine.P1.Z = 0.0;
-			closestLine.P2.X = 0.0;
-			closestLine.P2.Y = 0.0;
-			closestLine.P2.Z = 0.0;
-			int closestPathIndex = -1;
-			int closestPathSubIndex = -1;
+			IntersectionInfo closestIntersection;
+			closestIntersection.LineSegmentP1 = DPoint{ 0.0, 0.0, 0.0 };
+			closestIntersection.LineSegmentP2 = DPoint{ 0.0, 0.0, 0.0 };
+			closestIntersection.ProjectionPoint = DPoint{ 0.0, 0.0, 0.0 };
+			closestIntersection.ProjectionLength = 0.0;
 
+			// TODO: Make a list of collisions, store projected point + movement length
+			// TODO: Get shortest movement, perform movement and adjust new vector
+			// TODO: Looks like I already have most of this, change to use towards-path-projected point (and modify destination point with same projection) to allow for radius (0.666666...)
+			// TODO: First get projected point on segment
+			// TODO: If distance is greater than or equal to the radius, move point radius units towards segment
+			// TODO: Otherwise ignore segment
 			for (int i = 0; i < _pathCount; i++)
 			{
-				if (_paths[i].enabled)
+				if (!_paths[i].enabled)
 				{
-					for (std::size_t p1 = 0; p1 < _paths[i].Points.size(); p1++)
+					continue;
+				}
+
+				for (std::size_t p1 = 0; p1 < _paths[i].Points.size(); p1++)
+				{
+					auto p2 = p1 + 1;
+					if (p2 == _paths[i].Points.size()) p2 = 0;
+
+					DPoint pt1 = _paths[i].Points.at(p1);
+					DPoint pt2 = _paths[i].Points.at(p2);
+
+					//DPoint projectedPoint = Project(pt1, pt2, pp1);	// Projection of current position on line segment
+					//double distanceFromLineSegmentSquared = DistanceSquared(pp1, projectedPoint);
+					//if (distanceFromLineSegmentSquared > maxClipDistanceSquared)
+					//{
+					//	continue;
+					//}
+
+					DPoint currentLineNormal = Normalize(Normal(Subtract(pt2, pt1)));
+					DPoint currentMovement = Normalize(Subtract(pp2, pp1));
+					double current_dp = Dot(currentMovement, currentLineNormal);
+					//if (!isnan(current_dp) && current_dp >= 0.0)	// Line should be checked
 					{
-						auto p2 = p1 + 1;
-						if (p2 == _paths[i].Points.size()) p2 = 0;
+						double t = 0.0, u = 0.0;
+						double d = LineSegmentsDistance(pp1, pp2, pt1, pt2, t, u);
 
-						DPoint pt1 = _paths[i].Points.at(p1);
-						DPoint pt2 = _paths[i].Points.at(p2);
+						// TODO: Should calculate projected distance (player position to line) and compare this value (may help edge cases)
+						// TODO: Should ignore walls where the projected point is more than 0.5 units away from edge points
 
-						DPoint currentLineNormal = Normalize(Normal(Subtract(pt2, pt1)));
-						DPoint currentMovement = Normalize(Subtract(pp2, pp1));
-						double current_dp = Dot(currentMovement, currentLineNormal);
-						//if (!isnan(current_dp) && current_dp >= 0.0)	// Line should be checked
+						if (d < 0.5 && d < closest_dist)// && t <= closest_t)
 						{
-							//Trace(L"Collision with line {");
-							//Trace((float)pt1.X);
-							//Trace(L", ");
-							//Trace((float)pt1.Z);
-							//Trace(L"} x {");
-							//Trace((float)pt2.X);
-							//Trace(L", ");
-							//Trace((float)pt2.Z);
-							//Trace(L"}, dot product is ");
-							//TraceLine((float)current_dp);
-							double t = 0.0, u = 0.0;
-							double d = LineSegmentsDistance(pp1, pp2, pt1, pt2, t, u);
-
-							// TODO: Should calculate projected distance (player position to line) and compare this value (may help edge cases)
-							// TODO: Should ignore walls where the projected point is more than 0.5 units away from edge points
-
-							if (d < 0.5 && d < closest_dist)// && t <= closest_t)
+							//if (current_dp < closest_dp)
 							{
-								//Trace(L"Collision of point {");
-								//Trace((float)pp1.X);
-								//Trace(L", ");
-								//Trace((float)pp1.Z);
-								//Trace(L"} x {");
-								//Trace((float)pp2.X);
-								//Trace(L", ");
-								//Trace((float)pp2.Z);
-								//Trace(L"} with line {");
-								//Trace((float)pt1.X);
-								//Trace(L", ");
-								//Trace((float)pt1.Z);
-								//Trace(L"} x {");
-								//Trace((float)pt2.X);
-								//Trace(L", ");
-								//Trace((float)pt2.Z);
-								//Trace(L"}, d = ");
-								//Trace((float)d);
-								//Trace(L"}, t = ");
-								//Trace((float)t);
-								//Trace(L"}, u = ");
-								//TraceLine((float)u);
-
-								//if (current_dp < closest_dp)
-								{
-									closestLine.P1 = pt1;
-									closestLine.P2 = pt2;
-									closest_t = t;
-									closest_u = u;
-									closest_dist = d;
-									closest_dp = current_dp;
-									collision = TRUE;
-
-									closestPathIndex = i;
-									closestPathSubIndex = static_cast<int>(p1);
-								}
+								closestIntersection.LineSegmentP1 = pt1;
+								closestIntersection.LineSegmentP2 = pt2;
+								closest_t = t;
+								closest_u = u;
+								closest_dist = d;
+								closest_dp = current_dp;
+								collision = TRUE;
 							}
 						}
 					}
@@ -1810,8 +1792,8 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 				// Move player to point close to line and project
 
 				// Calculate ProjectToX,ProjectToY and NewPointX,NewPointY
-				DPoint mp = Project(closestLine.P1, closestLine.P2, pp2);
-				DPoint pp = Project(closestLine.P1, closestLine.P2, pp1);
+				DPoint mp = Project(closestIntersection.LineSegmentP1, closestIntersection.LineSegmentP2, pp2);
+				DPoint pp = Project(closestIntersection.LineSegmentP1, closestIntersection.LineSegmentP2, pp1);
 
 				// Check distance projection/ball to movement/ball, will give extension direction (unless ball is midway between movement and projection, but then movement is away from line)
 				double distanceToMovement = sqrt(DistanceSquared(pp1, pp2));
@@ -1841,7 +1823,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 				}
 
 				DPoint tp{ pp1.X + (pp2.X - pp1.X) * percentage, 0.0, pp1.Z + (pp2.Z - pp1.Z) * percentage };
-				DPoint tpp = Project(closestLine.P1, closestLine.P2, tp);
+				DPoint tpp = Project(closestIntersection.LineSegmentP1, closestIntersection.LineSegmentP2, tp);
 				DPoint tmp = Subtract(mp, tpp);
 
 				pp1.X = tp.X;
@@ -1854,7 +1836,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 				nz = (pass == 0) ? -pp2.Z : -tp.Z;
 
 				DPoint ntp{ -nx, 0.0, -nz };
-				DPoint npp = Project(closestLine.P1, closestLine.P2, ntp);
+				DPoint npp = Project(closestIntersection.LineSegmentP1, closestIntersection.LineSegmentP2, ntp);
 				double newDistance = sqrt(DistanceSquared(ntp, npp));
 
 				double newClosestD = 10000.0;
@@ -1928,8 +1910,6 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 							if (newd < newClosestD)
 							{
 								newClosestD = newd;
-								newclosestpathindex = i;
-								newclosestPathSubIndex = static_cast<int>(p1);
 							}
 						}
 					}
@@ -1953,118 +1933,31 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 		if (!_disableClipping)
 #endif
 		{
-			int eix = -1;
-			for (auto el : Elevations)
+			if (_pCurrentElevation != NULL)
 			{
-				eix++;
-				Elevation* pE = (Elevation*)el;
-				float x1 = ((float)pE->X1) / 65536.0f;
-				float y1 = ((float)pE->Y1) / 65536.0f;
-				float z1 = ((float)pE->Z1) / 65536.0f;
-				float x2 = ((float)pE->X2) / 65536.0f;
-				float y2 = ((float)pE->Y2) / 65536.0f;
-				float z2 = ((float)pE->Z2) / 65536.0f;
-
-				float stepHeight = ((float)pE->StepHeight) / 65536.0f;
-				float stepLength = ((float)pE->StepLength) / 65536.0f;
-				float stepWidth = ((float)pE->StepWidth) / 65536.0f;
-
-				int numberOfSteps = pE->NumberOfSteps;
-				float len = ((float)pE->HorizontalLength) / 65536.0f;
-				float xv = ((float)pE->DirectionX) / 65536.0f;
-				float zv = ((float)pE->DirectionZ) / 65536.0f;
-
-				float halfStepWidthX = abs(zv) * stepWidth / 1;
-				float halfStepWidthZ = abs(xv) * stepWidth / 1;
-
-				float x11 = x1 + halfStepWidthX;
-				float x12 = x1 - halfStepWidthX;
-				float x21 = x2 + halfStepWidthX;
-				float x22 = x2 - halfStepWidthX;
-				float z11 = z1 + halfStepWidthZ;
-				float z12 = z1 - halfStepWidthZ;
-				float z21 = z2 + halfStepWidthZ;
-				float z22 = z2 - halfStepWidthZ;
-
-				float xt1 = min(min(min(x11, x12), x21), x22), xt2 = max(max(max(x11, x12), x21), x22);
-				float zt1 = min(min(min(z11, z12), z21), z22), zt2 = max(max(max(z11, z12), z21), z22);
-
-				if (-nx >= xt1 && -nx <= xt2 && -nz >= zt1 && -nz <= zt2)
+				// Check if player has left active elevation
+				if (_pCurrentElevation->IsPointInElevation(-_x, -_y_elevation, -_z))
 				{
-					float cy = -_y_elevation;
+					_y_elevation = -_pCurrentElevation->GetElevationFromXZPosition(-_x, -_z);
+				}
+				else
+				{
+					_y_elevation = -_pCurrentElevation->GetClosestElevation(-_y_elevation);
+				}
 
-					float miny = min(y1, y2), maxy = max(y1, y2);
-					if ((cy + 3) >= miny && (cy - 3) <= maxy)
+				_pCurrentElevation = NULL;
+			}
+
+			if (_pCurrentElevation == NULL)
+			{
+				for (auto el : Elevations)
+				{
+					if (el->IsPointInElevation(-_x, -_y_elevation, -_z))
 					{
-						//Trace(L"Inside elevation ");
-						//TraceLine(eix);
-						//Trace(L"Current elevation: ");
-						//TraceLine(cy);
-						//Trace(L"Elevation anim: ");
-						//Trace(y1);
-						//Trace(L", ");
-						//TraceLine(y2);
-						//Trace(L"Elevation diff: ");
-						//Trace(cy + y1);
-						//Trace(L", ");
-						//TraceLine(cy + y2);
-
-						// TODO: Calculate full step index, then sub step value
-						// TODO: Should only move up on ~10% of step length?
-
-						// Find percentage position along elevation
-						double p = (1 - abs(zv * (z21 + nz) + xv * (x21 + nx)) / len);
-						double sp = 1.0 / numberOfSteps;
-						double t = p / sp;
-						double t2 = (double)((int)t);
-						double t3 = t - t2;
-						//Trace(L"t=");
-						//TraceLine((float)t);
-						//Trace(L"t2=");
-						//TraceLine((float)t2);
-						//Trace(L"t3=");
-						//TraceLine((float)t3);
-						if (t3 >= 0.2 && t3 < 0.5)
-						{
-							t2 += (t3 - 0.2) / 0.3;
-						}
-						else if (t3 >= 0.5)
-						{
-							t2 += 1.0;
-						}
-
-						//t2 += min(t3, 0.5);
-						//if (t3 < 0.5) t2 += t3;// (t3 / 0.5);
-						//Trace(L"SP=");
-						//TraceLine((float)sp);
-						//int t = (int)(p * 1000) % (int)(sp * 1000);
-						//Trace(L"T2=");
-						//TraceLine(t2);
-
-						double d = -(y1 + stepHeight * t2);
-
-						/*
-						// Movement is inside an elevation rectangle
-						if (xv == 0.0f)
-						{
-							// Elevation is in z-direction
-							//d = -(y2 + (y1 - y2) * zv * (z21 + nz) / len);
-							d = -(y1 + stepHeight * t2);
-						}
-						else if (zv == 0.0f)
-						{
-							// Elevation is in x-direction
-							//d = -(y2 + (y1 - y2) * xv * (x21 + nx) / len);
-							d = -(y1 + stepHeight * t2);
-						}
-						*/
-
-						_y_elevation = static_cast<float>(d + 1.5f);
-
+						_y_elevation = -el->GetElevationFromXZPosition(-_x, -_z);
+						_pCurrentElevation = el;
 						break;
 					}
-
-					//TraceLine(L"");
 				}
 			}
 		}
@@ -2072,19 +1965,19 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 
 	if (my != 0.0f)
 	{
-		float miny = _y_min;
-		float maxy = _y_max;
+		float miny = _y_player_adjustment_min;
+		float maxy = _y_player_adjustment_max;
 #ifdef DEBUG
 		if (_disableClipping)
 		{
-			miny = 1000;
-			maxy = -1000;
+			miny = -1000;
+			maxy = 1000;
 		}
 #endif
-		if (_y >= maxy && _y <= miny)
+		if (_y_player_adjustment <= maxy && _y_player_adjustment >= miny)
 		{
 			// Allow movement up/down to limits
-			_y += (my < 0.0f) ? max(my, maxy - _y) : min(my, miny - _y);
+			_y_player_adjustment += (my < 0.0f) ? max(my, miny - _y_player_adjustment) : min(my, maxy - _y_player_adjustment);
 		}
 	}
 
@@ -2145,6 +2038,8 @@ void CLocation::LoadPaths()
 		{
 			_paths[f].enabled = TRUE;
 			_paths[f].allowLeave = FALSE;
+			int pathId = GetInt(ppath, os + 14, 2);
+			_paths[f].Id = (pathId != 0) ? pathId : f;
 
 			int faceSize = GetInt(ppath, os + 4, 4);
 			int vertCount = GetInt(ppath, os + 8, 4);
@@ -2361,6 +2256,7 @@ void CLocation::UpdateSprites()
 				pTV[tix].texture.y = spr->V2;
 				pTV[tix].object.x = (float)spr->ObjectIndex;
 				pTV[tix].object.y = (float)spr->SubObjectIndex;
+				pTV[tix].objectParameters.x = 1.0f;
 				tix++;
 				pTV[tix].position.x = x2;
 				pTV[tix].position.y = sy1;
@@ -2369,6 +2265,7 @@ void CLocation::UpdateSprites()
 				pTV[tix].texture.y = spr->V2;
 				pTV[tix].object.x = (float)spr->ObjectIndex;
 				pTV[tix].object.y = (float)spr->SubObjectIndex;
+				pTV[tix].objectParameters.x = 1.0f;
 				tix++;
 				pTV[tix].position.x = x2;
 				pTV[tix].position.y = sy2;
@@ -2377,6 +2274,7 @@ void CLocation::UpdateSprites()
 				pTV[tix].texture.y = spr->V1;
 				pTV[tix].object.x = (float)spr->ObjectIndex;
 				pTV[tix].object.y = (float)spr->SubObjectIndex;
+				pTV[tix].objectParameters.x = 1.0f;
 				tix++;
 
 				pTV[tix].position.x = x1;
@@ -2386,6 +2284,7 @@ void CLocation::UpdateSprites()
 				pTV[tix].texture.y = spr->V2;
 				pTV[tix].object.x = (float)spr->ObjectIndex;
 				pTV[tix].object.y = (float)spr->SubObjectIndex;
+				pTV[tix].objectParameters.x = 1.0f;
 				tix++;
 				pTV[tix].position.x = x2;
 				pTV[tix].position.y = sy2;
@@ -2394,6 +2293,7 @@ void CLocation::UpdateSprites()
 				pTV[tix].texture.y = spr->V1;
 				pTV[tix].object.x = (float)spr->ObjectIndex;
 				pTV[tix].object.y = (float)spr->SubObjectIndex;
+				pTV[tix].objectParameters.x = 1.0f;
 				tix++;
 				pTV[tix].position.x = x1;
 				pTV[tix].position.y = sy2;
@@ -2402,6 +2302,7 @@ void CLocation::UpdateSprites()
 				pTV[tix].texture.y = spr->V1;
 				pTV[tix].object.x = (float)spr->ObjectIndex;
 				pTV[tix].object.y = (float)spr->SubObjectIndex;
+				pTV[tix].objectParameters.x = 1.0f;
 				tix++;
 
 				sit++;
@@ -2479,7 +2380,7 @@ int CLocation::GetPickObject(int& objectId, int& subObjectId)
 		{
 			Point teye;
 			teye.X = -_x - _translationBuffer.translation[i].x;
-			teye.Y = -(_y + _y_adj + _y_elevation) - _translationBuffer.translation[i].y;
+			teye.Y = -_y - _translationBuffer.translation[i].y;
 			teye.Z = -_z - _translationBuffer.translation[i].z;
 
 			if (Intersect(_ppObjects[i]->BoundingBox, teye, dir))
@@ -2781,6 +2682,11 @@ BOOL CLocation::IsAnimationFinished(int index)
 	return (mappedIndex >= 0 && mappedIndex < 50 && Animations[mappedIndex].Status == AnimationStatus::Completed);
 }
 
+BOOL CLocation::IsIndexedAnimationFinished(int index)
+{
+	return (index >= 0 && index < 50 && (Animations[index].Status == AnimationStatus::Completed || Animations[index].Status == AnimationStatus::NotStarted));
+}
+
 int CLocation::GetAnimationFrame(int index)
 {
 	int mappedIndex = _mapEntry->AnimationMap.at(index);
@@ -2803,7 +2709,7 @@ Point CLocation::GetPlayerPosition()
 {
 	Point p;
 	p.X = -_x;
-	p.Y = _y + _y_adj + _y_elevation;
+	p.Y = _y;
 	p.Z = -_z;
 	return p;
 }
@@ -2812,7 +2718,7 @@ Point CLocation::GetUnadjustedPlayerPosition()
 {
 	Point p;
 	p.X = -_x;
-	p.Y = _y;
+	p.Y = _y_elevation;
 	p.Z = -_z;
 	return p;
 }
@@ -3108,6 +3014,7 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 	}
 	else if (file == L"R05VR.AP")	// Ritz Stairs
 	{
+		ModifyLocationPoints(216, 219, -0.01f, 0.0f, 0.0f);			// Men's room sign
 	}
 	else if (file == L"R06VR.AP")	// Rusty's Funhouse
 	{
@@ -3198,6 +3105,7 @@ void CLocation::ModifyLocationPoints(int startix, int endix, float x, float y, f
 
 XMFLOAT4 CLocation::GetTransparentColour(std::wstring file, int objectId, int subObjectId)
 {
+	// UAKM
 	if (file == L"ALLEY.AP")
 	{
 		// Glass shard
@@ -3243,6 +3151,13 @@ XMFLOAT4 CLocation::GetTransparentColour(std::wstring file, int objectId, int su
 	{
 		// Unknown
 		return XMFLOAT4(1.0f, 1.0f, 1.0f, 0.08f);
+	}
+
+	// PD
+	else if (file == L"R01VR.AP")
+	{
+		// Vestibule windows
+		return XMFLOAT4(1.0f, 1.0f, 1.0f, 0.2f);
 	}
 
 	return XMFLOAT4(0.3f, 0.3f, 0.7f, 0.4f);
@@ -3383,95 +3298,240 @@ void CLocation::Animate()
 						{
 							switch (Animations[i].Type)
 							{
-							case 1:
-							{
-								// Texture switch
-								int objectId = Animations[i].ObjectId;
-								int subObjectId = Animations[i].Parameter;
-								int newTexture = p1;
-
-								// Take 2, using list of objects and sub-objects to find texture and vertices/indexes
-								CLocationObject* lo = &_pLocObjects[objectId];
-								for (int soi = 0; soi < lo->SubObjectCount; soi++)
-								{
-									CLocationSubObject* pSub = &lo->pSubObjects[soi];
-									if ((pSub->Id & 0xffff) == subObjectId)
-									{
-										CTextureGroup* pTG = _allTextures.at(pSub->TextureIndex);
-										CTextureGroup* pNewT = _allTextures.at(newTexture);
-										if (pTG->SpriteVerticeCount > 0)
-										{
-											pTG->RealTexture = pNewT->pTexture;
-										}
-										else
-										{
-											pTG->RemovePoints(pSub->VertexIndex, pSub->VertexCount);
-											pNewT->AddPoints(pSub->VertexIndex, pSub->VertexCount);
-											pSub->TextureIndex = newTexture;
-										}
-
-										break;
-									}
-								}
-
-								Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
-								pA += 4;
-								frameEnd = TRUE;
-								break;
-							}
-							case 2:
-							{
-								// Object translation
-								float x = ((float)p1) / 65536.0f;
-								float y = ((float)GetInt(pA, 0, 4)) / 65536.0f;
-								float z = ((float)GetInt(pA, 4, 4)) / 65536.0f;
-								Animations[i].FrameDuration = (DWORD)(GetInt(pA, 8, 4) * TIMER_SCALE);
-								pA += 12;
-								_translationBuffer.translation[Animations[i].ObjectId].x += x;
-								_translationBuffer.translation[Animations[i].ObjectId].y += y;
-								_translationBuffer.translation[Animations[i].ObjectId].z += z;
-								_translationChanged = TRUE;
-								PointingChanged = TRUE;
-								frameEnd = TRUE;
-								break;
-							}
-							case 3:
-							{
-								// Object visibility
-								// Get and hide object from parameter (must be set to -1 on initalization)
-								int objectToHide = Animations[i].Parameter;
-								int objectToShow = p1;
-								if (objectToShow >= 0)
-								{
-									Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
-									pA += 4;
-
-									if (objectToHide >= 0)
-									{
-										ChangeVisibility(objectToHide, FALSE, FALSE, L"Animation ");
-									}
-									ChangeVisibility(objectToShow, TRUE, FALSE, L"Animation ");
-
-									// Store object in parameter
-									Animations[i].Parameter = objectToShow;
-									PointingChanged = TRUE;
-								}
-
-								frameEnd = TRUE;
-								break;
-							}
-							case 4:
-							{
-								// All functions
-								switch (p1)
-								{
 								case 1:
 								{
 									// Texture switch
-									int objectId = GetInt(pA, 0, 4);
-									int subObjectId = GetInt(pA, 4, 4);
-									int newTexture = GetInt(pA, 8, 4);
+									int objectId = Animations[i].ObjectId;
+									int subObjectId = Animations[i].Parameter;
+									int newTexture = p1;
+
+									// Take 2, using list of objects and sub-objects to find texture and vertices/indexes
+									CLocationObject* lo = &_pLocObjects[objectId];
+									for (int soi = 0; soi < lo->SubObjectCount; soi++)
+									{
+										CLocationSubObject* pSub = &lo->pSubObjects[soi];
+										if ((pSub->Id & 0xffff) == subObjectId)
+										{
+											CTextureGroup* pTG = _allTextures.at(pSub->TextureIndex);
+											CTextureGroup* pNewT = _allTextures.at(newTexture);
+											if (pTG->SpriteVerticeCount > 0)
+											{
+												pTG->RealTexture = pNewT->pTexture;
+											}
+											else
+											{
+												pTG->RemovePoints(pSub->VertexIndex, pSub->VertexCount);
+												pNewT->AddPoints(pSub->VertexIndex, pSub->VertexCount);
+												pSub->TextureIndex = newTexture;
+											}
+
+											break;
+										}
+									}
+
+									Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
+									pA += 4;
+									frameEnd = TRUE;
+									break;
+								}
+								case 2:
+								{
+									// Object translation
+									float x = ((float)p1) / 65536.0f;
+									float y = ((float)GetInt(pA, 0, 4)) / 65536.0f;
+									float z = ((float)GetInt(pA, 4, 4)) / 65536.0f;
+									Animations[i].FrameDuration = (DWORD)(GetInt(pA, 8, 4) * TIMER_SCALE);
 									pA += 12;
+									_translationBuffer.translation[Animations[i].ObjectId].x += x;
+									_translationBuffer.translation[Animations[i].ObjectId].y += y;
+									_translationBuffer.translation[Animations[i].ObjectId].z += z;
+									_translationChanged = TRUE;
+									PointingChanged = TRUE;
+									frameEnd = TRUE;
+									break;
+								}
+								case 3:
+								{
+									// Object visibility
+									// Get and hide object from parameter (must be set to -1 on initalization)
+									int objectToHide = Animations[i].Parameter;
+									int objectToShow = p1;
+									if (objectToShow >= 0)
+									{
+										Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
+										pA += 4;
+
+										if (objectToHide >= 0)
+										{
+											ChangeVisibility(objectToHide, FALSE, FALSE, L"Animation ");
+										}
+										ChangeVisibility(objectToShow, TRUE, FALSE, L"Animation ");
+
+										// Store object in parameter
+										Animations[i].Parameter = objectToShow;
+										PointingChanged = TRUE;
+									}
+
+									frameEnd = TRUE;
+									break;
+								}
+								case 4:
+								{
+									// All functions
+									switch (p1)
+									{
+										case 1:
+										{
+											// Texture switch
+											int objectId = GetInt(pA, 0, 4);
+											int subObjectId = GetInt(pA, 4, 4);
+											int newTexture = GetInt(pA, 8, 4);
+											pA += 12;
+											BinaryData bd3d2 = GetLocationData(4);
+											PBYTE p3d2 = bd3d2.Data;
+											int objectOffset = GetInt(p3d2, 0x30 + objectId * 4, 4) + 0x30;
+
+											int subObjects = GetInt(p3d2, objectOffset + 12, 4);
+											int nextSubOffset = objectOffset + 40;
+											for (int ts = 0; ts < subObjects; ts++)
+											{
+												int thisSubOffset = nextSubOffset;
+												nextSubOffset = GetInt(p3d2, nextSubOffset, 4) + 0x30;
+
+												int sid = GetInt(p3d2, thisSubOffset + 0xc, 4);
+												if ((sid & 0xffff) == subObjectId)
+												{
+													int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
+													CTextureGroup* pTG = _allTextures.at(tex);
+													if (newTexture != tex)
+													{
+														CTextureGroup* pNewT = _allTextures.at(newTexture);
+														pTG->RealTexture = pNewT->pTexture;
+													}
+													else
+													{
+														pTG->RealTexture = NULL;
+													}
+												}
+											}
+
+											break;
+										}
+										case 2:
+										{
+											// Object translation
+											int p1 = GetInt(pA, 0, 4);
+											int p2 = GetInt(pA, 4, 4);
+											int p3 = GetInt(pA, 8, 4);
+											int p4 = GetInt(pA, 12, 4);
+											int p5 = GetInt(pA, 16, 4);
+											pA += 20;
+
+											float x = ((float)p2) / 65536.0f;
+											float y = ((float)p3) / 65536.0f;
+											float z = ((float)p4) / 65536.0f;
+
+											Animations[i].FrameDuration = (DWORD)(p5 * TIMER_SCALE);
+											_translationBuffer.translation[p1].x += x;
+											_translationBuffer.translation[p1].y += y;
+											_translationBuffer.translation[p1].z += z;
+											_translationChanged = TRUE;
+											PointingChanged = TRUE;
+											frameEnd = TRUE;
+											break;
+										}
+										case 3:
+										{
+											// Object visibility
+											// Get and hide object from parameter (must be set to -1 on initalization)
+											int objectId = GetInt(pA, 0, 4);
+											int visibility = GetInt(pA, 4, 4);
+											pA += 8;
+
+											ChangeVisibility(objectId, visibility, FALSE, L"Animation 4.3 ");
+
+											PointingChanged = TRUE;
+											break;
+										}
+										case 5:
+										{
+											// Object + subobject visibility
+											int objectId = GetInt(pA, 0, 4);
+											int subObjectId = GetInt(pA, 4, 4);
+											int visibility = GetInt(pA, 8, 4);
+											pA += 12;
+
+											ChangeVisibility(0x80000000 | (objectId << 16) | subObjectId, visibility, FALSE, L"Animation type 4.5 ");
+
+											PointingChanged = TRUE;
+											break;
+										}
+										case 6:
+										{
+											// Start indexed animation
+											int animix = GetInt(pA, 0, 4);
+											pA += 4;
+											StartIndexedAnimation(animix);
+											break;
+										}
+										case 7:
+										{
+											// Start indexed animation and wait for it to complete
+											int animix = GetInt(pA, 0, 4);
+											pA += 4;
+											StartIndexedAnimation(animix);
+											Animations[animix].ParentAnim = i;
+											Animations[i].Status = AnimationStatus::OnHold;
+											frameEnd = TRUE;
+											break;
+										}
+										case 8:
+										{
+											// Enable or disable path
+											int pid = GetInt(pA, 0, 4);
+											for (int p = 0; p < _pathCount; p++)
+											{
+												if (_paths[p].Id == pid)
+												{
+													_paths[p].enabled = GetInt(pA, 4, 4);
+													break;
+												}
+											}
+											//_paths[pix].allowLeave = false;	TODO: Check if player is currently inside path, if yes, allow leave
+											pA += 8;
+											break;
+										}
+									}
+									break;
+								}
+								case 14:
+								{
+									// Animated texture
+									int  animation = p1;
+									int texture = GetInt(pA, 0, 4);
+									int duration = GetInt(pA, 4, 4);
+									if (duration == 0)
+									{
+										duration = 3;// TODO: Find out what the default value should be (0 in 3 or 4 PD locations, no UAKM locations)
+									}
+									pA -= 4;
+									CTextureGroup* pTG = _allTextures.at(animation);
+									if (pTG->AnimatedTextureIndex >= pTG->Textures.size() - 1)
+									{
+										pTG->AnimatedTextureIndex = 0;
+									}
+									_allTextures.at(texture)->RealTexture = pTG->Textures.at(pTG->AnimatedTextureIndex++);
+									Animations[i].FrameDuration = (DWORD)(duration * TIMER_SCALE);
+									frameEnd = TRUE;
+									break;
+								}
+								case 15:
+								{
+									// Textures
+									int objectId = Animations[i].ObjectId;
+									int subObjectId = Animations[i].Parameter;
+									int newTexture = p1;
+
 									BinaryData bd3d2 = GetLocationData(4);
 									PBYTE p3d2 = bd3d2.Data;
 									int objectOffset = GetInt(p3d2, 0x30 + objectId * 4, 4) + 0x30;
@@ -3488,166 +3548,25 @@ void CLocation::Animate()
 										{
 											int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
 											CTextureGroup* pTG = _allTextures.at(tex);
-											if (newTexture != tex)
-											{
-												CTextureGroup* pNewT = _allTextures.at(newTexture);
-												pTG->RealTexture = pNewT->pTexture;
-											}
-											else
-											{
-												pTG->RealTexture = NULL;
-											}
+											CTextureGroup* pNewT = _allTextures.at(newTexture);
+											pTG->RealTexture = pNewT->pTexture;
 										}
 									}
 
-									break;
-								}
-								case 2:
-								{
-									// Object translation
-									int p1 = GetInt(pA, 0, 4);
-									int p2 = GetInt(pA, 4, 4);
-									int p3 = GetInt(pA, 8, 4);
-									int p4 = GetInt(pA, 12, 4);
-									int p5 = GetInt(pA, 16, 4);
-									pA += 20;
+									Animations[i].FrameDuration = Animations[i].ConstantFrameDuration;
+									if (pA >= Animations[i].AnimDataPointerEnd)
+									{
+										pA = Animations[i].AnimDataPointerInit;
+									}
 
-									float x = ((float)p2) / 65536.0f;
-									float y = ((float)p3) / 65536.0f;
-									float z = ((float)p4) / 65536.0f;
-
-									Animations[i].FrameDuration = (DWORD)(p5 * TIMER_SCALE);
-									_translationBuffer.translation[p1].x += x;
-									_translationBuffer.translation[p1].y += y;
-									_translationBuffer.translation[p1].z += z;
-									_translationChanged = TRUE;
-									PointingChanged = TRUE;
 									frameEnd = TRUE;
 									break;
 								}
-								case 3:
+								case 16:
 								{
-									// Object visibility
-									// Get and hide object from parameter (must be set to -1 on initalization)
-									int objectId = GetInt(pA, 0, 4);
-									int visibility = GetInt(pA, 4, 4);
-									pA += 8;
-
-									ChangeVisibility(objectId, visibility, FALSE, L"Animation 4.3 ");
-
-									PointingChanged = TRUE;
+									// Elevation, not animated
 									break;
 								}
-								case 5:
-								{
-									// Object + subobject visibility
-									int objectId = GetInt(pA, 0, 4);
-									int subObjectId = GetInt(pA, 4, 4);
-									int visibility = GetInt(pA, 8, 4);
-									pA += 12;
-
-									ChangeVisibility(0x80000000 | (objectId << 16) | subObjectId, visibility, FALSE, L"Animation type 4.5 ");
-
-									PointingChanged = TRUE;
-									break;
-								}
-								case 6:
-								{
-									// Start indexed animation
-									int animix = GetInt(pA, 0, 4);
-									pA += 4;
-									StartIndexedAnimation(animix);
-									break;
-								}
-								case 7:
-								{
-									// Start indexed animation and wait for it to complete
-									int animix = GetInt(pA, 0, 4);
-									pA += 4;
-									StartIndexedAnimation(animix);
-									Animations[animix].ParentAnim = i;
-									Animations[i].Status = AnimationStatus::OnHold;
-									frameEnd = TRUE;
-									break;
-								}
-								case 8:
-								{
-									// Enable or disable path
-									int pix = GetInt(pA, 0, 4);
-									if (pix >= 0 && pix < _pathCount)
-									{
-										_paths[pix].enabled = GetInt(pA, 4, 4);
-									}
-									//_paths[pix].allowLeave = false;	TODO: Check if player is currently inside path, if yes, allow leave
-									pA += 8;
-									break;
-								}
-								}
-								break;
-							}
-							case 14:
-							{
-								// Animated texture
-								int  animation = p1;
-								int texture = GetInt(pA, 0, 4);
-								int duration = GetInt(pA, 4, 4);
-								if (duration == 0)
-								{
-									duration = 3;// TODO: Find out what the default value should be (0 in 3 or 4 PD locations, no UAKM locations)
-								}
-								pA -= 4;
-								CTextureGroup* pTG = _allTextures.at(animation);
-								if (pTG->AnimatedTextureIndex >= pTG->Textures.size() - 1)
-								{
-									pTG->AnimatedTextureIndex = 0;
-								}
-								_allTextures.at(texture)->RealTexture = pTG->Textures.at(pTG->AnimatedTextureIndex++);
-								Animations[i].FrameDuration = (DWORD)(duration * TIMER_SCALE);
-								frameEnd = TRUE;
-								break;
-							}
-							case 15:
-							{
-								// Textures
-								int objectId = Animations[i].ObjectId;
-								int subObjectId = Animations[i].Parameter;
-								int newTexture = p1;
-
-								BinaryData bd3d2 = GetLocationData(4);
-								PBYTE p3d2 = bd3d2.Data;
-								int objectOffset = GetInt(p3d2, 0x30 + objectId * 4, 4) + 0x30;
-
-								int subObjects = GetInt(p3d2, objectOffset + 12, 4);
-								int nextSubOffset = objectOffset + 40;
-								for (int ts = 0; ts < subObjects; ts++)
-								{
-									int thisSubOffset = nextSubOffset;
-									nextSubOffset = GetInt(p3d2, nextSubOffset, 4) + 0x30;
-
-									int sid = GetInt(p3d2, thisSubOffset + 0xc, 4);
-									if ((sid & 0xffff) == subObjectId)
-									{
-										int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
-										CTextureGroup* pTG = _allTextures.at(tex);
-										CTextureGroup* pNewT = _allTextures.at(newTexture);
-										pTG->RealTexture = pNewT->pTexture;
-									}
-								}
-
-								Animations[i].FrameDuration = Animations[i].ConstantFrameDuration;
-								if (pA >= Animations[i].AnimDataPointerEnd)
-								{
-									pA = Animations[i].AnimDataPointerInit;
-								}
-
-								frameEnd = TRUE;
-								break;
-							}
-							case 16:
-							{
-								// Elevation, not animated
-								break;
-							}
 							}
 						}
 						else
@@ -3657,59 +3576,59 @@ void CLocation::Animate()
 							pA += 4;
 							switch (cmd)
 							{
-							case 0:
-							{
-								// Go back, x times
-								int p2 = GetInt(pA, 0, 4);
-								int p3 = GetInt(pA, 4, 4);
-								int p4 = GetInt(pA, 8, 4);
-								if (p3 == -1)
+								case 0:
 								{
-									// Initialization
-									p3 = p2;
-								}
+									// Go back, x times
+									int p2 = GetInt(pA, 0, 4);
+									int p3 = GetInt(pA, 4, 4);
+									int p4 = GetInt(pA, 8, 4);
+									if (p3 == -1)
+									{
+										// Initialization
+										p3 = p2;
+									}
 
-								SetInt(pA, 4, --p3, 4);
+									SetInt(pA, 4, --p3, 4);
 
-								pA += 12;
-								if (p3 > 0)
-								{
-									pA -= (p4 + 4);
-								}
-								else
-								{
-									// Reset counter
-									SetInt(pA, -8, -1, 4);
-								}
+									pA += 12;
+									if (p3 > 0)
+									{
+										pA -= (p4 + 4);
+									}
+									else
+									{
+										// Reset counter
+										SetInt(pA, -8, -1, 4);
+									}
 
-								break;
-							}
-							case 1:
-							{
-								// Go back, always
-								pA -= GetInt(pA, 0, 4);
-								break;
-							}
-							case 2:
-							{
-								// End animation
-								Animations[i].Status = AnimationStatus::Completed;
-								if (Animations[i].ParentAnim >= 0)
-								{
-									// Resume parent animation
-									Animations[Animations[i].ParentAnim].Status = AnimationStatus::Running;
+									break;
 								}
-								frameEnd = TRUE;
-								break;
-							}
-							case 3:
-							{
-								// Set frame duration (and end frame)
-								Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
-								pA += 4;
-								frameEnd = TRUE;
-								break;
-							}
+								case 1:
+								{
+									// Go back, always
+									pA -= GetInt(pA, 0, 4);
+									break;
+								}
+								case 2:
+								{
+									// End animation
+									Animations[i].Status = AnimationStatus::Completed;
+									if (Animations[i].ParentAnim >= 0)
+									{
+										// Resume parent animation
+										Animations[Animations[i].ParentAnim].Status = AnimationStatus::Running;
+									}
+									frameEnd = TRUE;
+									break;
+								}
+								case 3:
+								{
+									// Set frame duration (and end frame)
+									Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
+									pA += 4;
+									frameEnd = TRUE;
+									break;
+								}
 							}
 						}
 					}
@@ -3761,20 +3680,18 @@ void CLocation::RenderPath()
 
 void CLocation::SetMinY(float minY)
 {
-	//_y_adj = -pos.Elevation;
-	//_y_elevation = pos.Elevation;
-	_y_min = minY;
-	if (_y > minY)
+	_y_player_adjustment_min = minY;
+	if (_y_player_adjustment > minY)
 	{
-		_y = minY;
+		_y_player_adjustment = minY;
 	}
 }
 
 void CLocation::SetMaxY(float maxY)
 {
-	_y_max = maxY;
-	if (_y < maxY)
+	_y_player_adjustment_max = maxY;
+	if (_y_player_adjustment < maxY)
 	{
-		_y = maxY;
+		_y_player_adjustment = maxY;
 	}
 }

@@ -5,8 +5,9 @@ struct StartupPosition
 	float X;
 	float Y;
 	float Z;
-	float MinY;
-	float MaxY;
+	float InitialEyeLevel;
+	float MinYAdj;
+	float MaxYAdj;
 	float Elevation;
 	float Angle;
 };

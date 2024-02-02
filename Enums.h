@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef __ENUMS__
+#define __ENUMS__
+
 enum class VideoMode
 {
 	Embedded = 0,
@@ -51,3 +54,26 @@ enum class ModuleType
 	VidPhone = 21,
 	Crossword = 22,
 };
+
+enum class ActionType
+{
+	None = 0x00000000,
+	Look = 0x00000001,
+	Move = 0x00000002,
+	Get = 0x00000004,
+	OnOff = 0x00000008,
+	Talk = 0x00000010,
+	Open = 0x00000020,
+	Use = 0x00000040,
+	Terminate = 0x00008000,
+};
+
+enum class AnimationStatus
+{
+	NotStarted = 0,
+	Running = 1,
+	OnHold = 2,
+	Completed = 4
+};
+
+#endif

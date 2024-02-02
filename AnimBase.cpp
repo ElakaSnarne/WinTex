@@ -1,6 +1,7 @@
 #include "AnimBase.h"
 #include "Utilities.h"
 #include "Globals.h"
+#include "ShaderStructs.h"
 
 CAnimBase::CAnimBase()
 {
@@ -249,7 +250,9 @@ void CAnimBase::Skip()
 		_sourceVoice->Stop();
 		_audioFramesProcessed = _audioFramesQueued;
 	}
+
 	_audioBuffers.clear();
+
 	_done = TRUE;
 }
 

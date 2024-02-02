@@ -160,6 +160,7 @@
     <ClCompile Include="AnimBase.cpp" />
     <ClCompile Include="AreaData.cpp" />
     <ClCompile Include="BIC.cpp" />
+    <ClCompile Include="Elevation.cpp" />
     <ClCompile Include="PDCrosswordModule.cpp" />
     <ClCompile Include="DXMultiColouredText.cpp" />
     <ClCompile Include="Hint.cpp" />
@@ -167,6 +168,7 @@
     <ClCompile Include="HintModule.cpp" />
     <ClCompile Include="PDHintModule.cpp" />
     <ClCompile Include="PDInventoryModule.cpp" />
+    <ClCompile Include="PDLocationModule.cpp" />
     <ClCompile Include="PDMIDIPlayer.cpp" />
     <ClCompile Include="PDRitzSecurityKeypadModule.cpp" />
     <ClCompile Include="PDTravelModule.cpp" />
@@ -274,6 +276,7 @@
     <ClInclude Include="AreaData.h" />
     <ClInclude Include="BIC.h" />
     <ClInclude Include="BinaryData.h" />
+    <ClInclude Include="IntersectionInfo.h" />
     <ClInclude Include="PDCrosswordModule.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="PDHintModule.h" />
@@ -297,7 +300,9 @@
     <ClInclude Include="PDScriptState.h" />
     <ClInclude Include="PDTravelModule.h" />
     <ClInclude Include="PDVidPhoneModule.h" />
+    <ClInclude Include="Point.h" />
     <ClInclude Include="ResumeGameModule.h" />
+    <ClInclude Include="ShaderStructs.h" />
     <ClInclude Include="UAKMExamStruct.h" />
     <ClInclude Include="UAKMHintModule.h" />
     <ClInclude Include="UAKMScriptState.h" />

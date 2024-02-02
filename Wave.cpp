@@ -42,18 +42,22 @@ BOOL CWave::DecodeFrame()
 			pwfx->cbSize = 0;
 			_sourceVoice = CDXSound::CreateSourceVoice(pwfx, 0, 1.0f, this);
 		}
-		_sourceVoice->Start(0, 0);
 
-		XAUDIO2_BUFFER buf = { 0 };
-		buf.AudioBytes = _remainingAudioLength;
-		buf.pAudioData = _pInputBuffer + 0x2c;
-		_sourceVoice->SubmitSourceBuffer(&buf);
+		if (_sourceVoice != NULL)
+		{
+			_sourceVoice->Start(0, 0);
 
-		_audioFramesQueued = 1;
+			XAUDIO2_BUFFER buf = { 0 };
+			buf.AudioBytes = _remainingAudioLength;
+			buf.pAudioData = _pInputBuffer + 0x2c;
+			_sourceVoice->SubmitSourceBuffer(&buf);
 
-		_remainingAudioLength = 0;
+			_audioFramesQueued = 1;
 
-		_timeOfStart = GetTickCount64();
+			_remainingAudioLength = 0;
+
+			_timeOfStart = GetTickCount64();
+		}
 	}
 
 	return TRUE;

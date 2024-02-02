@@ -132,49 +132,7 @@ BOOL CUAKMMap::Init()
 					if (nextPtr != 0 && nextPtr < map.Length)
 					{
 						int entries = (nextPtr - ptr) / 10;
-						while (ptr < nextPtr)
-						{
-							int x = GetInt(data, ptr, 2);
-							int z = GetInt(data, ptr + 2, 2);
-							int y = GetInt(data, ptr + 4, 2);
-							int my = GetInt(data, ptr + 6, 2);
-							int a2 = GetInt(data, ptr + 8, 2);
-
-							StartupPosition pos;
-							pos.X = 0.0f;
-							pos.Y = 0.0f;
-							pos.Z = 0.0f;
-							pos.Angle = 0.0f;
-							if (x != 0xffff && y != 0xffff && z != 0xffff && my != 0xffff && a2 != 0xffff)
-							{
-								if ((x & 0x8000) != 0) x |= 0xffff0000;
-								if ((y & 0x8000) != 0) y |= 0xffff0000;
-								if ((z & 0x8000) != 0) z |= 0xffff0000;
-								if ((my & 0x8000) != 0) my |= 0xffff0000;
-
-								float fx = ((float)x) / 16.0f;
-								float fy = ((float)y) / 16.0f;
-								float fz = ((float)z) / 16.0f;
-								float fmy = ((float)my) / 16.0f;
-
-								float dy = (fy - fmy) / 6.0f;
-								float maxy = fmy + (dy * 8.0f);
-								float miny = fmy + (dy * 1.5f);
-
-								float a = ((float)a2) / 10.0f;
-
-								pos.X = -fx;
-								pos.Y = -fy;
-								pos.Z = -fz;
-								pos.MinY = -miny;
-								pos.MaxY = -maxy;
-								pos.Elevation = -fmy;
-								pos.Angle = -a * XM_PI / 180.0f;
-							}
-
-							pMD->StartupPositions.push_back(pos);
-							ptr += 10;
-						}
+						ReadStartupPositions(pMD, data, ptr, entries, 10);
 					}
 				}
 			}

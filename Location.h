@@ -14,6 +14,8 @@
 #include "LocationSprite.h"
 #include "LocationStructs.h"
 #include "ObjectMap.h"
+#include "Elevation.h"
+#include "ShaderStructs.h"
 
 class CLocation
 {
@@ -41,6 +43,7 @@ public:
 	void StopMappedAnimation(int index);
 	void StopIndexedAnimation(int index);
 	BOOL IsAnimationFinished(int index);
+	BOOL IsIndexedAnimationFinished(int index);
 	int GetAnimationFrame(int index);
 	int GetIndexedAnimationFrame(int index);
 	void Animate();
@@ -63,16 +66,23 @@ public:
 	static float _z;
 	static float _angle1;
 	static float _angle2;
-	static float _y_adj;
+	static float _y_player_adjustment;
+	static float _y_player_adjustment_min;
+	static float _y_player_adjustment_max;
 	static float _y_elevation;
-	static float _y_min;
-	static float _y_max;
 
 #ifdef DEBUG
 	void MoveObject(float delta, BOOL X, BOOL Y, BOOL Z);
 #endif
 
 protected:
+	void UpdateY()
+	{
+		_y = _y_elevation + _y_player_adjustment;
+	}
+
+	static CElevation* _pCurrentElevation;
+
 	int _currentLocationId;
 
 	//CMutex _locationMutex;
@@ -205,6 +215,7 @@ protected:
 
 	struct Path
 	{
+		int Id;
 		std::vector<DPoint> Points;
 		BOOL enabled;
 		BOOL allowLeave;
@@ -245,7 +256,7 @@ protected:
 	Animation Animations[50];
 
 	BinaryData GetLocationData(int index);
-	std::list<LPBYTE> Elevations;
+	std::list<CElevation*> Elevations;
 
 	ObjectVisibilityMapping* _improvedObjectMap;
 	void ChangeVisibility(int id, BOOL visible, BOOL setOnSubObjects, std::wstring header);

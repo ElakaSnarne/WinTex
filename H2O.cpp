@@ -307,11 +307,6 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 					tag40Offset += blockCount * 2 + 2;
 
 					t40Counter <<= 1;
-
-					if (t40v1 > 100)
-					{
-						int disaster = 0;
-					}
 				}
 			}
 			chunkOffset += chunkSize + 4;
@@ -341,11 +336,6 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 						int r = _colourTranslationTable[_pInputBuffer[paletteOffset++]];
 						int g = _colourTranslationTable[_pInputBuffer[paletteOffset++]];
 						int b = _colourTranslationTable[_pInputBuffer[paletteOffset++]];
-
-						if (videoMode == VideoMode::Embedded && c < 32)
-						{
-							r = g = b = 0;
-						}
 
 						int col = 0xff000000 | b | (g << 8) | (r << 16);
 						_pPalette[currentIndex++] = col;

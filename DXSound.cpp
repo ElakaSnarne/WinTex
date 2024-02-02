@@ -54,11 +54,14 @@ void CDXSound::Play(PBYTE pData, DWORD size)
 	pwfx->wBitsPerSample = 16;
 	pwfx->cbSize = 0;
 
-	if (_sourceVoice == NULL) XAudio2->CreateSourceVoice(&_sourceVoice, pwfx, 0, 1.0f, this);
-	_sourceVoice->Start(0, 0);
+	if (_sourceVoice == NULL)
+	{
+		_sourceVoice = CreateSourceVoice(pwfx, 0, 1.0f, this);
+	}
 
 	if (_sourceVoice != NULL)
 	{
+		_sourceVoice->Start(0, 0);
 		XAUDIO2_BUFFER buf = { 0 };
 		buf.AudioBytes = size - 64;
 		buf.pAudioData = pData + 64;

@@ -24,7 +24,7 @@ float CLocationModule::_smooth_movement_x = 0.0f;
 float CLocationModule::_smooth_movement_z = 0.0f;
 float CLocationModule::_speed = 0.0f;
 
-int CLocationModule::CurrentAction = 0;
+ActionType CLocationModule::CurrentAction = ActionType::None;
 
 CLocationModule::CLocationModule(int locationId, int startupPosition) : CModuleBase(ModuleType::Location)
 {
@@ -32,8 +32,8 @@ CLocationModule::CLocationModule(int locationId, int startupPosition) : CModuleB
 	_startupPosition = startupPosition;
 
 	CurrentObjectIndex = -1;
-	CurrentActions = 0;
-	CurrentAction = 0;
+	CurrentActions = ActionType::None;
+	CurrentAction = ActionType::None;
 	CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Crosshair;
 
 	_movement_forward = 0.0f;
@@ -148,6 +148,7 @@ void CLocationModule::Render()
 
 		if (!waitingForInput && !_environmentScriptState->WaitingForMediaToFinish && !_actionScriptState->WaitingForMediaToFinish && !_initScriptState->WaitingForMediaToFinish)
 		{
+			//_environmentScriptState->DebugMode = TRUE;
 			_scriptEngine->Execute(_environmentScriptState, CGameController::GetLocationEnvironmentScriptId());
 		}
 		else if (!CAnimationController::HasAnim() || CAnimationController::IsDone())
@@ -215,9 +216,9 @@ void CLocationModule::Render()
 		if (abs(_smooth_movement_z) < 0.01f && _movement_z == 0.0f) { _smooth_movement_z = 0.0f; }
 
 		int currentItemId = CGameController::GetCurrentItemId();
-		if (CurrentAction == ACTION_USE && currentItemId == -1)
+		if (CurrentAction == ActionType::Use && currentItemId == -1)
 		{
-			CurrentAction = 0;
+			CurrentAction = ActionType::None;
 		}
 
 		_location.Move(_smooth_movement_x, _movement_y, _smooth_movement_z, tmz);
@@ -230,11 +231,11 @@ void CLocationModule::Render()
 			if (hitObject == -1)
 			{
 				CurrentObjectIndex = -1;
-				CurrentActions = 0;
+				CurrentActions = ActionType::None;
 				// If action == Use, should not set Current Action to 0
-				if (CurrentAction != ACTION_USE)
+				if (CurrentAction != ActionType::Use)
 				{
-					CurrentAction = 0;
+					CurrentAction = ActionType::None;
 				}
 				CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Crosshair;
 			}
@@ -244,13 +245,13 @@ void CLocationModule::Render()
 				CurrentObjectIndex = hitObject;
 				CurrentActions = _scriptEngine->GetCurrentActions(_queryActionScriptState, CurrentObjectIndex);
 
-				if (CurrentAction != ACTION_USE && resetAction)
+				if (CurrentAction != ActionType::Use && resetAction)
 				{
-					if (CurrentActions != 0)
+					if (CurrentActions != ActionType::None)
 					{
 						// Set current action to be first in list of actions
-						CurrentAction = 1;
-						while ((CurrentActions & CurrentAction) == 0)
+						CurrentAction = ActionType::Look;
+						while ((CurrentActions & CurrentAction) == ActionType::None)
 						{
 							CurrentAction <<= 1;
 						}
@@ -259,7 +260,7 @@ void CLocationModule::Render()
 					}
 					else
 					{
-						CurrentAction = 0;
+						CurrentAction = ActionType::None;
 						CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Crosshair;
 					}
 				}
@@ -267,16 +268,16 @@ void CLocationModule::Render()
 		}
 
 		// Render texts in correct colour
-		int actions = CurrentActions;
+		ActionType actions = CurrentActions;
 		BOOL useYellow = TRUE;
 		if (currentItemId >= 0)
 		{
-			actions |= ACTION_USE;
+			actions |= ActionType::Use;
 			useYellow = (CurrentObjectIndex >= 0);
 		}
-		int action = CurrentAction;
+		ActionType action = CurrentAction;
 
-		int mask = 1;
+		ActionType mask = ActionType::Look;
 		int colour = -1;
 
 		float space = (dx.GetWidth() - _actionText[6].Width() - 20.0f) / 6;
@@ -287,7 +288,7 @@ void CLocationModule::Render()
 				// yellow
 				_actionText[i].SetColours(_currentActionColour1, _currentActionColour2, _currentActionColour3, _currentActionColour4);
 			}
-			else if ((actions & mask) != 0)
+			else if ((actions & mask) != ActionType::None)
 			{
 				// white
 				_actionText[i].SetColours(_actionColour1, _actionColour2, _actionColour3, _actionColour4);
@@ -314,7 +315,7 @@ void CLocationModule::Render()
 				CItems::RenderItemImage(currentItemId, (float)(dx.GetWidth() - 98), (float)(dx.GetHeight() - 78), FALSE);
 			}
 
-			if (action == ACTION_USE && currentItemId >= 0)
+			if (action == ActionType::Use && currentItemId >= 0)
 			{
 				CModuleController::Cursors[(int)CAnimatedCursor::CursorType::Crosshair].Render();
 				CItems::RenderItemImage(currentItemId, (float)(dx.GetWidth() / 2), (float)(dx.GetHeight() / 2), FALSE);
@@ -333,65 +334,65 @@ void CLocationModule::SelectMouseAction()
 {
 	switch (CurrentAction)
 	{
-	case ActionType::Look:
-	{
-		CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Look;
-		break;
-	}
-	case  ActionType::Move:
-	{
-		CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Move;
-		break;
-	}
-	case  ActionType::Get:
-	{
-		CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Grab;
-		break;
-	}
-	case  ActionType::OnOff:
-	{
-		CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::OnOff;
-		break;
-	}
-	case  ActionType::Talk:
-	{
-		CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Talk;
-		break;
-	}
-	case  ActionType::Open:
-	{
-		CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Open;
-		break;
-	}
+		case ActionType::Look:
+		{
+			CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Look;
+			break;
+		}
+		case  ActionType::Move:
+		{
+			CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Move;
+			break;
+		}
+		case  ActionType::Get:
+		{
+			CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Grab;
+			break;
+		}
+		case  ActionType::OnOff:
+		{
+			CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::OnOff;
+			break;
+		}
+		case  ActionType::Talk:
+		{
+			CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Talk;
+			break;
+		}
+		case  ActionType::Open:
+		{
+			CurrentActionMousePointerIndex = (int)CAnimatedCursor::CursorType::Open;
+			break;
+		}
 	}
 }
 
 void CLocationModule::CycleActions(BOOL allowUse)
 {
-	int actions = CurrentActions;
+	ActionType actions = CurrentActions;
 	if (allowUse && CGameController::GetCurrentItemId() >= 0)
 	{
-		actions |= ACTION_USE;
-		if (CurrentAction == 0)
+		actions |= ActionType::Use;
+		if (CurrentAction == ActionType::None)
 		{
-			CurrentAction = ACTION_USE >> 1;
+			CurrentAction = ActionType::Use >> 1;
 		}
 	}
 
-	if (actions != 0)
+	if (actions != ActionType::None)
 	{
 		CurrentAction <<= 1;
-		while (CurrentAction > 0 && (actions & CurrentAction) == 0)
+		while (CurrentAction != ActionType::None && (actions & CurrentAction) == ActionType::None)
 		{
-			if (CurrentAction == ACTION_USE && allowUse && CGameController::GetCurrentItemId() >= 0)
+			if (CurrentAction == ActionType::Use && allowUse && CGameController::GetCurrentItemId() >= 0)
 			{
 				break;
 			}
 
 			CurrentAction <<= 1;
-			if (CurrentAction == 0x8000)
+			if (CurrentAction == ActionType::Terminate)
 			{
-				CurrentAction = 1;
+				CurrentAction = ActionType::Look;
 			}
 		}
 
@@ -419,7 +420,7 @@ void CLocationModule::LoadLocation(int locationFileIndex, BinaryData script, std
 
 		if (CGameController::GetCurrentItemId() >= 0)
 		{
-			CurrentActions |= ACTION_USE;
+			CurrentActions |= ActionType::Use;
 		}
 	}
 	else
@@ -441,7 +442,7 @@ void CLocationModule::Resume()
 	CenterMouse();
 	SetCursorClipping();
 
-	if (_actionScriptState->WaitingForInput)
+	if (_actionScriptState->WaitingForInput || _actionScriptState->WaitingForExternalModule)
 	{
 		_scriptEngine->Resume(_actionScriptState, TRUE);
 	}
@@ -479,7 +480,7 @@ void CLocationModule::BeginAction()
 {
 	if (!CAnimationController::HasAnim())
 	{
-		if (CurrentAction != 0)
+		if (CurrentAction != ActionType::None)
 		{
 			ClearCaptions(pDisplayCaptions);
 
@@ -488,9 +489,9 @@ void CLocationModule::BeginAction()
 			{
 				// Find script with id same as current object index
 				int currentItemId = CGameController::GetCurrentItemId();
-				_scriptEngine->PermformAction(_actionScriptState, CurrentObjectIndex, CurrentAction, CurrentAction == ACTION_USE ? currentItemId : -1);
+				_scriptEngine->PermformAction(_actionScriptState, CurrentObjectIndex, CurrentAction, CurrentAction == ActionType::Use ? currentItemId : -1);
 
-				if (CurrentAction != ACTION_USE || CGameController::GetCurrentItemId() != currentItemId)
+				if (CurrentAction != ActionType::Use || CGameController::GetCurrentItemId() != currentItemId)
 				{
 					CycleActions(FALSE);
 				}
@@ -531,7 +532,7 @@ void CLocationModule::Cycle()
 			_scriptEngine->Resume(_actionScriptState, TRUE);
 		}
 	}
-	else if (CurrentActions != 0 || CGameController::GetCurrentItemId() >= 0)
+	else if (CurrentActions != ActionType::None || CGameController::GetCurrentItemId() >= 0)
 	{
 		CycleActions(TRUE);
 	}

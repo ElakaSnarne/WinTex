@@ -51,8 +51,7 @@ void CUAKMCodePanelModule::Render()
 		}
 		else if (_correctFrame == 1 && diff >= 1000)
 		{
-			CModuleController::Pop(this);
-			return;
+			return CModuleController::Pop(this);
 		}
 	}
 	else if (_wrongFrame > 0)
@@ -207,17 +206,7 @@ void CUAKMCodePanelModule::Initialize()
 		_screen = dd.File2.Data;
 
 		LPBYTE pPal = dd.File1.Data;
-		for (int c = 0; c < 256; c++)
-		{
-			double r = pPal[c * 3 + 0];
-			double g = pPal[c * 3 + 1];
-			double b = pPal[c * 3 + 2];
-			int ri = (byte)((r * 255.0) / 63.0);
-			int gi = (byte)((g * 255.0) / 63.0);
-			int bi = (byte)((b * 255.0) / 63.0);
-			int col = 0xff000000 | bi | (gi << 8) | (ri << 16);
-			_palette[c] = col;
-		}
+		ReadPalette(pPal);
 
 		delete[] pPal;
 	}
@@ -358,13 +347,13 @@ void CUAKMCodePanelModule::BeginAction()
 	if (_inputEnabled)
 	{
 		// Check if key is hit
-		LPBYTE pTest1 = _files[DAT_COORDS1];
-		LPBYTE pTest2 = _files[DAT_COORDS2];
+		//LPBYTE pTest1 = _files[DAT_COORDS1];
+		LPBYTE pButtonCoordinates = _files[DAT_COORDS2];
 
 		int x = static_cast<int>((_cursorPosX - _left) / _scale);
 		int y = static_cast<int>((_cursorPosY - _top) / _scale);
 
-		LPBYTE scan = pTest2;
+		LPBYTE scan = pButtonCoordinates;
 		int i = 0;
 		int hit = -1;
 		while (*scan != 0xff)

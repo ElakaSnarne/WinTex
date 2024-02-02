@@ -138,7 +138,7 @@ void CConstantBuffers::SetVisibility(CDirectX& dx, VisibilityBufferType visibili
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	dx.GetDeviceContext()->Map(_visibility, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	VisibilityBufferType* dataPtr = (VisibilityBufferType*)mappedResource.pData;
-	CopyMemory(&dataPtr->visibility[0], &visibility.visibility[0], sizeof(XMFLOAT4) * 3000);
+	CopyMemory(&dataPtr->visibility[0], &visibility.visibility[0], sizeof(visibility.visibility));
 	dx.GetDeviceContext()->Unmap(_visibility, 0);
 	dx.GetDeviceContext()->VSSetConstantBuffers(3, 1, &_visibility);
 	dx.GetDeviceContext()->PSSetConstantBuffers(3, 1, &_visibility);

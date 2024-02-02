@@ -12,7 +12,7 @@ cbuffer WorldBuffer : register(b1)
 
 cbuffer VisibilityBuffer : register(b3)
 {
-	float4 visibility[3000];
+	float4 visibility[4096];
 };
 
 cbuffer TexFontBuffer : register(b4)
@@ -43,6 +43,7 @@ struct TexturedVertexInputType
 	float4 position : POSITION;
 	float2 tex : TEXCOORD0;
 	float2 objectIndex : TEXCOORD1;
+	float4 objectParameters : TEXCOORD2;
 };
 
 struct TexturedPixelInputType
@@ -50,6 +51,7 @@ struct TexturedPixelInputType
 	float4 position : SV_POSITION;
 	float2 tex : TEXCOORD0;
 	float2 objectIndex : TEXCOORD1;
+	float4 objectParameters : TEXCOORD2;
 };
 
 TexturedPixelInputType OrthoVS(OrthoVertexInputType input)
@@ -61,6 +63,7 @@ TexturedPixelInputType OrthoVS(OrthoVertexInputType input)
 	output.position = mul(output.position, orthoMatrix);
 	output.tex = input.tex;
 	output.objectIndex.y = -1.0f;
+	output.objectParameters = float4(0,0,0,0);
 	return output;
 }
 
@@ -76,6 +79,7 @@ TexturedPixelInputType TexturedVS(TexturedVertexInputType input)
 	output.position = mul(output.position, projectionMatrix);
 	output.tex = input.tex;
 	output.objectIndex = input.objectIndex;
+	output.objectParameters = input.objectParameters;
 	return output;
 }
 
@@ -83,7 +87,7 @@ float4 TexturedPS(TexturedPixelInputType input) : SV_TARGET
 {
 	float4 c = shaderTexture.Sample(AASampleType, input.tex);
 
-	if (c.a < 0.25f)
+	if (input.objectParameters.x > 0.0f && c.a < 0.25f)
 	{
 		discard;
 	}

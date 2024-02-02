@@ -41,9 +41,9 @@ public:
 
 	int TopItemOffset;
 
-	int AllowedAction;
+	ActionType AllowedAction;
 	BOOL QueryAction;
-	int CurrentAction;
+	ActionType CurrentAction;
 
 	int LastDialoguePoint;
 	int FrameTrigger;

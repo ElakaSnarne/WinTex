@@ -6,6 +6,7 @@
 #include <Windows.h>
 #include "Map.h"
 #include "Mutex.h"
+#include <list>
 
 class CAmbientAudio : public IXAudio2VoiceCallback
 {
@@ -16,7 +17,7 @@ public:
 		_pData = NULL;
 		_length = 0;
 		_sourceVoice = NULL;
-		_finished = FALSE;
+		_finished = TRUE;
 	};
 	~CAmbientAudio();
 
@@ -24,14 +25,19 @@ public:
 	STDMETHOD_(void, OnVoiceProcessingPassEnd)() { }
 	STDMETHOD_(void, OnStreamEnd)() { }
 	STDMETHOD_(void, OnBufferStart)(void*) { }
-	STDMETHOD_(void, OnBufferEnd)(void*) { _finished = TRUE; }
+	STDMETHOD_(void, OnBufferEnd)(void*)
+	{
+		Stop();
+		_finished = TRUE;
+	}
 	STDMETHOD_(void, OnLoopEnd)(void*) { }
 	STDMETHOD_(void, OnVoiceError)(void*, HRESULT) { }
 
 	static void Clear();
 	static void Loop(CMapData* mapEntry, int entry1, int entry2);
-	static void LoopPD(CMapData* mapEntry, int entry1, int entry2);
-	static void Play(CMapData* mapEntry, int entry);
+	static void LoadPD(CMapData* mapEntry, int entry1, int entry2);
+	static void LoopPD(int entry);
+	static void Play(CMapData* mapEntry, int entry, BOOL playAlways);
 	static void Stop(int entry);
 	static void StopAll();
 	void Loop();
@@ -44,6 +50,8 @@ public:
 
 	void static SetPan(int entry, float pan);
 	void SetPan(float pan);
+
+	ULONGLONG TimeDisposed;
 
 protected:
 	static BOOL Load(CMapData* mapEntry, int entry);
@@ -60,4 +68,8 @@ protected:
 	IXAudio2SourceVoice* _sourceVoice;
 
 	static std::unordered_map<int, CAmbientAudio*> Sounds;
+
+	static std::list<CAmbientAudio*> SoundsToDelete;
+
+	static void GC();
 };

@@ -56,7 +56,7 @@ void CPDMainMenuModule::SetupScreen()
 	float imageLeft = (w - iw) / 2;
 	pBmp->SetPosition(imageLeft, imageTop);
 
-	// Buttons should be inside moon
+	// Buttons should be inside moon (need to find different reference point for pd)
 	// Moon covers about 67% of the width and 70% of the height
 	float moonW = iw * 0.67f;
 	float moonH = ih * 0.64f;

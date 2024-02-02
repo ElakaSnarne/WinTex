@@ -24,8 +24,10 @@ void CShaders::SelectOrthoShader()
 		{
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
-		_orthoShader = new CDXShader(&dx, IDR_SHADER, "OrthoVS", vertexShaderProfile, "TexturedPS", pixelShaderProfile, tsied, 2);
+		_orthoShader = new CDXShader(&dx, IDR_SHADER, "OrthoVS", vertexShaderProfile, "TexturedPS", pixelShaderProfile, tsied, 4);
 	}
 
 	_orthoShader->Activate(&dx);
@@ -40,8 +42,9 @@ void CShaders::SelectTextureShader()
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
-		_textureShader = new CDXShader(&dx, IDR_SHADER, "TexturedVS", vertexShaderProfile, "TexturedPS", pixelShaderProfile, tsied, 3);
+		_textureShader = new CDXShader(&dx, IDR_SHADER, "TexturedVS", vertexShaderProfile, "TexturedPS", pixelShaderProfile, tsied, 4);
 	}
 
 	_textureShader->Activate(&dx);

@@ -34,46 +34,7 @@ BOOL CPDMap::Init()
 						int offsetToMapData = GetInt(mdata, inPtr + 4, 4);
 						inPtr += 8;
 
-						for (int sp = 0; sp < numberOfStartupPositions; sp++)
-						{
-							StartupPosition pos;
-
-							int ix = GetInt(mdata, inPtr, 2);
-							if ((ix & 0x8000) != 0) ix |= ~0xffff;
-							inPtr += 2;
-							int iz = GetInt(mdata, inPtr, 2);
-							if ((iz & 0x8000) != 0) iz |= ~0xffff;
-							inPtr += 2;
-							int iy = GetInt(mdata, inPtr, 2);
-							if ((iy & 0x8000) != 0) iy |= ~0xffff;
-							inPtr += 2;
-							int iym = GetInt(mdata, inPtr, 2);
-							if ((iym & 0x8000) != 0) iym |= ~0xffff;
-							inPtr += 2;
-							int a = GetInt(mdata, inPtr, 2);
-							inPtr += 2;
-
-							float x = ((float)ix) / 16.0f;
-							float z = ((float)iz) / 16.0f;
-							float y = ((float)iy) / 16.0f;
-							float ym = ((float)iym) / 16.0f;
-							float dy = (y - ym) / 6.0f;
-							float maxy = ym + (dy * 8.0f);
-							float miny = ym + (dy * 1.5f);
-							float fa = ((float)a) / 10.0f;
-
-							pos.X = -x;
-							pos.Y = -y;
-							pos.Z = -z;
-							pos.MinY = -miny;
-							pos.MaxY = -maxy;
-							pos.Elevation = -ym;
-							pos.Angle = -fa * XM_PI / 180.0f;
-
-							inPtr += 14;
-
-							pMD->StartupPositions.push_back(pos);
-						}
+						inPtr = ReadStartupPositions(pMD, mdata, inPtr, numberOfStartupPositions, 24);
 
 						// FF FF
 						inPtr += 2;

@@ -173,7 +173,7 @@ CPDScript::~CPDScript()
 {
 }
 
-void CPDScript::PermformAction(CScriptState* pState, int id, int action, int item)
+void CPDScript::PermformAction(CScriptState* pState, int id, ActionType action, int item)
 {
 	//pState->ExecutionPointer = pState->GetScript(id);
 	pState->CurrentAction = action;
@@ -204,16 +204,11 @@ void CPDScript::Resume(CScriptState* pState, BOOL breakWait)
 	{
 		pState->WaitingForMediaToFinish = FALSE;
 		pState->WaitingForInput = FALSE;
+		pState->WaitingForExternalModule = FALSE;
 	}
 
-	//WCHAR buffer[40];
-
-	while (CModuleController::CurrentModule == pThisModule && pState->ExecutionPointer > -1 && pState->ExecutionPointer < pState->Length && pState->Script != NULL && !pState->WaitingForMediaToFinish && !pState->WaitingForInput)
+	while (CModuleController::CurrentModule == pThisModule && pState->ExecutionPointer > -1 && pState->ExecutionPointer < pState->Length && pState->Script != NULL && !pState->WaitingForMediaToFinish && !pState->WaitingForInput && !pState->WaitingForExternalModule)
 	{
-		//_itow(pState->ExecutionPointer, buffer, 16);
-		//OutputDebugString(buffer);
-		//OutputDebugString(L" - ");
-
 		// Execute script
 		byte cmd = pState->Script[pState->ExecutionPointer++];
 		if (cmd < 0 || cmd > 0x92)
@@ -510,7 +505,7 @@ void CPDScript::Function_16(CScriptState* pState)
 	int anim = pState->Read8();
 	int address = pState->Read16();
 
-	if (_pLoc != NULL && _pLoc->GetAnimationFrame(anim) == -1)
+	if (_pLoc != NULL && _pLoc->IsIndexedAnimationFinished(anim))
 	{
 		pState->ExecutionPointer = address;
 	}
@@ -640,11 +635,12 @@ void CPDScript::Function_21(CScriptState* pState)
 
 void CPDScript::Function_22(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_22");
+	DebugTrace(pState, L"Function_22 - Play Cached Sound Buffer");
 
-	// byte, byte
-	//text += $"??? {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 1):X2}";
-	pState->ExecutionPointer += 2;
+	int buffer = pState->Read8();
+	int  unknown = pState->Read8();
+
+	CAmbientAudio::LoopPD(buffer - 1);
 }
 
 void CPDScript::Function_23(CScriptState* pState)
@@ -762,22 +758,24 @@ void CPDScript::Function_2F(CScriptState* pState)
 	switch (function)
 	{
 		// From 0 to 45
-	case 5:
-	{
-		// Vidphone
-		CModuleController::Push(new CPDVidPhoneModule());
-		break;
-	}
-	case 34:
-	{
-		// Ritz door security keypad
-		CModuleController::Push(new CPDRitzSecurityKeypadModule());
-		break;
-	}
-	default:
-	{
-		break;
-	}
+		case 5:
+		{
+			// Vidphone
+			CModuleController::Push(new CPDVidPhoneModule());
+			pState->WaitingForInput = TRUE;
+			break;
+		}
+		case 34:
+		{
+			// Ritz door security keypad
+			CModuleController::Push(new CPDRitzSecurityKeypadModule());
+			pState->WaitingForInput = TRUE;
+			break;
+		}
+		default:
+		{
+			break;
+		}
 	}
 }
 
@@ -992,14 +990,12 @@ void CPDScript::Function_3A(CScriptState* pState)
 
 void CPDScript::Function_3B(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_3B - Loop Audio");
+	DebugTrace(pState, L"Function_3B - Load Audio Buffer to Cache");
 
 	int entry = pState->Read8();
-	int i3 = pState->Read8();
-	if (i3 != 0x18)	// TODO: This is cheating, find out why alley sound is wrong
-	{
-		CAmbientAudio::LoopPD(_mapEntry, entry, i3);
-	}
+	int buffer = pState->Read8();
+
+	CAmbientAudio::LoadPD(_mapEntry, entry, buffer - 1);
 }
 
 void CPDScript::Function_3C(CScriptState* pState)
@@ -1816,7 +1812,7 @@ void CPDScript::Function_92(CScriptState* pState)
 	pState->ExecutionPointer++;
 }
 
-int CPDScript::GetCurrentActions(CScriptState* pState, int currentObjectIndex)
+ActionType CPDScript::GetCurrentActions(CScriptState* pState, int currentObjectIndex)
 {
 	if (currentObjectIndex >= 0)
 	{
@@ -1865,7 +1861,7 @@ void CPDScript::PlayAudio(int index)
 
 void CPDScript::PlaySound(int index)
 {
-	CAmbientAudio::Play(_mapEntry, index);
+	CAmbientAudio::Play(_mapEntry, index, FALSE);
 }
 
 void CPDScript::PlayVideo(int index, int rate)

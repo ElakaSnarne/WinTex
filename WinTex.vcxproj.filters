@@ -46,6 +46,9 @@
     <Filter Include="DirectX\Warning Wrappers">
       <UniqueIdentifier>{69ae6fc5-d3f9-4859-bd05-059168581211}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shared\Structs">
+      <UniqueIdentifier>{87ccbb0a-6334-44d8-b711-affd7a5bfc8f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXButton.cpp">
@@ -358,6 +361,12 @@
       <Filter>Modules\PD</Filter>
     </ClCompile>
     <ClCompile Include="PDTravelModule.cpp">
+      <Filter>Modules\PD</Filter>
+    </ClCompile>
+    <ClCompile Include="Elevation.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="PDLocationModule.cpp">
       <Filter>Modules\PD</Filter>
     </ClCompile>
   </ItemGroup>
@@ -677,9 +686,6 @@
     <ClInclude Include="PDLocationModule.h">
       <Filter>Modules\PD</Filter>
     </ClInclude>
-    <ClInclude Include="Elevation.h">
-      <Filter>Structs</Filter>
-    </ClInclude>
     <ClInclude Include="UAKMExamStruct.h">
       <Filter>Structs</Filter>
     </ClInclude>
@@ -745,6 +751,18 @@
     </ClInclude>
     <ClInclude Include="PDTravelModule.h">
       <Filter>Modules\PD</Filter>
+    </ClInclude>
+    <ClInclude Include="Elevation.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectionInfo.h">
+      <Filter>Shared\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderStructs.h">
+      <Filter>Shared\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Point.h">
+      <Filter>Shared\Structs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

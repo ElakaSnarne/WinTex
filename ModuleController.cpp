@@ -31,9 +31,9 @@ BOOL CModuleController::Init(CMap* map, CMap* dmap)
 		CMapData* pMap = NULL;
 		while ((pMap = map->Get(mapIndex)) != NULL)
 		{
-			Trace(L"Map ");
+			Trace(L"DMap ");
 			TraceLine(mapIndex++);
-			Trace(L"Location file: ");
+			Trace(L"Dialogue file: ");
 			TraceLine(CGameController::GetFileName(pMap->LocationFileIndex).c_str());
 			Trace(L"Script file: ");
 			TraceLine(CGameController::GetFileName(pMap->ScriptFileIndex).c_str());

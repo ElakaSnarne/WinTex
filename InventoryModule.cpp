@@ -386,7 +386,7 @@ void CInventoryModule::OnUse(LPVOID data)
 	// Set current item, resume
 	CGameController::SetCurrentItemId(_selectedItemId);
 	// Set current action to be "Use"
-	CLocationModule::CurrentAction = ACTION_USE;
+	CLocationModule::CurrentAction = ActionType::Use;
 	OnResume(NULL);
 }
 

@@ -28,9 +28,9 @@ void CScriptState::Clear()
 
 	Mode = InteractionMode::None;
 
-	AllowedAction = 0;
+	AllowedAction =  ActionType::None;
 	QueryAction = FALSE;
-	CurrentAction = 0;
+	CurrentAction = ActionType::None;
 
 	LastDialoguePoint = -1;
 	FrameTrigger = -1;

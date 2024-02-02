@@ -54,7 +54,7 @@ protected:
 	static LPBYTE _examData;
 	static int _examStructSize;
 
-	enum ExminationFlag
+	enum class ExminationFlag
 	{
 		Video = 1,
 		Image = 2,

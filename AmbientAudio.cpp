@@ -4,12 +4,15 @@
 
 std::unordered_map<int, CAmbientAudio*> CAmbientAudio::Sounds;
 
+std::list<CAmbientAudio*> CAmbientAudio::SoundsToDelete;
+
 CAmbientAudio::CAmbientAudio(BinaryData bd)
 {
 	_sourceVoice = NULL;
 	_pData = bd.Data;
 	_length = bd.Length;
-	_finished = FALSE;
+	_finished = TRUE;
+	TimeDisposed = 0;
 }
 
 CAmbientAudio::~CAmbientAudio()
@@ -34,7 +37,9 @@ void CAmbientAudio::Clear()
 {
 	for (auto it : Sounds)
 	{
-		delete it.second;
+		it.second->Stop();
+		it.second->TimeDisposed = GetTickCount64();
+		SoundsToDelete.push_back(it.second);
 	}
 
 	Sounds.clear();
@@ -97,19 +102,43 @@ void CAmbientAudio::Loop(CMapData* mapEntry, int entry1, int entry2)
 	}
 }
 
-void CAmbientAudio::LoopPD(CMapData* mapEntry, int entry1, int entry2)
+void CAmbientAudio::LoadPD(CMapData* mapEntry, int entry1, int entry2)
 {
-	int entry = entry1 > 0 ? entry1 : entry2;
-	if (LoadPD(mapEntry, entry))
+	if (Sounds.find(entry2) != Sounds.end())
+	{
+		return;	// Already loaded
+	}
+
+	// Entry does not exist, load the file
+	if (entry1 < mapEntry->AudioMap.size())
+	{
+		FileMap fm = mapEntry->AudioMap[entry1];
+		std::wstring file = CGameController::GetFileName(fm.File);
+		BinaryData bd = LoadEntry(file.c_str(), fm.Entry);
+		if (bd.Data != NULL)
+		{
+			Sounds[entry2] = new CAmbientAudio(bd);
+		}
+	}
+}
+
+void CAmbientAudio::LoopPD(int entry)
+{
+	if (Sounds.find(entry) == Sounds.end())
+	{
+		return;	// Not loaded
+	}
+
+	if (Sounds[entry]->Finished())
 	{
 		Sounds[entry]->Loop();
 	}
 }
 
-void CAmbientAudio::Play(CMapData* mapEntry, int entry)
+void CAmbientAudio::Play(CMapData* mapEntry, int entry, BOOL playAlways)
 {
 	CAmbientAudio* pSound = Find(entry);
-	if (pSound == NULL || pSound->Finished())
+	if (pSound == NULL || pSound->Finished() || playAlways)
 	{
 		if (Load(mapEntry, entry))
 		{
@@ -185,6 +214,7 @@ void CAmbientAudio::Play(BOOL loop)
 		{
 			buf.LoopCount = XAUDIO2_LOOP_INFINITE;
 		}
+
 		_sourceVoice->SubmitSourceBuffer(&buf);
 	}
 }
@@ -242,11 +272,14 @@ void CAmbientAudio::SetVolume(int entry, float volume)
 
 void CAmbientAudio::SetVolume(float volume)
 {
+	if (_sourceVoice != NULL)
+	{
 #ifdef DEBUG
-	Trace(L"Setting sound volume to ");
-	TraceLine(volume);
+		Trace(L"Setting sound volume to ");
+		TraceLine(volume);
 #endif
-	_sourceVoice->SetVolume(volume);
+		_sourceVoice->SetVolume(volume);
+	}
 }
 
 CAmbientAudio* CAmbientAudio::Find(int entry)
@@ -279,12 +312,34 @@ void CAmbientAudio::SetPan(int entry, float pan)
 
 void CAmbientAudio::SetPan(float pan)
 {
+	if (_sourceVoice != NULL)
+	{
 #ifdef DEBUG
-	Trace(L"Setting sound pan to ");
-	TraceLine(pan);
+		Trace(L"Setting sound pan to ");
+		TraceLine(pan);
 #endif
-	float matrix[2];
-	matrix[0] = pan < 0 ? 1 : 1 - pan;
-	matrix[1] = pan > 0 ? 1 : 1 + pan;
-	_sourceVoice->SetOutputMatrix(NULL, 1, 2, matrix);
+		float matrix[2];
+		matrix[0] = pan < 0 ? 1 : 1 - pan;
+		matrix[1] = pan > 0 ? 1 : 1 + pan;
+		_sourceVoice->SetOutputMatrix(NULL, 1, 2, matrix);
+	}
+}
+
+void CAmbientAudio::GC()
+{
+	ULONGLONG now = GetTickCount64();
+	std::list<CAmbientAudio*> deleteThese;
+	for (auto it : SoundsToDelete)
+	{
+		if ((now - it->TimeDisposed) >= 60000)
+		{
+			deleteThese.push_back(it);
+		}
+	}
+
+	for (auto it : deleteThese)
+	{
+		SoundsToDelete.remove(it);
+		delete it;
+	}
 }

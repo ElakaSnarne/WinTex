@@ -127,7 +127,7 @@ CUAKMScript::~CUAKMScript()
 {
 }
 
-void CUAKMScript::PermformAction(CScriptState* pState, int id, int action, int item)
+void CUAKMScript::PermformAction(CScriptState* pState, int id, ActionType action, int item)
 {
 	pState->CurrentAction = action;
 	if (item > 0)
@@ -1526,10 +1526,10 @@ void CUAKMScript::Play(CScriptState* pState, int index, int bank, int rate)
 
 void CUAKMScript::PlayAudio(CScriptState* pState, int index)
 {
-	CAmbientAudio::Play(_mapEntry, index);
+	CAmbientAudio::Play(_mapEntry, index, TRUE);
 }
 
-int CUAKMScript::GetCurrentActions(CScriptState* pState, int currentObjectIndex)
+ActionType CUAKMScript::GetCurrentActions(CScriptState* pState, int currentObjectIndex)
 {
 	if (currentObjectIndex >= 0)
 	{

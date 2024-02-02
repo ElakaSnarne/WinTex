@@ -29,6 +29,7 @@ protected:
 
 	int _originalPalette[256];
 	int _palette[256];
+	void ReadPalette(LPBYTE pPalette);
 	std::unordered_map<int, LPBYTE> _files;
 
 	LPBYTE _data;

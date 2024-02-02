@@ -57,29 +57,29 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 {
 	switch (message)
 	{
-	case WM_ACTIVATEAPP:
-		PostThreadMessage(CModuleController::MainThreadId, message, wParam, lParam);
-		return 0;
-		break;
-	case WM_DESTROY:
-	{
-		// close the application entirely
-		_runDXThread = FALSE;
-		PostQuitMessage(0);
-		return 0;
-	}
-	case WM_KEYUP:
-	case WM_KEYDOWN:
-	{
-		PostThreadMessage(CModuleController::D3DThreadId, message, wParam, lParam);
-		return 0;
-		break;
-	}
-	case WM_SIZE:
-	{
-		dx.Resize(lParam & 0x7fff, (lParam >> 16) & 0x7fff);
-		break;
-	}
+		case WM_ACTIVATEAPP:
+			PostThreadMessage(CModuleController::MainThreadId, message, wParam, lParam);
+			return 0;
+			break;
+		case WM_DESTROY:
+		{
+			// close the application entirely
+			_runDXThread = FALSE;
+			PostQuitMessage(0);
+			return 0;
+		}
+		case WM_KEYUP:
+		case WM_KEYDOWN:
+		{
+			PostThreadMessage(CModuleController::D3DThreadId, message, wParam, lParam);
+			return 0;
+			break;
+		}
+		case WM_SIZE:
+		{
+			dx.Resize(lParam & 0x7fff, (lParam >> 16) & 0x7fff);
+			break;
+		}
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
@@ -133,17 +133,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		// create the window and use the result as the handle
 		_hWnd = CreateWindowEx(0,
-			L"WinTex",									// name of the window class
-			windowTitle.c_str(),						// title of the window in release mode
-			WS_CAPTION,									// window style
-			windowX,									// x-position of the window
-			windowY,									// y-position of the window
-			windowWidth,								// width of the window
-			windowHeight,								// height of the window
-			NULL,										// we have no parent window, NULL
-			NULL,										// we aren't using menus, NULL
-			hInstance,									// application handle
-			NULL);										// used with multiple windows, NULL
+							   L"WinTex",									// name of the window class
+							   windowTitle.c_str(),						// title of the window in release mode
+							   WS_CAPTION,									// window style
+							   windowX,									// x-position of the window
+							   windowY,									// y-position of the window
+							   windowWidth,								// width of the window
+							   windowHeight,								// height of the window
+							   NULL,										// we have no parent window, NULL
+							   NULL,										// we aren't using menus, NULL
+							   hInstance,									// application handle
+							   NULL);										// used with multiple windows, NULL
 
 		ShowWindow(_hWnd, nCmdShow);
 		ShowCursor(FALSE);
@@ -321,9 +321,9 @@ DWORD WINAPI Direct3DThread(LPVOID lpParameter)
 			CGamepadController::GamepadController->Update();	// Get joystick events
 			CModuleController::Render();
 		}
-		catch (void*)
+		catch (...)
 		{
-			int debug = 0;
+			MessageBox(NULL, L"Exception", L"Exception", 0);
 		}
 	}
 
@@ -340,7 +340,7 @@ DWORD WINAPI TimerThread(LPVOID lpParameter)
 		ULONGLONG now = GetTickCount64();
 		CGameController::Tick((int)(now - time));
 		time = now;
-	
+
 		Sleep(50);
 	}
 

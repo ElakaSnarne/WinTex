@@ -1,5 +1,7 @@
 #pragma once
+
 #include "DXBase.h"
+#include "ShaderStructs.h"
 
 class CDXControl : public CDXBase
 {

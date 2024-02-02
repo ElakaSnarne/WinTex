@@ -29,6 +29,8 @@ BOOL CPDGame::Init()
 		CResumeGameModule::SetTextColours(0, 0, 0xffff0000, 0);
 		CResumeGameModule::SetHeaderColours(0, 0, -1, 0);
 		CDXDialogueOption::SetColours(0, 0, 0xff000000, 0);
+		CElevation::ElevationModifier = 0.0f;
+		CElevation::ElevationCheckModifier = 0.2f;
 
 		// Make sure Tex player exists
 		if (!CFile::Exists(L"PLAYERS\\TEX___00.PLR"))

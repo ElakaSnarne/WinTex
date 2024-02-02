@@ -57,7 +57,7 @@ BinaryData LoadEntry(LPCWSTR fileName, int itemIndex)
 					{
 						int offset1 = GetInt(header, 2 + itemIndex * 4, 4);
 						int offset2 = GetInt(header, 6 + itemIndex * 4, 4);
-						if (offset2 > offset1&& offset1 >= (2 + count * 4))
+						if (offset2 > offset1 && offset1 >= (2 + count * 4))
 						{
 							int size = offset2 - offset1;
 							LPBYTE pBuffer = new BYTE[size];
@@ -133,7 +133,7 @@ DoubleData LoadDoubleEntry(LPCWSTR fileName, int itemIndex)
 						int offset1 = GetInt(header, 2 + itemIndex * 4, 4);
 						int offset2 = GetInt(header, 6 + itemIndex * 4, 4);
 						int offset3 = GetInt(header, 10 + itemIndex * 4, 4);
-						if (offset2 > offset1&& offset3 > offset2&& offset1 >= (2 + count * 4))
+						if (offset2 > offset1 && offset3 > offset2 && offset1 >= (2 + count * 4))
 						{
 							int size1 = offset2 - offset1;
 							LPBYTE pBuffer1 = new BYTE[size1];
@@ -366,4 +366,24 @@ std::string IntToString(int value, int size)
 	sprintf_s(format, 20, "%%0%ii", size);
 	sprintf_s(buffer, 10, format, value);
 	return buffer;
+}
+
+ActionType& operator|=(ActionType& left, ActionType right)
+{
+	return left = static_cast<ActionType>(static_cast<int>(left) | static_cast<int>(right));
+}
+
+ActionType& operator<<=(ActionType& left, int amount)
+{
+	return left = static_cast<ActionType>(static_cast<int>(left) << amount);
+}
+
+ActionType operator&(ActionType left, ActionType right)
+{
+	return static_cast<ActionType>(static_cast<int>(left) & static_cast<int>(right));
+}
+
+ActionType operator>>(ActionType left, int amount)
+{
+	return static_cast<ActionType>(static_cast<int>(left) >> amount);
 }

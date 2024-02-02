@@ -7,7 +7,7 @@
 #include "DXListBox.h"
 #include "ScriptState.h"
 
-enum VideoType
+enum class VideoType
 {
 	Single = 1,
 	Scripted = 2,
