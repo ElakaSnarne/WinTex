@@ -34,6 +34,8 @@ void CScriptState::Clear()
 
 	LastDialoguePoint = -1;
 	FrameTrigger = -1;
+
+	Parameter = -1;
 }
 
 int CScriptState::GetScript(int id)

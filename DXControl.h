@@ -2,6 +2,7 @@
 
 #include "DXBase.h"
 #include "ShaderStructs.h"
+#include "Enums.h"
 
 class CDXControl : public CDXBase
 {
@@ -83,4 +84,6 @@ protected:
 
 	void SetVertex(TEXTURED_VERTEX_ORTHO* pVB, int index, float x, float y, float z, float u, float v);
 	void SetQuadVertex(TEXTURED_VERTEX_ORTHO* pVB, int index, float x1, float x2, float y1, float y2, float u1, float u2, float v1, float v2);
+
+	Alignment _alignment;
 };

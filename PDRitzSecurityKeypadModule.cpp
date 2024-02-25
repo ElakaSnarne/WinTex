@@ -213,7 +213,7 @@ void CPDRitzSecurityKeypadModule::Initialize()
 
 void CPDRitzSecurityKeypadModule::Dispose()
 {
-	CModuleController::Cursors[(int)CAnimatedCursor::CursorType::Crosshair].SetPosition(dx.GetWidth() / 2, dx.GetHeight() / 2);
+	CModuleController::Cursors[(int)CAnimatedCursor::CursorType::Crosshair].SetPosition(dx.GetWidth() / 2.0f, dx.GetHeight() / 2.0f);
 }
 
 void CPDRitzSecurityKeypadModule::KeyDown(WPARAM key, LPARAM lParam)

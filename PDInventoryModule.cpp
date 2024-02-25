@@ -16,12 +16,17 @@
 //
 //short pdComboHintStateScoreTable[] = { 0,11,2,75,26,12,39,108,49,135,52,145,76,234,78,227,85,263,88,342,90,373,93,374,95,189,102,418,107,343,108,469,110,453,114,379,124,380,132,454,138,209,255,-1 };
 
+short pdExamineScoreTable[] = { 26, 2, 159, 10, 12, 2, 212, 2, 10, 2, 266, 5, 63, 5, 230, 2, 55, 2, 27, 2, 246, 2, 211, 5, 39, 10, 53, 2, 265, 5, 17, 20, 5, 2, 262, 2, 225, 5, 43, 50, -1 };
+
 wchar_t* hex = L"0123456789ABCDEF";
 
 CPDInventoryModule::CPDInventoryModule() : CInventoryModule()
 {
 	_text.SetColours(0xff000000, 0xff000000, 0xff00ff00, 0xff000000);
 	CItems::SetTextColours(0, 0, -1, 0);
+
+	// Update cash item description string
+	CItems::SetItemName(0, CGameController::GetItemName(0) + L" " + std::to_wstring(CGameController::GetWord(PD_SAVE_CASH)));
 }
 
 void CPDInventoryModule::Examine()
@@ -77,14 +82,15 @@ void CPDInventoryModule::Examine()
 		}
 
 		int extraScore = 0;
-		//if (_selectedItemId == 55 || _selectedItemId == 76 || _selectedItemId == 94 || _selectedItemId == 106 || _selectedItemId == 134)
-		//{
-		//	extraScore = 4;
-		//}
-		//else if (_selectedItemId == 85)
-		//{
-		//	extraScore = 14;
-		//}
+		int scan = 0;
+		while (pdExamineScoreTable[scan * 2] != -1)
+		{
+			if (pdExamineScoreTable[scan * 2] == _selectedItemId)
+			{
+				extraScore += pdExamineScoreTable[scan * 2 + 1];
+			}
+			scan++;
+		}
 
 		CGameController::SetItemExamined(_selectedItemId, extraScore);
 	}

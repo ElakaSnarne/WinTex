@@ -16,7 +16,6 @@ int CResumeGameModule::HeaderColour4 = 0;
 
 CResumeGameModule::CResumeGameModule() : CModuleBase(ModuleType::ResumeGame)
 {
-	_pScreen = NULL;
 	_pFrame = NULL;
 	_pLine1 = NULL;
 	_pLine2 = NULL;
@@ -35,8 +34,8 @@ void CResumeGameModule::Render()
 	_pFrame->Render();
 
 	// Render cursor
-	CModuleController::Cursors[0].SetPosition(_cursorPosX, _cursorPosY);
-	CModuleController::Cursors[0].Render();
+	CModuleController::Cursors[(int)CAnimatedCursor::CursorType::Arrow].SetPosition(_cursorPosX, _cursorPosY);
+	CModuleController::Cursors[(int)CAnimatedCursor::CursorType::Arrow].Render();
 
 	dx.Present(1, 0);
 }

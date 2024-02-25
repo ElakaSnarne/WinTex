@@ -5,13 +5,15 @@
 class CH2O : public CAnimBase
 {
 public:
-	CH2O();
+	CH2O(int factor = 1);
 	~CH2O();
 
 	virtual BOOL Init(LPBYTE pData, int length);
 	virtual BOOL HasVideo() { return (_videoFramePointer != NULL); }
 
 protected:
+	int _factor;
+
 	virtual BOOL DecodeFrame();
 
 	virtual int DecodeH2OAudio(LPBYTE source, LPBYTE destination, int chunkLength);

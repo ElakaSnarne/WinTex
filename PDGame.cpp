@@ -17,6 +17,9 @@
 #include "PDMap.h"
 #include "PDDMap.h"
 #include "ResumeGameModule.h"
+#include "PDClimbLadderOverlay.h"
+#include "PDConvertPointsOverlay.h"
+#include "PDElevationModOverlay.h"
 
 BOOL CPDGame::Init()
 {
@@ -48,6 +51,11 @@ BOOL CPDGame::Init()
 				file.Close();
 			}
 		}
+
+		// Create overlay controls
+		pClimbLadderOverlay = new CPDClimbLadderOverlay();
+		pConvertPointsOverlay = new CPDConvertPointsOverlay();
+		pElevationModOverlay = new CPDElevationModOverlay();
 
 		CModuleController::Push(new CPDMainMenuModule());
 
@@ -128,14 +136,18 @@ void CPDGame::LoadGame(LPWSTR fileName)
 				}
 			}
 
+			// Update cash item text
+			std::wstring cash = CGameController::GetItemName(0) + L" $" + std::to_wstring(GetInt(_gameData, PD_SAVE_CASH, 2));
+			CItems::SetItemName(0, cash);
+
 			// Should now load location or dialogue
-			if (_gameData[PD_SAVE_MAP_FLAG_B])
+			if (_gameData[PD_SAVE_PARAMETERS + 252])
 			{
-				CModuleController::Push(new CPDLocationModule(_gameData[PD_SAVE_MAP_ENTRY_B], _gameData[PD_SAVE_STARTUP_POSITION]));
+				CModuleController::Push(new CPDLocationModule(_gameData[PD_SAVE_LOCATION_ID], _gameData[PD_SAVE_STARTUP_POSITION]));
 			}
 			else
 			{
-				CModuleController::Push(new CVideoModule(VideoType::Scripted, _gameData[PD_SAVE_DMAP_ENTRY_B], GetWord(PD_SAVE_SCRIPT_ID)));
+				CModuleController::Push(new CVideoModule(VideoType::Scripted, _gameData[PD_SAVE_DMAP_ID], GetWord(PD_SAVE_SCRIPT_ID)));
 			}
 		}
 	}
@@ -186,44 +198,14 @@ void CPDGame::NewGame()
 {
 	// Reset game buffer
 	ZeroMemory(_gameData, PD_SAVE_SIZE);
-	FillMemory(_gameData + 2, PD_SAVE_PADDING1 - 2, ' ');
 
-	_gameData[PD_SAVE_UNKNOWN1 + 1] = 1;
+	_gameData[PD_SAVE_UNKNOWN1] = 6;
 	SetData(PD_SAVE_PLAYER, "TEX");
 
-	//SetData(UAKM_SAVE_DESCRIPTION, "Tex's Office");
+	SetData(PD_SAVE_TRAVEL + 1, 1);		// Tex' Office
+	SetData(PD_SAVE_TRAVEL + 70, 1);	// Tex' Bedroom
+	SetData(PD_SAVE_TRAVEL + 71, 1);	// Tex' Computer Room
 
-	SYSTEMTIME sysTime;
-	GetSystemTime(&sysTime);
-	_gameData[PD_SAVE_GAME_DAY] = 1;
-	_gameData[PD_SAVE_YEAR] = sysTime.wYear;
-	_gameData[PD_SAVE_MONTH] = sysTime.wMonth;
-	_gameData[PD_SAVE_DAY] = sysTime.wDay;
-	_gameData[PD_SAVE_HOUR] = sysTime.wHour;
-	_gameData[PD_SAVE_MINUTE] = sysTime.wMinute;
-	_gameData[PD_SAVE_SECOND] = sysTime.wSecond;
-
-	//UAKM_SAVE_MAP_ENTRY				0x14a
-	//UAKM_SAVE_DMAP_ENTRY				0x150
-	//SetData(UAKM_SAVE_CODED_MESSAGE, "YE UANE CIAFWBHED RIPB AEEIWALHEAL  YWLU CUAXLWLR AL  LUE XPWLE WA LUE  GIODEA GALE UILEO AL LUE PXPAO LWHE.LUE EAXXYIBD LIDARWX XWOWCIA.       ");
-
-	//UAKM_SAVE_SCRIPT_ID				0x4c9
-
-	//SetData(UAKM_SAVE_TRAVEL + 5, 1);	// Allow travel to Tex's Office
-
-	//_gameData[UAKM_SAVE_CURRENT_ITEM] = -1;
-	//_gameData[UAKM_SAVE_CHAPTER] = 1;
-
-	//BinaryData bd = LoadEntry(L"GRAPHICS.AP", 23);
-	//if (bd.Data != NULL && bd.Length == 0x1fe)
-	//{
-	//	CopyMemory(_gameData + UAKM_SAVE_PUZZLE_DATA, bd.Data, bd.Length);
-	//	delete[] bd.Data;
-	//}
-
-	// Enable Travel to Tex' Office, Tex' Bedroom, Tex' Computer Room
-
-	// Enable AskAbouts: 0,1,2,3,6,7,9,40,56,61
 	SetAskAboutState(0, 1);		// Enable AskAbout Tex Murphy
 	SetAskAboutState(1, 1);		// Enable AskAbout Chelsee Bando
 	SetAskAboutState(2, 1);		// Enable AskAbout Louie LaMintz
@@ -235,7 +217,9 @@ void CPDGame::NewGame()
 	SetAskAboutState(56, 1);	// Enable AskAbout Newspaper photo of Malloy
 	SetAskAboutState(61, 1);	// Enable AskAbout Sandra
 
-	// Unknowns 10 and 11 set to 2 and 1
+	// Set Unknowns 10 and 11 to 2 and 1
+	_gameData[PD_SAVE_PARAMETERS + 251] = 2;
+	_gameData[PD_SAVE_PARAMETERS + 250] = 1;
 
 	// Parameter 0x19a, 0 = Entertainment Level, 1 = Game Player Level
 	_gameData[PD_SAVE_PARAMETERS_GAME_LEVEL] = 1;
@@ -246,12 +230,15 @@ void CPDGame::NewGame()
 	SetItemState(2, 1);	// Credit card
 	SetItemState(4, 1);	// Fitzpatrick's card
 
-	// Unknowns 12 to 16 set to 0,1,1,1,1
+	// Set hint category states 1-4
+	SetHintCategoryState(1, 1);
+	SetHintCategoryState(2, 1);
+	SetHintCategoryState(3, 1);
+	SetHintCategoryState(4, 1);
 
-	// Clear some tables (hints?)
+	// TODO: Clear some tables (hints?)
 
 	LoadFromDMap(42);
-	//LoadFromMap(1, 0);
 }
 
 BYTE CPDGame::GetParameter(int index)
@@ -493,11 +480,15 @@ void CPDGame::SetHintState(int index, BYTE state, int score)
 
 BYTE CPDGame::GetHintCategoryState(int index)
 {
-	return 0;
+	return (index >= 0 && index < 1000) ? _gameData[PD_SAVE_HINT_CATEGORY_STATES + index] : 0;
 }
 
 void CPDGame::SetHintCategoryState(int index, BYTE state)
 {
+	if (index >= 0 && index < 1000)//TODO: Find hint category count
+	{
+		_gameData[PD_SAVE_HINT_CATEGORY_STATES + index] = state;
+	}
 }
 
 void CPDGame::SetTimer(int timer, int duration)
@@ -559,6 +550,53 @@ void CPDGame::Tick(int ticks)
 
 void CPDGame::SetItemExamined(int itemId, int conditionalScore)
 {
+	if (itemId >= 0 && itemId < PD_MAX_ITEM_COUNT)
+	{
+		int byte = itemId / 8;
+		int shift = itemId & 7;
+
+		int oldState = (_gameData[PD_SAVE_ITEMS_EXAMINED_FLAGS + byte] & (1 << shift));
+		_gameData[PD_SAVE_ITEMS_EXAMINED_FLAGS + byte] |= (1 << shift);
+
+		if (oldState == 0)
+		{
+			if (conditionalScore > 0)
+			{
+				AddScore(conditionalScore);
+			}
+
+			// TODO: Check if e.g. extra cash should be added
+			if (itemId == 274)
+			{
+				// Disc player with CD
+				//ds:word_2A8774= 600
+				// Offset 1B8 in save data
+				//ds:byte_2A87A5= 1
+				// Offset 1E9 in save data
+				// Timer enabled and time?
+			}
+			else if (itemId == 285)
+			{
+				// Nilo's wallet
+				AddCash(100);
+			}
+			else if (itemId == 288)
+			{
+				// Orphanage letter
+				AddCash(500);
+			}
+			else if (itemId == 43)
+			{
+				// Prize letter
+				AddCash(100);
+			}
+			else if (itemId == 225)
+			{
+				// Money belt
+				AddCash(300);
+			}
+		}
+	}
 }
 
 int CPDGame::GetWord(int offset, BOOL signExtend)
@@ -676,4 +714,10 @@ void CPDGame::SetBuyableItemState(int index, int state)
 
 		_gameData[PD_SAVE_BUYABLES_ASK_ABOUT_STATES + index] = state;
 	}
+}
+
+void CPDGame::AddCash(int cashToAdd)
+{
+	int currentCash = GetWord(PD_SAVE_CASH);
+	SetWord(PD_SAVE_CASH, currentCash + cashToAdd);
 }

@@ -16,6 +16,7 @@
 #include "MIDIPlayer.h"
 #include "PDMIDIPlayer.h"
 #include "Enums.h"
+#include "Overlay.h"
 
 extern float twopi;
 
@@ -31,20 +32,6 @@ extern std::list<CCaption*>* pAddCaptions;
 extern PWSTR gamePath;
 
 extern CMutex _lock;
-
-enum class Alignment
-{
-	Default = 0x00,
-	Left = 0x01,
-	Right = 0x02,
-	CenterX = 0x04,
-	Top = 0x08,
-	Bottom = 0x10,
-	CenterY = 0x20,
-	ScaleX = 0x40,
-	ScaleY = 0x80,
-	Scale = ScaleX | ScaleY
-};
 
 inline Alignment operator|(Alignment a, Alignment b)
 {
@@ -67,3 +54,8 @@ extern CDXFont TexFont;
 extern CMIDIPlayer* pMIDI;
 
 extern BOOL isUAKM;
+
+extern COverlay* pOverlay;
+extern COverlay* pClimbLadderOverlay;
+extern COverlay* pConvertPointsOverlay;
+extern COverlay* pElevationModOverlay;

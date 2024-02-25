@@ -397,7 +397,7 @@ void CPDScript::Function_0F(CScriptState* pState)
 	Point ppos = _pLoc->GetPlayerPosition();
 
 	float x = (ix == -1) ? -ppos.X : -From12_4(ix);
-	float y = (iy == -1) ? ppos.Y : From12_4(iy);
+	float y = (iy == -1) ? ppos.Y : -From12_4(iy);
 	float z = (iz == -1) ? -ppos.Z : -From12_4(iz);
 	float angle = (ia == -1) ? CLocation::_angle2 : -(XM_PI * ia) / 1800.0f;
 
@@ -437,9 +437,6 @@ void CPDScript::Function_12(CScriptState* pState)
 void CPDScript::Function_13(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_13 - Load Location");
-	// byte, byte, byte
-	//text += $"Load Location {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 1):X2}, {GetInt(data, offset + 2, 1):X2} (files from from RMAP.AP)";
-	//offset += 3;
 
 	CAmbientAudio::Clear();
 	//CGameController::SetParameter(252, 0);
@@ -449,10 +446,21 @@ void CPDScript::Function_13(CScriptState* pState)
 	int unknown = pState->Read8();
 	//CGameController::SetData(UAKM_SAVE_MAP_ENTRY, locationId);
 
-	CGameController::SetData(PD_SAVE_MAP_ENTRY_A, locationId);
-	CGameController::SetData(PD_SAVE_MAP_ENTRY_B, locationId);
+	if (startupPosition == 0xff)
+	{
+		startupPosition = CGameController::GetData(PD_SAVE_STARTUP_POSITION);
+	}
+
+	if (unknown != 0xff)
+	{
+		CGameController::SetParameter(241, unknown);	// Will always be set to 0 later in LoadLocation
+	}
+
+	CGameController::SetParameter(252, 1);
+	//CGameController::SetData(PD_SAVE_MAP_ENTRY_A, locationId);
+	CGameController::SetData(PD_SAVE_LOCATION_ID, locationId);
+	CGameController::SetData(PD_SAVE_STARTUP_POSITION, startupPosition);
 	//CGameController::SetData(PD_SAVE_MAP_FLAG_A, 1);
-	CGameController::SetData(PD_SAVE_MAP_FLAG_B, 1);
 
 	CGameController::AutoSave();
 
@@ -473,10 +481,17 @@ void CPDScript::Function_14(CScriptState* pState)
 	int ix = pState->Read8();
 	int unknown = pState->Read8();
 
-	CGameController::SetData(PD_SAVE_DMAP_ENTRY_A, ix);
-	CGameController::SetData(PD_SAVE_DMAP_ENTRY_B, ix);
+	if (unknown != 0xff)
+	{
+		CGameController::SetParameter(241, unknown);	// Will always be set to 0 later in LoadLocation
+	}
+
+	//CGameController::SetData(PD_SAVE_DMAP_ENTRY_A, ix);
+	//CGameController::SetData(PD_SAVE_DMAP_ENTRY_B, ix);
 	//CGameController::SetData(PD_SAVE_MAP_FLAG_A, 0);
-	CGameController::SetData(PD_SAVE_MAP_FLAG_B, 0);
+	CGameController::SetData(PD_SAVE_DMAP_ID, ix);
+	CGameController::SetData(PD_SAVE_SCRIPT_ID, 0);
+	CGameController::SetParameter(252, 0);
 
 	CGameController::AutoSave();
 
@@ -698,7 +713,7 @@ void CPDScript::Function_28(CScriptState* pState)
 
 void CPDScript::Function_29(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_29");
+	DebugTrace(pState, L"Function_29 - Remove Cash");
 
 	// word
 	int cashToRemove = pState->Read16();
@@ -752,8 +767,8 @@ void CPDScript::Function_2F(CScriptState* pState)
 	DebugTrace(pState, L"Function_2F - Special function");
 
 	int function = pState->Read8();
-	int p1 = pState->Read16();
-	int p2 = pState->Read16();
+	int p1 = pState->Read16s();
+	int p2 = pState->Read16s();
 
 	switch (function)
 	{
@@ -769,6 +784,14 @@ void CPDScript::Function_2F(CScriptState* pState)
 		{
 			// Ritz door security keypad
 			CModuleController::Push(new CPDRitzSecurityKeypadModule());
+			pState->WaitingForInput = TRUE;
+			break;
+		}
+		case 42:
+		{
+			// Animate elevation
+			pElevationModOverlay->SetData(p1, p2);
+			pOverlay = pElevationModOverlay;
 			pState->WaitingForInput = TRUE;
 			break;
 		}
@@ -816,6 +839,9 @@ void CPDScript::Function_34(CScriptState* pState)
 
 	pState->LastDialoguePoint = pState->ExecutionPointer - 1;
 
+	int oldOptionValues[3];
+	int askIndex = -1, buyIndex = -1, offerIndex = -1;
+
 	char* pT[3];
 	for (int i = 0; i < 3; i++)
 	{
@@ -831,7 +857,25 @@ void CPDScript::Function_34(CScriptState* pState)
 			pT[i]++;
 		}
 
+		oldOptionValues[i] = DialogueOptions[i].GetValue();
 		DialogueOptions[i].SetValue(v);
+
+		if (v == 4)
+		{
+			askIndex = i;
+		}
+		else if (v == 6)
+		{
+			buyIndex = i;
+		}
+		else if (v == 7)
+		{
+			offerIndex = i;
+		}
+		/*
+				pState->Mode = InteractionMode::AskAbout;
+				pState->Mode = InteractionMode::Buy;
+		*/
 	}
 
 	DialogueOptionsCount = (strlen(pT[2]) == 0) ? (strlen(pT[1]) == 0) ? 1 : 2 : 3;
@@ -897,12 +941,28 @@ void CPDScript::Function_34(CScriptState* pState)
 
 	pState->SelectedOption = -1;
 
-	pState->AskAbout = FALSE;
-	pState->Offer = FALSE;
-	pState->Buy = FALSE;
-
 	// Should now wait for input
 	pState->WaitingForInput = TRUE;
+
+	// TODO: If AskAbout not available should set flag to false
+	if (pState->AskAbout && (askIndex < 0 || oldOptionValues[askIndex] != 4))
+	{
+		pState->AskAbout = FALSE;
+	}
+
+	// TODO: If Buy not available should set flag to false
+	if (pState->Buy && (buyIndex < 0 || oldOptionValues[buyIndex] != 6))
+	{
+		pState->Buy = FALSE;
+	}
+
+	// TODO: If Offer not available should set flag to false
+	if (pState->Offer && (offerIndex < 0 || oldOptionValues[offerIndex] != 7))
+	{
+		pState->Offer = FALSE;
+	}
+
+	// TODO: Should also move any open combobox if required
 }
 
 void CPDScript::Function_35(CScriptState* pState)
@@ -945,7 +1005,9 @@ void CPDScript::Function_37(CScriptState* pState)
 	}
 	else
 	{
-		// TODO: Display modal window asking to convert points
+		// Display modal window asking to convert points
+		pOverlay = pConvertPointsOverlay;
+		pState->WaitingForInput = TRUE;
 	}
 }
 
@@ -1412,14 +1474,16 @@ void CPDScript::Function_64(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_64 - SetPlayer Position Min Y");
 
-	CLocation::SetMinY(pState->Read12_4());
+	float minY = pState->Read12_4();
+	//CLocation::SetMinY(minY);
 }
 
 void CPDScript::Function_65(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_65 - SetPlayer Position Max Y");
 
-	CLocation::SetMaxY(pState->Read12_4());
+	float maxY = pState->Read12_4();
+	//CLocation::SetMaxY(maxY);
 }
 
 void CPDScript::Function_66(CScriptState* pState)
@@ -1604,11 +1668,11 @@ void CPDScript::Function_79(CScriptState* pState)
 
 void CPDScript::Function_7A(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_7A");
+	DebugTrace(pState, L"Function_7A - Ask to climb ladder");
 
-	// word
-	//text += $"??? If word_28ED1E = 0 or other condition jump to {GetInt(data, offset, 2):X4}";
-	pState->ExecutionPointer += 2;
+	pOverlay = pClimbLadderOverlay;
+	pState->Parameter = pState->Read16();
+	pState->WaitingForInput = TRUE;
 }
 
 void CPDScript::Function_7B(CScriptState* pState)
@@ -1891,18 +1955,23 @@ void CPDScript::SelectDialogueOption(CScriptState* pState, int option)
 	}
 	else if (option == 4)
 	{
-		pState->AskAbout = TRUE;
+		pState->AskAbout = !pState->AskAbout;
+		pState->Buy = FALSE;
+		pState->Offer = FALSE;
 		pState->Mode = InteractionMode::AskAbout;
-		//pState->TopItemOffset
 	}
 	else if (option == 6)
 	{
-		pState->Buy = TRUE;
+		pState->AskAbout = FALSE;
+		pState->Buy = !pState->Buy;
+		pState->Offer = FALSE;
 		pState->Mode = InteractionMode::Buy;
 	}
 	else if (option == 7)
 	{
-		pState->Offer = TRUE;
+		pState->AskAbout = FALSE;
+		pState->Buy = FALSE;
+		pState->Offer = !pState->Offer;
 		pState->Mode = InteractionMode::Offer;
 	}
 }

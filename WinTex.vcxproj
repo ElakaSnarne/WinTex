@@ -160,12 +160,16 @@
     <ClCompile Include="AnimBase.cpp" />
     <ClCompile Include="AreaData.cpp" />
     <ClCompile Include="BIC.cpp" />
+    <ClCompile Include="Overlay.cpp" />
     <ClCompile Include="Elevation.cpp" />
+    <ClCompile Include="PDClimbLadderOverlay.cpp" />
+    <ClCompile Include="PDConvertPointsOverlay.cpp" />
     <ClCompile Include="PDCrosswordModule.cpp" />
     <ClCompile Include="DXMultiColouredText.cpp" />
     <ClCompile Include="Hint.cpp" />
     <ClCompile Include="HintCategory.cpp" />
     <ClCompile Include="HintModule.cpp" />
+    <ClCompile Include="PDElevationModOverlay.cpp" />
     <ClCompile Include="PDHintModule.cpp" />
     <ClCompile Include="PDInventoryModule.cpp" />
     <ClCompile Include="PDLocationModule.cpp" />
@@ -174,6 +178,8 @@
     <ClCompile Include="PDTravelModule.cpp" />
     <ClCompile Include="PDVidPhoneModule.cpp" />
     <ClCompile Include="ResumeGameModule.cpp" />
+    <ClCompile Include="TravelImage.cpp" />
+    <ClCompile Include="TravelModule.cpp" />
     <ClCompile Include="UAKMDMap.cpp" />
     <ClCompile Include="UAKMHintModule.cpp" />
     <ClCompile Include="UAKMMap.cpp" />
@@ -262,7 +268,7 @@
     <ClCompile Include="Mutex.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Images\Font9.bin" />
+    <None Include="Images\UAKMFont.bin" />
     <None Include="shaders.shader">
       <FileType>Document</FileType>
       <DeploymentContent>false</DeploymentContent>
@@ -277,8 +283,12 @@
     <ClInclude Include="BIC.h" />
     <ClInclude Include="BinaryData.h" />
     <ClInclude Include="IntersectionInfo.h" />
+    <ClInclude Include="Overlay.h" />
+    <ClInclude Include="PDClimbLadderOverlay.h" />
+    <ClInclude Include="PDConvertPointsOverlay.h" />
     <ClInclude Include="PDCrosswordModule.h" />
     <ClInclude Include="Enums.h" />
+    <ClInclude Include="PDElevationModOverlay.h" />
     <ClInclude Include="PDHintModule.h" />
     <ClInclude Include="D3D11-NoWarn.h" />
     <ClInclude Include="D3DX10-NoWarn.h" />
@@ -303,6 +313,9 @@
     <ClInclude Include="Point.h" />
     <ClInclude Include="ResumeGameModule.h" />
     <ClInclude Include="ShaderStructs.h" />
+    <ClInclude Include="SubLocation.h" />
+    <ClInclude Include="TravelImage.h" />
+    <ClInclude Include="TravelModule.h" />
     <ClInclude Include="UAKMExamStruct.h" />
     <ClInclude Include="UAKMHintModule.h" />
     <ClInclude Include="UAKMScriptState.h" />
@@ -405,8 +418,6 @@
     <ResourceCompile Include="WinTex.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="images\icon2.ico" />
-    <Image Include="images\icon3.ico" />
     <Image Include="Images\PandoraFont.png" />
     <Image Include="Images\PD-Title.jpg" />
     <Image Include="Images\PD.ico" />
@@ -415,9 +426,8 @@
     <Image Include="Images\Button.png" />
     <Image Include="Images\Button_MouseOver.png" />
     <Image Include="Images\CheckMark.png" />
-    <Image Include="Images\Font4.png" />
+    <Image Include="Images\UAKMFont.png" />
     <Image Include="Images\Frame.png" />
-    <Image Include="Images\Icon.ico" />
     <Image Include="Images\ImageButton.png" />
     <Image Include="Images\ImageButton_MouseOver.png" />
     <Image Include="Images\ListBox.png" />

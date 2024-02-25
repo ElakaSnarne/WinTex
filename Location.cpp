@@ -1565,7 +1565,7 @@ void CLocation::SetPosition(StartupPosition pos)
 void CLocation::SetPosition(float x, float y, float z, float angle)
 {
 	_x = x;
-	_y = y;	// SAJ: When set from script, this will have to be updated!
+	_y_player_adjustment = y;
 	_z = z;
 	_angle2 = angle;
 }
@@ -3055,8 +3055,19 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 	}
 
 
-
-	else if (file == L"R68VR.AP")	// Behind Pizza place
+	else if (file == L"R67VR.AP")	// Sewers
+	{
+		ModifyLocationPoints(272, 275, 0.01f, 0.0f, 0.0f);			// Sign
+		ModifyLocationPoints(276, 279, -0.01f, 0.0f, 0.0f);			// Numbers
+		ModifyLocationPoints(280, 291, 0.01f, 0.0f, 0.0f);			// Signs
+		ModifyLocationPoints(292, 303, -0.01f, 0.0f, 0.0f);			// Numbers
+		ModifyLocationPoints(637, 644, 0.0f, 0.0f, -0.01f);			// Sign & numbers
+		ModifyLocationPoints(1705, 1720, 0.01f, 0.0f, 0.0f);		// Signs
+		ModifyLocationPoints(1721, 1736, -0.01f, 0.0f, 0.0f);		// Numbers
+		ModifyLocationPoints(2583, 2590, 0.0f, 0.0f, 0.01f);		// Sign & numbers
+		ModifyLocationPoints(2673, 2680, 0.0f, 0.01f, 0.0f);		// Money belt
+	}
+	else if (file == L"R68VR.AP")	// Corridor behind Pizza place
 	{
 	}
 	else if (file == L"R69VR.AP")	// Crazy Gary alley
@@ -3681,17 +3692,17 @@ void CLocation::RenderPath()
 void CLocation::SetMinY(float minY)
 {
 	_y_player_adjustment_min = minY;
-	if (_y_player_adjustment > minY)
-	{
-		_y_player_adjustment = minY;
-	}
+	//if (_y_player_adjustment > minY)
+	//{
+	//	_y_player_adjustment = minY;
+	//}
 }
 
 void CLocation::SetMaxY(float maxY)
 {
 	_y_player_adjustment_max = maxY;
-	if (_y_player_adjustment < maxY)
-	{
-		_y_player_adjustment = maxY;
-	}
+	//if (_y_player_adjustment < maxY)
+	//{
+	//	_y_player_adjustment = maxY;
+	//}
 }

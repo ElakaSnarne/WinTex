@@ -49,6 +49,9 @@
     <Filter Include="Shared\Structs">
       <UniqueIdentifier>{87ccbb0a-6334-44d8-b711-affd7a5bfc8f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shared\Travel">
+      <UniqueIdentifier>{773ab127-0aa8-4ed1-bac5-2ec38dcb61f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXButton.cpp">
@@ -368,6 +371,24 @@
     </ClCompile>
     <ClCompile Include="PDLocationModule.cpp">
       <Filter>Modules\PD</Filter>
+    </ClCompile>
+    <ClCompile Include="TravelImage.cpp">
+      <Filter>Shared\Travel</Filter>
+    </ClCompile>
+    <ClCompile Include="TravelModule.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="PDClimbLadderOverlay.cpp">
+      <Filter>PD</Filter>
+    </ClCompile>
+    <ClCompile Include="PDConvertPointsOverlay.cpp">
+      <Filter>PD</Filter>
+    </ClCompile>
+    <ClCompile Include="Overlay.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="PDElevationModOverlay.cpp">
+      <Filter>PD</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -764,6 +785,27 @@
     <ClInclude Include="Point.h">
       <Filter>Shared\Structs</Filter>
     </ClInclude>
+    <ClInclude Include="TravelImage.h">
+      <Filter>Shared\Travel</Filter>
+    </ClInclude>
+    <ClInclude Include="SubLocation.h">
+      <Filter>Shared\Travel</Filter>
+    </ClInclude>
+    <ClInclude Include="TravelModule.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="PDClimbLadderOverlay.h">
+      <Filter>PD</Filter>
+    </ClInclude>
+    <ClInclude Include="PDConvertPointsOverlay.h">
+      <Filter>PD</Filter>
+    </ClInclude>
+    <ClInclude Include="Overlay.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="PDElevationModOverlay.h">
+      <Filter>PD</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WinTex.rc">
@@ -778,9 +820,6 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Images\Frame.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Images\Icon.ico">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Images\ImageButton.png">
@@ -801,7 +840,7 @@
     <Image Include="Images\UAKM-Title3.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Images\Font4.png">
+    <Image Include="Images\UAKMFont.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Images\SaveGameBox.png">
@@ -816,13 +855,7 @@
     <Image Include="Images\UAKM-Title.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="images\icon2.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="Images\UAKM.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="images\icon3.ico">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Images\SaveGameBox_MouseOver.png">
@@ -845,7 +878,7 @@
     <None Include="shaders.shader">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Images\Font9.bin">
+    <None Include="Images\UAKMFont.bin">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

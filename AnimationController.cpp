@@ -216,7 +216,7 @@ CAnimBase* CAnimationController::Load(BinaryData bd, int factor)
 	}
 	else if (GetInt(bd.Data, 0, 4) == H2O)
 	{
-		pAnim = new CH2O();
+		pAnim = new CH2O(factor);
 	}
 	//else if... Embedded palette + picture
 

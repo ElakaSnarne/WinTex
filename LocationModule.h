@@ -34,8 +34,8 @@ public:
 
 	static ActionType CurrentAction;
 
-#ifdef DEBUG
 	virtual void KeyDown(WPARAM key, LPARAM lParam);
+#ifdef DEBUG
 	virtual void MouseWheel(int scroll);
 #endif
 
@@ -99,4 +99,6 @@ protected:
 	virtual void Hints();
 
 	void CycleItems(int direction);
+
+	BOOL _presentOnRender;
 };

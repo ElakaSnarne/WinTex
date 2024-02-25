@@ -115,23 +115,9 @@ void CUAKMGame::NewGame()
 	_gameData[UAKM_SAVE_UNKNOWN1 + 1] = 1;
 	SetData(UAKM_SAVE_PLAYER, "TEX");
 
-	//SetData(UAKM_SAVE_DESCRIPTION, "Tex's Office");
-
-	//SYSTEMTIME sysTime;
-	//GetSystemTime(&sysTime);
 	_gameData[UAKM_SAVE_GAME_DAY] = 1;
-	//_data[UAKM_SAVE_YEAR] = sysTime.wYear;
-	//_data[UAKM_SAVE_MONTH] = sysTime.wMonth;
-	//_data[UAKM_SAVE_DAY] = sysTime.wDay;
-	//_data[UAKM_SAVE_HOUR] = sysTime.wHour;
-	//_data[UAKM_SAVE_MINUTE] = sysTime.wMinute;
-	//_data[UAKM_SAVE_SECOND] = sysTime.wSecond;
 
-	//UAKM_SAVE_MAP_ENTRY				0x14a
-	//UAKM_SAVE_DMAP_ENTRY				0x150
 	SetData(UAKM_SAVE_CODED_MESSAGE, "YE UANE CIAFWBHED RIPB AEEIWALHEAL  YWLU CUAXLWLR AL  LUE XPWLE WA LUE  GIODEA GALE UILEO AL LUE PXPAO LWHE.LUE EAXXYIBD LIDARWX XWOWCIA.       ");
-
-	//UAKM_SAVE_SCRIPT_ID				0x4c9
 
 	SetAskAboutState(0, 1);							// Rook Garner
 	SetAskAboutState(1, 1);							// Chelsee Bando
@@ -618,7 +604,7 @@ void CUAKMGame::SetData(int offset, char* text)
 
 void CUAKMGame::SetItemExamined(int itemId, int conditionalScore)
 {
-	if (itemId >= 0 && itemId < 142)
+	if (itemId >= 0 && itemId < UAKM_MAX_ITEM_COUNT)
 	{
 		int byte = itemId / 8;
 		int shift = itemId & 7;

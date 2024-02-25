@@ -178,7 +178,7 @@ void CVideoModule::Render()
 					{
 						ix = 2;
 					}
-					_listBox.Init(items, DialogueOptions[ix].GetX() + DialogueOptions[ix].GetWidth() / 2.0f);
+					_listBox.Init(items, floor(DialogueOptions[ix].GetX() + DialogueOptions[ix].GetWidth() / 2.0f));
 				}
 
 				_listBox.Render();

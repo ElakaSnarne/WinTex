@@ -32,3 +32,8 @@ CDXFont TexFont;
 CMIDIPlayer* pMIDI = NULL;
 
 BOOL isUAKM = TRUE;
+
+COverlay* pOverlay = NULL;
+COverlay* pClimbLadderOverlay = NULL;
+COverlay* pConvertPointsOverlay = NULL;
+COverlay* pElevationModOverlay = NULL;

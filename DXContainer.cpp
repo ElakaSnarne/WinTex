@@ -21,15 +21,15 @@ CDXContainer::~CDXContainer()
 
 CDXBitmap* CDXContainer::AddBitmap(PWCHAR fileName, Alignment alignment)
 {
-	CDXBitmap* pBmp = new CDXBitmap(fileName);
-	AddChild(pBmp, 0.0f, 0.0f, alignment);
+	CDXBitmap* pBmp = new CDXBitmap(fileName, alignment);
+	AddChild(pBmp, 0.0f, 0.0f);
 	return pBmp;
 }
 
 CDXBitmap* CDXContainer::AddBitmap(PBYTE pImg, DWORD size, Alignment alignment)
 {
-	CDXBitmap* pBmp = new CDXBitmap(pImg, size);
-	AddChild(pBmp, 0.0f, 0.0f, alignment);
+	CDXBitmap* pBmp = new CDXBitmap(pImg, size, alignment);
+	AddChild(pBmp, 0.0f, 0.0f);
 	return pBmp;
 }
 
@@ -40,7 +40,7 @@ CDXButton* CDXContainer::AddButton(char* text, float x, float y, float w, float 
 	return pBtn;
 }
 
-void CDXContainer::AddChild(CDXControl* pCtrl, float x, float y, Alignment alignment)
+void CDXContainer::AddChild(CDXControl* pCtrl, float x, float y)
 {
 	// Position is relative to parent...
 	pCtrl->SetPosition(_x + x, _y + y);

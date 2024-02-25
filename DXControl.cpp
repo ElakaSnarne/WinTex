@@ -17,6 +17,8 @@ CDXControl::CDXControl()
 	_type = ControlType::Undefined;
 	_mouseOver = FALSE;
 	_enabled = TRUE;
+
+	_alignment = Alignment::Default;
 }
 
 CDXControl::~CDXControl()

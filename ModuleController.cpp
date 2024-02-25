@@ -107,14 +107,23 @@ BOOL CModuleController::Init(CMap* map, CMap* dmap)
 			{
 				Trace(L"\t");
 				Trace(ix++);
-				Trace(L" = (");
+				Trace(L" = (x:");
 				Trace(pos.X);
-				Trace(L", ");
+				Trace(L", y:");
 				Trace(pos.Y);
-				Trace(L", ");
+				Trace(L", z:");
 				Trace(pos.Z);
 				Trace(L"), angle = ");
-				TraceLine(pos.Angle);
+				Trace(pos.Angle);
+
+				Trace(L"IEL = ");
+				Trace(pos.InitialEyeLevel);
+				Trace(L"MinY = ");
+				Trace(pos.MinYAdj);
+				Trace(L"MaxY = ");
+				Trace(pos.MaxYAdj);
+				Trace(L"Elevation = ");
+				TraceLine(pos.Elevation);
 			}
 
 			TraceLine(L"");

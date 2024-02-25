@@ -1,5 +1,6 @@
 #include "PDLocationModule.h"
 #include "PDInventoryModule.h"
+#include "PDTravelModule.h"
 
 CPDLocationModule::CPDLocationModule(int locationId, int startupPosition) : CLocationModule(locationId, startupPosition)
 {
@@ -26,5 +27,19 @@ void CPDLocationModule::Inventory()
 
 void CPDLocationModule::Render()
 {
+	// TODO: Check if alien abductor is active (set clipping area and overlay image+animation)
+	// TODO: Check if popup is active (asking to use ladders or convert points to money)
+	_presentOnRender = FALSE;
+
 	CLocationModule::Render();
+
+	if (!_presentOnRender)
+	{
+		dx.Present(1, 0);
+	}
+}
+
+void CPDLocationModule::Travel()
+{
+	CModuleController::Push(new CPDTravelModule());
 }

@@ -55,6 +55,8 @@ public:
 
 	InteractionMode Mode;
 
+	int Parameter;
+
 protected:
 	std::unordered_map<int, int> _scriptEntries;
 };

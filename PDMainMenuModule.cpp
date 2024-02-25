@@ -183,15 +183,15 @@ void CPDMainMenuModule::SetupSave()
 
 	info.Player = CurrentGameInfo.Player;
 	std::wstring sit;
-	if (CGameController::GetData(PD_SAVE_MAP_FLAG_A) == 0)
+	if (CGameController::GetParameter(252) == 0)
 	{
 		// Dialogue
-		sit = CGameController::GetSituationDescriptionD(CGameController::GetData(PD_SAVE_DMAP_ENTRY_A) + 1);
+		sit = CGameController::GetSituationDescriptionD(CGameController::GetData(PD_SAVE_DMAP_ID) + 1);
 	}
 	else
 	{
 		// Location
-		sit = CGameController::GetSituationDescriptionL(CGameController::GetData(PD_SAVE_MAP_ENTRY_A) + 1);
+		sit = CGameController::GetSituationDescriptionL(CGameController::GetData(PD_SAVE_LOCATION_ID) + 1);
 	}
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
 	info.Location = conv.to_bytes(sit);
@@ -231,15 +231,15 @@ void CPDMainMenuModule::SetupLoad()
 							info.Player = std::string((const char*)(buffer + PD_SAVE_PLAYER), 10);
 							//info.Location = std::string((const char*)(buffer + UAKM_SAVE_LOCATION), UAKM_SAVE_GAME_DAY - UAKM_SAVE_LOCATION);
 							std::wstring sit;
-							if (buffer[PD_SAVE_MAP_FLAG_A] == 0)
+							if (buffer[PD_SAVE_PARAMETERS + 252] == 0)
 							{
 								// Dialogue
-								sit = CGameController::GetSituationDescriptionD(buffer[PD_SAVE_DMAP_ENTRY_A] + 1);
+								sit = CGameController::GetSituationDescriptionD(buffer[PD_SAVE_DMAP_ID] + 1);
 							}
 							else
 							{
 								// Location
-								sit = CGameController::GetSituationDescriptionL(buffer[PD_SAVE_MAP_ENTRY_A] + 1);
+								sit = CGameController::GetSituationDescriptionL(buffer[PD_SAVE_LOCATION_ID] + 1);
 							}
 							std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
 							info.Location = conv.to_bytes(sit);

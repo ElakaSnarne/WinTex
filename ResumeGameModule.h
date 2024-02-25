@@ -24,7 +24,6 @@ public:
 protected:
 	virtual void Initialize();
 
-	CDXScreen* _pScreen;
 	CDXFrame* _pFrame;
 	CDXLabel* _pLine1;
 	CDXLabel* _pLine2;

@@ -5,8 +5,10 @@
 #define H2O_MAX_AUDIO_BUFFERS	20
 #define H2O_AUDIO_BUFFER_SIZE	20000
 
-CH2O::CH2O()
+CH2O::CH2O(int factor)
 {
+	_factor = factor;
+
 	_channels = 0;
 	_depth = 0;
 	_remainingLength = 0;
@@ -75,7 +77,7 @@ BOOL CH2O::Init(LPBYTE pData, int length)
 		_rate = GetInt(pData, 16, 2);
 		_frameTime = _rate;
 
-		CreateBuffers(_width, _height);
+		CreateBuffers(_width, _height, _factor);
 		_texture.Init(_width, _height);
 
 		// Find video and audio pointers
@@ -338,6 +340,11 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 						int b = _colourTranslationTable[_pInputBuffer[paletteOffset++]];
 
 						int col = 0xff000000 | b | (g << 8) | (r << 16);
+						if (_factor == 2 && c < 8)
+						{
+							// Fix for Pandora inventory module
+							col = 0xff000000;
+						}
 						_pPalette[currentIndex++] = col;
 					}
 				}

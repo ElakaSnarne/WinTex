@@ -2,6 +2,7 @@
 
 #include "D3D11-NoWarn.h"
 #include "DirectX.h"
+#include "DXFont.h"
 
 class CDXText : public CDXBase
 {

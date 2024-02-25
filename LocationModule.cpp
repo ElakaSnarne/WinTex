@@ -66,6 +66,8 @@ CLocationModule::CLocationModule(int locationId, int startupPosition) : CModuleB
 	_currentActionColour2 = _currentActionColour3 = 0xffffff00;
 	_unavailableActionColour1 = _unavailableActionColour4 = 0;
 	_unavailableActionColour2 = _unavailableActionColour3 = 0xff808080;
+
+	_presentOnRender = TRUE;
 }
 
 CLocationModule::~CLocationModule()
@@ -122,20 +124,43 @@ void CLocationModule::Render()
 {
 	dx.Clear(0.0f, 0.0f, 0.0f);
 
+	if (pOverlay != NULL)
+	{
+		int decision = pOverlay->GetDecision();
+		if (decision < 0)
+		{
+			// No
+			pOverlay->ClearDecision();
+			pOverlay = NULL;
+			_movement_backward = _movement_forward = _movement_left = _movement_right = _movement_x = _movement_y = _movement_z = _smooth_movement_x = _smooth_movement_z = 0.0f;
+		}
+		else if (decision > 0)
+		{
+			// Yes
+			pOverlay->ClearDecision();
+			pOverlay = NULL;
+			_environmentScriptState->ExecutionPointer = _environmentScriptState->Parameter;
+		}
+	}
+
 	if (CAnimationController::NoVideoAnim())
 	{
 		BOOL waitingForInput = (_initScriptState->WaitingForInput || _actionScriptState->WaitingForInput || _environmentScriptState->WaitingForInput);
-		if (_initScriptState->WaitingForInput)
+		if (_initScriptState->WaitingForInput && pOverlay == NULL)
 		{
 			_scriptEngine->Resume(_initScriptState, TRUE);
 		}
-		else if (_actionScriptState->WaitingForInput)
+		else if (_actionScriptState->WaitingForInput && pOverlay == NULL)
 		{
 			_scriptEngine->Resume(_actionScriptState, TRUE);
 		}
-		else if (_environmentScriptState->WaitingForInput)
+		else if (_environmentScriptState->WaitingForInput && pOverlay == NULL)
 		{
-			_scriptEngine->Resume(_environmentScriptState, TRUE);
+			if (!_environmentScriptState->WaitingForExternalModule)
+			{
+				_scriptEngine->Resume(_environmentScriptState, TRUE);
+				_location.Render();
+			}
 		}
 		else if (_initScriptState->ExecutionPointer < 0)
 		{
@@ -146,24 +171,27 @@ void CLocationModule::Render()
 			_location.Render();
 		}
 
-		if (!waitingForInput && !_environmentScriptState->WaitingForMediaToFinish && !_actionScriptState->WaitingForMediaToFinish && !_initScriptState->WaitingForMediaToFinish)
+		if (pOverlay == NULL)
 		{
-			//_environmentScriptState->DebugMode = TRUE;
-			_scriptEngine->Execute(_environmentScriptState, CGameController::GetLocationEnvironmentScriptId());
-		}
-		else if (!CAnimationController::HasAnim() || CAnimationController::IsDone())
-		{
-			if (_initScriptState->WaitingForMediaToFinish)
+			if (!waitingForInput && !_environmentScriptState->WaitingForMediaToFinish && !_actionScriptState->WaitingForMediaToFinish && !_initScriptState->WaitingForMediaToFinish)
 			{
-				_scriptEngine->Resume(_initScriptState, TRUE);
+				//_environmentScriptState->DebugMode = TRUE;
+				_scriptEngine->Execute(_environmentScriptState, CGameController::GetLocationEnvironmentScriptId());
 			}
-			else if (_actionScriptState->WaitingForMediaToFinish)
+			else if (!CAnimationController::HasAnim() || CAnimationController::IsDone())
 			{
-				_scriptEngine->Resume(_actionScriptState, TRUE);
-			}
-			else if (_environmentScriptState->WaitingForMediaToFinish)
-			{
-				_scriptEngine->Resume(_environmentScriptState, TRUE);
+				if (_initScriptState->WaitingForMediaToFinish)
+				{
+					_scriptEngine->Resume(_initScriptState, TRUE);
+				}
+				else if (_actionScriptState->WaitingForMediaToFinish)
+				{
+					_scriptEngine->Resume(_actionScriptState, TRUE);
+				}
+				else if (_environmentScriptState->WaitingForMediaToFinish)
+				{
+					_scriptEngine->Resume(_environmentScriptState, TRUE);
+				}
 			}
 		}
 	}
@@ -187,7 +215,7 @@ void CLocationModule::Render()
 		}
 	}
 
-	if (!CAnimationController::HasAnim())
+	if (pOverlay == NULL && !CAnimationController::HasAnim())
 	{
 		float mx{ _movement_x };
 		float mz{ _movement_z };
@@ -327,7 +355,15 @@ void CLocationModule::Render()
 		}
 	}
 
-	dx.Present(1, 0);
+	if (pOverlay)
+	{
+		pOverlay->Render();
+	}
+
+	if (_presentOnRender)
+	{
+		dx.Present(1, 0);
+	}
 }
 
 void CLocationModule::SelectMouseAction()
@@ -461,141 +497,192 @@ void CLocationModule::Resize(int width, int height)
 
 void CLocationModule::Cursor(float x, float y, BOOL relative)
 {
-	// Change view angle
-	if (_hasFocus && CAnimationController::NoAnimOrWave() && (CInputMapping::IgnoreNextMouseInput == FALSE))
+	if (pOverlay == NULL)
 	{
-		float delta_x = relative ? x : x - dx.GetWidth() / 2;
-		float delta_y = relative ? y : y - dx.GetHeight() / 2;
+		// Change view angle
+		if (_hasFocus && CAnimationController::NoAnimOrWave() && (CInputMapping::IgnoreNextMouseInput == FALSE))
+		{
+			float delta_x = relative ? x : x - dx.GetWidth() / 2;
+			float delta_y = relative ? y : y - dx.GetHeight() / 2;
 
-		if (pConfig->InvertY) delta_y = -delta_y;
-		auto scale = pConfig->MouselookScaling;
+			if (pConfig->InvertY) delta_y = -delta_y;
+			auto scale = pConfig->MouselookScaling;
 
-		_location.DeltaAngles(((float)delta_y) / 2000.0f * scale, ((float)delta_x) / 2000.0f * scale);
+			_location.DeltaAngles(((float)delta_y) / 2000.0f * scale, ((float)delta_x) / 2000.0f * scale);
+		}
+
+		CenterMouse();
 	}
-
-	CenterMouse();
+	else
+	{
+		pOverlay->Cursor(x, y, relative);
+	}
 }
 
 void CLocationModule::BeginAction()
 {
-	if (!CAnimationController::HasAnim())
+	if (pOverlay == NULL)
 	{
-		if (CurrentAction != ActionType::None)
+		if (!CAnimationController::HasAnim())
 		{
+			if (CurrentAction != ActionType::None)
+			{
+				ClearCaptions(pDisplayCaptions);
+
+				// Execute action on script
+				if (CurrentObjectIndex >= 0)
+				{
+					// Find script with id same as current object index
+					int currentItemId = CGameController::GetCurrentItemId();
+					_scriptEngine->PermformAction(_actionScriptState, CurrentObjectIndex, CurrentAction, CurrentAction == ActionType::Use ? currentItemId : -1);
+
+					if (CurrentAction != ActionType::Use || CGameController::GetCurrentItemId() != currentItemId)
+					{
+						CycleActions(FALSE);
+					}
+
+					_location.PointingChanged = TRUE;
+				}
+			}
+		}
+		else
+		{
+			CAnimationController::Skip();
 			ClearCaptions(pDisplayCaptions);
 
-			// Execute action on script
-			if (CurrentObjectIndex >= 0)
+			// Continue script
+			if (_actionScriptState->WaitingForMediaToFinish)
 			{
-				// Find script with id same as current object index
-				int currentItemId = CGameController::GetCurrentItemId();
-				_scriptEngine->PermformAction(_actionScriptState, CurrentObjectIndex, CurrentAction, CurrentAction == ActionType::Use ? currentItemId : -1);
-
-				if (CurrentAction != ActionType::Use || CGameController::GetCurrentItemId() != currentItemId)
-				{
-					CycleActions(FALSE);
-				}
-
-				_location.PointingChanged = TRUE;
+				_scriptEngine->Resume(_actionScriptState, TRUE);
 			}
 		}
 	}
 	else
 	{
-		CAnimationController::Skip();
-		ClearCaptions(pDisplayCaptions);
-
-		// Continue script
-		if (_actionScriptState->WaitingForMediaToFinish)
-		{
-			_scriptEngine->Resume(_actionScriptState, TRUE);
-		}
+		pOverlay->BeginAction();
 	}
 }
 
 void CLocationModule::Back()
 {
-	CModuleController::SendToFront(CMainMenuModule::MainMenuModule);
+	if (pOverlay == NULL)
+	{
+		CModuleController::SendToFront(CMainMenuModule::MainMenuModule);
+	}
 }
 
 void CLocationModule::Cycle()
 {
-	// Right button
-	if (CAnimationController::HasAnim())
+	if (pOverlay == NULL)
 	{
-		CAnimationController::Skip();
-		ClearCaptions(pDisplayCaptions);
-
-		// Continue script
-		if (_actionScriptState->WaitingForMediaToFinish)
+		if (CAnimationController::HasAnim())
 		{
-			_scriptEngine->Resume(_actionScriptState, TRUE);
+			CAnimationController::Skip();
+			ClearCaptions(pDisplayCaptions);
+
+			// Continue script
+			if (_actionScriptState->WaitingForMediaToFinish)
+			{
+				_scriptEngine->Resume(_actionScriptState, TRUE);
+			}
 		}
-	}
-	else if (CurrentActions != ActionType::None || CGameController::GetCurrentItemId() >= 0)
-	{
-		CycleActions(TRUE);
+		else if (CurrentActions != ActionType::None || CGameController::GetCurrentItemId() >= 0)
+		{
+			CycleActions(TRUE);
+		}
 	}
 }
 
 void CLocationModule::MoveForward(float v)
 {
-	_movement_forward = v;
-	_movement_z = _movement_backward - _movement_forward;
+	if (pOverlay == NULL)
+	{
+		_movement_forward = v;
+		_movement_z = _movement_backward - _movement_forward;
+	}
 }
 
 void CLocationModule::MoveBack(float v)
 {
-	_movement_backward = v;
-	_movement_z = _movement_backward - _movement_forward;
+	if (pOverlay == NULL)
+	{
+		_movement_backward = v;
+		_movement_z = _movement_backward - _movement_forward;
+	}
 }
 
 void CLocationModule::MoveLeft(float v)
 {
-	_movement_left = v;
-	_movement_x = _movement_left - _movement_right;
+	if (pOverlay == NULL)
+	{
+		_movement_left = v;
+		_movement_x = _movement_left - _movement_right;
+	}
 }
 
 void CLocationModule::MoveRight(float v)
 {
-	_movement_right = v;
-	_movement_x = _movement_left - _movement_right;
+	if (pOverlay == NULL)
+	{
+		_movement_right = v;
+		_movement_x = _movement_left - _movement_right;
+	}
 }
 
 void CLocationModule::MoveUp(float y)
 {
-	_movement_y = -y / 10.0f;
+	if (pOverlay == NULL)
+	{
+		_movement_y = -y / 10.0f;
+	}
 }
 
 void CLocationModule::MoveDown(float y)
 {
-	_movement_y = y / 10.0f;
+	if (pOverlay == NULL)
+	{
+		_movement_y = y / 10.0f;
+	}
 }
 
 void CLocationModule::Run(BOOL run)
 {
-	_speed = run ? MOVEMENT_RUN_SPEED : MOVEMENT_WALK_SPEED;
+	if (pOverlay == NULL)
+	{
+		_speed = run ? MOVEMENT_RUN_SPEED : MOVEMENT_WALK_SPEED;
+	}
 }
 
 void CLocationModule::Next()
 {
-	CycleItems(1);
+	if (pOverlay == NULL)
+	{
+		CycleItems(1);
+	}
 }
 
 void CLocationModule::Prev()
 {
-	CycleItems(-1);
+	if (pOverlay == NULL)
+	{
+		CycleItems(-1);
+	}
 }
 
 void CLocationModule::Inventory()
 {
-	CModuleController::Push(new CInventoryModule());
+	if (pOverlay == NULL)
+	{
+		CModuleController::Push(new CInventoryModule());
+	}
 }
 
 void CLocationModule::Travel()
 {
-	// Show the travel module
-	CModuleController::Push(new CUAKMTravelModule());
+	if (pOverlay == NULL)
+	{
+		CModuleController::Push(new CUAKMTravelModule());
+	}
 }
 
 void CLocationModule::CycleItems(int direction)
@@ -619,34 +706,46 @@ void CLocationModule::CycleItems(int direction)
 
 void CLocationModule::Hints()
 {
-	CModuleController::Push(CGameController::GetHintModule());
+	if (pOverlay == NULL)
+	{
+		CModuleController::Push(CGameController::GetHintModule());
+	}
+}
+
+void CLocationModule::KeyDown(WPARAM key, LPARAM lParam)
+{
+	if (pOverlay == NULL)
+	{
+#ifdef DEBUG
+		if (key == VK_F1)
+		{
+			_location._renderPoints = !_location._renderPoints;
+		}
+		else if (key == VK_F2)
+		{
+			_location._renderLines = !_location._renderLines;
+		}
+		else if (key == VK_F3)
+		{
+			_location._renderPaths = !_location._renderPaths;
+		}
+		else if (key == VK_F4)
+		{
+			_location._renderTextured = !_location._renderTextured;
+		}
+		else if (key == VK_F5)
+		{
+			_location._disableClipping = !_location._disableClipping;
+		}
+#endif
+	}
+	else
+	{
+		pOverlay->KeyDown(key, lParam);
+	}
 }
 
 #ifdef DEBUG
-void CLocationModule::KeyDown(WPARAM key, LPARAM lParam)
-{
-	if (key == VK_F1)
-	{
-		_location._renderPoints = !_location._renderPoints;
-	}
-	else if (key == VK_F2)
-	{
-		_location._renderLines = !_location._renderLines;
-	}
-	else if (key == VK_F3)
-	{
-		_location._renderPaths = !_location._renderPaths;
-	}
-	else if (key == VK_F4)
-	{
-		_location._renderTextured = !_location._renderTextured;
-	}
-	else if (key == VK_F5)
-	{
-		_location._disableClipping = !_location._disableClipping;
-	}
-}
-
 void CLocationModule::MouseWheel(int scroll)
 {
 	// Modify translation of current object

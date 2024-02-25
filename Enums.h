@@ -76,4 +76,18 @@ enum class AnimationStatus
 	Completed = 4
 };
 
+enum class Alignment
+{
+	Default = 0x00,
+	Left = 0x01,
+	Right = 0x02,
+	CenterX = 0x04,
+	Top = 0x08,
+	Bottom = 0x10,
+	CenterY = 0x20,
+	ScaleX = 0x40,
+	ScaleY = 0x80,
+	Scale = ScaleX | ScaleY
+};
+
 #endif
