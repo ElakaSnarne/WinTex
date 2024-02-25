@@ -1887,6 +1887,7 @@ ActionType CPDScript::GetCurrentActions(CScriptState* pState, int currentObjectI
 		pState->ExecutionPointer = pState->GetScript(currentObjectIndex);
 		if (pState->ExecutionPointer >= 0)
 		{
+			pState->AllowedAction = ActionType::None;
 			// Set query action flag
 			pState->QueryAction = TRUE;
 
