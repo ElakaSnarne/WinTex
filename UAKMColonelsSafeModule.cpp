@@ -91,8 +91,6 @@ void CUAKMColonelsSafeModule::Render()
 
 	if (_vertexBuffer != NULL)
 	{
-		dx.Clear(0.0f, 0.0f, 0.0f);
-
 		dx.DisableZBuffer();
 
 		UINT stride = sizeof(TEXTURED_VERTEX);
@@ -115,8 +113,6 @@ void CUAKMColonelsSafeModule::Render()
 		dx.Draw(4, 0);
 
 		dx.EnableZBuffer();
-
-		dx.Present(1, 0);
 	}
 }
 

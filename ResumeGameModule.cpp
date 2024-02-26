@@ -29,15 +29,11 @@ CResumeGameModule::~CResumeGameModule()
 
 void CResumeGameModule::Render()
 {
-	dx.Clear(0.0f, 0.0f, 0.0f);
-
 	_pFrame->Render();
 
 	// Render cursor
 	CModuleController::Cursors[(int)CAnimatedCursor::CursorType::Arrow].SetPosition(_cursorPosX, _cursorPosY);
 	CModuleController::Cursors[(int)CAnimatedCursor::CursorType::Arrow].Render();
-
-	dx.Present(1, 0);
 }
 
 void CResumeGameModule::Initialize()

@@ -236,8 +236,10 @@ void CModuleController::Render()
 
 	if (CurrentModule != NULL)
 	{
+		dx.Clear();
 		CurrentModule->Render();
 		CurrentModule->CheckInput();
+		dx.Present(1, 0);
 	}
 
 	_lock.Release();

@@ -247,8 +247,6 @@ void CUAKMTravelModule::Render()
 	CTravelImage* ti = _images[1];
 	if (ti->Buffer != NULL)
 	{
-		dx.Clear(0.0f, 0.0f, 0.0f);
-
 		dx.DisableZBuffer();
 
 		dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
@@ -362,8 +360,6 @@ void CUAKMTravelModule::Render()
 		CModuleController::Cursors[0].Render();
 
 		dx.EnableZBuffer();
-
-		dx.Present(1, 0);
 	}
 }
 

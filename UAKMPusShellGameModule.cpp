@@ -43,7 +43,6 @@ void CUAKMPusShellGameModule::Dispose()
 
 void CUAKMPusShellGameModule::Render()
 {
-	dx.Clear(0.0f, 0.0f, 0.0f);
 	dx.DisableZBuffer();
 
 	CAnimationController::UpdateAndRender();
@@ -52,8 +51,6 @@ void CUAKMPusShellGameModule::Render()
 	CModuleController::Cursors[0].Render();
 
 	dx.EnableZBuffer();
-
-	dx.Present(1, 0);
 }
 
 void CUAKMPusShellGameModule::Pause()

@@ -33,15 +33,11 @@ void CPDVidPhoneModule::Resize(int width, int height)
 
 void CPDVidPhoneModule::Render()
 {
-	dx.Clear(0.0f, 0.0f, 0.0f);
-
 	dx.DisableZBuffer();
 
 	_pBackground->Render();
 
 	dx.EnableZBuffer();
-
-	dx.Present(1, 0);
 }
 
 void CPDVidPhoneModule::BeginAction()

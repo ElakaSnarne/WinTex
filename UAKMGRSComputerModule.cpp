@@ -254,8 +254,6 @@ void CUAKMGRSComputerModule::Render()
 
 	if (_vertexBuffer != NULL)
 	{
-		dx.Clear(0.0f, 0.0f, 0.0f);
-
 		dx.DisableZBuffer();
 
 		UINT stride = sizeof(TEXTURED_VERTEX);
@@ -281,8 +279,6 @@ void CUAKMGRSComputerModule::Render()
 		}
 
 		dx.EnableZBuffer();
-
-		dx.Present(1, 0);
 	}
 
 	if (popOnEnd)

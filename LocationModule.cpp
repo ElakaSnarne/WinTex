@@ -66,8 +66,6 @@ CLocationModule::CLocationModule(int locationId, int startupPosition) : CModuleB
 	_currentActionColour2 = _currentActionColour3 = 0xffffff00;
 	_unavailableActionColour1 = _unavailableActionColour4 = 0;
 	_unavailableActionColour2 = _unavailableActionColour3 = 0xff808080;
-
-	_presentOnRender = TRUE;
 }
 
 CLocationModule::~CLocationModule()
@@ -122,8 +120,6 @@ void CLocationModule::Initialize()
 
 void CLocationModule::Render()
 {
-	dx.Clear(0.0f, 0.0f, 0.0f);
-
 	if (pOverlay != NULL)
 	{
 		int decision = pOverlay->GetDecision();
@@ -358,11 +354,6 @@ void CLocationModule::Render()
 	if (pOverlay)
 	{
 		pOverlay->Render();
-	}
-
-	if (_presentOnRender)
-	{
-		dx.Present(1, 0);
 	}
 }
 

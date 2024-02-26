@@ -291,8 +291,6 @@ void CMainMenuModule::Quit(LPVOID data)
 
 void CMainMenuModule::Render()
 {
-	dx.Clear(0.0f, 0.0f, 0.0f);
-
 	CDXFont::SelectBlackFont();
 	_pScreen->Render();
 
@@ -323,8 +321,6 @@ void CMainMenuModule::Render()
 	// Render cursor
 	CModuleController::Cursors[0].SetPosition(_cursorPosX, _cursorPosY);
 	CModuleController::Cursors[0].Render();
-
-	dx.Present(1, 0);
 }
 
 void CMainMenuModule::Resize(int width, int height)

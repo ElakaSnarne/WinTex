@@ -94,8 +94,6 @@ void CVideoModule::Render()
 {
 	if (CAnimationController::Exists())
 	{
-		dx.Clear(0.0f, 0.0f, 0.0f);
-
 		CAnimationController::UpdateAndRender();
 
 		if (_scriptState->WaitingForInput && CAnimationController::IsDone() && CAnimationController::IsDone())
@@ -188,8 +186,6 @@ void CVideoModule::Render()
 			CModuleController::Cursors[0].SetPosition(_cursorPosX, _cursorPosY);
 			CModuleController::Cursors[0].Render();
 		}
-
-		dx.Present(1, 0);
 	}
 
 	if (!CAnimationController::HasAnim() || CAnimationController::IsDone())

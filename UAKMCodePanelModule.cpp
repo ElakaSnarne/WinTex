@@ -133,8 +133,6 @@ void CUAKMCodePanelModule::Render()
 
 	if (_vertexBuffer != NULL)
 	{
-		dx.Clear(0.0f, 0.0f, 0.0f);
-
 		dx.DisableZBuffer();
 
 		UINT stride = sizeof(TEXTURED_VERTEX);
@@ -157,8 +155,6 @@ void CUAKMCodePanelModule::Render()
 		dx.Draw(4, 0);
 
 		dx.EnableZBuffer();
-
-		dx.Present(1, 0);
 	}
 
 	bool coloursChanged = false;

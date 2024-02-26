@@ -79,8 +79,6 @@ void CFullScreenModule::Render()
 {
 	if (_vertexBuffer != NULL)
 	{
-		dx.Clear(0.0f, 0.0f, 0.0f);
-
 		dx.DisableZBuffer();
 
 		UINT stride = sizeof(TEXTURED_VERTEX);
@@ -106,8 +104,6 @@ void CFullScreenModule::Render()
 		}
 
 		dx.EnableZBuffer();
-
-		dx.Present(1, 0);
 	}
 }
 

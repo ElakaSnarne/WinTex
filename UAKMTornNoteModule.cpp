@@ -77,8 +77,6 @@ void CUAKMTornNoteModule::Render()
 {
 	if (_vertexBuffer != NULL)
 	{
-		dx.Clear(0.0f, 0.0f, 0.0f);
-
 		dx.DisableZBuffer();
 
 		CConstantBuffers::Setup2D(dx);
@@ -119,8 +117,6 @@ void CUAKMTornNoteModule::Render()
 		CModuleController::Cursors[0].Render();
 
 		dx.EnableZBuffer();
-
-		dx.Present(1, 0);
 	}
 
 	if (_completed && GetTickCount64() >= _timeToExit)

@@ -235,8 +235,6 @@ void CInventoryModule::Render()
 		return;
 	}
 
-	dx.Clear(0.0f, 0.0f, 0.0f);
-
 	dx.DisableZBuffer();
 	CConstantBuffers::Setup2D(dx);
 
@@ -355,8 +353,6 @@ void CInventoryModule::Render()
 	}
 
 	dx.EnableZBuffer();
-
-	dx.Present(1, 0);
 }
 
 BOOL CInventoryModule::CheckButton(CDXButton* btn, float x, float y)

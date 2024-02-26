@@ -93,8 +93,6 @@ void CPDMainMenuModule::SetupScreen()
 
 void CPDMainMenuModule::Render()
 {
-	dx.Clear(0.0f, 0.0f, 0.0f);
-
 	CDXFont::SelectBlackFont();
 	_pScreen->Render();
 
@@ -126,8 +124,6 @@ void CPDMainMenuModule::Render()
 	// Render cursor
 	CModuleController::Cursors[0].SetPosition(_cursorPosX, _cursorPosY);
 	CModuleController::Cursors[0].Render();
-
-	dx.Present(1, 0);
 }
 
 void CPDMainMenuModule::SetupConfigFrame()

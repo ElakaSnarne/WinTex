@@ -99,6 +99,4 @@ protected:
 	virtual void Hints();
 
 	void CycleItems(int direction);
-
-	BOOL _presentOnRender;
 };
