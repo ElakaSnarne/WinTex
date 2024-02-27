@@ -223,6 +223,4 @@ void CUAKMHintModule::Render()
 	// Render cursor
 	CModuleController::Cursors[0].SetPosition(_cursorPosX, _cursorPosY);
 	CModuleController::Cursors[0].Render();
-
-	dx.Present(1, 0);
 }

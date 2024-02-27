@@ -14,6 +14,8 @@
 #include "LocationSprite.h"
 #include "LocationStructs.h"
 #include "ObjectMap.h"
+#include "Elevation.h"
+#include "ShaderStructs.h"
 
 class CLocation
 {
@@ -23,11 +25,10 @@ public:
 
 	BOOL Load(int locationFileIndex);
 
-	BOOL Load_Improved(int locationFileIndex);
-
 	void Render();
 
 	static void SetPosition(StartupPosition pos);
+	static void SetPosition(float x, float y, float z, float angle);
 	void Move(float mx, float my, float mz, float tmx);
 	void DeltaAngles(float angle1, float angle2);
 
@@ -42,13 +43,18 @@ public:
 	void StopMappedAnimation(int index);
 	void StopIndexedAnimation(int index);
 	BOOL IsAnimationFinished(int index);
+	BOOL IsIndexedAnimationFinished(int index);
 	int GetAnimationFrame(int index);
 	int GetIndexedAnimationFrame(int index);
 	void Animate();
 
 	double GetPlayerDistanceFromPoint(double x, double z);
 	Point GetPlayerPosition();
+	Point GetUnadjustedPlayerPosition();
 	SpritePosInfo GetSpriteInfo(int index);
+
+	static void SetMinY(float minY);
+	static void SetMaxY(float maxY);
 
 	CMapData* _mapEntry;
 	//CDMap::DMapEntry _dmapEntry;
@@ -60,14 +66,23 @@ public:
 	static float _z;
 	static float _angle1;
 	static float _angle2;
-	static float _y_adj;
+	static float _y_player_adjustment;
+	static float _y_player_adjustment_min;
+	static float _y_player_adjustment_max;
 	static float _y_elevation;
-	static float _y_min;
-	static float _y_max;
 
-	void MoveObject(int direction);
+#ifdef DEBUG
+	void MoveObject(float delta, BOOL X, BOOL Y, BOOL Z);
+#endif
 
 protected:
+	void UpdateY()
+	{
+		_y = _y_elevation + _y_player_adjustment;
+	}
+
+	static CElevation* _pCurrentElevation;
+
 	int _currentLocationId;
 
 	//CMutex _locationMutex;
@@ -87,15 +102,9 @@ protected:
 	void LoadPaths();
 	void LoadTextures();
 
-	ID3D11Buffer* _vertexBuffer;
-	ID3D11Buffer* _indexBuffer;
-
-	Point* _points;
 	int _verticeCount;
-	int _indexCount;
-
-	int* _pIndexes;
-	std::vector<int> _indexes;
+	Point* _points;
+	ID3D11Buffer* _vertexBuffer;
 
 	static BOOL _loading;
 
@@ -206,6 +215,7 @@ protected:
 
 	struct Path
 	{
+		int Id;
 		std::vector<DPoint> Points;
 		BOOL enabled;
 		BOOL allowLeave;
@@ -246,8 +256,29 @@ protected:
 	Animation Animations[50];
 
 	BinaryData GetLocationData(int index);
-	std::list<LPBYTE> Elevations;
+	std::list<CElevation*> Elevations;
 
 	ObjectVisibilityMapping* _improvedObjectMap;
 	void ChangeVisibility(int id, BOOL visible, BOOL setOnSubObjects, std::wstring header);
+
+#ifdef DEBUG
+	void RenderPoints();
+	void RenderLines();
+	void RenderPath();
+public:
+	static BOOL _renderTextured;
+	static BOOL _renderPoints;
+	static BOOL _renderLines;
+	static BOOL _renderPaths;
+	static BOOL _disableClipping;
+
+	ID3D11Buffer* _pathVertexBuffer;
+	ID3D11Buffer* _pathIndexBuffer;
+	int _pathIndexCount;
+
+	ID3D11Buffer* _indexBuffer;
+	int _indexCount;
+	int* _pIndexes;
+	std::vector<int> _indexes;
+#endif
 };

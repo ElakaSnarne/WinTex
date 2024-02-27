@@ -92,6 +92,8 @@ public:
 	virtual BYTE GetData(int offset);
 	virtual void SetData(int offset, BYTE value);
 	virtual void SetData(int offset, char* text);
+	virtual int GetWord(int offset, BOOL signExtend = FALSE);
+	virtual void SetWord(int offset, int value);
 
 	BYTE GetAskAboutState(int index);
 	void SetAskAboutState(int index, BYTE state);
@@ -129,10 +131,9 @@ public:
 
 	virtual CHintModule* GetHintModule() { return new CUAKMHintModule(); }
 
-protected:
-	virtual int GetWord(int offset, BOOL signExtend = FALSE);
-	virtual void SetWord(int offset, int value);
+	virtual void SetSelectedItem(int item) { _selectedItem = item; SetParameter(99, item); }
 
+protected:
 	int _lastDialoguePoint;
 	int _frameTrigger;
 

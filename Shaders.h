@@ -10,6 +10,8 @@ public:
 	static void SelectMultiColouredFontShader();
 	static void SelectColourShader();
 	static void SelectTransparentColourShader();
+	static void SelectYUVShader();
+	static void SelectBasicShader();
 
 	static void Dispose();
 
@@ -20,4 +22,6 @@ public:
 	static CDXShader* _colourShader;
 	static CDXShader* _transparentColourShader;
 	static CDXShader* _texFontShader_AA;
+	static CDXShader* _yuvShader;
+	static CDXShader* _basicShader;
 };

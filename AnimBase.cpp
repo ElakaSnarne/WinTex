@@ -1,6 +1,7 @@
 #include "AnimBase.h"
 #include "Utilities.h"
 #include "Globals.h"
+#include "ShaderStructs.h"
 
 CAnimBase::CAnimBase()
 {
@@ -92,8 +93,8 @@ void CAnimBase::CreateBuffers(int width, int height, int factor)
 		ZeroMemory(_pVideoOutputBuffer, width * bufferHeight);
 
 		// Setup vertex buffer, keep aspect ratio
-		float sx = (float)_screenWidth / (float)(width*factor);
-		float sy = (float)_screenHeight / (float)(height*factor);
+		float sx = (float)_screenWidth / (float)(width * factor);
+		float sy = (float)_screenHeight / (float)(height * factor);
 		float scale = min(sx, sy);
 		float sw = width * scale;
 		float sh = height * scale;
@@ -186,42 +187,56 @@ void CAnimBase::Update()
 			//OutputDebugString(_itow(_videoFramePointer, buffer, 16));
 			//OutputDebugString(L"\r\n");
 			//if (DecodeVideoFrame())
-			int test = _framePointer;
-			if (DecodeFrame())
+			//if (_lock.Lock())
 			{
-				_frame++;
-
-				// Replace texture if new video frame is required (frame time has lapsed, video frame exists)
-				ID3D11Texture2D* pTex = _texture.GetTexture();
-				if (pTex != NULL)
+				if (DecodeFrame())
 				{
-					D3D11_MAPPED_SUBRESOURCE subRes;
-					if (SUCCEEDED(dx.Map(pTex, 0, D3D11_MAP_WRITE_DISCARD, 0, &subRes)))
-					{
-						int* pScr = (int*)subRes.pData;
-						for (int y = 0; y < _height; y++)
-						{
-							for (int x = 0; x < _width; x++)
-							{
-								pScr[y * subRes.RowPitch / 4 + x] = _pPalette[_pVideoOutputBuffer[y * _width + x]];
-							}
-						}
+					_frame++;
 
-						dx.Unmap(pTex, 0);
-					}
-					else
+					// Replace texture if new video frame is required (frame time has lapsed, video frame exists)
+					ID3D11Texture2D* pTex = _texture.GetTexture();
+					if (pTex != NULL)
 					{
-						int debug = 0;
+						D3D11_MAPPED_SUBRESOURCE subRes;
+						if (SUCCEEDED(dx.Map(pTex, 0, D3D11_MAP_WRITE_DISCARD, 0, &subRes)))
+						{
+							int* pScr = (int*)subRes.pData;
+							for (int y = 0; y < _height; y++)
+							{
+								for (int x = 0; x < _width; x++)
+								{
+									pScr[y * subRes.RowPitch / 4 + x] = _pPalette[_pVideoOutputBuffer[y * _width + x]];
+								}
+							}
+
+							dx.Unmap(pTex, 0);
+						}
+						else
+						{
+							int debug = 0;
+						}
 					}
 				}
-			}
 
-			if (_lastFrameUpdate == 0) _lastFrameUpdate = diff - _frameTime;
-			_lastFrameUpdate += _frameTime;
+				if (_lastFrameUpdate == 0) _lastFrameUpdate = diff - _frameTime;
+				_lastFrameUpdate += _frameTime;
 
-			if (_framePointer == test && _audioFramesProcessed == _audioFramesQueued)
-			{
-				_done = TRUE;
+				if (_framePointer >= _inputBufferLength && _audioFramesProcessed == _audioFramesQueued)
+				{
+					_done = TRUE;
+				}
+
+				//if ((_framePointer == 0 || _framePointer >= _inputBufferLength) && _audioFramesProcessed == _audioFramesQueued)
+				//{
+				//
+				//	if ((_videoFramePointer > 0 && _videoFramePointer < _inputBufferLength) || _audioFramePointer > 0 && _audioFramePointer < _inputBufferLength)
+				//	{
+				//		return;
+				//	}
+				//	_done = TRUE;
+				//}
+
+				//_lock.Release();
 			}
 		}
 	}
@@ -235,7 +250,9 @@ void CAnimBase::Skip()
 		_sourceVoice->Stop();
 		_audioFramesProcessed = _audioFramesQueued;
 	}
+
 	_audioBuffers.clear();
+
 	_done = TRUE;
 }
 

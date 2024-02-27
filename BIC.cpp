@@ -105,6 +105,7 @@ int CBIC::ProcessBICFrame(int inPtr, int chunkSize)
 	int end = inPtr + chunkSize;
 	int currentRow = 0;
 	BOOL good = TRUE;
+
 	while (inPtr < end && good)
 	{
 		int type = *(_pInputBuffer + inPtr++);
@@ -346,18 +347,20 @@ BOOL CBIC::DecodeFrame()
 				int waveChunkSize = (remainingBufferLength == _remainingAudioLength) ? _remainingAudioLength : min(_embeddedAudioSize, _remainingAudioLength);
 				_remainingAudioLength -= waveChunkSize;
 
-				XAUDIO2_BUFFER buf = { 0 };
-				buf.AudioBytes = waveChunkSize;
-				buf.pAudioData = _pInputBuffer + _framePointer;
-				if (_remainingAudioLength == 0) buf.Flags = XAUDIO2_END_OF_STREAM;
-				_sourceVoice->SubmitSourceBuffer(&buf);
+				if (_sourceVoice != NULL)
+				{
+					XAUDIO2_BUFFER buf = { 0 };
+					buf.AudioBytes = waveChunkSize;
+					buf.pAudioData = _pInputBuffer + _framePointer;
+					_sourceVoice->SubmitSourceBuffer(&buf);
+
+					_audioFramesQueued++;
+				}
 
 				_framePointer += waveChunkSize;
-
-				_audioFramesQueued++;
 			}
 
-			if (_frame == _firstAudioFrame) _sourceVoice->Start(0, 0);
+			if (_frame == _firstAudioFrame && _sourceVoice != NULL) _sourceVoice->Start(0, 0);
 
 			ret = TRUE;
 		}

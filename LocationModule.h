@@ -6,7 +6,6 @@
 #include "DXText.h"
 #include "ScriptState.h"
 
-#define ACTION_USE	64
 #define MOVEMENT_WALK_SPEED 0.2f
 #define MOVEMENT_RUN_SPEED 0.5f
 
@@ -33,7 +32,12 @@ public:
 	static float _smooth_movement_z;
 	static float _speed;
 
-	static int CurrentAction;
+	static ActionType CurrentAction;
+
+	virtual void KeyDown(WPARAM key, LPARAM lParam);
+#ifdef DEBUG
+	virtual void MouseWheel(int scroll);
+#endif
 
 protected:
 	virtual void Initialize();
@@ -58,7 +62,7 @@ protected:
 
 	// Properies for location object selection
 	int CurrentObjectIndex;
-	int CurrentActions;
+	ActionType CurrentActions;
 	int CurrentActionMousePointerIndex;
 	CDXText _actionText[7];
 

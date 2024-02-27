@@ -127,7 +127,7 @@ CUAKMScript::~CUAKMScript()
 {
 }
 
-void CUAKMScript::PermformAction(CScriptState* pState, int id, int action, int item)
+void CUAKMScript::PermformAction(CScriptState* pState, int id, ActionType action, int item)
 {
 	pState->CurrentAction = action;
 	if (item > 0)
@@ -390,7 +390,7 @@ void CUAKMScript::Function_9C(CScriptState* pState)
 
 	CGameController::SetParameter(253, 1);
 	CGameController::SetParameter(100, 1);
-	pState->OfferMode = TRUE;
+	pState->Mode = InteractionMode::Offer;
 	pState->Offer = FALSE;
 	pState->AskAbout = FALSE;
 }
@@ -816,6 +816,8 @@ void CUAKMScript::Function_B4(CScriptState* pState)
 		{
 			h = sz.Height;
 		}
+
+		DialogueOptions[i].SetValue(i + 1);
 	}
 
 	// TODO: Should calculate height, in case the text needs to be wrapped...
@@ -1226,7 +1228,7 @@ void CUAKMScript::Function_8C(CScriptState* pState)
 	}
 	else if (index == 100)
 	{
-		pState->OfferMode = (value != 0);
+		pState->Mode = (value != 0) ? InteractionMode::Offer : InteractionMode::AskAbout;
 		pState->AskAbout = FALSE;
 		pState->Offer = FALSE;
 		pState->TopItemOffset = -1;
@@ -1524,10 +1526,10 @@ void CUAKMScript::Play(CScriptState* pState, int index, int bank, int rate)
 
 void CUAKMScript::PlayAudio(CScriptState* pState, int index)
 {
-	CAmbientAudio::Play(_mapEntry, index);
+	CAmbientAudio::Play(_mapEntry, index, TRUE);
 }
 
-int CUAKMScript::GetCurrentActions(CScriptState* pState, int currentObjectIndex)
+ActionType CUAKMScript::GetCurrentActions(CScriptState* pState, int currentObjectIndex)
 {
 	if (currentObjectIndex >= 0)
 	{
@@ -1556,5 +1558,34 @@ void CUAKMScript::Show(CScriptState* pState, int index)
 		FileMap fm = _mapEntry->ImageMap.at(index);
 		pState->WaitingForMediaToFinish = TRUE;	// Set to break out of the script loop
 		CModuleController::Push(new CPictureModule(fm.File, fm.Entry, this, pState));
+	}
+}
+
+void CUAKMScript::SelectDialogueOption(CScriptState* pState, int option)
+{
+	// 0x9c enables inventory
+	// if a[253]=1 then ask about
+
+	if (pState->Mode == InteractionMode::Offer && option == 1)
+	{
+		// Offer
+		pState->Offer = !pState->Offer;
+		pState->TopItemOffset = -1;
+	}
+	else if (CGameController::GetParameter(253) == 1 && option == 1)
+	{
+		// AskAbout
+		pState->AskAbout = !pState->AskAbout;
+		pState->TopItemOffset = -1;
+	}
+	else
+	{
+		pState->AskAbout = pState->Offer = FALSE;
+		if (pState->WaitingForInput)
+		{
+			pState->Mode = InteractionMode::None;
+			pState->SelectedOption = option;
+			Resume(pState, TRUE);
+		}
 	}
 }

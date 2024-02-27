@@ -39,9 +39,10 @@ BOOL CPTF::Init(LPBYTE pData, int length)
 			framePtr += frameSize;
 		}
 
-		if (_audioFramePointer != NULL)
+		if (_audioFramePointer != NULL && _videoFramePointer == NULL)
 		{
 			// Prepare for audio playback
+			_framePointer = _inputBufferLength;
 		}
 	}
 
@@ -270,7 +271,11 @@ BOOL CPTF::DecodeFrame()
 						pwfx->cbSize = 0;
 						_sourceVoice = CDXSound::CreateSourceVoice(pwfx, 0, 1.0f, this);
 					}
-					_sourceVoice->Start(0, 0);
+
+					if (_sourceVoice != NULL)
+					{
+						_sourceVoice->Start(0, 0);
+					}
 
 					audioPtr += 0x2c;
 					audioBytes -= 0x2c;
@@ -344,7 +349,11 @@ BOOL CPTF::DecodeFrame()
 					pwfx->cbSize = 0;
 					_sourceVoice = CDXSound::CreateSourceVoice(pwfx, 0, 1.0f, this);
 				}
-				_sourceVoice->Start(0, 0);
+
+				if (_sourceVoice != NULL)
+				{
+					_sourceVoice->Start(0, 0);
+				}
 
 				inPtr += 0x2c;
 				audioBytes -= 0x2c;
@@ -358,7 +367,6 @@ BOOL CPTF::DecodeFrame()
 				buf.AudioBytes = audioBytes;
 				buf.pAudioData = _pInputBuffer + inPtr;
 				_remainingAudioLength -= audioBytes;
-				//if (_remainingAudioLength == 0) buf.Flags = XAUDIO2_END_OF_STREAM;
 				_sourceVoice->SubmitSourceBuffer(&buf);
 
 				_audioFramesQueued++;

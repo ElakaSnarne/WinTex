@@ -57,7 +57,7 @@ BinaryData LoadEntry(LPCWSTR fileName, int itemIndex)
 					{
 						int offset1 = GetInt(header, 2 + itemIndex * 4, 4);
 						int offset2 = GetInt(header, 6 + itemIndex * 4, 4);
-						if (offset2 > offset1&& offset1 >= (2 + count * 4))
+						if (offset2 > offset1 && offset1 >= (2 + count * 4))
 						{
 							int size = offset2 - offset1;
 							LPBYTE pBuffer = new BYTE[size];
@@ -133,7 +133,7 @@ DoubleData LoadDoubleEntry(LPCWSTR fileName, int itemIndex)
 						int offset1 = GetInt(header, 2 + itemIndex * 4, 4);
 						int offset2 = GetInt(header, 6 + itemIndex * 4, 4);
 						int offset3 = GetInt(header, 10 + itemIndex * 4, 4);
-						if (offset2 > offset1&& offset3 > offset2&& offset1 >= (2 + count * 4))
+						if (offset2 > offset1 && offset3 > offset2 && offset1 >= (2 + count * 4))
 						{
 							int size1 = offset2 - offset1;
 							LPBYTE pBuffer1 = new BYTE[size1];
@@ -248,11 +248,12 @@ void Trace(float val, int dc)
 void Trace(int val, int rad)
 {
 	std::wstringstream buffer;
-	buffer << std::setbase(rad) << std::to_wstring(val);
+	buffer << std::setbase(rad) << val;// std::to_wstring(val);
 	Trace(buffer.str().c_str());
 }
 
 void TraceLine(LPWSTR text) { Trace(text); Trace(L"\r\n"); }
+void TraceLine(LPCWSTR text) { Trace(text); Trace(L"\r\n"); }
 void TraceLine(float val, int dc) { Trace(val, dc); Trace(L"\r\n"); }
 void TraceLine(int val, int rad) { Trace(val, rad); Trace(L"\r\n"); }
 
@@ -346,4 +347,43 @@ void SwapCaptions()
 	pDisplayCaptions = pAddCaptions;
 	pAddCaptions = pOld;
 	ClearCaptions(pOld);
+}
+
+float From12_4(int v)
+{
+	return ((float)v) / 16.0f;
+}
+
+float From16_16(int v)
+{
+	return ((float)v) / 65536.0f;
+}
+
+std::string IntToString(int value, int size)
+{
+	char buffer[10];
+	char format[20];
+	sprintf_s(format, 20, "%%0%ii", size);
+	sprintf_s(buffer, 10, format, value);
+	return buffer;
+}
+
+ActionType& operator|=(ActionType& left, ActionType right)
+{
+	return left = static_cast<ActionType>(static_cast<int>(left) | static_cast<int>(right));
+}
+
+ActionType& operator<<=(ActionType& left, int amount)
+{
+	return left = static_cast<ActionType>(static_cast<int>(left) << amount);
+}
+
+ActionType operator&(ActionType left, ActionType right)
+{
+	return static_cast<ActionType>(static_cast<int>(left) & static_cast<int>(right));
+}
+
+ActionType operator>>(ActionType left, int amount)
+{
+	return static_cast<ActionType>(static_cast<int>(left) >> amount);
 }

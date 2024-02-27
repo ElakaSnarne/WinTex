@@ -7,6 +7,7 @@
 #include <xaudio2.h>
 #include "DirectX.h"
 #include "Texture.h"
+#include "Mutex.h"
 
 class CAnimBase : public CDXBase, public IXAudio2VoiceCallback
 {
@@ -23,6 +24,8 @@ public:
 	virtual BOOL IsWave() { return FALSE; }
 	virtual BOOL HasVideo() { return TRUE; }
 
+	virtual BOOL ShouldClearDXBuffer() { return TRUE; }
+
 	STDMETHOD_(void, OnVoiceProcessingPassStart)(UINT32) { }
 	STDMETHOD_(void, OnVoiceProcessingPassEnd)() { }
 	STDMETHOD_(void, OnStreamEnd)() { }
@@ -31,28 +34,33 @@ public:
 	{
 		_audioFramesProcessed++;
 
-		if (_sourceVoice != NULL)
+		if (_lock.Lock())
 		{
-			if (_audioBuffers.size() > 0)
+			if (_sourceVoice != NULL)
 			{
-				// Enqueue the next buffer
-				Buffer ab = _audioBuffers.front();
-				_audioBuffers.pop_front();
+				if (_audioBuffers.size() > 0)
+				{
+					// Enqueue the next buffer
+					Buffer ab = _audioBuffers.front();
+					_audioBuffers.pop_front();
 
-				XAUDIO2_BUFFER buf = { 0 };
-				buf.AudioBytes = ab.Size;
-				buf.pAudioData = ab.pData;
-				_sourceVoice->SubmitSourceBuffer(&buf);
+					XAUDIO2_BUFFER buf = { 0 };
+					buf.AudioBytes = ab.Size;
+					buf.pAudioData = ab.pData;
+					_sourceVoice->SubmitSourceBuffer(&buf);
 
-				_audioFramesQueued++;
+					_audioFramesQueued++;
+				}
 			}
+
+			_lock.Release();
 		}
 	}
 	STDMETHOD_(void, OnLoopEnd)(void*) { }
 	STDMETHOD_(void, OnVoiceError)(void*, HRESULT) { }
 
 	virtual BOOL IsDone() { return _done; }
-	void Skip();
+	virtual void Skip();
 	int Frame() { return _frame; }
 
 	int Width() { return _width; }
@@ -99,4 +107,6 @@ protected:
 	BOOL _done;
 
 	BYTE _colourTranslationTable[64];
+
+	CMutex _lock;
 };

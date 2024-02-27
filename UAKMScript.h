@@ -11,8 +11,10 @@ public:
 
 	virtual void Execute(CScriptState* pState, int id);
 	virtual void Resume(CScriptState* pState, BOOL breakWait = FALSE);
-	virtual int GetCurrentActions(CScriptState* pState, int currentObjectIndex);
-	virtual void PermformAction(CScriptState* pState, int id, int action, int item);
+	virtual ActionType GetCurrentActions(CScriptState* pState, int currentObjectIndex);
+	virtual void PermformAction(CScriptState* pState, int id, ActionType action, int item);
+
+	virtual void SelectDialogueOption(CScriptState* pState, int option);
 
 protected:
 	void Function_80(CScriptState* pState);

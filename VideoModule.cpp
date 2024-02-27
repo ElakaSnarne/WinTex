@@ -10,6 +10,8 @@ CVideoModule::CVideoModule(VideoType type, int dmapIndex, int activeScript) : CM
 {
 	Type = type;
 
+	std::wstring test = CGameController::GetFileName(dmapIndex);
+
 	// Get DMAPData, copy script, reset pointer or set to active script
 	_scriptEngine = CGameController::GetScriptEngine();
 	_scriptEngine->_mapEntry = CModuleController::pDMap->Get(dmapIndex);
@@ -19,6 +21,11 @@ CVideoModule::CVideoModule(VideoType type, int dmapIndex, int activeScript) : CM
 		BinaryData bd = LoadEntry(fileName.c_str(), _scriptEngine->_mapEntry->ScriptFileEntry);
 		_scriptState = CGameController::GetScriptState();
 		_scriptState->Init(bd.Data, bd.Length, fileName.c_str(), _scriptEngine->_mapEntry->ScriptFileEntry);
+
+		//if (activeScript < 0)
+		{
+			activeScript = 0;
+		}
 		if (activeScript >= 0)
 		{
 			_scriptState->ExecutionPointer = _scriptState->GetScript(activeScript);
@@ -29,6 +36,8 @@ CVideoModule::CVideoModule(VideoType type, int dmapIndex, int activeScript) : CM
 			_scriptState->ExecutionPointer = 0;
 		}
 	}
+
+	_askAboutBase = 0;
 }
 
 CVideoModule::CVideoModule(VideoType type, LPCWSTR fileName, int itemIndex) : CModuleBase(ModuleType::Video)
@@ -85,8 +94,6 @@ void CVideoModule::Render()
 {
 	if (CAnimationController::Exists())
 	{
-		dx.Clear(0.0f, 0.0f, 0.0f);
-
 		CAnimationController::UpdateAndRender();
 
 		if (_scriptState->WaitingForInput && CAnimationController::IsDone() && CAnimationController::IsDone())
@@ -104,15 +111,16 @@ void CVideoModule::Render()
 				DialogueOptions[2].Render();
 			}
 
-			if (_scriptState->AskAbout || _scriptState->Offer)
+			if (_scriptState->AskAbout || _scriptState->Offer || _scriptState->Buy)
 			{
-				BOOL recreate = ((_scriptState->AskAbout && CGameController::AskAboutChanged) || (_scriptState->Offer && CGameController::ItemsChanged));
+				BOOL recreate = ((_scriptState->AskAbout && CGameController::AskAboutChanged) || (_scriptState->Offer && CGameController::ItemsChanged) || (_scriptState->Buy && CGameController::BuyChanged));
 
 				if (_scriptState->TopItemOffset < 0 || recreate)
 				{
-					// TODO: Create new buffers...
+					int valToFind = -1;
+
 					std::vector<ListBoxItem> items;
-					if (_scriptState->AskAbout)
+					if (_scriptState->AskAbout && !_scriptState->AskingAboutBuyables)
 					{
 						int askAboutCount = CGameController::GetAskAboutCount();
 						for (int i = 0; i < 256 && i < askAboutCount; i++)
@@ -124,6 +132,7 @@ void CVideoModule::Render()
 						}
 
 						CGameController::AskAboutChanged = FALSE;
+						valToFind = 4;
 					}
 					else if (_scriptState->Offer)
 					{
@@ -137,10 +146,37 @@ void CVideoModule::Render()
 						}
 
 						CGameController::ItemsChanged = FALSE;
+						valToFind = 7;
+					}
+					else if (_scriptState->Buy || (_scriptState->AskAbout && _scriptState->AskingAboutBuyables))
+					{
+						_askAboutBase = 0x3f;
+
+						int itemCount = CGameController::GetBuyableItemCount();
+						for (int i = 0; i < 256 && i < itemCount; i++)
+						{
+							ListBoxItem lbi;
+							lbi.Id = CGameController::GetBuyableItemId(i);
+							lbi.Text = CGameController::GetBuyableItemName(lbi.Id);
+							items.push_back(lbi);
+						}
+
+						CGameController::BuyChanged = FALSE;
+						valToFind = _scriptState->Buy ? 6 : 4;
 					}
 
 					_scriptState->TopItemOffset = 0;
-					_listBox.Init(items, DialogueOptions[0].GetX() + DialogueOptions[0].GetWidth() / 2.0f);
+					// Make list appear over the correct button
+					int ix = 0;
+					if (DialogueOptions[1].GetValue() == valToFind)
+					{
+						ix = 1;
+					}
+					else if (DialogueOptions[2].GetValue() == valToFind)
+					{
+						ix = 2;
+					}
+					_listBox.Init(items, floor(DialogueOptions[ix].GetX() + DialogueOptions[ix].GetWidth() / 2.0f));
 				}
 
 				_listBox.Render();
@@ -150,8 +186,6 @@ void CVideoModule::Render()
 			CModuleController::Cursors[0].SetPosition(_cursorPosX, _cursorPosY);
 			CModuleController::Cursors[0].Render();
 		}
-
-		dx.Present(1, 0);
 	}
 
 	if (!CAnimationController::HasAnim() || CAnimationController::IsDone())
@@ -179,17 +213,17 @@ void CVideoModule::Render()
 
 void CVideoModule::DialogueOptionA(LPVOID data)
 {
-	SelectOption(1);
+	SelectOption(DialogueOptions[0].GetValue());
 }
 
 void CVideoModule::DialogueOptionB(LPVOID data)
 {
-	SelectOption(2);
+	SelectOption(DialogueOptions[1].GetValue());
 }
 
 void CVideoModule::DialogueOptionC(LPVOID data)
 {
-	SelectOption(3);
+	SelectOption(DialogueOptions[2].GetValue());
 }
 
 void CVideoModule::SelectOption(int option)
@@ -205,8 +239,6 @@ void CVideoModule::SelectDialogueOption(int option)
 	_scriptState->TopItemOffset = -1;
 	_scriptEngine->SelectDialogueOption(_scriptState, option);
 }
-
-// TODO: When asking about topics, may have to regenerate the ask about list, as things may have been added or even removed...
 
 void CVideoModule::Resize(int width, int height)
 {
@@ -248,7 +280,7 @@ void CVideoModule::Cursor(float x, float y, BOOL relative)
 			}
 		}
 
-		if (_scriptState->AskAbout || _scriptState->Offer)
+		if (_scriptState->AskAbout || _scriptState->Offer || _scriptState->Buy)
 		{
 			_listBox.HitTestLB(x, y);
 		}
@@ -257,29 +289,32 @@ void CVideoModule::Cursor(float x, float y, BOOL relative)
 
 void CVideoModule::BeginAction()
 {
+#ifndef DEBUG
 	if (CGameController::CanCancelVideo())
+#endif
 	{
 		CAnimationController::Skip();
 
 		float x = _cursorPosX;
 		float y = _cursorPosY;
 
-		if (_scriptState->WaitingForInput && (_scriptState->AskAbout || _scriptState->Offer))
+		if (_scriptState->WaitingForInput && (_scriptState->AskAbout || _scriptState->Offer || _scriptState->Buy))
 		{
 			int hitId = _listBox.HitTestLB(x, y);
 			if (hitId >= 0)
 			{
 				// Set item id and option and resume script
-				int option = _scriptState->AskAbout ? 4 : _scriptState->Offer ? 7 : -1;
-				CGameController::SetParameter(99, hitId);
+				int option = _scriptState->AskAbout ? 4 : _scriptState->Offer ? 7 : _scriptState->Buy ? 6 : -1;
+				CGameController::SetSelectedItem(hitId + ((option == 4) ? _askAboutBase : 0));
 				_scriptState->SelectedOption = option;
+				_scriptState->SelectedValue = hitId + ((option == 4) ? _askAboutBase : 0);
 				_scriptEngine->Resume(_scriptState, TRUE);
 			}
 		}
 
 		for (int i = 0; i < 3; i++)
 		{
-			if (DialogueOptionsCount > i&& DialogueOptions[i].HitTest(x, y) != NULL)
+			if (DialogueOptionsCount > i && DialogueOptions[i].HitTest(x, y) != NULL)
 			{
 				DialogueOptions[i].Click();
 				break;

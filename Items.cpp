@@ -14,6 +14,11 @@ ID3D11ShaderResourceView* CItems::_textureRV;
 
 std::unordered_map<int, CItems::Inventory*> CItems::_items;
 
+int CItems::Colour1 = 0xff000000;
+int CItems::Colour2 = -1;
+int CItems::Colour3 = -1;
+int CItems::Colour4 = 0xff000000;
+
 CItems::CItems()
 {
 	_vertexBuffer = NULL;
@@ -293,7 +298,7 @@ CItems::Inventory::Inventory(int id, int w, int h)
 	if (text.size() > 0)
 	{
 		Text.SetText(text.c_str());
-		Text.SetColours(0xff000000, -1, -1, 0xff000000);
+		Text.SetColours(Colour1, Colour2, Colour3, Colour4);
 	}
 }
 
@@ -311,8 +316,9 @@ void CItems::Inventory::Render(float x, float y)
 	RenderImage(x, y);
 }
 
-void CItems::Inventory::RenderName(float x, float y, BOOL highlight)
+void CItems::Inventory::RenderName(float x, float y, int colour1, int colour2, int colour3, int colour4, BOOL highlight)
 {
+	Text.SetColours(colour1, colour2, colour3, colour4);
 	Text.Render(x, y);
 }
 
@@ -348,7 +354,7 @@ void CItems::RenderItem(int id, float x, float y)
 
 void CItems::RenderItemName(int id, float x, float y, BOOL highlight)
 {
-	_items[id]->RenderName(x, y, highlight);
+	_items[id]->RenderName(x, y, Colour1, Colour2, Colour3, Colour4, highlight);
 }
 
 void CItems::RenderItemImage(int id, float x, float y, BOOL highlight)
@@ -374,4 +380,9 @@ int CItems::GetWidestName()
 int CItems::GetItemNameWidth(int id)
 {
 	return static_cast<int>(_items[id]->NameWidth());
+}
+
+void CItems::SetItemName(int id, std::wstring text)
+{
+	_items[id]->SetItemName(text);
 }

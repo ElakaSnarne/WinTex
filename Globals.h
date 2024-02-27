@@ -14,28 +14,13 @@
 #include "ModuleController.h"
 #include "DXFont.h"
 #include "MIDIPlayer.h"
+#include "PDMIDIPlayer.h"
+#include "Enums.h"
+#include "Overlay.h"
 
 extern float twopi;
 
 class CAnimBase;
-
-enum class VideoMode
-{
-	Embedded = 0,
-	FullScreen = 1
-};
-
-enum class ConversationOption
-{
-	None = 0,
-	A = 1,
-	B = 2,
-	C = 3,
-
-	AskAbout = 4,
-	Offer = 7,
-	Abort = 99,
-};
 
 extern CDirectX dx;
 extern VideoMode videoMode;
@@ -47,20 +32,6 @@ extern std::list<CCaption*>* pAddCaptions;
 extern PWSTR gamePath;
 
 extern CMutex _lock;
-
-enum class Alignment
-{
-	Default = 0x00,
-	Left = 0x01,
-	Right = 0x02,
-	CenterX = 0x04,
-	Top = 0x08,
-	Bottom = 0x10,
-	CenterY = 0x20,
-	ScaleX = 0x40,
-	ScaleY = 0x80,
-	Scale = ScaleX | ScaleY
-};
 
 inline Alignment operator|(Alignment a, Alignment b)
 {
@@ -83,3 +54,8 @@ extern CDXFont TexFont;
 extern CMIDIPlayer* pMIDI;
 
 extern BOOL isUAKM;
+
+extern COverlay* pOverlay;
+extern COverlay* pClimbLadderOverlay;
+extern COverlay* pConvertPointsOverlay;
+extern COverlay* pElevationModOverlay;

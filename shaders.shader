@@ -10,21 +10,9 @@ cbuffer WorldBuffer : register(b1)
 	matrix worldMatrix;
 };
 
-/*
-cbuffer FontBuffer : register(b2)
-{
-	float4 mcolour1;
-	float4 mcolour2;
-	float4 mcolour3;
-	float4 mcolour4;
-	float4 mcolour5;
-	float4 mcolour6;
-};
-*/
-
 cbuffer VisibilityBuffer : register(b3)
 {
-	float4 visibility[3000];
+	float4 visibility[4096];
 };
 
 cbuffer TexFontBuffer : register(b4)
@@ -55,6 +43,7 @@ struct TexturedVertexInputType
 	float4 position : POSITION;
 	float2 tex : TEXCOORD0;
 	float2 objectIndex : TEXCOORD1;
+	float4 objectParameters : TEXCOORD2;
 };
 
 struct TexturedPixelInputType
@@ -62,6 +51,7 @@ struct TexturedPixelInputType
 	float4 position : SV_POSITION;
 	float2 tex : TEXCOORD0;
 	float2 objectIndex : TEXCOORD1;
+	float4 objectParameters : TEXCOORD2;
 };
 
 TexturedPixelInputType OrthoVS(OrthoVertexInputType input)
@@ -73,6 +63,7 @@ TexturedPixelInputType OrthoVS(OrthoVertexInputType input)
 	output.position = mul(output.position, orthoMatrix);
 	output.tex = input.tex;
 	output.objectIndex.y = -1.0f;
+	output.objectParameters = float4(0,0,0,0);
 	return output;
 }
 
@@ -88,6 +79,7 @@ TexturedPixelInputType TexturedVS(TexturedVertexInputType input)
 	output.position = mul(output.position, projectionMatrix);
 	output.tex = input.tex;
 	output.objectIndex = input.objectIndex;
+	output.objectParameters = input.objectParameters;
 	return output;
 }
 
@@ -95,7 +87,7 @@ float4 TexturedPS(TexturedPixelInputType input) : SV_TARGET
 {
 	float4 c = shaderTexture.Sample(AASampleType, input.tex);
 
-	if (c.a < 0.25f)
+	if (input.objectParameters.x > 0.0f && c.a < 0.25f)
 	{
 		discard;
 	}
@@ -117,10 +109,10 @@ float4 TexFontPS(TexturedPixelInputType input) : SV_TARGET
 	float4 textureColor4 = shaderTexture.Sample(SampleType, tt4);
 
 	float4 ret;
-	ret.a = saturate(textureColor1.a*colour1.a + textureColor2.a*colour2.a + textureColor3.a*colour3.a + textureColor4.a*colour4.a);
-	ret.r = saturate(textureColor1.r*colour1.r + textureColor2.r*colour2.r + textureColor3.r*colour3.r + textureColor4.r*colour4.r);
-	ret.g = saturate(textureColor1.g*colour1.g + textureColor2.g*colour2.g + textureColor3.g*colour3.g + textureColor4.g*colour4.g);
-	ret.b = saturate(textureColor1.b*colour1.b + textureColor2.b*colour2.b + textureColor3.b*colour3.b + textureColor4.b*colour4.b);
+	ret.a = saturate(textureColor1.a * colour1.a + textureColor2.a * colour2.a + textureColor3.a * colour3.a + textureColor4.a * colour4.a);
+	ret.r = saturate(textureColor1.r * colour1.r + textureColor2.r * colour2.r + textureColor3.r * colour3.r + textureColor4.r * colour4.r);
+	ret.g = saturate(textureColor1.g * colour1.g + textureColor2.g * colour2.g + textureColor3.g * colour3.g + textureColor4.g * colour4.g);
+	ret.b = saturate(textureColor1.b * colour1.b + textureColor2.b * colour2.b + textureColor3.b * colour3.b + textureColor4.b * colour4.b);
 
 	return ret;
 }
@@ -249,14 +241,61 @@ float4 MultiColouredFontPS(MultiColouredPixelInputType input) : SV_TARGET
 	float4 textureColor4 = shaderTexture.Sample(SampleType, tt4);
 
 	float4 c1 = float4(0.59, 0.59, 0.59, 1.0);	// Shade
-	float4 c2 = input.colour;						// Main
+	float4 c2 = input.colour;					// Main
 	float4 c3 = float4(0.78, 0.78, 0.78, 1.0);	// Highlight
 
 	float4 ret;
-	ret.a = saturate(textureColor1.a* c1.a + textureColor2.a * c2.a + textureColor3.a * c2.a + textureColor4.a * c3.a);
-	ret.r = saturate(textureColor1.r* c1.r + textureColor2.r * c2.r + textureColor3.r * c2.r + textureColor4.r * c3.r);
-	ret.g = saturate(textureColor1.g* c1.g + textureColor2.g * c2.g + textureColor3.g * c2.g + textureColor4.g * c3.g);
-	ret.b = saturate(textureColor1.b* c1.b + textureColor2.b * c2.b + textureColor3.b * c2.b + textureColor4.b * c3.b);
+	ret.a = saturate(textureColor1.a * c1.a + textureColor2.a * c2.a + textureColor3.a * c2.a + textureColor4.a * c3.a);
+	ret.r = saturate(textureColor1.r * c1.r + textureColor2.r * c2.r + textureColor3.r * c2.r + textureColor4.r * c3.r);
+	ret.g = saturate(textureColor1.g * c1.g + textureColor2.g * c2.g + textureColor3.g * c2.g + textureColor4.g * c3.g);
+	ret.b = saturate(textureColor1.b * c1.b + textureColor2.b * c2.b + textureColor3.b * c2.b + textureColor4.b * c3.b);
 
 	return ret;
+}
+
+// NV12/YUV shader for e.g. external H.264 video
+
+//https://github.com/balapradeepswork/D3D11NV12Rendering
+	
+float4 YUVPS(TexturedPixelInputType input) : SV_Target
+{
+	float y = shaderTexture.Sample(SampleType, float2(input.tex.x, input.tex.y * 0.5)).r;
+	float u = shaderTexture.Sample(SampleType, float2(input.tex.x * 0.5, 0.50 + input.tex.y * 0.25)).r;
+	float v = shaderTexture.Sample(SampleType, float2(input.tex.x * 0.5, 0.75 + input.tex.y * 0.25)).r;
+
+	// https://spec.oneapi.io/oneipl/0.5/convert/nv12-rgb-conversion.html
+	float3 yuv = float3(y - 0.0625f, u - 0.5f, v - 0.5f);
+
+	static const float3 yuvCoef_r = { 1.164f, 0.000f, 1.596f };
+	static const float3 yuvCoef_g = { 1.164f, -0.392f, -0.183f };
+	static const float3 yuvCoef_b = { 1.164f, 2.017f, 0.000f };
+
+	return float4(saturate(float3(dot(yuv, yuvCoef_r), dot(yuv, yuvCoef_g), dot(yuv, yuvCoef_b))), 1.f);
+}
+
+// Basic shader (points & lines)
+
+struct BasicVertexInputType
+{
+	float4 position : POSITION;
+};
+
+struct BasicPixelInputType
+{
+	float4 position : SV_POSITION;
+};
+
+BasicPixelInputType BasicVS(BasicVertexInputType input)
+{
+	BasicPixelInputType output;
+	input.position.w = 1.0f;
+	output.position = mul(input.position, worldMatrix);
+	output.position = mul(output.position, viewMatrix);
+	output.position = mul(output.position, projectionMatrix);
+	return output;
+}
+
+float4 BasicPS(BasicPixelInputType input) : SV_TARGET
+{
+	return float4(1.0,1.0,1.0,1.0);
 }

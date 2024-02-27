@@ -44,6 +44,9 @@ protected:
 	virtual void SetupLoadFrame();
 	virtual void SetupSaveFrame();
 
+	virtual void SetupSave() = NULL;
+	virtual void SetupLoad() = NULL;
+
 	static void NewGame(LPVOID data);
 	static void Resume(LPVOID data);
 	static void Load(LPVOID data);
@@ -63,22 +66,6 @@ protected:
 	static void ConfigPreviousMIDIDevice(LPVOID data);
 	static void ConfigNextMIDIDevice(LPVOID data);
 
-	/*
-	static int cfgWidth;
-	static int cfgHeight;
-	static int cfgMode;
-	static int cfgMIDIDevice;
-	static BOOL cfgFullscreen;
-	static BOOL cfgCaptions;
-	static BOOL cfgAlternativeMedia;
-	static BOOL cfgAnisotropicFiltering;
-	static float cfgFontScale;
-	static float cfgVolume;
-	static BOOL cfgPlayMIDI;
-	static float cfgMIDIVolume;
-	static BOOL cfgInvertY;
-	static float cfgMouselookScaling;
-	*/
 	static CConfiguration cfg;
 
 	static void UpdateResolutionLabel();
@@ -124,7 +111,6 @@ protected:
 	static int _loadVisibleSavesCount;
 	static void LoadScroll(int top);
 
-	static void SaveSetup();
 	static void SaveCancel(LPVOID data);
 	static void SaveSave(LPVOID data);
 	static void SaveIncrementSave(LPVOID data);

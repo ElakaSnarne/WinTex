@@ -6,9 +6,9 @@ class CDXBitmap : public CDXControl
 {
 public:
 	CDXBitmap();
-	CDXBitmap(PWCHAR fileName);
-	CDXBitmap(PBYTE pImage, DWORD size);
-	CDXBitmap(int width, int height);
+	CDXBitmap(PWCHAR fileName, Alignment alignment = Alignment::Default);
+	CDXBitmap(PBYTE pImage, DWORD size, Alignment alignment = Alignment::Default);
+	CDXBitmap(int width, int height, Alignment alignment = Alignment::Default);
 	~CDXBitmap();
 
 	virtual void Render();

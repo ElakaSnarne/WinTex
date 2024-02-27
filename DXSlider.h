@@ -6,7 +6,7 @@
 class CDXSlider : public CDXControl
 {
 public:
-	CDXSlider(char* text, float minValue, float maxValue, float step, float* pValue, int precision);
+	CDXSlider(char* text, float minValue, float maxValue, float step, float* pValue, int precision, float sliderX);
 	~CDXSlider();
 
 	static void Init();
@@ -22,6 +22,8 @@ public:
 	virtual CDXControl* HitTest(float x, float y);
 	void Drag(float x, float y);
 
+	virtual void SetColours(int colour1, int colour2, int colour3, int colour4);
+
 protected:
 	static CTexture _sliderTexBackground;
 	static CTexture _sliderTexSlider;
@@ -31,6 +33,7 @@ protected:
 
 	float _textX;
 	float _textY;
+	float _sliderX;
 
 	float _sliderPosition;
 

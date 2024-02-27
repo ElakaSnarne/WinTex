@@ -133,17 +133,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		// create the window and use the result as the handle
 		_hWnd = CreateWindowEx(0,
-			L"WinTex",									// name of the window class
-			windowTitle.c_str(),						// title of the window in release mode
-			WS_CAPTION,									// window style
-			windowX,									// x-position of the window
-			windowY,									// y-position of the window
-			windowWidth,								// width of the window
-			windowHeight,								// height of the window
-			NULL,										// we have no parent window, NULL
-			NULL,										// we aren't using menus, NULL
-			hInstance,									// application handle
-			NULL);										// used with multiple windows, NULL
+							   L"WinTex",									// name of the window class
+							   windowTitle.c_str(),						// title of the window in release mode
+							   WS_CAPTION,									// window style
+							   windowX,									// x-position of the window
+							   windowY,									// y-position of the window
+							   windowWidth,								// width of the window
+							   windowHeight,								// height of the window
+							   NULL,										// we have no parent window, NULL
+							   NULL,										// we aren't using menus, NULL
+							   hInstance,									// application handle
+							   NULL);										// used with multiple windows, NULL
 
 		ShowWindow(_hWnd, nCmdShow);
 		ShowCursor(FALSE);
@@ -154,7 +154,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 			try
 			{
-				pMIDI = new CMIDIPlayer();
+				if (uakm)
+				{
+					pMIDI = new CMIDIPlayer();
+				}
+				else if (pd)
+				{
+					pMIDI = new CPDMIDIPlayer();
+				}
+
 				CGameController::Init();
 				CAnimationController::Init();
 
@@ -190,7 +198,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					{
 						if (GetMessage(&msg, NULL, 0, 0))
 						{
-							if (msg.message == WM_CLOSE) break;
+							if (msg.message == WM_CLOSE)
+							{
+								_runDXThread = FALSE;
+								break;
+							}
 							else if (msg.message == WM_ACTIVATEAPP) {
 								if (msg.wParam == TRUE) {
 									CModuleController::GotFocus();
@@ -260,7 +272,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 							DispatchMessage(&msg);
 						}
 					}
-					_runDXThread = FALSE;
+
 					WaitForSingleObject(hThread, INFINITE);
 					CloseHandle(hThread);
 
@@ -302,60 +314,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 DWORD WINAPI Direct3DThread(LPVOID lpParameter)
 {
-	MSG msg = { 0 };
 	while (_runDXThread)
 	{
-		/*if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-
-			if (msg.message == WM_QUIT)
-			{
-				//PostThreadMessage(MainThreadId, msg.message, msg.wParam, msg.lParam);
-				PostThreadMessage(CModuleController::MainThreadId, WM_CLOSE, msg.wParam, msg.lParam);
-				break;
-			}
-			else if (msg.message == WM_KEYDOWN)
-			{
-				//CModuleController::KeyDown(msg.lParam);
-
-				//pGame->KeyDown(msg.wParam);
-			}
-			else if (msg.message == WM_KEYUP)
-			{
-				//pGame->KeyUp(msg.wParam);
-			}
-			else if (msg.message == WM_MOUSEMOVE)
-			{
-				POINT pt;
-				pt.x = (msg.lParam) & 0xffff;
-				pt.y = (msg.lParam >> 16) & 0xffff;
-				CModuleController::MouseMove(pt);
-				//OutputDebugString(L"MouseMove\r\n");
-			}
-
-			//DefWindowProc(hWnd, msg.message, msg.wParam, msg.lParam);
-
-			//Sleep(10);
-		}
-
-		//POINT pt;
-		//if (GetCursorPos(&pt))
-		//{
-		//	ScreenToClient(_hWnd, &pt);
-		//	pGame->SetCursorPos(pt);
-		//}
-		*/
-
 		try
 		{
 			CGamepadController::GamepadController->Update();	// Get joystick events
 			CModuleController::Render();
 		}
-		catch (void*)
+		catch (...)
 		{
-			int debug = 0;
+			MessageBox(NULL, L"Exception", L"Exception", 0);
 		}
 	}
 

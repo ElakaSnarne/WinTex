@@ -2,6 +2,7 @@
 #include "Globals.h"
 #include "AmbientAudio.h"
 #include "Gamepad.h"
+#include "GameController.h"
 
 CModuleBase* CModuleController::CurrentModule = NULL;
 CModuleBase* CModuleController::NextModule = NULL;
@@ -22,7 +23,114 @@ BOOL CModuleController::Init(CMap* map, CMap* dmap)
 	{
 		pMap = map;
 		pDMap = dmap;
-		return (map->Init() && dmap->Init());
+		BOOL ret = (map->Init() && dmap->Init());
+
+#ifdef DEBUGx
+		// Output all information from maps
+		int mapIndex = 0;
+		CMapData* pMap = NULL;
+		while ((pMap = map->Get(mapIndex)) != NULL)
+		{
+			Trace(L"DMap ");
+			TraceLine(mapIndex++);
+			Trace(L"Dialogue file: ");
+			TraceLine(CGameController::GetFileName(pMap->LocationFileIndex).c_str());
+			Trace(L"Script file: ");
+			TraceLine(CGameController::GetFileName(pMap->ScriptFileIndex).c_str());
+			Trace(L"Script entry: ");
+			TraceLine(pMap->ScriptFileEntry);
+			TraceLine(L"Animations");
+			int ix = 0;
+			for (auto anim : pMap->AnimationMap)
+			{
+				Trace(L"\t");
+				Trace(ix++);
+				Trace(L" = ");
+				TraceLine(anim);
+			}
+			TraceLine(L"Audio");
+			ix = 0;
+			for (auto audio : pMap->AudioMap)
+			{
+				Trace(L"\t");
+				Trace(ix++);
+				Trace(L" = ");
+				Trace(CGameController::GetFileName(audio.File).c_str());
+				Trace(L" #");
+				TraceLine(audio.Entry);
+			}
+			TraceLine(L"Environmental audio");
+			ix = 0;
+			for (auto audio : pMap->EnvironmentAudioMap)
+			{
+				Trace(L"\t");
+				Trace(ix++);
+				Trace(L" = ");
+				Trace(CGameController::GetFileName(audio.File).c_str());
+				Trace(L" #");
+				TraceLine(audio.Entry);
+			}
+			TraceLine(L"Video");
+			ix = 0;
+			for (auto video : pMap->VideoMap)
+			{
+				Trace(L"\t");
+				Trace(ix++);
+				Trace(L" = ");
+				Trace(CGameController::GetFileName(video.File).c_str());
+				Trace(L" #");
+				TraceLine(video.Entry);
+			}
+			TraceLine(L"Images");
+			ix = 0;
+			for (auto image : pMap->ImageMap)
+			{
+				Trace(L"\t");
+				Trace(ix++);
+				Trace(L" = ");
+				Trace(CGameController::GetFileName(image.File).c_str());
+				Trace(L" #");
+				TraceLine(image.Entry);
+			}
+			TraceLine(L"Objects");
+			ix = 0;
+			for (auto obj : pMap->ObjectMap)
+			{
+				Trace(L"\t");
+				Trace(ix++);
+				Trace(L" = ");
+				TraceLine(obj, 16);
+			}
+			TraceLine(L"Startup positions");
+			ix = 0;
+			for (auto pos : pMap->StartupPositions)
+			{
+				Trace(L"\t");
+				Trace(ix++);
+				Trace(L" = (x:");
+				Trace(pos.X);
+				Trace(L", y:");
+				Trace(pos.Y);
+				Trace(L", z:");
+				Trace(pos.Z);
+				Trace(L"), angle = ");
+				Trace(pos.Angle);
+
+				Trace(L"IEL = ");
+				Trace(pos.InitialEyeLevel);
+				Trace(L"MinY = ");
+				Trace(pos.MinYAdj);
+				Trace(L"MaxY = ");
+				Trace(pos.MaxYAdj);
+				Trace(L"Elevation = ");
+				TraceLine(pos.Elevation);
+			}
+
+			TraceLine(L"");
+		}
+#endif
+
+		return ret;
 	}
 
 	return FALSE;
@@ -128,8 +236,10 @@ void CModuleController::Render()
 
 	if (CurrentModule != NULL)
 	{
+		dx.Clear();
 		CurrentModule->Render();
 		CurrentModule->CheckInput();
+		dx.Present(1, 0);
 	}
 
 	_lock.Release();

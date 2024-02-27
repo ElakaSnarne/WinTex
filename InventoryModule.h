@@ -7,6 +7,11 @@
 #include "AnimBase.h"
 #include "DXImageButton.h"
 
+#define EXAMINE_FLAG_VIDEO			1
+#define EXAMINE_FLAG_IMAGE			2
+#define EXAMINE_FLAG_TEXT			4
+#define EXAMINE_FLAG_SPECIAL		8
+
 class CInventoryModule : public CModuleBase
 {
 public:
@@ -21,6 +26,7 @@ public:
 	static int ExamineItemOnResume;
 
 protected:
+	static CInventoryModule* Instance;
 	virtual void Initialize();
 
 	BOOL CheckButton(CDXButton* btn, float x, float y);
@@ -40,12 +46,15 @@ protected:
 	static void OnUse(LPVOID data);
 	static void OnResume(LPVOID data);
 
+	virtual void Examine();
+	virtual void Resume();
+
 	static ID3D11Buffer* _selectionRectangle;
 
 	static LPBYTE _examData;
 	static int _examStructSize;
 
-	enum ExminationFlag
+	enum class ExminationFlag
 	{
 		Video = 1,
 		Image = 2,

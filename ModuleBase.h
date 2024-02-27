@@ -6,35 +6,12 @@
 #include "D3DX11-NoWarn.h"
 #include <DirectXPackedVector.h>
 #include "InputMapping.h"
+#include "Enums.h"
 
 class CControllerData;
 
 using namespace DirectX::PackedVector;
 using namespace DirectX;
-
-enum class ModuleType
-{
-	Video = 1,
-	Location = 2,
-	Picture = 3,
-	CrimeLink = 4,
-	Inventory = 5,
-	NewsPaper = 6,
-	Travel = 7,
-	MainMenu = 8,
-	UltraSafe = 9,
-	TornNote = 10,
-	EncodedMessage = 11,
-	ShreddedNote = 12,
-	CodePanel = 13,
-	AAASafe = 14,
-	ColonelsComputer = 15,
-	GRSComputer = 16,
-	Ferrelette = 17,
-	Stasis = 18,
-	ResumeGame = 19,
-	Hints = 20,
-};
 
 class CModuleBase {
 public:
@@ -105,5 +82,5 @@ protected:
 	RECT _oldClippingArea;
 	RECT _currentClippingArea;
 	bool _cursorIsClipped;
-	bool _hasFocus {true};
+	bool _hasFocus{ true };
 };

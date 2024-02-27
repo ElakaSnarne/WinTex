@@ -1,5 +1,8 @@
 #pragma once
+
 #include "DXBase.h"
+#include "ShaderStructs.h"
+#include "Enums.h"
 
 class CDXControl : public CDXBase
 {
@@ -62,6 +65,8 @@ public:
 	virtual void SetEnabled(BOOL enabled) { _enabled = enabled; }
 	virtual BOOL GetEnabled() { return _enabled; }
 
+	virtual void SetColours(int colour1, int colour2, int colour3, int colour4) {}
+
 protected:
 	float _x;
 	float _y;
@@ -79,4 +84,6 @@ protected:
 
 	void SetVertex(TEXTURED_VERTEX_ORTHO* pVB, int index, float x, float y, float z, float u, float v);
 	void SetQuadVertex(TEXTURED_VERTEX_ORTHO* pVB, int index, float x1, float x2, float y1, float y2, float u1, float u2, float v1, float v2);
+
+	Alignment _alignment;
 };

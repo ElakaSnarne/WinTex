@@ -2,7 +2,6 @@
 #include "AnimBase.h"
 #include <Windows.h>
 #include "BIC.h"
-#include "DXAnimation.h"
 
 class CSilentBIC : public CBIC
 {

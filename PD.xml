@@ -328,31 +328,6 @@
 		<Topic Name=""/>
 		<Topic Name=""/>
 		<Topic Name=""/>
-		<Topic Name="Robco battery pack"/>
-		<Topic Name="Visual Analyzing Apparatus"/>
-		<Topic Name="Robco Combuster"/>
-		<Topic Name="Robco Call Tracer"/>
-		<Topic Name="Rodent Tracker 9000"/>
-		<Topic Name="Egg Speakers"/>
-		<Topic Name="Headphones"/>
-		<Topic Name="Cyber Nanny"/>
-		<Topic Name="Spaceship - Buzzard"/>
-		<Topic Name="Spaceship - Moonchild"/>
-		<Topic Name="Remote Control Geigger"/>
-		<Topic Name="Misc. items"/>
-		<Topic Name="Etch-O-Sketch"/>
-		<Topic Name="Ectoplasm Detector"/>
-		<Topic Name="Joysticks"/>
-		<Topic Name="Video Watches"/>
-		<Topic Name="Computer"/>
-		<Topic Name="Velcro Box"/>
-		<Topic Name="Tazers"/>
-		<Topic Name="Camera"/>
-		<Topic Name="Geordi LaForge Visors"/>
-		<Topic Name="Globe"/>
-		<Topic Name="Vidphone"/>
-		<Topic Name="Blue Light Special Box"/>
-		<Topic Name="PortaFax 3000"/>
 	</AskAbout>
 
 	<Items>
@@ -658,6 +633,34 @@
 		<Item Name="Item# 299"/>
 	</Items>
 
+	<BuyableItems>
+		<Item Name="Robco battery pack"/>
+		<Item Name="Visual Analyzing Apparatus"/>
+		<Item Name="Robco Combuster"/>
+		<Item Name="Robco Call Tracer"/>
+		<Item Name="Rodent Tracker 9000"/>
+		<Item Name="Egg Speakers"/>
+		<Item Name="Headphones"/>
+		<Item Name="Cyber Nanny"/>
+		<Item Name="Spaceship - Buzzard"/>
+		<Item Name="Spaceship - Moonchild"/>
+		<Item Name="Remote Control Geigger"/>
+		<Item Name="Misc. items"/>
+		<Item Name="Etch-O-Sketch"/>
+		<Item Name="Ectoplasm Detector"/>
+		<Item Name="Joysticks"/>
+		<Item Name="Video Watches"/>
+		<Item Name="Computer"/>
+		<Item Name="Velcro Box"/>
+		<Item Name="Tazers"/>
+		<Item Name="Camera"/>
+		<Item Name="Geordi LaForge Visors"/>
+		<Item Name="Globe"/>
+		<Item Name="Vidphone"/>
+		<Item Name="Blue Light Special Box"/>
+		<Item Name="PortaFax 3000"/>
+	</BuyableItems>
+
 	<SaveSituations>
 		<L Default="Somewhere">
 			<LD Name=""/>
@@ -815,4 +818,13 @@
 			<DD Name="Movie sequence"/>
 		</D>
 	</SaveSituations>
+
+	<Hints>
+		<HintCategory Index="1" Title="Getting Started in Tex's Office">
+			<Hint Index="1">Get all the &lt;MAIL&gt; by the door. &lt;(Sales Flyer, Gift Certificate, Application)&gt;</Hint>
+			<Hint Index="2">Look at the &lt; FAX MACHINE&gt; on top of the file cabinet.</Hint>
+			<Hint Index="3">Look at the &lt;CRIME LINK COMPUTER&gt; on the table behind Tex's desk.</Hint>
+			<Hint Index="4">To leave Tex's office, open the office door and walk down to the street.</Hint>
+		</HintCategory>
+	</Hints>
 </GameData>

@@ -16,7 +16,7 @@ void CDXTabControl::Render()
 	auto elementCount = _childElements.size();
 	float elementWidth = _w / elementCount;
 	float x = _x;
-	float y = _y + 20.0f;
+	float y = _y + 5 + TexFont.Height() * pConfig->FontScale;
 
 	for (auto child : _childElements)
 	{
@@ -36,14 +36,15 @@ CDXControl* CDXTabControl::HitTest(float x, float y)
 	auto elementCount = _childElements.size();
 	float elementWidth = _w / elementCount;
 	float cx = _x;
-	float cy = _y + 20.0f;
+	float scaledFontHeight = TexFont.Height() * pConfig->FontScale;
+	float cy = _y + 5 + scaledFontHeight;
 
 	for (auto child : _childElements)
 	{
 		float nx = cx + elementWidth;
 
 		// Hit test header
-		if (x >= cx && x <= nx && y >= cy && y <= (cy + 20))
+		if (x >= cx && x <= nx && y >= cy && y <= (cy + scaledFontHeight + 8))
 		{
 			return child;
 		}

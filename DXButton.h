@@ -29,6 +29,8 @@ public:
 
 	virtual void SetMouseOver(BOOL mouseOver);
 
+	static void SetButtonColours(int colour1, int colour2, int colour3, int colour4);
+
 protected:
 	void(*_clicked)(LPVOID data);
 	LPVOID _data{};
@@ -43,4 +45,9 @@ protected:
 	static CDXSound* _pSound;
 
 	CDXButton() { _textX = 0.0f; _textY = 0.0f; _clicked = NULL; _pText = NULL; }
+
+	static int Colour1;
+	static int Colour2;
+	static int Colour3;
+	static int Colour4;
 };

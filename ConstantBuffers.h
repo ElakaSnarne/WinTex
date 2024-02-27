@@ -3,6 +3,7 @@
 #include "DirectX.h"
 #include "D3D11-NoWarn.h"
 //#include <D3DX10math.h>
+#include "ShaderStructs.h"
 
 class CConstantBuffers
 {

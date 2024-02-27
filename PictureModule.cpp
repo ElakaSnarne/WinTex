@@ -44,9 +44,7 @@ void CPictureModule::Render()
 	// Allow one frame to render before resuming script
 	if (_image != NULL && !_rendered)
 	{
-		dx.Clear(0.0f, 0.0f, 0.0f);
 		_image->Render();
-		dx.Present(1, 0);
 
 		_rendered = TRUE;
 		_state->WaitingForMediaToFinish = FALSE;
@@ -55,9 +53,7 @@ void CPictureModule::Render()
 	{
 		if (CAnimationController::HasAnim() && !CAnimationController::IsDone())
 		{
-			dx.Clear(0.0f, 0.0f, 0.0f);
 			CAnimationController::UpdateAndRender();
-			dx.Present(1, 0);
 		}
 		else
 		{

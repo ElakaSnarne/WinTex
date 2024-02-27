@@ -16,9 +16,9 @@ public:
 
 	virtual void Execute(CScriptState* pState, int id) = NULL;
 	virtual void Resume(CScriptState* pState, BOOL breakWait = FALSE) = NULL;
-	virtual int GetCurrentActions(CScriptState* pState, int currentObjectIndex) { return 0; };
-	virtual void PermformAction(CScriptState* pState, int id, int action, int item) = NULL;
-	virtual void SelectDialogueOption(CScriptState* pState, int option);
+	virtual ActionType GetCurrentActions(CScriptState* pState, int currentObjectIndex) { return ActionType::None; };
+	virtual void PermformAction(CScriptState* pState, int id, ActionType action, int item) = NULL;
+	virtual void SelectDialogueOption(CScriptState* pState, int option) = NULL;
 
 	CMapData* _mapEntry;
 

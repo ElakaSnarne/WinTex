@@ -16,10 +16,10 @@ public:
 		// Generate list of script entries
 		_scriptEntries.clear();
 
-		int count = GetInt(script, 0, 2);
+		int count = GetInt(0, 2);
 		for (int i = 0; i < count; i++)
 		{
-			_scriptEntries[i] = GetInt(script, 16 + i * 2, 2);
+			_scriptEntries[i] = GetInt(16 + i * 2, 2);
 		}
 	}
 };

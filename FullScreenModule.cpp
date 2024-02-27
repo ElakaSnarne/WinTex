@@ -21,7 +21,7 @@ CFullScreenModule::CFullScreenModule(ModuleType type) : CModuleBase(type)
 
 	_cursorMinX = static_cast<int>(_left);
 	_cursorMaxX = static_cast<int>(_left + 639 * _scale);
-	_cursorMinY = static_cast<int>( - _top);
+	_cursorMinY = static_cast<int>(-_top);
 	_cursorMaxY = static_cast<int>(479 * _scale - _top);
 
 	_vertexBuffer = NULL;
@@ -79,8 +79,6 @@ void CFullScreenModule::Render()
 {
 	if (_vertexBuffer != NULL)
 	{
-		dx.Clear(0.0f, 0.0f, 0.0f);
-
 		dx.DisableZBuffer();
 
 		UINT stride = sizeof(TEXTURED_VERTEX);
@@ -106,8 +104,6 @@ void CFullScreenModule::Render()
 		}
 
 		dx.EnableZBuffer();
-
-		dx.Present(1, 0);
 	}
 }
 
@@ -183,12 +179,12 @@ void CFullScreenModule::RenderItem(LPBYTE data, int offset_x, int offset_y, int 
 		int c2 = GetInt(data, inPtr + 2, 2);
 
 		int ry = offset_y + y;
-		if (ry >= y1 && ry <= y2)
+		if (ry >= y1 && ry <= y2 && ry < 480)
 		{
 			for (int x = 0; x < w; x++)
 			{
 				int rx = offset_x + x;
-				if (rx >= x1 && rx <= x2)
+				if (rx >= x1 && rx <= x2 && rx < 640)
 				{
 					int pix = (x >= c1 && x < (c1 + c2)) ? data[inPtr + 4 + x - c1] : 0;
 					if (pix != transparent)
@@ -333,5 +329,20 @@ void CFullScreenModule::Back()
 	if (_inputEnabled)
 	{
 		CModuleController::Pop(this);
+	}
+}
+
+void CFullScreenModule::ReadPalette(LPBYTE pPalette)
+{
+	for (int c = 0; c < 256; c++)
+	{
+		double r = pPalette[c * 3 + 0];
+		double g = pPalette[c * 3 + 1];
+		double b = pPalette[c * 3 + 2];
+		int ri = (byte)((r * 255.0) / 63.0);
+		int gi = (byte)((g * 255.0) / 63.0);
+		int bi = (byte)((b * 255.0) / 63.0);
+		int col = 0xff000000 | bi | (gi << 8) | (ri << 16);
+		_palette[c] = col;
 	}
 }

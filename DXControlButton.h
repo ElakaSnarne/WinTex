@@ -9,7 +9,7 @@ class CControllerData;
 class CDXControlButton : public CDXButton
 {
 public:
-	CDXControlButton(LPSTR function, std::unordered_map<InputAction, InputMap>* pMapping, BOOL isJoystick, float w, float h, void(*onClick)(InputAction) = NULL, InputAction action = InputAction::Cursor);
+	CDXControlButton(LPSTR function, std::unordered_map<InputAction, InputMap>* pMapping, BOOL isJoystick, float w, float h, float textX, void(*onClick)(InputAction) = NULL, InputAction action = InputAction::Cursor);
 	~CDXControlButton();
 	virtual void Click();
 	virtual void Render();
@@ -24,6 +24,8 @@ public:
 	void SetIsBeingConfigured(BOOL configuring) { _isBeingConfigured = configuring; }
 
 	BOOL IsJoystickConfigControl() { return _isJoystick; }
+
+	virtual void SetColours(int colour1, int colour2, int colour3, int colour4);
 
 protected:
 	BOOL _isJoystick;

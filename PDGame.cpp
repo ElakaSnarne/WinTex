@@ -16,12 +16,24 @@
 #include "LocationModule.h"
 #include "PDMap.h"
 #include "PDDMap.h"
+#include "ResumeGameModule.h"
+#include "PDClimbLadderOverlay.h"
+#include "PDConvertPointsOverlay.h"
+#include "PDElevationModOverlay.h"
 
 BOOL CPDGame::Init()
 {
 	if (CModuleController::Init(new CPDMap(), new CPDDMap()) && LoadIcons() && CItems::Init())
 	{
 		CAnimationController::SetCaptionColours(0xff000000, 0xff000000, 0xff00c300, 0xff000000, 0xff000000, 0xff000000, 0xff0096ff, 0xff000000);
+		CDXListBox::SetGreyColours(0, 0, 0xffc3c3c3, 0);
+		CDXListBox::SetBlackColours(0, 0, 0xff000000, 0);
+		CDXButton::SetButtonColours(0, 0, -1, 0);
+		CResumeGameModule::SetTextColours(0, 0, 0xffff0000, 0);
+		CResumeGameModule::SetHeaderColours(0, 0, -1, 0);
+		CDXDialogueOption::SetColours(0, 0, 0xff000000, 0);
+		CElevation::ElevationModifier = 0.0f;
+		CElevation::ElevationCheckModifier = 0.2f;
 
 		// Make sure Tex player exists
 		if (!CFile::Exists(L"PLAYERS\\TEX___00.PLR"))
@@ -39,6 +51,11 @@ BOOL CPDGame::Init()
 				file.Close();
 			}
 		}
+
+		// Create overlay controls
+		pClimbLadderOverlay = new CPDClimbLadderOverlay();
+		pConvertPointsOverlay = new CPDConvertPointsOverlay();
+		pElevationModOverlay = new CPDElevationModOverlay();
 
 		CModuleController::Push(new CPDMainMenuModule());
 
@@ -87,61 +104,141 @@ void CPDGame::KeyUp(WPARAM key, LPARAM lParam)
 
 void CPDGame::LoadGame(LPWSTR fileName)
 {
+	BYTE data[PD_SAVE_SIZE];
+	CFile file;
+	if (file.Open(fileName))
+	{
+		int read = file.Read(data, PD_SAVE_SIZE);
+		file.Close();
+
+		if (read == PD_SAVE_SIZE)
+		{
+			CopyMemory(_gameData, data, PD_SAVE_SIZE);
+
+			// Validate inventory, check current item
+			int currentItem = _gameData[PD_SAVE_CURRENT_ITEM];
+			if (currentItem != 0xff)
+			{
+				int itemCount = _gameData[PD_SAVE_ITEM_COUNT];
+				bool found = false;
+				for (int i = 0; i < itemCount; i++)
+				{
+					if (GetInt(_gameData, PD_SAVE_INVENTORY + i * 2, 2) == currentItem)
+					{
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					SetInt(_gameData, PD_SAVE_CURRENT_ITEM, -1, 2);
+				}
+			}
+
+			// Update cash item text
+			std::wstring cash = CGameController::GetItemName(0) + L" $" + std::to_wstring(GetInt(_gameData, PD_SAVE_CASH, 2));
+			CItems::SetItemName(0, cash);
+
+			// Should now load location or dialogue
+			if (_gameData[PD_SAVE_PARAMETERS + 252])
+			{
+				CModuleController::Push(new CPDLocationModule(_gameData[PD_SAVE_LOCATION_ID], _gameData[PD_SAVE_STARTUP_POSITION]));
+			}
+			else
+			{
+				CModuleController::Push(new CVideoModule(VideoType::Scripted, _gameData[PD_SAVE_DMAP_ID], GetWord(PD_SAVE_SCRIPT_ID)));
+			}
+		}
+	}
 }
 
 void CPDGame::SaveGame(LPWSTR fileName)
 {
+	// TODO: Move to shared code
+	CFile file;
+	if (file.Open(fileName, CFile::Mode::Write))
+	{
+		// Populate situation description
+		std::wstring sit;
+		//if (_gameData[PD_SAVE_DMAP_FLAG] == 0)
+		//{
+		//	// Location
+		//	sit = CGameController::GetSituationDescriptionL(_gameData[PD_SAVE_MAP_ENTRY]);
+		//}
+		//else
+		//{
+		//	// Dialogue
+		//	sit = CGameController::GetSituationDescriptionD(_gameData[PD_SAVE_DMAP_ENTRY]);
+		//}
+
+		//memset(_gameData + PD_SAVE_LOCATION, ' ', 30);
+		//for (int i = 0; i < sit.size() && i < 0x1e; i++)
+		//{
+		//	_gameData[PD_SAVE_LOCATION + i] = sit[i] & 0xFF;
+		//}
+
+		SYSTEMTIME time;
+		GetLocalTime(&time);
+		//_gameData[PD_SAVE_GAME_DAY] = min(7, max(1, _gameData[PD_SAVE_PARAMETERS + 250]));
+		_gameData[PD_SAVE_YEAR] = (BYTE)(time.wYear & 0xff);
+		_gameData[PD_SAVE_YEAR + 1] = (BYTE)((time.wYear >> 8) & 0xff);
+		_gameData[PD_SAVE_MONTH] = (BYTE)time.wMonth;
+		_gameData[PD_SAVE_DAY] = (BYTE)time.wDay;
+		_gameData[PD_SAVE_HOUR] = (BYTE)time.wHour;
+		_gameData[PD_SAVE_MINUTE] = (BYTE)time.wMinute;
+		_gameData[PD_SAVE_SECOND] = (BYTE)time.wSecond;
+
+		file.Write(_gameData, PD_SAVE_SIZE);
+		file.Close();
+	}
 }
 
 void CPDGame::NewGame()
 {
 	// Reset game buffer
 	ZeroMemory(_gameData, PD_SAVE_SIZE);
-	FillMemory(_gameData + 2, PD_SAVE_PADDING1 - 2, ' ');
 
-	_gameData[PD_SAVE_UNKNOWN1 + 1] = 1;
+	_gameData[PD_SAVE_UNKNOWN1] = 6;
 	SetData(PD_SAVE_PLAYER, "TEX");
 
-	//SetData(UAKM_SAVE_DESCRIPTION, "Tex's Office");
+	SetData(PD_SAVE_TRAVEL + 1, 1);		// Tex' Office
+	SetData(PD_SAVE_TRAVEL + 70, 1);	// Tex' Bedroom
+	SetData(PD_SAVE_TRAVEL + 71, 1);	// Tex' Computer Room
 
-	//SYSTEMTIME sysTime;
-	//GetSystemTime(&sysTime);
-	_gameData[PD_SAVE_GAME_DAY] = 1;
-	//_data[UAKM_SAVE_YEAR] = sysTime.wYear;
-	//_data[UAKM_SAVE_MONTH] = sysTime.wMonth;
-	//_data[UAKM_SAVE_DAY] = sysTime.wDay;
-	//_data[UAKM_SAVE_HOUR] = sysTime.wHour;
-	//_data[UAKM_SAVE_MINUTE] = sysTime.wMinute;
-	//_data[UAKM_SAVE_SECOND] = sysTime.wSecond;
+	SetAskAboutState(0, 1);		// Enable AskAbout Tex Murphy
+	SetAskAboutState(1, 1);		// Enable AskAbout Chelsee Bando
+	SetAskAboutState(2, 1);		// Enable AskAbout Louie LaMintz
+	SetAskAboutState(3, 1);		// Enable AskAbout Rook Garner
+	SetAskAboutState(6, 1);		// Enable AskAbout Gordon Fitzpatrick
+	SetAskAboutState(7, 1);		// Enable AskAbout Thomas Malloy
+	SetAskAboutState(9, 1);		// Enable AskAbout Nilo
+	SetAskAboutState(40, 1);	// Enable AskAbout Tyson Matthews
+	SetAskAboutState(56, 1);	// Enable AskAbout Newspaper photo of Malloy
+	SetAskAboutState(61, 1);	// Enable AskAbout Sandra
 
-	//UAKM_SAVE_MAP_ENTRY				0x14a
-	//UAKM_SAVE_DMAP_ENTRY				0x150
-	//SetData(UAKM_SAVE_CODED_MESSAGE, "YE UANE CIAFWBHED RIPB AEEIWALHEAL  YWLU CUAXLWLR AL  LUE XPWLE WA LUE  GIODEA GALE UILEO AL LUE PXPAO LWHE.LUE EAXXYIBD LIDARWX XWOWCIA.       ");
+	// Set Unknowns 10 and 11 to 2 and 1
+	_gameData[PD_SAVE_PARAMETERS + 251] = 2;
+	_gameData[PD_SAVE_PARAMETERS + 250] = 1;
 
-	//UAKM_SAVE_SCRIPT_ID				0x4c9
+	// Parameter 0x19a, 0 = Entertainment Level, 1 = Game Player Level
+	_gameData[PD_SAVE_PARAMETERS_GAME_LEVEL] = 1;
 
-	//SetAskAboutState(0, 1);		// Rook Garner
-	//SetAskAboutState(1, 1);		// Chelsee Bando
-	//SetAskAboutState(2, 1);		// Louie Lamintz
-	//SetAskAboutState(3, 1);		// Francesca Lucido
-	//SetAskAboutState(4, 1);		// Sal Lucido
-	//SetAskAboutState(5, 1);		// Ardo Newpop
-	//SetAskAboutState(17, 1);	// Colonel
+	SetWord(PD_SAVE_CASH, 4000);
+	SetItemState(0, 1);	// Cash
+	SetItemState(1, 1);	// Photo of Malloy
+	SetItemState(2, 1);	// Credit card
+	SetItemState(4, 1);	// Fitzpatrick's card
 
-	//SetData(UAKM_SAVE_TRAVEL + 5, 1);	// Allow travel to Tex's Office
+	// Set hint category states 1-4
+	SetHintCategoryState(1, 1);
+	SetHintCategoryState(2, 1);
+	SetHintCategoryState(3, 1);
+	SetHintCategoryState(4, 1);
 
-	//_gameData[UAKM_SAVE_CURRENT_ITEM] = -1;
-	//_gameData[UAKM_SAVE_CHAPTER] = 1;
+	// TODO: Clear some tables (hints?)
 
-	//BinaryData bd = LoadEntry(L"GRAPHICS.AP", 23);
-	//if (bd.Data != NULL && bd.Length == 0x1fe)
-	//{
-	//	CopyMemory(_gameData + UAKM_SAVE_PUZZLE_DATA, bd.Data, bd.Length);
-	//	delete[] bd.Data;
-	//}
-
-	//LoadFromDMap(0);
-	LoadFromMap(1, 0);
+	LoadFromDMap(42);
 }
 
 BYTE CPDGame::GetParameter(int index)
@@ -183,21 +280,61 @@ void CPDGame::SetData(int offset, char* text)
 
 BYTE CPDGame::GetAskAboutState(int index)
 {
-	return 0;
+	return (index >= 0 && index < 200) ? _gameData[PD_SAVE_ASK_ABOUT_STATES + index] : 0;
 }
 
 void CPDGame::SetAskAboutState(int index, BYTE state)
 {
+	if (index >= 0 && index <= 125)
+	{
+		// Add or remove from list
+		int count = GetAskAboutCount();
+		if (state == 0 || state == 2)
+		{
+			int i = 0;
+			for (i = 0; i < count && i < 50; i++)
+			{
+				if (GetInt(_gameData, PD_SAVE_ASK_ABOUTS + i * 2, 2) == index)
+				{
+					for (; i < count && i < 49; i++)
+					{
+						SetInt(_gameData, PD_SAVE_ASK_ABOUTS + i * 2, GetInt(_gameData, PD_SAVE_ASK_ABOUTS + (i + 1) * 2, 2), 2);
+					}
+					SetInt(_gameData, PD_SAVE_ASK_ABOUTS + count * 2, -1, 2);
+
+					_gameData[PD_SAVE_ASK_ABOUT_COUNT]--;
+
+					break;
+				}
+			}
+		}
+		else if (state == 1)
+		{
+			// Check if state already set
+			for (int i = 0; i < count; i++)
+			{
+				if (GetInt(_gameData, PD_SAVE_ASK_ABOUTS + i * 2, 2) == index)
+				{
+					return;
+				}
+			}
+
+			SetInt(_gameData, PD_SAVE_ASK_ABOUTS + count * 2, index, 2);
+			_gameData[PD_SAVE_ASK_ABOUT_COUNT]++;
+		}
+
+		_gameData[PD_SAVE_ASK_ABOUT_STATES + index] = state;
+	}
 }
 
 int CPDGame::GetAskAboutCount()
 {
-	return 0;
+	return _gameData[PD_SAVE_ASK_ABOUT_COUNT];
 }
 
 int CPDGame::GetAskAboutId(int index)
 {
-	return 0;
+	return (index >= 0 && index < 50) ? GetInt(_gameData, PD_SAVE_ASK_ABOUTS + index * 2, 2) : -1;
 }
 
 int CPDGame::GetScore()
@@ -222,7 +359,7 @@ int CPDGame::GetItemId(int index)
 	int id = -1;
 	if (index < count)
 	{
-		id = _gameData[PD_SAVE_INVENTORY + index];
+		id = GetInt(_gameData, PD_SAVE_INVENTORY + index * 2, 2);
 	}
 
 	return id;
@@ -230,6 +367,11 @@ int CPDGame::GetItemId(int index)
 
 int CPDGame::GetItemState(int item)
 {
+	if (item >= 0 && item < PD_MAX_ITEM_COUNT)
+	{
+		return _gameData[PD_SAVE_ITEM_STATES + item];
+	}
+
 	return 0;
 }
 
@@ -246,11 +388,11 @@ void CPDGame::SetItemState(int item, int state)
 		{
 			for (int i = 0; i < count && i < PD_MAX_ITEM_COUNT; i++)
 			{
-				if (_gameData[PD_SAVE_INVENTORY + i] == item)
+				if (GetInt(_gameData, PD_SAVE_INVENTORY + i * 2, 2) == item)
 				{
 					for (int j = i + 1; j < count && j < PD_MAX_ITEM_COUNT; j++)
 					{
-						_gameData[PD_SAVE_INVENTORY + j - 1] = _gameData[PD_SAVE_INVENTORY + j];
+						SetInt(_gameData, PD_SAVE_INVENTORY + (j - 1) * 2, GetInt(_gameData, PD_SAVE_INVENTORY + j * 2, 2), 2);
 					}
 
 					_gameData[PD_SAVE_ITEM_COUNT]--;
@@ -259,18 +401,17 @@ void CPDGame::SetItemState(int item, int state)
 				}
 			}
 
-			if (_gameData[PD_SAVE_CURRENT_ITEM] == item)
+			if (GetInt(_gameData, PD_SAVE_CURRENT_ITEM, 2) == item)
 			{
-				_gameData[PD_SAVE_CURRENT_ITEM] = -1;
+				SetInt(_gameData, PD_SAVE_CURRENT_ITEM, -1, 2);
 			}
 		}
 		else if (state == 1)
 		{
-			// TODO: Do not add if item already in inventory!
 			BOOL alreadyInInventory = FALSE;
 			for (int i = 0; i < count; i++)
 			{
-				if (_gameData[PD_SAVE_INVENTORY + i] == item)
+				if (GetInt(_gameData, PD_SAVE_INVENTORY + i * 2, 2) == item)
 				{
 					alreadyInInventory = TRUE;
 					break;
@@ -279,9 +420,9 @@ void CPDGame::SetItemState(int item, int state)
 
 			if (!alreadyInInventory)
 			{
-				_gameData[PD_SAVE_INVENTORY + count] = item;
+				SetInt(_gameData, PD_SAVE_INVENTORY + count * 2, item, 2);
 				_gameData[PD_SAVE_ITEM_COUNT]++;
-				_gameData[PD_SAVE_CURRENT_ITEM] = item;
+				SetInt(_gameData, PD_SAVE_CURRENT_ITEM, item, 2);
 			}
 		}
 	}
@@ -289,7 +430,8 @@ void CPDGame::SetItemState(int item, int state)
 
 int CPDGame::GetCurrentItemId()
 {
-	return (_gameData[PD_SAVE_CURRENT_ITEM] == 0xff) ? -1 : _gameData[PD_SAVE_CURRENT_ITEM];
+	int itemId = GetInt(_gameData, PD_SAVE_CURRENT_ITEM, 2);
+	return (itemId == 0xffff) ? -1 : itemId;
 }
 
 void CPDGame::SetCurrentItemId(int item)
@@ -300,31 +442,31 @@ void CPDGame::SetCurrentItemId(int item)
 int CPDGame::SelectNextItem()
 {
 	int count = _gameData[PD_SAVE_ITEM_COUNT];
-	int currentItem = _gameData[PD_SAVE_CURRENT_ITEM];
+	int currentItem = GetInt(_gameData, PD_SAVE_CURRENT_ITEM, 2);
 	int newIndex = IndexOfItemId(currentItem) + 1;
 	if (newIndex >= count)
 	{
 		newIndex = -1;
 	}
 
-	_gameData[PD_SAVE_CURRENT_ITEM] = newIndex < 0 ? -1 : _gameData[PD_SAVE_INVENTORY + newIndex];
+	SetInt(_gameData, PD_SAVE_CURRENT_ITEM, newIndex < 0 ? -1 : GetInt(_gameData, PD_SAVE_INVENTORY + newIndex * 2, 2), 2);
 
-	return _gameData[PD_SAVE_CURRENT_ITEM];
+	return GetInt(_gameData, PD_SAVE_CURRENT_ITEM, 2);
 }
 
 int CPDGame::SelectPreviousItem()
 {
 	int count = _gameData[PD_SAVE_ITEM_COUNT];
-	int currentItem = _gameData[PD_SAVE_CURRENT_ITEM];
+	int currentItem = GetInt(_gameData, PD_SAVE_CURRENT_ITEM, 2);
 	int newIndex = IndexOfItemId(currentItem) - 1;
 	if (newIndex < -1)
 	{
 		newIndex = count - 1;
 	}
 
-	_gameData[PD_SAVE_CURRENT_ITEM] = newIndex < 0 ? -1 : _gameData[PD_SAVE_INVENTORY + newIndex];
+	SetInt(_gameData, PD_SAVE_CURRENT_ITEM, newIndex < 0 ? -1 : GetInt(_gameData, PD_SAVE_INVENTORY + newIndex * 2, 2), 2);
 
-	return _gameData[PD_SAVE_CURRENT_ITEM];
+	return GetInt(_gameData, PD_SAVE_CURRENT_ITEM, 2);
 }
 
 BYTE CPDGame::GetHintState(int index)
@@ -338,11 +480,15 @@ void CPDGame::SetHintState(int index, BYTE state, int score)
 
 BYTE CPDGame::GetHintCategoryState(int index)
 {
-	return 0;
+	return (index >= 0 && index < 1000) ? _gameData[PD_SAVE_HINT_CATEGORY_STATES + index] : 0;
 }
 
 void CPDGame::SetHintCategoryState(int index, BYTE state)
 {
+	if (index >= 0 && index < 1000)//TODO: Find hint category count
+	{
+		_gameData[PD_SAVE_HINT_CATEGORY_STATES + index] = state;
+	}
 }
 
 void CPDGame::SetTimer(int timer, int duration)
@@ -404,6 +550,53 @@ void CPDGame::Tick(int ticks)
 
 void CPDGame::SetItemExamined(int itemId, int conditionalScore)
 {
+	if (itemId >= 0 && itemId < PD_MAX_ITEM_COUNT)
+	{
+		int byte = itemId / 8;
+		int shift = itemId & 7;
+
+		int oldState = (_gameData[PD_SAVE_ITEMS_EXAMINED_FLAGS + byte] & (1 << shift));
+		_gameData[PD_SAVE_ITEMS_EXAMINED_FLAGS + byte] |= (1 << shift);
+
+		if (oldState == 0)
+		{
+			if (conditionalScore > 0)
+			{
+				AddScore(conditionalScore);
+			}
+
+			// TODO: Check if e.g. extra cash should be added
+			if (itemId == 274)
+			{
+				// Disc player with CD
+				//ds:word_2A8774= 600
+				// Offset 1B8 in save data
+				//ds:byte_2A87A5= 1
+				// Offset 1E9 in save data
+				// Timer enabled and time?
+			}
+			else if (itemId == 285)
+			{
+				// Nilo's wallet
+				AddCash(100);
+			}
+			else if (itemId == 288)
+			{
+				// Orphanage letter
+				AddCash(500);
+			}
+			else if (itemId == 43)
+			{
+				// Prize letter
+				AddCash(100);
+			}
+			else if (itemId == 225)
+			{
+				// Money belt
+				AddCash(300);
+			}
+		}
+	}
 }
 
 int CPDGame::GetWord(int offset, BOOL signExtend)
@@ -423,6 +616,13 @@ void CPDGame::SetWord(int offset, int value)
 	{
 		_gameData[offset] = value;
 		_gameData[offset + 1] = value >> 8;
+
+		if (offset == PD_SAVE_CASH)
+		{
+			// Update item text
+			std::wstring cash = CGameController::GetItemName(0) + L" $" + std::to_wstring(GetInt(_gameData, PD_SAVE_CASH, 2));
+			CItems::SetItemName(0, cash);
+		}
 	}
 }
 
@@ -431,7 +631,7 @@ int CPDGame::IndexOfItemId(int item)
 	int count = _gameData[PD_SAVE_ITEM_COUNT];
 	for (int i = 0; i < count; i++)
 	{
-		if (_gameData[PD_SAVE_INVENTORY + i] == item)
+		if (GetInt(_gameData, PD_SAVE_INVENTORY + i * 2, 2) == item)
 		{
 			return i;
 		}
@@ -451,4 +651,73 @@ BOOL CPDGame::LoadIcons()
 	}
 
 	return result;
+}
+
+int CPDGame::GetBuyableItemCount()
+{
+	return GetInt(_gameData, PD_SAVE_BUYABLES_COUNT, 2);
+}
+
+int CPDGame::GetBuyableItemId(int index)
+{
+	if (index >= 0 && index < 25)
+	{
+		return GetInt(_gameData, PD_SAVE_BUYABLES + index * 2, 2);
+	}
+
+	return -1;
+}
+
+void CPDGame::SetBuyableItemState(int index, int state)
+{
+	if (index >= 0 && index < 25)
+	{
+		// Add or remove from list
+		int count = GetBuyableItemCount();
+		if (state == 0 || state == 2)
+		{
+			int i = 0;
+			for (i = 0; i < count && i < 25; i++)
+			{
+				if (_gameData[PD_SAVE_BUYABLES + i * 2] == index)
+				{
+					for (; i < count && i < 25; i++)
+					{
+						_gameData[PD_SAVE_BUYABLES + i * 2] = _gameData[PD_SAVE_BUYABLES + (i + 1) * 2];
+					}
+					SetWord(PD_SAVE_BUYABLES + count * 2, -1);
+
+					_gameData[PD_SAVE_BUYABLES_COUNT]--;
+
+					break;
+				}
+			}
+		}
+		else if (state == 1)
+		{
+			// Check if state already set
+			for (int i = 0; i < count; i++)
+			{
+				if (GetInt(_gameData, PD_SAVE_BUYABLES + i * 2, 2) == index)
+				{
+					return;
+				}
+			}
+
+			SetWord(PD_SAVE_BUYABLES + count * 2, index);
+			_gameData[PD_SAVE_BUYABLES_COUNT]++;
+		}
+		else
+		{
+			int debug = 0;
+		}
+
+		_gameData[PD_SAVE_BUYABLES_ASK_ABOUT_STATES + index] = state;
+	}
+}
+
+void CPDGame::AddCash(int cashToAdd)
+{
+	int currentCash = GetWord(PD_SAVE_CASH);
+	SetWord(PD_SAVE_CASH, currentCash + cashToAdd);
 }

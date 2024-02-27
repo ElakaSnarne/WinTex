@@ -204,8 +204,6 @@ void CUAKMSafeModule::Render()
 {
 	if (_vertexBuffer != NULL)
 	{
-		dx.Clear(0.0f, 0.0f, 0.0f);
-
 		dx.DisableZBuffer();
 
 		CConstantBuffers::Setup2D(dx);
@@ -380,8 +378,6 @@ void CUAKMSafeModule::Render()
 		}
 
 		dx.EnableZBuffer();
-
-		dx.Present(1, 0);
 	}
 }
 

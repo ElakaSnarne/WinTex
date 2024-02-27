@@ -63,6 +63,11 @@ CDXTabItem::CDXTabItem(CDXTabControl* pOwner, LPSTR title, float w, float h)
 	}
 
 	_type = ControlType::TabItem;
+
+	_colour1 = 0;
+	_colour2 = -1;
+	_colour3 = -1;
+	_colour4 = 0;
 }
 
 CDXTabItem::~CDXTabItem()
@@ -91,7 +96,8 @@ void CDXTabItem::Render(float x, float y, float hx, float hy, bool selected)
 	dx.Draw(6, selected ? 0 : 6);
 
 	// Draw text
-	_pText->SetColours(selected ? 0xffffffff : 0xffc0c0c0);
+	int mask = selected ? 0xffffffff : 0xffc0c0c0;
+	_pText->SetColours(_colour1 & mask, _colour2 & mask, _colour3 & mask, _colour4 & mask);
 	_pText->Render(hx + (_w - _pText->Width()) / 2, hy + 3);
 
 	if (selected)
@@ -144,4 +150,14 @@ void CDXTabItem::Select()
 	{
 		_pOwner->Select(this);
 	}
+}
+
+void CDXTabItem::SetColours(int colour1, int colour2, int colour3, int colour4)
+{
+	CDXFrame::SetColours(colour1, colour2, colour3, colour4);
+
+	_colour1 = colour1;
+	_colour2 = colour2;
+	_colour3 = colour3;
+	_colour4 = colour4;
 }

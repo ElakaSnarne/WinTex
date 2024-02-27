@@ -8,24 +8,27 @@ CDXBitmap::CDXBitmap()
 	_type = ControlType::Bitmap;
 }
 
-CDXBitmap::CDXBitmap(PWCHAR fileName)
+CDXBitmap::CDXBitmap(PWCHAR fileName, Alignment alignment)
 {
 	_type = ControlType::Bitmap;
 	_texture.Init(fileName);
+	_alignment = alignment;
 	Init();
 }
 
-CDXBitmap::CDXBitmap(PBYTE pImage, DWORD size)
+CDXBitmap::CDXBitmap(PBYTE pImage, DWORD size, Alignment alignment)
 {
 	_type = ControlType::Bitmap;
 	_texture.Init(pImage, size, "BITMAP");
+	_alignment = alignment;
 	Init();
 }
 
-CDXBitmap::CDXBitmap(int width, int height)
+CDXBitmap::CDXBitmap(int width, int height, Alignment alignment)
 {
 	_type = ControlType::Bitmap;
 	_texture.Init(width, height);
+	_alignment = alignment;
 	Init();
 }
 
@@ -40,7 +43,7 @@ void CDXBitmap::Init()
 	float imageRatioY = static_cast<float>(_h / sh);
 
 	float imageRatio = max(imageRatioX, imageRatioY);
-	if (imageRatio > 1.0f)
+	if (imageRatio > 1.0f || ((_alignment & Alignment::Scale) != Alignment::Default))
 	{
 		_w /= imageRatio;
 		_h /= imageRatio;

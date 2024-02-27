@@ -16,4 +16,6 @@ public:
 
 protected:
 	std::vector<CMapData*> _entries;
+
+	int ReadStartupPositions(CMapData* pMapdata, LPBYTE data, int offset, int numberOfStartupPositions, int positionDataStructSize);
 };

@@ -4,6 +4,9 @@
 #include "resource.h"
 #include "Utilities.h"
 #include "AmbientAudio.h"
+#include "UAKMGame.h"
+#include <codecvt>
+#include <algorithm>
 
 CUAKMMainMenuModule::CUAKMMainMenuModule()
 {
@@ -88,4 +91,110 @@ void CUAKMMainMenuModule::SetupScreen()
 	_btnMainResume->SetVisible(FALSE);
 
 	_pScreen->AddButton(pQu, moonCenterX - (maxw + 32.0f * pConfig->FontScale) / 2.0f, btnBottom + 64.0f * pConfig->FontScale, maxw, 32.0f * pConfig->FontScale, Quit);
+}
+
+void CUAKMMainMenuModule::SetupSave()
+{
+	SaveMode = SaveMode::Extension;
+	SaveTypedChars = 3;
+
+	memset(_commentBuffer, 0, 256);
+
+	SaveGameInfo info;
+	info.FileName = L"GAMES\\";
+	auto nameLength = CurrentGameInfo.Player.length();
+	while (nameLength > 0 && CurrentGameInfo.Player.at(nameLength - 1) == ' ')
+	{
+		nameLength--;
+	}
+
+	for (int i = 0; i < 6; i++)
+	{
+		info.FileName += (WCHAR)((i < nameLength) ? CurrentGameInfo.Player.at(i) : '_');
+	}
+	info.FileName += L"00.";
+	// Append 3 digit number (from current savegame)
+	auto lastDot = CurrentGameInfo.FileName.find_last_of('.');
+	int fileIndex = lastDot > 0 ? min(999, std::stoi(CurrentGameInfo.FileName.c_str() + lastDot + 1)) : 1;
+	if (fileIndex < 100)
+	{
+		info.FileName += L"0";
+	}
+	if (fileIndex < 10)
+	{
+		info.FileName += L"0";
+	}
+	info.FileName += std::to_wstring(fileIndex);
+
+	info.Player = CurrentGameInfo.Player;
+	std::wstring sit;
+	if (CGameController::GetData(UAKM_SAVE_DMAP_FLAG) == 0)
+	{
+		// Location
+		sit = CGameController::GetSituationDescriptionL(CGameController::GetData(UAKM_SAVE_MAP_ENTRY));
+	}
+	else
+	{
+		// Dialogue
+		sit = CGameController::GetSituationDescriptionD(CGameController::GetData(UAKM_SAVE_DMAP_ENTRY));
+	}
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
+	info.Location = conv.to_bytes(sit);
+	info.DayInGame = "Day " + std::to_string(max(1, min(7, CGameController::GetData(UAKM_SAVE_GAME_DAY))));
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+	info.DateTime = IntToString(st.wYear, 4) + "-" + IntToString(st.wMonth, 2) + +"-" + IntToString(st.wDay, 2) + " " + IntToString(st.wHour, 2) + ":" + IntToString(st.wMinute, 2) + ":" + IntToString(st.wSecond, 2);
+	_saveControl->SetInfo(info);
+}
+
+void CUAKMMainMenuModule::SetupLoad()
+{
+	// Get list of current save games
+	_savedGames.clear();
+	WIN32_FIND_DATA fd;
+	HANDLE hFF = FindFirstFile(L"GAMES\\*.*", &fd);
+	BYTE buffer[0xd1];
+	if (hFF != INVALID_HANDLE_VALUE)
+	{
+		do
+		{
+			if (fd.nFileSizeLow > 0)
+			{
+				std::wstring name = std::wstring(fd.cFileName);
+				if (name != L"SAVEGAME.000")
+				{
+					// Real file, load header and extract info
+					CFile file;
+					std::wstring fileName = L"GAMES\\" + name;
+					if (file.Open((LPWSTR)fileName.c_str()))
+					{
+						if (file.Read(buffer, 0xd0) == 0xd0)
+						{
+							SaveGameInfo info;
+							info.FileName = fileName;
+							info.Player = std::string((const char*)(buffer + UAKM_SAVE_PLAYER), UAKM_SAVE_LOCATION - UAKM_SAVE_PLAYER);
+							info.Location = std::string((const char*)(buffer + UAKM_SAVE_LOCATION), UAKM_SAVE_GAME_DAY - UAKM_SAVE_LOCATION);
+							info.DayInGame = std::string("Day ") + std::to_string(buffer[UAKM_SAVE_GAME_DAY]);
+							info.DateTime = IntToString(buffer[UAKM_SAVE_YEAR] | (buffer[UAKM_SAVE_YEAR + 1] << 8), 4) + "-" + IntToString(buffer[UAKM_SAVE_MONTH], 2) + +"-" + IntToString(buffer[UAKM_SAVE_DAY], 2) + " " + IntToString(buffer[UAKM_SAVE_HOUR], 2) + ":" + IntToString(buffer[UAKM_SAVE_MINUTE], 2) + ":" + IntToString(buffer[UAKM_SAVE_SECOND], 2);
+							info.Comment = std::string((const char*)(buffer + UAKM_SAVE_COMMENT), UAKM_SAVE_PADDING1 - UAKM_SAVE_COMMENT);
+
+							_savedGames.push_back(info);
+						}
+
+						file.Close();
+					}
+				}
+			}
+
+		} while (FindNextFile(hFF, &fd));
+
+		FindClose(hFF);
+	}
+
+	// Sort list (by last written or by save game date?)
+	std::sort(_savedGames.begin(), _savedGames.end());
+
+	LoadSetup();
+
+	_pScreen->ShowModal(_pLoad);
 }

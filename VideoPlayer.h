@@ -203,6 +203,9 @@ public:
 	void OnMediaItemCreated(MFP_MEDIAITEM_CREATED_EVENT* pEvent);
 	void OnMediaItemSet(MFP_MEDIAITEM_SET_EVENT* pEvent);
 
+	virtual BOOL ShouldClearDXBuffer() { return FALSE; }
+	virtual void Skip();
+
 private:
 	IMFPMediaPlayer* _pPlayer;
 	MediaPlayerCallback* _pPlayerCB;

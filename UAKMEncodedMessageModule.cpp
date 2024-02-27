@@ -87,8 +87,6 @@ void CUAKMEncodedMessageModule::Render()
 			_textureDirty = false;
 		}
 
-		dx.Clear(0.0f, 0.0f, 0.0f);
-
 		dx.DisableZBuffer();
 
 		CConstantBuffers::Setup2D(dx);
@@ -122,8 +120,6 @@ void CUAKMEncodedMessageModule::Render()
 		CModuleController::Cursors[0].Render();
 
 		dx.EnableZBuffer();
-
-		dx.Present(1, 0);
 	}
 }
 

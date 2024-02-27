@@ -2,19 +2,72 @@
 #include "Utilities.h"
 #include "MediaIdentifiers.h"
 
-CH2O::CH2O()
+#define H2O_MAX_AUDIO_BUFFERS	20
+#define H2O_AUDIO_BUFFER_SIZE	20000
+
+CH2O::CH2O(int factor)
 {
+	_factor = factor;
+
+	_channels = 0;
+	_depth = 0;
+	_remainingLength = 0;
+	_audioCompressed = FALSE;
+
+	if (_lock.Lock())
+	{
+		_ppAudioOutputBuffers = new LPBYTE[H2O_MAX_AUDIO_BUFFERS];
+		for (int i = 0; i < H2O_MAX_AUDIO_BUFFERS; i++)
+		{
+			_ppAudioOutputBuffers[i] = new BYTE[H2O_AUDIO_BUFFER_SIZE];
+			ZeroMemory(_ppAudioOutputBuffers[i], H2O_AUDIO_BUFFER_SIZE);
+		}
+		_audioOutputBufferIndex = 0;
+
+		_lock.Release();
+	}
+
+	_minimumBitCount = 0;
+	_pDecodingTable = new int[65536];
+	ZeroMemory(_pDecodingTable, sizeof(_pDecodingTable));
+	_pDecodingBuffer = new BYTE[1048576];
+	ZeroMemory(_pDecodingBuffer, sizeof(_pDecodingBuffer));
+	_decodedSize = 0;
+
+	_startAudioOnFrame = -1;
 }
 
 CH2O::~CH2O()
 {
+	if (_ppAudioOutputBuffers != NULL)
+	{
+		for (int i = 0; i < H2O_MAX_AUDIO_BUFFERS; i++)
+		{
+			if (_ppAudioOutputBuffers[i] != NULL)
+			{
+				delete[] _ppAudioOutputBuffers[i];
+			}
+		}
+
+		delete[] _ppAudioOutputBuffers;
+	}
+
+	if (_pDecodingTable != NULL)
+	{
+		delete[] _pDecodingTable;
+		_pDecodingTable = NULL;
+	}
+
+	if (_pDecodingBuffer != NULL)
+	{
+		delete[] _pDecodingBuffer;
+		_pDecodingBuffer = NULL;
+	}
 }
 
 BOOL CH2O::Init(LPBYTE pData, int length)
 {
 	BOOL ret = CAnimBase::Init(pData, length);
-
-	// TODO: Prepare pointers to video and audio buffers
 
 	// Validate that the file is a H2O
 	if (ret && GetInt(pData, 0, 4) == H2O)
@@ -24,7 +77,7 @@ BOOL CH2O::Init(LPBYTE pData, int length)
 		_rate = GetInt(pData, 16, 2);
 		_frameTime = _rate;
 
-		CreateBuffers(_width, _height);
+		CreateBuffers(_width, _height, _factor);
 		_texture.Init(_width, _height);
 
 		// Find video and audio pointers
@@ -37,282 +90,10 @@ BOOL CH2O::Init(LPBYTE pData, int length)
 		// Can there be videos without audio?
 		_audioFramePointer = 0x40;
 
-		/*
-			int framePtr = 0x40;
-			// Extract audio frames
-			int channels = 0, depth = 0, remainingLength = 0;
-			byte[] outputBuffer = null;
-			int outputOffset = 0;
-			int frameOffset = 0x40;
-			bool audioCompressed = (_data.GetInt(0x2c, 4) != 0);
-			while (frameOffset < _data.Length)
-			{
-				int frameSize = _data.GetInt(frameOffset, 3);
-				int frameFlags = _data[frameOffset + 3];
-
-				int chunkOffset = frameOffset + 4;
-				if ((frameFlags & 0x40) != 0)
-				{
-					chunkOffset += 4 + _data.GetInt(chunkOffset, 4);
-				}
-				if ((frameFlags & 0x80) != 0)
-				{
-					chunkOffset += 4 + _data.GetInt(chunkOffset, 4);
-				}
-				if ((frameFlags & 0x01) != 0)
-				{
-					chunkOffset += 4 + _data.GetInt(chunkOffset, 4);
-				}
-				if ((frameFlags & 0x02) != 0)
-				{
-					chunkOffset += 4 + _data.GetInt(chunkOffset, 4);
-				}
-				if ((frameFlags & 0x04) != 0)
-				{
-					// Audio frame
-
-					int chunkSize = _data.GetInt(chunkOffset, 4);
-
-					int dataOffset = chunkOffset + 4;
-					if (_data.GetInt(dataOffset, 4) == 0x46464952)
-					{
-						// RIFF header, extract required properties
-						channels = _data.GetInt(dataOffset + 0x16, 2);
-						depth = _data.GetInt(dataOffset + 0x22, 2);
-						remainingLength = _data.GetInt(dataOffset + 0x28, 4);
-
-						outputBuffer = new byte[0x2c + remainingLength];
-						Array.Copy(_data, dataOffset, outputBuffer, 0, 0x2c);
-						outputOffset = 0x2c;
-						dataOffset += 0x2c;
-
-						chunkSize -= 0x2c;
-
-						Debug.WriteLine($"{channels} Channel(s), {depth} bits per sample");
-					}
-
-					if (outputBuffer != null)
-					{
-						if (audioCompressed)
-						{
-							outputOffset += DecodeAudioFrame(_data, dataOffset, chunkOffset + chunkSize, outputBuffer, outputOffset);
-						}
-						else
-						{
-							Array.Copy(_data, dataOffset, outputBuffer, outputOffset, chunkSize);
-							outputOffset += chunkSize;
-						}
-					}
-				}
-
-				frameOffset += frameSize + 4;
-			}
-
-			result.Add(new KeyValuePair<int, byte[]>(0, outputBuffer));
-
-			return result;
-		*/
-
-		/*
-		while (framePtr < _inputBufferLength && (_videoFramePointer == 0 || _audioFramePointer == 0))
-		{
-			int frameSize = GetInt(_pInputBuffer, framePtr, 4);
-			if (frameSize < 0) frameSize = 0x300 - frameSize;
-			int frameType = GetInt(_pInputBuffer, framePtr + 4, 2);
-			if (frameType == 0x0b1c || frameType == 0x5756) frameSize += 6;
-			if ((frameType == 0xf1fa || frameType == 0x0b1c) && _videoFramePointer == 0)
-			{
-				_videoFramePointer = framePtr;
-			}
-			else if (frameType == 0x5657 && _audioFramePointer == 0)
-			{
-				_audioFramePointer = framePtr;
-			}
-			framePtr += frameSize;
-		}
-
-		if (_audioFramePointer != NULL)
-		{
-			// Prepare for audio playback
-		}
-		*/
+		_audioCompressed = (GetInt(_pInputBuffer, 0x2c, 4) != 0);
 	}
 
 	return ret;
-}
-
-BOOL CH2O::DecodeFrame()
-{
-	BOOL ret = FALSE;
-
-	_frame++;
-
-	// TODO: If this is an audio-only H2O, should extract all audio bytes to prevent clicking
-	if (_videoFramePointer == NULL)
-	{
-		//Trace(L"H2O Audio-Only Frame ");
-		//TraceLine(_frame);
-
-		ret = TRUE;
-
-		if (_audioFramePointer > 0)
-		{
-			int channels = 0, depth = 0, remainingLength = 0;
-			int frameOffset = _audioFramePointer;
-			int outputOffset = 0;
-			BOOL audioCompressed = (GetInt(_pInputBuffer, 0x2c, 4) != 0);
-			// Extract audio frames
-			LPBYTE outputBuffer = NULL;
-			while (frameOffset < _inputBufferLength)
-			{
-				int frameSize = GetInt(_pInputBuffer, frameOffset, 3);
-				int frameFlags = _pInputBuffer[frameOffset + 3];
-
-				int chunkOffset = frameOffset + 4;
-				if ((frameFlags & 0x40) != 0)
-				{
-					chunkOffset += 4 + GetInt(_pInputBuffer, chunkOffset, 4);
-				}
-				if ((frameFlags & 0x80) != 0)
-				{
-					chunkOffset += 4 + GetInt(_pInputBuffer, chunkOffset, 4);
-				}
-				if ((frameFlags & 0x01) != 0)
-				{
-					chunkOffset += 4 + GetInt(_pInputBuffer, chunkOffset, 4);
-				}
-				if ((frameFlags & 0x02) != 0)
-				{
-					chunkOffset += 4 + GetInt(_pInputBuffer, chunkOffset, 4);
-				}
-				if ((frameFlags & 0x04) != 0)
-				{
-					// Audio frame
-
-					int chunkSize = GetInt(_pInputBuffer, chunkOffset, 4);
-
-					int dataOffset = chunkOffset + 4;
-					if (GetInt(_pInputBuffer, dataOffset, 4) == RIFF)
-					{
-						// RIFF header, extract required properties
-						channels = GetInt(_pInputBuffer, dataOffset + 0x16, 2);
-						depth = GetInt(_pInputBuffer, dataOffset + 0x22, 2);
-						remainingLength = GetInt(_pInputBuffer, dataOffset + 0x28, 4);
-
-						outputBuffer = new BYTE[0x1002c + remainingLength];
-						ZeroMemory(outputBuffer, 0x1002c + remainingLength);
-						// Copy RIFF header
-						CopyMemory(outputBuffer, _pInputBuffer + dataOffset, 0x2c);
-						outputOffset = 0x2c;
-						dataOffset += 0x2c;
-
-						chunkSize -= 0x2c;
-					}
-
-					if (outputBuffer != NULL)
-					{
-						if (audioCompressed)
-						{
-							outputOffset += DecodeH2OAudio(_pInputBuffer + dataOffset, outputBuffer + outputOffset, chunkSize);
-						}
-						else
-						{
-							CopyMemory(outputBuffer + outputOffset, _pInputBuffer + dataOffset, chunkSize);
-							outputOffset += chunkSize;
-						}
-					}
-				}
-
-				frameOffset += frameSize + 4;
-			}
-
-			if (_sourceVoice == NULL)
-			{
-				char formatBuff[64];
-				WAVEFORMATEX* pwfx = reinterpret_cast<WAVEFORMATEX*>(&formatBuff);
-				pwfx->wFormatTag = GetInt(outputBuffer, 0x14, 2);// WAVE_FORMAT_PCM;
-				pwfx->nChannels = GetInt(outputBuffer, 0x16, 2);
-				pwfx->nSamplesPerSec = GetInt(outputBuffer, 0x18, 4);
-				pwfx->nAvgBytesPerSec = GetInt(outputBuffer, 0x1c, 4);
-				pwfx->nBlockAlign = 2;
-				pwfx->wBitsPerSample = GetInt(outputBuffer, 0x22, 2);
-				pwfx->cbSize = 0;
-				_sourceVoice = CDXSound::CreateSourceVoice(pwfx, 0, 1.0f, this);
-			}
-			_sourceVoice->Start(0, 0);
-
-			Buffer ab;
-			ab.Size = remainingLength - 0x2c;
-			ab.pData = outputBuffer + 0x2c;
-			_remainingAudioLength = 0;
-			_audioBuffers.push_back(ab);
-
-			/*
-			int chunkSize = GetInt(_pInputBuffer, inPtr, 4);
-			inPtr += 6;
-			int audioBytes = chunkSize;
-			int audioPtr = inPtr;
-			if (GetInt(_pInputBuffer, inPtr, 4) == RIFF)
-			{
-				// This is a new audio buffer
-				_remainingAudioLength = GetInt(_pInputBuffer, inPtr + 0x28, 4);
-
-				if (_sourceVoice == NULL)
-				{
-					char formatBuff[64];
-					WAVEFORMATEX* pwfx = reinterpret_cast<WAVEFORMATEX*>(&formatBuff);
-					pwfx->wFormatTag = GetInt(_pInputBuffer, inPtr + 0x14, 2);// WAVE_FORMAT_PCM;
-					pwfx->nChannels = GetInt(_pInputBuffer, inPtr + 0x16, 2);
-					pwfx->nSamplesPerSec = GetInt(_pInputBuffer, inPtr + 0x18, 4);
-					pwfx->nAvgBytesPerSec = GetInt(_pInputBuffer, inPtr + 0x1c, 4);
-					pwfx->nBlockAlign = 2;
-					pwfx->wBitsPerSample = GetInt(_pInputBuffer, inPtr + 0x22, 2);
-					pwfx->cbSize = 0;
-					_sourceVoice = CDXSound::CreateSourceVoice(pwfx, 0, 1.0f, this);
-				}
-				_sourceVoice->Start(0, 0);
-
-				audioPtr += 0x2c;
-				audioBytes -= 0x2c;
-			}
-
-			Buffer ab;
-			audioBytes = min(audioBytes, _remainingAudioLength);
-			audioBytes = min(audioBytes, _inputBufferLength - audioPtr);
-			ab.Size = audioBytes;
-			ab.pData = _pInputBuffer + audioPtr;
-			_remainingAudioLength -= audioBytes;
-			_audioBuffers.push_back(ab);
-
-			inPtr += chunkSize;
-			*/
-		}
-
-		if (_sourceVoice != NULL)
-		{
-			// Enqueue a couple of buffers	XAUDIO2_MAX_QUEUED_BUFFERS=64
-			auto buffers = _audioBuffers.size();
-			for (std::size_t i = 0; i < buffers && i < 10; i++)
-			{
-				Buffer ab = _audioBuffers.front();
-				_audioBuffers.pop_front();
-
-				XAUDIO2_BUFFER buf = { 0 };
-				buf.AudioBytes = ab.Size;
-				buf.pAudioData = ab.pData;
-				//if (_remainingAudioLength == 0) buf.Flags = XAUDIO2_END_OF_STREAM;
-				_sourceVoice->SubmitSourceBuffer(&buf);
-
-				_audioFramesQueued++;
-			}
-		}
-
-		_audioFramePointer = 0;
-
-		ret = TRUE;
-	}
-
-	return FALSE;
 }
 
 int ReadBits(LPBYTE data, int bitsToRead, int& bitOffset, bool& commandFlag)
@@ -354,7 +135,6 @@ void Write(LPBYTE output, int& outputOffset, int value, int size)
 
 int CH2O::DecodeH2OAudio(LPBYTE source, LPBYTE destination, int chunkLength)
 {
-	//	public int DecodeAudioFrame(byte[] input, int inputOffset, int inputEndOffset, byte[] output, int outputOffset)
 	int outputOffsetStart = 0;
 	int outputOffset = 0;
 	int inputOffset = 0;
@@ -374,14 +154,14 @@ int CH2O::DecodeH2OAudio(LPBYTE source, LPBYTE destination, int chunkLength)
 
 	channelBitsPerSample[0] = 1 + (ReadBits(source, 4, readBitsCount, commandFlag) & 15);
 	channelPreviousSamples[0] = ReadBits(source, bitsPerSample, readBitsCount, commandFlag);
-	Write(destination, outputOffset, channelPreviousSamples[0] << audioAmplifier, bytesPerSample);
+	::Write(destination, outputOffset, channelPreviousSamples[0] << audioAmplifier, bytesPerSample);
 
 	if (channelCount == 2)
 	{
 		// Read second channel data
 		channelBitsPerSample[1] = 1 + (ReadBits(source, 4, readBitsCount, commandFlag) & 15);
 		channelPreviousSamples[1] = ReadBits(source, bitsPerSample, readBitsCount, commandFlag);
-		Write(destination, outputOffset, channelPreviousSamples[1] << audioAmplifier, bytesPerSample);
+		::Write(destination, outputOffset, channelPreviousSamples[1] << audioAmplifier, bytesPerSample);
 	}
 
 	int channelRepeatCounters[2];
@@ -475,7 +255,7 @@ int CH2O::DecodeH2OAudio(LPBYTE source, LPBYTE destination, int chunkLength)
 			channelPreviousSamples[channel] = sampleValue;
 
 			// Write amplified sample value
-			Write(destination, outputOffset, sampleValue << audioAmplifier, bytesPerSample);
+			::Write(destination, outputOffset, sampleValue << audioAmplifier, bytesPerSample);
 			channel++;
 			if (channel >= channelCount)
 			{
@@ -487,3 +267,497 @@ int CH2O::DecodeH2OAudio(LPBYTE source, LPBYTE destination, int chunkLength)
 	return outputOffset - outputOffsetStart;
 }
 
+BOOL CH2O::ProcessFrame(int& offset, BOOL video)
+{
+	if (offset > 0 && offset < _inputBufferLength)
+	{
+		BOOL initialAudioBuffer = FALSE;
+
+		int frameSize = GetInt(_pInputBuffer, offset, 3);
+		int frameFlags = _pInputBuffer[offset + 3];
+		int chunkOffset = offset + 4;
+		if ((frameFlags & 0x80) != 0)
+		{
+			// Unknown
+			int chunkSize = GetInt(_pInputBuffer, chunkOffset, 4);
+			chunkOffset += chunkSize + 4;
+		}
+		if ((frameFlags & 0x40) != 0)
+		{
+			// Bit-unpacking table
+			int chunkSize = GetInt(_pInputBuffer, chunkOffset, 4);
+			if (video)
+			{
+				int tag40Offset = chunkOffset + 4;
+
+				int t40v1 = _pInputBuffer[tag40Offset++] & 0xff;
+				int t40v2 = _pInputBuffer[tag40Offset++] & 0xff;
+				_minimumBitCount = t40v1;
+
+				int t40Counter = 0;
+
+				while (t40v1 <= t40v2)
+				{
+					_pDecodingTable[t40v1 * 3] = t40Counter;
+					int blockCount = GetInt(_pInputBuffer, tag40Offset, 2) & 0xffff;
+					t40Counter += blockCount;
+					_pDecodingTable[t40v1 * 3 + 1] = t40Counter - 1;
+					_pDecodingTable[t40v1 * 3 + 2] = tag40Offset + 2;
+
+					t40v1++;
+
+					tag40Offset += blockCount * 2 + 2;
+
+					t40Counter <<= 1;
+				}
+			}
+			chunkOffset += chunkSize + 4;
+		}
+		if ((frameFlags & 0x01) != 0)
+		{
+			// Palette
+			int chunkSize = GetInt(_pInputBuffer, chunkOffset, 4);
+			if (video)
+			{
+				// Palette, extract
+				int paletteOffset = chunkOffset + 4;
+
+				int blockCount = GetInt(_pInputBuffer, paletteOffset, 2);
+				paletteOffset += 2;
+				int currentIndex = 0;
+				for (int b = 0; b < blockCount; b++)
+				{
+					currentIndex += _pInputBuffer[paletteOffset++];
+					int colourCount = _pInputBuffer[paletteOffset++];
+					if (colourCount == 0)
+					{
+						colourCount = 256;
+					}
+					for (int c = 0; c < colourCount; c++)
+					{
+						int r = _colourTranslationTable[_pInputBuffer[paletteOffset++]];
+						int g = _colourTranslationTable[_pInputBuffer[paletteOffset++]];
+						int b = _colourTranslationTable[_pInputBuffer[paletteOffset++]];
+
+						int col = 0xff000000 | b | (g << 8) | (r << 16);
+						if (_factor == 2 && c < 8)
+						{
+							// Fix for Pandora inventory module
+							col = 0xff000000;
+						}
+						_pPalette[currentIndex++] = col;
+					}
+				}
+			}
+
+			chunkOffset += chunkSize + 4;
+		}
+		if ((frameFlags & 0x02) != 0)
+		{
+			// Video
+			int chunkSize = GetInt(_pInputBuffer, chunkOffset, 4);
+			if (video)
+			{
+				int videoOffset = chunkOffset + 4;
+
+				// Unpack video
+				Unpack(videoOffset, chunkSize);
+
+				// Decode video
+				_qw = _width / 4;
+				int qh = _height / 4;
+				_inputOffset = 0;
+				_x = 0;
+				_y = 0;
+				_remainingX = _qw;
+				_remainingY = qh;
+				while (_inputOffset < _decodedSize && _remainingY > 0)
+				{
+					int val = (GetInt(_pDecodingBuffer, _inputOffset, 2)) & 0xffff;
+					_inputOffset += 2;
+
+					if (val < 0x4000)
+					{
+						SkipOrFill(val);
+					}
+					else if (val < 0x5000)
+					{
+						PatternFill(val);
+					}
+					else if (val < 0x6000)
+					{
+						PatternCopy(val);
+					}
+					else
+					{
+						int bug = 0;
+						break;
+					}
+				}
+			}
+			chunkOffset += chunkSize + 4;
+		}
+
+		if ((frameFlags & 0x04) != 0)
+		{
+			// Audio
+			if (!video)
+			{
+				int chunkSize = GetInt(_pInputBuffer, chunkOffset, 4);
+				int dataOffset = chunkOffset + 4;
+				int outputOffset = 0;
+				int riffOffset = 0;
+				if (GetInt(_pInputBuffer, dataOffset, 4) == RIFF)
+				{
+					// RIFF header, extract required properties
+					riffOffset = dataOffset;
+					_channels = GetInt(_pInputBuffer, dataOffset + 0x16, 2);
+					_depth = GetInt(_pInputBuffer, dataOffset + 0x22, 2);
+					_remainingLength = GetInt(_pInputBuffer, dataOffset + 0x28, 4);
+
+					dataOffset += 0x2c;
+					chunkSize -= 0x2c;
+
+					initialAudioBuffer = TRUE;
+
+					_startAudioOnFrame = (_width > 0 && _height > 0) ? _frame + 4 : 0;
+				}
+
+				if (_audioCompressed)
+				{
+					outputOffset += DecodeH2OAudio(_pInputBuffer + dataOffset, _ppAudioOutputBuffers[_audioOutputBufferIndex] + outputOffset, chunkSize);
+				}
+				else
+				{
+					CopyMemory(_ppAudioOutputBuffers[_audioOutputBufferIndex], _pInputBuffer + dataOffset, chunkSize);
+					outputOffset += chunkSize;
+				}
+
+				Buffer ab;
+				ab.Frame = _frame;
+				ab.Size = outputOffset;
+				ab.pData = _ppAudioOutputBuffers[_audioOutputBufferIndex];
+				if (_audioBuffers.size() >= H2O_MAX_AUDIO_BUFFERS)
+				{
+					Trace(L"WARNING! Too many buffers in use: ");
+					TraceLine((int)_audioBuffers.size());
+				}
+				if (_lock.Lock())
+				{
+					_audioBuffers.push_back(ab);
+					_lock.Release();
+				}
+
+				_remainingAudioLength -= outputOffset;
+
+				if (_sourceVoice == NULL)
+				{
+					char formatBuff[64];
+					WAVEFORMATEX* pwfx = reinterpret_cast<WAVEFORMATEX*>(&formatBuff);
+					pwfx->wFormatTag = GetInt(_pInputBuffer, riffOffset + 0x14, 2);
+					pwfx->nChannels = _channels;
+					pwfx->nSamplesPerSec = GetInt(_pInputBuffer, riffOffset + 0x18, 4);
+					pwfx->nAvgBytesPerSec = GetInt(_pInputBuffer, riffOffset + 0x1c, 4);
+					pwfx->nBlockAlign = 2;
+					pwfx->wBitsPerSample = _depth;
+					pwfx->cbSize = 0;
+					_sourceVoice = CDXSound::CreateSourceVoice(pwfx, 0, 1.0f, this);
+				}
+
+				_audioOutputBufferIndex++;
+				if (_audioOutputBufferIndex >= H2O_MAX_AUDIO_BUFFERS)
+				{
+					_audioOutputBufferIndex = 0;
+				}
+			}
+		}
+
+		if (_sourceVoice != NULL && _startAudioOnFrame >= 0 && _frame == _startAudioOnFrame)
+		{
+			_sourceVoice->Start(0, 0);
+			_startAudioOnFrame = -1;
+		}
+
+		offset += frameSize + 4;
+
+		// This is the initial audio frame, should enqueue a few to avoid clicking
+		if (!video && initialAudioBuffer && _sourceVoice != NULL)
+		{
+			for (int i = 0; i < H2O_MAX_AUDIO_BUFFERS / 2; i++)
+			{
+				if (!ProcessFrame(offset, video))
+				{
+					break;
+				}
+			}
+
+			if (_lock.Lock())
+			{
+				auto buffers = _audioBuffers.size();
+				for (std::size_t i = 0; i < buffers && i < H2O_MAX_AUDIO_BUFFERS; i++)
+				{
+					Buffer ab = _audioBuffers.front();
+					_audioBuffers.pop_front();
+
+					XAUDIO2_BUFFER buf = { 0 };
+					buf.AudioBytes = ab.Size;
+					buf.pAudioData = ab.pData;
+					//if (_remainingAudioLength == 0) buf.Flags = XAUDIO2_END_OF_STREAM;
+
+					_sourceVoice->SubmitSourceBuffer(&buf);
+
+					_audioFramesQueued++;
+				}
+
+				_lock.Release();
+			}
+		}
+
+		return ((video && (frameFlags & 0xc3) != 0) || (!video && (frameFlags & 0x4) != 0));
+	}
+
+	return FALSE;
+}
+
+BOOL CH2O::DecodeFrame()
+{
+	BOOL ret = ProcessFrame(_videoFramePointer, TRUE) | ProcessFrame(_audioFramePointer, FALSE);
+	if (!ret)
+	{
+		_framePointer = _inputBufferLength;
+	}
+
+	return ret;
+}
+
+void CH2O::Unpack(int offset, int size)
+{
+	int bitPattern = GetInt(_pInputBuffer, offset, 4); // Bit pattern
+	offset += 4;
+	int availableBitCount = 32;   // Number of bits left
+
+	int videoEnd = offset + size;
+	_decodedSize = 0;
+	while (offset <= videoEnd)
+	{
+		int baseIndex = _minimumBitCount;
+		int bits = 0;
+		int requiredBitCount = _minimumBitCount;
+		if (availableBitCount <= requiredBitCount)
+		{
+			// Need more bits
+			bits = (int)((bitPattern >> (32 - availableBitCount)) & (0xffffffff >> (32 - availableBitCount)));
+			requiredBitCount -= availableBitCount;
+
+			bitPattern = GetInt(_pInputBuffer, offset, 4);
+			offset += 4;
+			availableBitCount = 32;
+		}
+
+		if (requiredBitCount > 0)
+		{
+			bits <<= requiredBitCount;
+			bits |= (int)((bitPattern >> (32 - requiredBitCount)) & (0xffffffff >> (32 - requiredBitCount)));
+			bitPattern <<= requiredBitCount;
+			availableBitCount -= requiredBitCount;
+		}
+
+		// Get correct table offset
+		while (bits > _pDecodingTable[baseIndex * 3 + 1])
+		{
+			bits <<= 1;
+			// Add one more bit
+
+			bits |= ((bitPattern >> 31) & 1);
+			bitPattern <<= 1;
+			availableBitCount--;
+			if (availableBitCount == 0)
+			{
+				bitPattern = GetInt(_pInputBuffer, offset, 4);
+				offset += 4;
+				availableBitCount = 32;
+			}
+
+			baseIndex++;
+		}
+
+		// Lookup in tag40 table
+		int ix = bits - _pDecodingTable[baseIndex * 3];
+		int tagOffset = _pDecodingTable[baseIndex * 3 + 2];
+		if (ix >= 0 && tagOffset > 0)
+		{
+			// Write to output buffer
+			_pDecodingBuffer[_decodedSize++] = _pInputBuffer[tagOffset + ix * 2];
+			_pDecodingBuffer[_decodedSize++] = _pInputBuffer[tagOffset + ix * 2 + 1];
+		}
+		else
+		{
+			int bug = 0;
+		}
+	}
+}
+
+void CH2O::SkipOrFill(int val)
+{
+	int count = (val >> 8) & 0xff;
+	if (count >= 59)
+	{
+		count = 128 << (count - 59);
+	}
+	else
+	{
+		count++;
+	}
+
+	if ((val & 0xff) == 0)
+	{
+		while (count > 0)
+		{
+			if (count < _remainingX)
+			{
+				_remainingX -= count;
+				_x += count * 4;
+				break;
+			}
+			else // count >= remainingX
+			{
+				count -= _remainingX;
+
+				NewLine();
+			}
+		}
+	}
+	else
+	{
+		byte set = (byte)(val & 0xff);
+		while (count > 0 && _remainingY > 0)
+		{
+			int blockCount = min(count, _remainingX);
+
+			// Fill blockCount 4x4 blocks with value
+
+			for (int b = 0; b < blockCount; b++)
+			{
+				for (int y = 0; y < 4; y++)
+				{
+					for (int x = 0; x < 4; x++)
+					{
+						_pVideoOutputBuffer[(_y + y) * _width + _x + b * 4 + x] = set;
+					}
+				}
+			}
+
+			_x += blockCount * 4;
+			_remainingX -= blockCount;
+			if (_remainingX <= 0)
+			{
+				NewLine();
+			}
+
+			count -= blockCount;
+		}
+	}
+}
+
+void CH2O::NewLine()
+{
+	_y += 4;
+	_x = 0;
+	_remainingX = _qw;
+	_remainingY--;
+}
+
+void CH2O::PatternFill(int val)
+{
+	int lineCountOrByteCount = (val & 0xfff) + 1;
+	while (lineCountOrByteCount > 0 && _remainingY > 0)//loop1
+	{
+		int count = min(lineCountOrByteCount, _remainingX);
+
+		_remainingX -= count;
+		lineCountOrByteCount -= count;
+
+		while (count > 0)//loop2
+		{
+			int functions = GetInt(_pDecodingBuffer, _inputOffset, 2) & 0xffff;
+			int pattern = GetInt(_pDecodingBuffer, _inputOffset + 2, 2) & 0xffff;
+			_inputOffset += 4;
+			Write(_x, _y, GetPattern(functions & 0xf, pattern));
+			Write(_x, _y + 1, GetPattern((functions >> 4) & 0xf, pattern));
+			Write(_x, _y + 2, GetPattern((functions >> 8) & 0xf, pattern));
+			Write(_x, _y + 3, GetPattern((functions >> 12) & 0xf, pattern));
+			count--;
+			_x += 4;
+		}
+
+		if (_remainingX <= 0)
+		{
+			NewLine();
+		}
+	}
+}
+
+int CH2O::GetPattern(int function, int input)
+{
+	int pattern[2] = { input & 0xff, (input >> 8) & 0xff };
+
+	int ret = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		ret <<= 8;
+		ret |= pattern[(function >> (3 - i)) & 1];
+	}
+
+	return ret;
+}
+
+void CH2O::Write(int x, int y, int value)
+{
+	_pVideoOutputBuffer[y * _width + x + 0] = (byte)(value & 0xff);
+	_pVideoOutputBuffer[y * _width + x + 1] = (byte)((value >> 8) & 0xff);
+	_pVideoOutputBuffer[y * _width + x + 2] = (byte)((value >> 16) & 0xff);
+	_pVideoOutputBuffer[y * _width + x + 3] = (byte)((value >> 24) & 0xff);
+}
+
+void CH2O::PatternCopy(int val)
+{
+	int lineCountOrByteCount = (val & 0xfff) + 1;
+	while (lineCountOrByteCount > 0 && _remainingY > 0)//loop1
+	{
+		int count = min(lineCountOrByteCount, _remainingX);
+		_remainingX -= count;
+		lineCountOrByteCount -= count;
+
+		while (count > 0 && _remainingY > 0)//loop2
+		{
+			int functions = GetInt(_pDecodingBuffer, _inputOffset, 2) & 0xffff;
+			_inputOffset += 2;
+
+			for (int i = 0; i < 4; i++)
+			{
+				int function = (functions >> (i * 4)) & 0xf;
+				for (int b = 0; b < 4; b++)
+				{
+					if ((function & (1 << b)) != 0)
+					{
+						_pVideoOutputBuffer[(_y + i) * _width + _x + b] = _pDecodingBuffer[_inputOffset++];
+					}
+				}
+			}
+
+			_x += 4;
+
+			if ((_inputOffset & 1) != 0)
+			{
+				_inputOffset++;
+			}
+
+			count--;
+		}
+
+		if (_remainingX <= 0)
+		{
+			NewLine();
+		}
+	}
+}

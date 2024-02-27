@@ -11,6 +11,9 @@ CGameBase::CGameBase()
 	_gameData = NULL;
 	ZeroMemory(Timers, sizeof(Timers));
 	_hintCategoryCount = 0;
+	_allowCancelVideo = TRUE;
+
+	_selectedItem = 0;
 }
 
 CGameBase::~CGameBase()
@@ -171,6 +174,19 @@ void CGameBase::ReadGameXMLInfo(int resource)
 				CComVariant va;
 				element->getAttribute(L"Name", &va);
 				CGameController::SetItemName(ix++, va.bstrVal);
+				node.Release();
+			}
+			nodeList.Release();
+
+			// Extract buyable item list
+			doc->selectNodes(L"GameData/BuyableItems/Item", &nodeList);
+			ix = 0;
+			while (nodeList->get_item(ix, &node) == S_OK)
+			{
+				CComQIPtr<IXMLDOMElement> element(node);
+				CComVariant va;
+				element->getAttribute(L"Name", &va);
+				CGameController::SetBuyableItemName(ix++, va.bstrVal);
 				node.Release();
 			}
 			nodeList.Release();

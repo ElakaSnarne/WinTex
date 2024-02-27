@@ -2,6 +2,7 @@
 
 #include "D3D11-NoWarn.h"
 #include "DirectX.h"
+#include "DXFont.h"
 
 class CDXText : public CDXBase
 {
@@ -17,6 +18,9 @@ public:
 
 	CDXText();
 	~CDXText();
+
+	std::string _string;
+	std::wstring _wstring;
 
 	void SetColours(int colour);
 	void SetColours(int colour1, int colour2);

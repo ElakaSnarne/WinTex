@@ -31,7 +31,7 @@ CMIDIPlayer::CMIDIPlayer()
 
 	OpenDevice(pConfig->MIDIDeviceId);
 
-	_hMIDIThread = CreateThread(NULL, 1048576, PlayerThread, NULL, 0, &_midiThreadId);
+	_hMIDIThread = CreateThread(NULL, 1048576, PlayerThread, (LPVOID)this, 0, &_midiThreadId);
 }
 
 void CMIDIPlayer::CloseDevice()
@@ -102,17 +102,17 @@ void CMIDIPlayer::Init(BinaryData data)
 		{
 			LPBYTE pMIDI = data.Data;
 
-			int chunkCount = GetInt(pMIDI, 0x30, 4);
+			int channelCount = GetInt(pMIDI, 0x30, 4);
 			int check = GetInt(pMIDI, 0x34, 4);
 			_division = GetInt(pMIDI, 0x38, 4);
 			_duration = GetInt(pMIDI, 0x3c, 4);
 
 			LPBYTE pChannel = pMIDI + 0x308;
-			for (int i = 0; i < chunkCount && i < 16; i++)
+			for (int i = 0; i < channelCount && i < 16; i++)
 			{
-				int chunkNumber = GetInt(pChannel, 0, 4);
-				int chunkLength = GetInt(pChannel, 4, 4);
-				int trackNumber = GetInt(pChannel, 8, 4);
+				//int channelNumber = GetInt(pChannel, 0, 4);
+				int channelLength = GetInt(pChannel, 4, 4);
+				//int trackNumber = GetInt(pChannel, 8, 4);
 
 				// Extract initial track delay
 				int div = 0, v = 0, check = 12;
@@ -126,7 +126,7 @@ void CMIDIPlayer::Init(BinaryData data)
 
 				_delays[i] = static_cast<int>(div * TIMER_SCALE / 2);
 				_channels[i] = pChannel + check;
-				pChannel += chunkLength;
+				pChannel += channelLength;
 			}
 		}
 
@@ -219,6 +219,17 @@ void CMIDIPlayer::SetVolume(float volume)
 
 DWORD WINAPI CMIDIPlayer::PlayerThread(LPVOID lpParameter)
 {
+	CMIDIPlayer* pPlayer = (CMIDIPlayer*)lpParameter;
+	if (pPlayer != NULL)
+	{
+		pPlayer->Player();
+	}
+
+	return 0;
+}
+
+DWORD CMIDIPlayer::Player()
+{
 	while (_handle != NULL && _handle != INVALID_HANDLE_VALUE)
 	{
 		_changed = FALSE;
@@ -306,16 +317,11 @@ DWORD WINAPI CMIDIPlayer::PlayerThread(LPVOID lpParameter)
 								int shift = 0;
 								do
 								{
-									if (i == 3)
-									{
-										int gfrt = 0;
-									}
-
 									v = *pChannel++;
 									div |= ((v & 0x7f) << shift);
 									shift += 7;
 								} while ((v & 0x80) == 0);
-								_delays[i] = div * 8;// TIMER_SCALE / 2;
+								_delays[i] = div * 8;
 							}
 
 							_channels[i] = pChannel;

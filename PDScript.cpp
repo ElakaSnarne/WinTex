@@ -12,6 +12,9 @@
 #include "MainMenuModule.h"
 #include "PictureModule.h"
 #include "PDGame.h"
+#include <algorithm>
+#include "PDVidPhoneModule.h"
+#include "PDRitzSecurityKeypadModule.h"
 
 CPDScript::CPDScript()
 {
@@ -170,13 +173,14 @@ CPDScript::~CPDScript()
 {
 }
 
-void CPDScript::PermformAction(CScriptState* pState, int id, int action, int item)
+void CPDScript::PermformAction(CScriptState* pState, int id, ActionType action, int item)
 {
 	//pState->ExecutionPointer = pState->GetScript(id);
 	pState->CurrentAction = action;
 	if (item > 0)
 	{
 		pState->CurrentAction = ActionType::Use;
+		pState->SelectedValue = item;
 	}
 	//CGameController::SetParameter(99, item);
 	Execute(pState, id + 2);
@@ -200,16 +204,11 @@ void CPDScript::Resume(CScriptState* pState, BOOL breakWait)
 	{
 		pState->WaitingForMediaToFinish = FALSE;
 		pState->WaitingForInput = FALSE;
+		pState->WaitingForExternalModule = FALSE;
 	}
 
-	//WCHAR buffer[40];
-
-	while (CModuleController::CurrentModule == pThisModule && pState->ExecutionPointer > -1 && pState->ExecutionPointer < pState->Length && pState->Script != NULL && !pState->WaitingForMediaToFinish && !pState->WaitingForInput)
+	while (CModuleController::CurrentModule == pThisModule && pState->ExecutionPointer > -1 && pState->ExecutionPointer < pState->Length && pState->Script != NULL && !pState->WaitingForMediaToFinish && !pState->WaitingForInput && !pState->WaitingForExternalModule)
 	{
-		//_itow(pState->ExecutionPointer, buffer, 16);
-		//OutputDebugString(buffer);
-		//OutputDebugString(L" - ");
-
 		// Execute script
 		byte cmd = pState->Script[pState->ExecutionPointer++];
 		if (cmd < 0 || cmd > 0x92)
@@ -273,46 +272,43 @@ void CPDScript::Function_02(CScriptState* pState)
 void CPDScript::Function_03(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_03 - If Action = Look jump to offset");
-	pState->ExecutionPointer = (pState->CurrentAction == ActionType::Look) ? GetInt(pState->Script, pState->ExecutionPointer, 2) : pState->ExecutionPointer + 2;
+	pState->ExecutionPointer = (pState->CurrentAction == ActionType::Look) ? pState->Read16() : pState->ExecutionPointer + 2;
 }
 
 void CPDScript::Function_04(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_04");
-	pState->ExecutionPointer = -1;
-
-	//text += $"If byte_2A851E <> 0 jump to {GetInt(data, offset, 2):X4}";
-	//offset += 2;
+	pState->ExecutionPointer += 2;	// Jump to address if skip requested (enter pressed)
 }
 
 void CPDScript::Function_05(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_05 - If Action = Get jump to offset");
-	pState->ExecutionPointer = (pState->CurrentAction == ActionType::Get) ? GetInt(pState->Script, pState->ExecutionPointer, 2) : pState->ExecutionPointer + 2;
+	pState->ExecutionPointer = (pState->CurrentAction == ActionType::Get) ? pState->Read16() : pState->ExecutionPointer + 2;
 }
 
 void CPDScript::Function_06(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_06 - If Action = Move jump to offset");
-	pState->ExecutionPointer = (pState->CurrentAction == ActionType::Move) ? GetInt(pState->Script, pState->ExecutionPointer, 2) : pState->ExecutionPointer + 2;
+	pState->ExecutionPointer = (pState->CurrentAction == ActionType::Move) ? pState->Read16() : pState->ExecutionPointer + 2;
 }
 
 void CPDScript::Function_07(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_07 - If Action = Use jump to offset");
-	pState->ExecutionPointer = (pState->CurrentAction == ActionType::Use) ? GetInt(pState->Script, pState->ExecutionPointer, 2) : pState->ExecutionPointer + 2;
+	pState->ExecutionPointer = (pState->CurrentAction == ActionType::Use) ? pState->Read16() : pState->ExecutionPointer + 2;
 }
 
 void CPDScript::Function_08(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_08 - If Action = Talk jump to offset");
-	pState->ExecutionPointer = (pState->CurrentAction == ActionType::Talk) ? GetInt(pState->Script, pState->ExecutionPointer, 2) : pState->ExecutionPointer + 2;
+	pState->ExecutionPointer = (pState->CurrentAction == ActionType::Talk) ? pState->Read16() : pState->ExecutionPointer + 2;
 }
 
 void CPDScript::Function_09(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_09 - If Action = Open jump to offset");
-	pState->ExecutionPointer = (pState->CurrentAction == ActionType::Open) ? GetInt(pState->Script, pState->ExecutionPointer, 2) : pState->ExecutionPointer + 2;
+	pState->ExecutionPointer = (pState->CurrentAction == ActionType::Open) ? pState->Read16() : pState->ExecutionPointer + 2;
 }
 
 void CPDScript::Function_0A(CScriptState* pState)
@@ -321,13 +317,12 @@ void CPDScript::Function_0A(CScriptState* pState)
 	// TODO: Fix this, it is not correct
 	pState->FrameTrigger = 1;
 	AddCaption(pState, TRUE);
-	pState->ExecutionPointer += 2;
 }
 
 void CPDScript::AddCaption(CScriptState* pState, BOOL TexTalk)
 {
-	// Print at frame trigger (ce = Tex talks, cf = others talk)
-	int stringOffset = GetInt(pState->Script, pState->ExecutionPointer, 2);
+	// Print at frame trigger
+	int stringOffset = pState->Read16();
 	pAddCaptions->push_back(new CCaption(pState->FrameTrigger, (char*)(pState->Script + stringOffset), TexTalk));
 }
 
@@ -335,12 +330,10 @@ void CPDScript::Function_0B(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_0B - Start Animation");
 
-	int anim = pState->Script[pState->ExecutionPointer++];
+	int anim = pState->Read8();
 	if (_pLoc != NULL)
 	{
-		//_pLoc->StartIndexedAnimation(anim);
 		_pLoc->StartMappedAnimation(anim);
-		//_pLoc->StartIdAnimation(anim);
 	}
 }
 
@@ -349,8 +342,9 @@ void CPDScript::Function_0C(CScriptState* pState)
 	DebugTrace(pState, L"Function_0C - Set Parameter");
 
 	// Set parameter
-	int index = GetInt(pState->Script, pState->ExecutionPointer, 2);
-	int value = pState->Script[pState->ExecutionPointer + 2];
+	int index = pState->Read16();
+	int value = pState->Read8();
+
 	//if (index == 252)
 	//{
 	//	if (value == 1 && CGameController::GetParameter(index) == 0)
@@ -369,70 +363,68 @@ void CPDScript::Function_0C(CScriptState* pState)
 	//}
 
 	CGameController::SetParameter(index, (byte)value);
-	pState->ExecutionPointer += 3;
 }
 
 void CPDScript::Function_0D(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_0D - Jump on A[X]=Y");
+	DebugTrace(pState, L"Function_0D - Jump on Parameter[X]=Y");
 
-	int ix = GetInt(pState->Script, pState->ExecutionPointer, 2);
-	int cmp = GetInt(pState->Script, pState->ExecutionPointer + 2, 1);
+	int ix = pState->Read16();
+	int cmp = pState->Read8();
+	int address = pState->Read16();
 
 	if (CGameController::GetParameter(ix) == cmp)
 	{
-		pState->ExecutionPointer = GetInt(pState->Script, pState->ExecutionPointer + 3, 2);
-	}
-	else
-	{
-		pState->ExecutionPointer += 5;
+		pState->ExecutionPointer = address;
 	}
 }
 
 void CPDScript::Function_0E(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_0E - Jump to offset");
-	pState->ExecutionPointer = GetInt(pState->Script, pState->ExecutionPointer, 2);
+	pState->ExecutionPointer = pState->Read16();
 }
 
 void CPDScript::Function_0F(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_0F");
+	DebugTrace(pState, L"Function_0F - Set Player Position");
 
-	//text += $"??? {GetInt(data, offset, 2):X4}, {GetInt(data, offset + 2, 2):X4}, {GetInt(data, offset + 4, 2):X4}, {GetInt(data, offset + 6, 2):X4}";
+	int ix = pState->Read16s();
+	int iy = pState->Read16s();
+	int iz = pState->Read16s();
+	int ia = pState->Read16s();
 
-	pState->ExecutionPointer += 8;
+	Point ppos = _pLoc->GetPlayerPosition();
+
+	float x = (ix == -1) ? -ppos.X : -From12_4(ix);
+	float y = (iy == -1) ? ppos.Y : -From12_4(iy);
+	float z = (iz == -1) ? -ppos.Z : -From12_4(iz);
+	float angle = (ia == -1) ? CLocation::_angle2 : -(XM_PI * ia) / 1800.0f;
+
+	CLocation::SetPosition(x, y, z, angle);
 }
 
 void CPDScript::Function_10(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_10 - Set item state");
 
-	int itemIndex = GetInt(pState->Script, pState->ExecutionPointer, 2);
-	int itemState = GetInt(pState->Script, pState->ExecutionPointer + 2, 1);
+	int itemIndex = pState->Read16();
+	int itemState = pState->Read8();
 	CGameController::SetItemState(itemIndex, itemState);
-
-	pState->ExecutionPointer += 3;
 }
 
 void CPDScript::Function_11(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_11");
-
+	DebugTrace(pState, L"Function_11 - Jump on Item State X = Y");
 	// word, byte, word
-	//text += $"If X[{GetInt(data, offset, 2):X4}] = {GetInt(data, offset + 2, 1):X2} jump to {GetInt(data, offset + 3, 2):X4}";
 
-	int item = GetInt(pState->Script, pState->ExecutionPointer, 2);
-	int state = pState->Script[pState->ExecutionPointer + 2];
+	int item = pState->Read16();
+	int state = pState->Read8();
+	int address = pState->Read16();
 
 	if (CGameController::GetItemState(item) == state)
 	{
-		int address = GetInt(pState->Script, pState->ExecutionPointer + 3, 2);
 		pState->ExecutionPointer = address;
-	}
-	else
-	{
-		pState->ExecutionPointer += 5;
 	}
 }
 
@@ -445,17 +437,32 @@ void CPDScript::Function_12(CScriptState* pState)
 void CPDScript::Function_13(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_13 - Load Location");
-	// byte, byte, byte
-	//text += $"Load Location {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 1):X2}, {GetInt(data, offset + 2, 1):X2} (files from from RMAP.AP)";
-	//offset += 3;
 
 	CAmbientAudio::Clear();
 	//CGameController::SetParameter(252, 0);
 
-	int locationId = pState->Script[pState->ExecutionPointer];
-	int startupPosition = pState->Script[pState->ExecutionPointer + 1];
+	int locationId = pState->Read8();
+	int startupPosition = pState->Read8();
+	int unknown = pState->Read8();
 	//CGameController::SetData(UAKM_SAVE_MAP_ENTRY, locationId);
-	//CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 0);
+
+	if (startupPosition == 0xff)
+	{
+		startupPosition = CGameController::GetData(PD_SAVE_STARTUP_POSITION);
+	}
+
+	if (unknown != 0xff)
+	{
+		CGameController::SetParameter(241, unknown);	// Will always be set to 0 later in LoadLocation
+	}
+
+	CGameController::SetParameter(252, 1);
+	//CGameController::SetData(PD_SAVE_MAP_ENTRY_A, locationId);
+	CGameController::SetData(PD_SAVE_LOCATION_ID, locationId);
+	CGameController::SetData(PD_SAVE_STARTUP_POSITION, startupPosition);
+	//CGameController::SetData(PD_SAVE_MAP_FLAG_A, 1);
+
+	CGameController::AutoSave();
 
 	CModuleController::Push(new CPDLocationModule(locationId, startupPosition));
 	pState->ExecutionPointer = -1;
@@ -465,55 +472,81 @@ void CPDScript::Function_14(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_14 - Load file");
 
-	// byte, byte
-	//text += $"Load File {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 1):X2} (from DMAP?)";
-
 	CAmbientAudio::Clear();
 	pMIDI->Stop();
 	//CGameController::SetParameter(252, 0);
 
 	// Conversations & media
 	// Load files from DMAP.LZ
-	int fileIndex = pState->Script[pState->ExecutionPointer];
-	int unknown = pState->Script[pState->ExecutionPointer + 1];
+	int ix = pState->Read8();
+	int unknown = pState->Read8();
 
-	//CGameController::SetData(UAKM_SAVE_DMAP_ENTRY, ix);
-	//CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 1);
+	if (unknown != 0xff)
+	{
+		CGameController::SetParameter(241, unknown);	// Will always be set to 0 later in LoadLocation
+	}
 
-	CModuleController::Push(new CVideoModule(VideoType::Scripted, fileIndex));
+	//CGameController::SetData(PD_SAVE_DMAP_ENTRY_A, ix);
+	//CGameController::SetData(PD_SAVE_DMAP_ENTRY_B, ix);
+	//CGameController::SetData(PD_SAVE_MAP_FLAG_A, 0);
+	CGameController::SetData(PD_SAVE_DMAP_ID, ix);
+	CGameController::SetData(PD_SAVE_SCRIPT_ID, 0);
+	CGameController::SetParameter(252, 0);
+
+	CGameController::AutoSave();
+
+	CModuleController::Push(new CVideoModule(VideoType::Scripted, ix, unknown));
 
 	pState->ExecutionPointer = -1;
-	//pState->WaitingForInput = TRUE;
 }
 
 void CPDScript::Function_15(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_15 - Jump if animation at frame");
-	pState->ExecutionPointer = (_pLoc != NULL && _pLoc->GetAnimationFrame(pState->Script[pState->ExecutionPointer]) == GetInt(pState->Script, pState->ExecutionPointer + 1, 2)) ? GetInt(pState->Script, pState->ExecutionPointer + 3, 2) : pState->ExecutionPointer + 5;
+
+	int anim = pState->Read8();
+	int frame = pState->Read16();
+	int address = pState->Read16();
+
+	if (_pLoc != NULL && _pLoc->GetAnimationFrame(anim) == frame)
+	{
+		pState->ExecutionPointer = address;
+	}
 }
 
 void CPDScript::Function_16(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_16 - Jump if animation ended");
-	pState->ExecutionPointer = (_pLoc != NULL && _pLoc->GetAnimationFrame(pState->Script[pState->ExecutionPointer]) == -1) ? GetInt(pState->Script, pState->ExecutionPointer + 1, 2) : pState->ExecutionPointer + 3;
+	int anim = pState->Read8();
+	int address = pState->Read16();
+
+	if (_pLoc != NULL && _pLoc->IsIndexedAnimationFinished(anim))
+	{
+		pState->ExecutionPointer = address;
+	}
 }
 
 void CPDScript::Function_17(CScriptState* pState)
 {
 	// This will NOT wait for media completion
 	DebugTrace(pState, L"Function_17 - Play Sound");
-	PlaySound(pState, pState->Script[pState->ExecutionPointer++] - 1);
+	int sound = pState->Read8();
+	PlaySound(sound - 1);
 	pState->WaitingForMediaToFinish = FALSE;
 }
 
 void CPDScript::Function_18(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_18");
+	DebugTrace(pState, L"Function_18 - Jump on player Y > value");
 
 	// word, word
-	//text += $"If word_2A9102 <= {GetInt(data, offset, 2):X4} jump to {GetInt(data, offset + 2, 2):X4}";
-	//offset += 4;
-	pState->ExecutionPointer += 4;
+	float ylimit = pState->Read12_4();
+	int address = pState->Read16();
+	float playerY = -_pLoc->GetUnadjustedPlayerPosition().Y;
+	if (playerY > ylimit)
+	{
+		pState->ExecutionPointer = address;
+	}
 }
 
 void CPDScript::Function_19(CScriptState* pState)
@@ -527,36 +560,23 @@ void CPDScript::Function_19(CScriptState* pState)
 
 void CPDScript::Function_1A(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_1A");
-	//pState->ExecutionPointer += 10;
+	DebugTrace(pState, L"Function_1A - Jump if player inside rectangle");
 
-	int p1 = GetInt(pState->Script, pState->ExecutionPointer, 2);
-	int p2 = GetInt(pState->Script, pState->ExecutionPointer + 2, 2);
-	int p3 = GetInt(pState->Script, pState->ExecutionPointer + 4, 2);
-	int p4 = GetInt(pState->Script, pState->ExecutionPointer + 6, 2);
-	int address = GetInt(pState->Script, pState->ExecutionPointer + 8, 2);
-
-	if ((p1 & 0x8000) != 0) p1 = (int)(p1 | 0xffff0000);
-	if ((p2 & 0x8000) != 0) p2 = (int)(p2 | 0xffff0000);
-	if ((p3 & 0x8000) != 0) p3 = (int)(p3 | 0xffff0000);
-	if ((p4 & 0x8000) != 0) p4 = (int)(p4 | 0xffff0000);
-
-	float f1 = ((float)p1) / 16.0f;
-	float f2 = ((float)p2) / 16.0f;
-	float f3 = ((float)p3) / 16.0f;
-	float f4 = ((float)p4) / 16.0f;
+	float f1 = pState->Read12_4();
+	float f2 = pState->Read12_4();
+	float f3 = pState->Read12_4();
+	float f4 = pState->Read12_4();
+	int address = pState->Read16();
 
 	float x1 = min(f1, f3);
 	float x2 = max(f1, f3);
 	float z1 = min(f2, f4);
 	float z2 = max(f2, f4);
 
-	pState->ExecutionPointer += 10;
 	if (_pLoc != NULL)
 	{
 		Point p = _pLoc->GetPlayerPosition();
 		if (p.X >= x1 && p.X <= x2 && p.Z >= z1 && p.Z <= z2)
-			//if (p.X < x1 || p.X > x2 || p.Z < z1 || p.Z > z2)
 		{
 			pState->ExecutionPointer = address;
 		}
@@ -580,46 +600,36 @@ void CPDScript::Function_1C(CScriptState* pState)
 
 void CPDScript::Function_1D(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_1D");
-
+	DebugTrace(pState, L"Function_1D - Set AskAboutState[X] to Y");
 	// byte, byte
-	//text += $"??? {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 1):X2}";
-	pState->ExecutionPointer += 2;
+	int askAboutIndex = pState->Read8();
+	int state = pState->Read8();
+	CGameController::SetAskAboutState(askAboutIndex, state);
 }
 
 void CPDScript::Function_1E(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_1E");
+	DebugTrace(pState, L"Function_1E - Set Timer");
 
 	// byte, word
 	//text += $"Set Timer {GetInt(data, offset, 1):X2} to {GetInt(data, offset + 1, 2) * 16.6666666667:0} ms";
 
-	int timer = pState->Script[pState->ExecutionPointer];
-	int duration = GetInt(pState->Script, pState->ExecutionPointer + 1, 2);
+	int timer = pState->Read8();
+	int duration = pState->Read16();
 	CGameController::SetTimer(timer, duration);
-	pState->ExecutionPointer += 4;
-
-
-	pState->ExecutionPointer += 3;
 }
 
 void CPDScript::Function_1F(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_1F");
+	DebugTrace(pState, L"Function_1F - Jump on timer state");
 
 	// byte, word, word
-
-	//text += $"If W[{GetInt(data, offset, 1):X2}] = {GetInt(data, offset + 1, 1):X2} jump to {GetInt(data, offset + 3, 2):X4}";
-	int timer = pState->Script[pState->ExecutionPointer];
-	int compare = pState->Script[pState->ExecutionPointer + 1];
+	int timer = pState->Read8();
+	int compare = pState->Read16() & 0xff;
+	int address = pState->Read16();
 	if (CGameController::GetTimerState(timer) == compare)
 	{
-		int address = GetInt(pState->Script, pState->ExecutionPointer + 3, 2);
 		pState->ExecutionPointer = address;
-	}
-	else
-	{
-		pState->ExecutionPointer += 5;
 	}
 }
 
@@ -627,24 +637,25 @@ void CPDScript::Function_20(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_A0 - Change Travel Location state");
 
-	CGameController::SetData(PD_SAVE_TRAVEL + pState->Script[pState->ExecutionPointer], pState->Script[pState->ExecutionPointer + 1]);
-
-	pState->ExecutionPointer += 2;
+	int location = pState->Read8();
+	int state = pState->Read8();
+	CGameController::SetData(PD_SAVE_TRAVEL + location, state);
 }
 
 void CPDScript::Function_21(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_21 - If Action = On/Off jump to offset");
-	pState->ExecutionPointer = (pState->CurrentAction == ActionType::OnOff) ? GetInt(pState->Script, pState->ExecutionPointer, 2) : pState->ExecutionPointer + 2;
+	pState->ExecutionPointer = (pState->CurrentAction == ActionType::OnOff) ? pState->Read16() : pState->ExecutionPointer + 2;
 }
 
 void CPDScript::Function_22(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_22");
+	DebugTrace(pState, L"Function_22 - Play Cached Sound Buffer");
 
-	// byte, byte
-	//text += $"??? {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 1):X2}";
-	pState->ExecutionPointer += 2;
+	int buffer = pState->Read8();
+	int  unknown = pState->Read8();
+
+	CAmbientAudio::LoopPD(buffer - 1);
 }
 
 void CPDScript::Function_23(CScriptState* pState)
@@ -667,31 +678,28 @@ void CPDScript::Function_24(CScriptState* pState)
 
 void CPDScript::Function_25(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_25");
-
-	//text += $"???";
+	DebugTrace(pState, L"Function_25 - Set Embedded Video Mode");
+	videoMode = VideoMode::Embedded;
 }
 
 void CPDScript::Function_26(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_26");
+	DebugTrace(pState, L"Function_26 - Add Cash");
 
 	// word
-	//text += $"Cash += {GetInt(data, offset, 2)}";
-	int cash = GetInt(pState->Script, pState->ExecutionPointer, 2);
-	// TODO: Add cash
-	pState->ExecutionPointer += 2;
+	int cashToAdd = pState->Read16();
+	int currentCash = CGameController::GetWord(PD_SAVE_CASH);
+	CGameController::SetWord(PD_SAVE_CASH, currentCash + cashToAdd);
 }
 
 void CPDScript::Function_27(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_27 - Play Video");
-	int x = GetInt(pState->Script, pState->ExecutionPointer, 2);
-	int y = GetInt(pState->Script, pState->ExecutionPointer + 2, 2);
-	int entry = pState->Script[pState->ExecutionPointer + 4];
-	int rate = GetInt(pState->Script, pState->ExecutionPointer + 5, 2);
-	PlayVideo(pState, entry, rate);
-	pState->ExecutionPointer += 7;
+	int x = pState->Read16();
+	int y = pState->Read16();
+	int entry = pState->Read8();
+	int rate = pState->Read16();
+	PlayVideo(entry, rate);
 	pState->WaitingForMediaToFinish = TRUE;
 }
 
@@ -699,17 +707,18 @@ void CPDScript::Function_28(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_28");
 	// byte
+	int script = pState->Read8();
 	//text += $"Set OnReturnContinueAtScriptID = {GetInt(data, offset++, 1):X2}";
 }
 
 void CPDScript::Function_29(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_29");
-	pState->ExecutionPointer = -1;
+	DebugTrace(pState, L"Function_29 - Remove Cash");
 
-	int cash = GetInt(pState->Script, pState->ExecutionPointer, 2);
-	// TODO: Remove cash
-	pState->ExecutionPointer += 2;
+	// word
+	int cashToRemove = pState->Read16();
+	int currentCash = CGameController::GetWord(PD_SAVE_CASH);
+	CGameController::SetWord(PD_SAVE_CASH, currentCash - cashToRemove);
 }
 
 void CPDScript::Function_2A(CScriptState* pState)
@@ -740,26 +749,50 @@ void CPDScript::Function_2D(CScriptState* pState)
 
 void CPDScript::Function_2E(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_2E");
+	DebugTrace(pState, L"Function_2E - If AskAboutState[x]=y go to z");
 
 	// byte, byte, word
-	//text += $"If Y[{GetInt(data, offset, 1):X2}]={GetInt(data, offset + 1, 1):X2} jump to {GetInt(data, offset + 2, 2):X4}";
-	pState->ExecutionPointer += 4;
+	int ix = pState->Read8();
+	int val = pState->Read8();
+	int address = pState->Read16();
+
+	if (CGameController::GetAskAboutState(ix) == val)
+	{
+		pState->ExecutionPointer = address;
+	}
 }
 
 void CPDScript::Function_2F(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_2F - Special function");
 
-	int function = pState->Script[pState->ExecutionPointer];
-	int p1 = GetInt(pState->Script, pState->ExecutionPointer + 1, 2);
-	int p2 = GetInt(pState->Script, pState->ExecutionPointer + 3, 2);
+	int function = pState->Read8();
+	int p1 = pState->Read16s();
+	int p2 = pState->Read16s();
 
 	switch (function)
 	{
+		// From 0 to 45
 		case 5:
 		{
 			// Vidphone
+			CModuleController::Push(new CPDVidPhoneModule());
+			pState->WaitingForInput = TRUE;
+			break;
+		}
+		case 34:
+		{
+			// Ritz door security keypad
+			CModuleController::Push(new CPDRitzSecurityKeypadModule());
+			pState->WaitingForInput = TRUE;
+			break;
+		}
+		case 42:
+		{
+			// Animate elevation
+			pElevationModOverlay->SetData(p1, p2);
+			pOverlay = pElevationModOverlay;
+			pState->WaitingForInput = TRUE;
 			break;
 		}
 		default:
@@ -767,8 +800,6 @@ void CPDScript::Function_2F(CScriptState* pState)
 			break;
 		}
 	}
-
-	pState->ExecutionPointer += 5;
 }
 
 void CPDScript::Function_30(CScriptState* pState)
@@ -802,12 +833,136 @@ void CPDScript::Function_33(CScriptState* pState)
 
 void CPDScript::Function_34(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_34");
+	DebugTrace(pState, L"Function_34 - Display options");
 
 	// word, word, word
-	//text += $"Display options\r\n\t\tA - {stringList[GetInt(data, offset, 2)]}\r\n\t\tB - {stringList[GetInt(data, offset + 2, 2)]}\r\n\t\tC - {stringList[GetInt(data, offset + 4, 2)]}";
-	//	pState->LastDialoguePoint = pState->ExecutionPointer - 1;
-	pState->ExecutionPointer += 6;
+
+	pState->LastDialoguePoint = pState->ExecutionPointer - 1;
+
+	int oldOptionValues[3];
+	int askIndex = -1, buyIndex = -1, offerIndex = -1;
+
+	char* pT[3];
+	for (int i = 0; i < 3; i++)
+	{
+		int v = i + 1;
+		int stringOffset = pState->Read16();
+		pT[i] = (char*)(pState->Script + stringOffset);
+
+		if (pT[i] != NULL && pT[i][0] == '^')
+		{
+			v = atoi(pT[i] + 1);
+			// Get correct string (next in list)
+			while (pT[i][0] != 0) pT[i]++;
+			pT[i]++;
+		}
+
+		oldOptionValues[i] = DialogueOptions[i].GetValue();
+		DialogueOptions[i].SetValue(v);
+
+		if (v == 4)
+		{
+			askIndex = i;
+		}
+		else if (v == 6)
+		{
+			buyIndex = i;
+		}
+		else if (v == 7)
+		{
+			offerIndex = i;
+		}
+		/*
+				pState->Mode = InteractionMode::AskAbout;
+				pState->Mode = InteractionMode::Buy;
+		*/
+	}
+
+	DialogueOptionsCount = (strlen(pT[2]) == 0) ? (strlen(pT[1]) == 0) ? 1 : 2 : 3;
+
+	float w = 0.0f;
+	float h = 0.0f;
+	// Make a max size based on number of dialogue options, calculate required size for all items
+	float maxw = (dx.GetWidth() - 64.0f * pConfig->FontScale * DialogueOptionsCount) / DialogueOptionsCount;
+	for (int i = 0; i < 3; i++)
+	{
+		Size sz = TexFont.GetSize(pT[i], maxw);
+		if (sz.Width > w)
+		{
+			w = sz.Width;
+		}
+		if (sz.Height > h)
+		{
+			h = sz.Height;
+		}
+	}
+
+	// TODO: Should calculate height, in case the text needs to be wrapped...
+
+	Size sz;
+	sz.Width = w;
+	sz.Height = h;
+
+	float dow = w + 64.0f * pConfig->FontScale;
+	float sx = (dx.GetWidth() - DialogueOptionsCount * dow) / DialogueOptionsCount;
+	/*
+	if (sx < 10.0f)
+	{
+		// TODO: Either need multi-line, or will need different y-position for options
+
+		// TODO: Attempt 1, multi line
+		float allowedSpace = (dx.GetWidth() - DialogueOptionsCount * 74.0f) / DialogOptionsCount;
+		for (int i = 0; i < DialogueOptionsCount; i++)
+		{
+			sz = Font.GetSize(pT[i], allowedSpace);
+		}
+	}
+	*/
+
+	if (DialogueOptionsCount == 1)
+	{
+		// Center
+		DialogueOptions[0].SetText(pT[0], sz, (dx.GetWidth() - dow) / 2.0f);
+	}
+	else if (DialogueOptionsCount == 2)
+	{
+		// Center left, center right
+		float sx3 = sx / 3.0f;
+		DialogueOptions[0].SetText(pT[0], sz, sx3);
+		DialogueOptions[1].SetText(pT[1], sz, dx.GetWidth() - dow - sx3);
+	}
+	else if (DialogueOptionsCount == 3)
+	{
+		// Left, center, right
+		DialogueOptions[0].SetText(pT[0], sz, 0.0f);
+		DialogueOptions[1].SetText(pT[1], sz, (dx.GetWidth() - dow) / 2.0f);
+		DialogueOptions[2].SetText(pT[2], sz, dx.GetWidth() - dow);
+	}
+
+	pState->SelectedOption = -1;
+
+	// Should now wait for input
+	pState->WaitingForInput = TRUE;
+
+	// TODO: If AskAbout not available should set flag to false
+	if (pState->AskAbout && (askIndex < 0 || oldOptionValues[askIndex] != 4))
+	{
+		pState->AskAbout = FALSE;
+	}
+
+	// TODO: If Buy not available should set flag to false
+	if (pState->Buy && (buyIndex < 0 || oldOptionValues[buyIndex] != 6))
+	{
+		pState->Buy = FALSE;
+	}
+
+	// TODO: If Offer not available should set flag to false
+	if (pState->Offer && (offerIndex < 0 || oldOptionValues[offerIndex] != 7))
+	{
+		pState->Offer = FALSE;
+	}
+
+	// TODO: Should also move any open combobox if required
 }
 
 void CPDScript::Function_35(CScriptState* pState)
@@ -825,7 +980,7 @@ void CPDScript::Function_36(CScriptState* pState)
 	DebugTrace(pState, L"Function_36 - Set Allowed Actions");
 
 	pState->AllowedAction = ActionType::None;
-	int actions = pState->Script[pState->ExecutionPointer++];
+	int actions = pState->Read8();
 	if (actions & 1) pState->AllowedAction |= ActionType::Look;
 	if (actions & 2) pState->AllowedAction |= ActionType::Get;
 	if (actions & 4) pState->AllowedAction |= ActionType::Move;
@@ -836,17 +991,36 @@ void CPDScript::Function_36(CScriptState* pState)
 
 void CPDScript::Function_37(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_37");
+	DebugTrace(pState, L"Function_37 - Check cash");
 
 	// word, word
-	//text += $"If Cash >= {GetInt(data, offset, 2)} jump to {GetInt(data, offset + 2, 2):X4} (otherwise ask to convert points)";
-	pState->ExecutionPointer += 4;
+	int cashTest = pState->Read16();
+	int address = pState->Read16();
+
+	int currentCash = CGameController::GetWord(PD_SAVE_CASH);
+
+	if (currentCash >= cashTest)
+	{
+		pState->ExecutionPointer = address;
+	}
+	else
+	{
+		// Display modal window asking to convert points
+		pOverlay = pConvertPointsOverlay;
+		pState->WaitingForInput = TRUE;
+	}
 }
 
 void CPDScript::Function_38(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_38 - Jump on Selected Option = X");
-	pState->ExecutionPointer = (pState->SelectedOption == pState->Script[pState->ExecutionPointer]) ? GetInt(pState->Script, pState->ExecutionPointer + 1, 2) : pState->ExecutionPointer + 3;
+	int check = pState->Read8();
+	int address = pState->Read16();
+
+	if (pState->SelectedOption == check)
+	{
+		pState->ExecutionPointer = address;
+	}
 }
 
 void CPDScript::Function_39(CScriptState* pState)
@@ -857,18 +1031,33 @@ void CPDScript::Function_39(CScriptState* pState)
 
 void CPDScript::Function_3A(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_3A");
-	// Possibly preparing ending (attitude)
-	//text += "??? Possibly setting A[0] to 0, 1 or 2";
+	DebugTrace(pState, L"Function_3A - Identify gender of Ask About");
+
+	if (_women.find(pState->SelectedValue) != _women.end())
+	{
+		// She
+		CGameController::SetParameter(0, 0);
+	}
+	else if (_men.find(pState->SelectedValue) != _men.end())
+	{
+		// He
+		CGameController::SetParameter(0, 1);
+	}
+	else if (pState->SelectedValue == 2)
+	{
+		// It
+		CGameController::SetParameter(0, 2);
+	}
 }
 
 void CPDScript::Function_3B(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_3B");
+	DebugTrace(pState, L"Function_3B - Load Audio Buffer to Cache");
 
-	// byte, byte
-	//text += $"??? {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 1):X2}";
-	pState->ExecutionPointer += 2;
+	int entry = pState->Read8();
+	int buffer = pState->Read8();
+
+	CAmbientAudio::LoadPD(_mapEntry, entry, buffer - 1);
 }
 
 void CPDScript::Function_3C(CScriptState* pState)
@@ -888,18 +1077,18 @@ void CPDScript::Function_3D(CScriptState* pState)
 
 void CPDScript::Function_3E(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_3E");
-	pState->ExecutionPointer = -1;
+	DebugTrace(pState, L"Function_3E - Jump if ask about/offer/use item");
 
 	// word, word, word
 	// Ask about/offer
-	int type = GetInt(pState->Script, pState->ExecutionPointer, 2);
-	int index = GetInt(pState->Script, pState->ExecutionPointer + 2, 2);
+	int type = pState->Read16();
+	int index = pState->Read16();
+	int address = pState->Read16();
 
-	//string topic = (type == 0) ? PDData.GetAskAboutName(index) : PDData.GetItemName(index);
-
-	//text += $"If ??? {type:X4} - {index:X4} - Ask About {PDData.GetAskAboutName(index)} or Offer {PDData.GetItemName(index)} ??? jump to {GetInt(data, offset + 4, 2):X4}";
-	pState->ExecutionPointer += 6;
+	if (pState->SelectedValue == index)
+	{
+		pState->ExecutionPointer = address;
+	}
 }
 
 void CPDScript::Function_3F(CScriptState* pState)
@@ -907,16 +1096,12 @@ void CPDScript::Function_3F(CScriptState* pState)
 	DebugTrace(pState, L"Function_3F - Jump if Item not acquired");
 
 	// word, word
-	//text += $"If X[{GetInt(data, offset, 2):X4}] = 0 jump to {GetInt(data, offset + 2, 2):X4}";
 
-	int itemIndex = GetInt(pState->Script, pState->ExecutionPointer, 2);
+	int itemIndex = pState->Read16();
+	int address = pState->Read16();
 	if (CGameController::GetItemState(itemIndex) == 0)
 	{
-		pState->ExecutionPointer = GetInt(pState->Script, pState->ExecutionPointer + 2, 2);
-	}
-	else
-	{
-		pState->ExecutionPointer += 4;
+		pState->ExecutionPointer = address;
 	}
 }
 
@@ -954,22 +1139,22 @@ void CPDScript::Function_44(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_44 - Hide location object");
 
+	int object = pState->Read8();
 	if (_pLoc != NULL)
 	{
-		_pLoc->SetObjectVisibility(pState->Script[pState->ExecutionPointer], FALSE);
+		_pLoc->SetObjectVisibility(object, FALSE);
 	}
-	pState->ExecutionPointer++;
 }
 
 void CPDScript::Function_45(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_45 - Show location object");
 
+	int object = pState->Read8();
 	if (_pLoc != NULL)
 	{
-		_pLoc->SetObjectVisibility(pState->Script[pState->ExecutionPointer], TRUE);
+		_pLoc->SetObjectVisibility(object, TRUE);
 	}
-	pState->ExecutionPointer++;
 }
 
 void CPDScript::Function_46(CScriptState* pState)
@@ -993,35 +1178,35 @@ void CPDScript::Function_47(CScriptState* pState)
 
 void CPDScript::Function_48(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_48");
-
+	DebugTrace(pState, L"Function_48 - Jump on A[X] != Y");
 	// word, byte, word
-	//text += $"If A[{GetInt(data, offset, 2):X4}] <> {GetInt(data, offset + 2, 1):X2} jump to {GetInt(data, offset + 3, 2):X4}";
-	pState->ExecutionPointer = (CGameController::GetParameter(GetInt(pState->Script, pState->ExecutionPointer, 2)) == pState->Script[pState->ExecutionPointer + 2]) ? GetInt(pState->Script, pState->ExecutionPointer + 3, 2) : pState->ExecutionPointer + 5;
+
+	int parameter = pState->Read16();
+	int value = pState->Read8();
+	int address = pState->Read16();
+
+	if (CGameController::GetParameter(parameter) != value)
+	{
+		pState->ExecutionPointer = address;
+	}
 }
 
 void CPDScript::Function_49(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_49");
-
+	DebugTrace(pState, L"Function_49 - Add Score");
 	// byte
-	//text += $"Score += {GetInt(data, offset++, 1):X2}";
-	int score = pState->Script[pState->ExecutionPointer];
-	if (score & 0x80)
-	{
-		score |= ~0xff;
-	}
-	CGameController::AddScore(score);
 
-	pState->ExecutionPointer++;
+	int score = pState->Read8s();
+	CGameController::AddScore(score);
 }
 
 void CPDScript::Function_4A(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_4A - Set Hint Category State");
-	int ix = pState->Script[pState->ExecutionPointer];
-	if (CGameController::GetHintCategoryState(ix) != 2) CGameController::SetHintCategoryState(ix, pState->Script[pState->ExecutionPointer + 1]);
-	pState->ExecutionPointer += 2;
+
+	int ix = pState->Read8();
+	int state = pState->Read8();
+	if (CGameController::GetHintCategoryState(ix) != 2) CGameController::SetHintCategoryState(ix, state);
 }
 
 void CPDScript::Function_4B(CScriptState* pState)
@@ -1040,7 +1225,7 @@ void CPDScript::Function_4C(CScriptState* pState)
 
 	/*
 	DebugTrace(pState, L"Function_CC - Conditional Score Increment");
-	int val = GetInt(pState->Script, pState->ExecutionPointer, 2);
+	int val = pState->GetInt(pState->ExecutionPointer, 2);
 	pState->ExecutionPointer += 2;
 
 	if (val >= 1000)
@@ -1067,73 +1252,47 @@ void CPDScript::Function_4C(CScriptState* pState)
 
 void CPDScript::Function_4D(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_4D");
+	DebugTrace(pState, L"Function_4D - Jump if animation between frames");
 
-	int animIndex = pState->Script[pState->ExecutionPointer + 1];
-	int f1 = GetInt(pState->Script, pState->ExecutionPointer + 2, 2);
-	int f2 = GetInt(pState->Script, pState->ExecutionPointer + 4, 2);
+	pState->Read8();
+	int animIndex = pState->Read8();
+	int f1 = pState->Read16();
+	int f2 = pState->Read16();
+	int address = pState->Read16();
 	int frame = _pLoc->GetIndexedAnimationFrame(animIndex);
 	if ((f1 <= f2 && frame >= f1 && frame <= f2) || (f1 > f2 && (frame >= f1 || frame < f2)))
 	{
-		pState->ExecutionPointer = GetInt(pState->Script, pState->ExecutionPointer + 6, 2);
-	}
-	else
-	{
-		pState->ExecutionPointer += 8;
+		pState->ExecutionPointer = address;
 	}
 }
 
 void CPDScript::Function_4E(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_4E");
-
 	// byte, word, word
-	//string who = GetInt(data, offset, 1) == 0 ? "Tex" : "Other";
-	//text += $"At frame {:X4}, print as {who} \"{stringList[GetInt(data, offset + 3, 2)]}\"";
-	//AddCaption(state);
-	//int frame = GetInt(data, offset + 1, 2)
 
-	//char* pST = (char*)(pState->Script + pState->ExecutionPointer);
-	//while (pState->Script[pState->ExecutionPointer++] != 0);
-	//pAddCaptions->push_back(new CCaption(pState->FrameTrigger, pST, TexTalk));
-
-	//AddCaption(pState, TRUE);
-
-	BOOL TexTalk = (pState->Script[pState->ExecutionPointer] == 0);
-	int frame = GetInt(pState->Script, pState->ExecutionPointer + 1, 2);
-	int stringOffset = GetInt(pState->Script, pState->ExecutionPointer + 3, 2);
+	BOOL TexTalk = (pState->Read8() == 0);
+	int frame = pState->Read16();
+	int stringOffset = pState->Read16();
 
 	pAddCaptions->push_back(new CCaption(frame, (char*)(pState->Script + stringOffset), TexTalk));
-
-	pState->ExecutionPointer += 5;
 }
 
 void CPDScript::Function_4F(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_4F - Jump on player inside rectangle");
+	DebugTrace(pState, L"Function_4F - Jump if player inside rectangle");
 
-	int p1 = GetInt(pState->Script, pState->ExecutionPointer, 2);
-	int p2 = GetInt(pState->Script, pState->ExecutionPointer + 2, 2);
-	int p3 = GetInt(pState->Script, pState->ExecutionPointer + 4, 2);
-	int p4 = GetInt(pState->Script, pState->ExecutionPointer + 6, 2);
-	int address = GetInt(pState->Script, pState->ExecutionPointer + 8, 2);
-
-	if ((p1 & 0x8000) != 0) p1 = (int)(p1 | 0xffff0000);
-	if ((p2 & 0x8000) != 0) p2 = (int)(p2 | 0xffff0000);
-	if ((p3 & 0x8000) != 0) p3 = (int)(p3 | 0xffff0000);
-	if ((p4 & 0x8000) != 0) p4 = (int)(p4 | 0xffff0000);
-
-	float f1 = ((float)p1) / 16.0f;
-	float f2 = ((float)p2) / 16.0f;
-	float f3 = ((float)p3) / 16.0f;
-	float f4 = ((float)p4) / 16.0f;
+	float f1 = pState->Read12_4();
+	float f2 = pState->Read12_4();
+	float f3 = pState->Read12_4();
+	float f4 = pState->Read12_4();
+	int address = pState->Read16();
 
 	float x1 = min(f1, f3);
 	float x2 = max(f1, f3);
 	float z1 = min(f2, f4);
 	float z2 = max(f2, f4);
 
-	pState->ExecutionPointer += 10;
 	if (_pLoc != NULL)
 	{
 		Point p = _pLoc->GetPlayerPosition();
@@ -1157,7 +1316,8 @@ void CPDScript::Function_51(CScriptState* pState)
 {
 	// This will wait for media completion
 	DebugTrace(pState, L"Function_51 - Play Audio");
-	PlayAudio(pState, pState->Script[pState->ExecutionPointer++]);
+	int audio = pState->Read8();
+	PlayAudio(audio);
 	pState->WaitingForMediaToFinish = TRUE;
 }
 
@@ -1186,11 +1346,13 @@ void CPDScript::Function_54(CScriptState* pState)
 
 void CPDScript::Function_55(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_55");
+	DebugTrace(pState, L"Function_55 - Load MIDI");
 
-	// word, word
-	//text += $"Load MIDI from file {GetInt(data, offset, 2):X4}, entry {GetInt(data, offset + 2, 2):X4}";
-	pState->ExecutionPointer += 4;
+	int file = pState->Read16();
+	int entry = pState->Read16();
+	std::wstring fileName = CGameController::GetFileName(file);
+	BinaryData bd = LoadEntry(fileName.c_str(), entry);
+	pMIDI->Init(bd);
 }
 
 void CPDScript::Function_56(CScriptState* pState)
@@ -1214,37 +1376,26 @@ void CPDScript::Function_58(CScriptState* pState)
 
 void CPDScript::Function_59(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_59");
+	DebugTrace(pState, L"Function_59 - Stop MIDI");
 
-	//text += "??? Do something if byte_283ED1 = 0";
+	pMIDI->Stop();
 }
 
 void CPDScript::Function_5A(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_5A - Jump on player close to point");
 
-	int p1 = GetInt(pState->Script, pState->ExecutionPointer, 2);
-	int p2 = GetInt(pState->Script, pState->ExecutionPointer + 2, 2);
-	int p3 = GetInt(pState->Script, pState->ExecutionPointer + 4, 2);
-	int p4 = GetInt(pState->Script, pState->ExecutionPointer + 6, 2);
-
-	if ((p1 & 0x8000) != 0) p1 = (int)(p1 | 0xffff0000);
-	if ((p2 & 0x8000) != 0) p2 = (int)(p2 | 0xffff0000);
-
-	float f1 = ((float)p1) / 16.0f;
-	float f2 = ((float)p2) / 16.0f;
-	float f3 = ((float)p3) / 16.0f;
+	float f1 = pState->Read12_4();
+	float f2 = pState->Read12_4();
+	float f3 = pState->Read12_4();
+	int address = pState->Read16();
 
 	double distance = (_pLoc != NULL) ? _pLoc->GetPlayerDistanceFromPoint(f1, f2) : 0.0;
 	f3 *= f3;
 
 	if (distance <= f3)
 	{
-		pState->ExecutionPointer = p4;
-	}
-	else
-	{
-		pState->ExecutionPointer += 8;
+		pState->ExecutionPointer = address;
 	}
 }
 
@@ -1316,25 +1467,23 @@ void CPDScript::Function_63(CScriptState* pState)
 
 	// word
 	//text += $"If MIDI enabled? jump to {GetInt(data, offset, 2):X4}";
-	pState->ExecutionPointer += 2;
+	pState->ExecutionPointer = pState->Read16();
 }
 
 void CPDScript::Function_64(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_64");
+	DebugTrace(pState, L"Function_64 - SetPlayer Position Min Y");
 
-	// word
-	//text += $"??? {GetInt(data, offset, 2):X4}";
-	pState->ExecutionPointer += 2;
+	float minY = pState->Read12_4();
+	//CLocation::SetMinY(minY);
 }
 
 void CPDScript::Function_65(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_65");
+	DebugTrace(pState, L"Function_65 - SetPlayer Position Max Y");
 
-	// word
-	//text += $"??? {GetInt(data, offset, 2):X4}";
-	pState->ExecutionPointer += 2;
+	float maxY = pState->Read12_4();
+	//CLocation::SetMaxY(maxY);
 }
 
 void CPDScript::Function_66(CScriptState* pState)
@@ -1342,9 +1491,9 @@ void CPDScript::Function_66(CScriptState* pState)
 	DebugTrace(pState, L"Function_66 - Set parameter A");
 
 	// word, byte
-	CGameController::SetParameter(GetInt(pState->Script, pState->ExecutionPointer, 2), pState->Script[pState->ExecutionPointer + 2]);
-	//text += $"A[{GetInt(data, offset, 2):X4}] = {GetInt(data, offset + 2, 1):X2}";
-	pState->ExecutionPointer += 3;
+	int parameter = pState->Read16();
+	int value = pState->Read8();
+	CGameController::SetParameter(parameter, value);
 }
 
 void CPDScript::Function_67(CScriptState* pState)
@@ -1354,27 +1503,32 @@ void CPDScript::Function_67(CScriptState* pState)
 
 void CPDScript::Function_68(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_68");
+	DebugTrace(pState, L"Function_68 - Clear Cash");
 
-	//text += $"Clear cash";
+	CGameController::SetWord(PD_SAVE_CASH, 0);
 }
 
 void CPDScript::Function_69(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_69");
+	DebugTrace(pState, L"Function_69 - Adjust Sound Volume by Player Distance to Point");
 
 	// byte, word, word, word
-	//text += $"??? {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 2):X4}, {GetInt(data, offset + 3, 2):X4}, {GetInt(data, offset + 5, 2):X4}";
-	int sound = pState->Script[pState->ExecutionPointer];
-	int p1 = GetInt(pState->Script, pState->ExecutionPointer + 1, 2);
-	int p2 = GetInt(pState->Script, pState->ExecutionPointer + 3, 2);
-	int v = GetInt(pState->Script, pState->ExecutionPointer + 5, 2);
-	if (p1 & 0x8000) p1 |= ~0xffff;
-	if (p2 & 0x8000) p2 |= ~0xffff;
+	int sound = pState->Read8();
+	float x = pState->Read12_4();
+	float z = pState->Read12_4();
+	double v = pState->Read16();
+	v *= v;
 
-	// TODO: Adjust volume of sound based on distance from point
+	Point player = _pLoc->GetPlayerPosition();
+	double dx = player.X - x;
+	double dz = player.Z - z;
+	double distance = sqrt(dx * dx + dz * dz);
 
-	pState->ExecutionPointer += 7;
+	CAmbientAudio::SetVolume(sound - 1, max(0.0f, min(1.0f, 1.2f - (float)(distance / v))));
+
+	// TODO: Work out what the pan should be
+	float pan = 0.0f;
+	CAmbientAudio::SetPan(sound - 1, pan);
 }
 
 void CPDScript::Function_6A(CScriptState* pState)
@@ -1382,15 +1536,14 @@ void CPDScript::Function_6A(CScriptState* pState)
 	DebugTrace(pState, L"Function_6A");
 
 	// byte, word, word
-	//text += $"??? {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 2):X4} jump to {GetInt(data, offset + 3, 2):X4}";
 	pState->ExecutionPointer += 5;
 }
 
 void CPDScript::Function_6B(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_6B");
+	DebugTrace(pState, L"Function_6B - Set AskAbouts to Buyables");
 
-	//text += $"???";
+	pState->AskingAboutBuyables = TRUE;
 }
 
 void CPDScript::Function_6C(CScriptState* pState)
@@ -1402,11 +1555,12 @@ void CPDScript::Function_6C(CScriptState* pState)
 
 void CPDScript::Function_6D(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_6D");
-
+	DebugTrace(pState, L"Function_6D - Set Buyable Item State");
 	// byte, byte
-	//text += $"??? {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 1):X2}";
-	pState->ExecutionPointer += 2;
+
+	int item = pState->Read8();
+	int state = pState->Read8();
+	CGameController::SetBuyableItemState(item, state);
 }
 
 void CPDScript::Function_6E(CScriptState* pState)
@@ -1419,7 +1573,6 @@ void CPDScript::Function_6F(CScriptState* pState)
 	DebugTrace(pState, L"Function_6F");
 
 	// word, word, word, byte, word
-	//text += $"??? {GetInt(data, offset, 2):X4}, {GetInt(data, offset + 2, 2):X4}, {GetInt(data, offset + 4, 2):X4}, {GetInt(data, offset + 6, 1):X2}, {GetInt(data, offset + 7, 2):X4}";
 	pState->ExecutionPointer += 9;
 }
 
@@ -1428,7 +1581,6 @@ void CPDScript::Function_70(CScriptState* pState)
 	DebugTrace(pState, L"Function_70");
 
 	// word
-	//text += $"??? {GetInt(data, offset, 2):X4}";
 	pState->ExecutionPointer += 2;
 }
 
@@ -1437,7 +1589,6 @@ void CPDScript::Function_71(CScriptState* pState)
 	DebugTrace(pState, L"Function_71");
 
 	// byte, word, word
-	//text += $"??? {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 2):X4}, {GetInt(data, offset + 3, 2):X4}";
 	pState->ExecutionPointer += 5;
 }
 
@@ -1462,20 +1613,30 @@ void CPDScript::Function_74(CScriptState* pState)
 
 void CPDScript::Function_75(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_75");
-
+	DebugTrace(pState, L"Function_75 - Jump if Parameter[X] > Y");
 	// word, byte, word
-	//text += $"If A[{GetInt(data, offset, 2):X4}] > {GetInt(data, offset + 2, 1):X2} jump to {GetInt(data, offset + 3, 2):X4}";
-	pState->ExecutionPointer += 5;
+
+	int parameter = pState->Read16();
+	int value = pState->Read8();
+	int address = pState->Read16();
+	if (CGameController::GetParameter(parameter) > value)
+	{
+		pState->ExecutionPointer = address;
+	}
 }
 
 void CPDScript::Function_76(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_76");
-
+	DebugTrace(pState, L"Function_76 - Jump if Parameter[X] < Y");
 	// word, byte, word
-	//text += $"If A[{GetInt(data, offset, 2):X4}] < {GetInt(data, offset + 2, 1):X2} jump to {GetInt(data, offset + 3, 2):X4}";
-	pState->ExecutionPointer += 5;
+
+	int parameter = pState->Read16();
+	int value = pState->Read8();
+	int address = pState->Read16();
+	if (CGameController::GetParameter(parameter) < value)
+	{
+		pState->ExecutionPointer = address;
+	}
 }
 
 void CPDScript::Function_77(CScriptState* pState)
@@ -1507,11 +1668,11 @@ void CPDScript::Function_79(CScriptState* pState)
 
 void CPDScript::Function_7A(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_7A");
+	DebugTrace(pState, L"Function_7A - Ask to climb ladder");
 
-	// word
-	//text += $"??? If word_28ED1E = 0 or other condition jump to {GetInt(data, offset, 2):X4}";
-	pState->ExecutionPointer += 2;
+	pOverlay = pClimbLadderOverlay;
+	pState->Parameter = pState->Read16();
+	pState->WaitingForInput = TRUE;
 }
 
 void CPDScript::Function_7B(CScriptState* pState)
@@ -1541,17 +1702,19 @@ void CPDScript::Function_7E(CScriptState* pState)
 void CPDScript::Function_7F(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_7F - Allow or deny skipping media");
-	//pState->AllowSkip = pState->Script[pState->ExecutionPointer++];
+	CGameController::CanCancelVideo(pState->Read8() == 0);
 }
 
 void CPDScript::Function_80(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_80 - Set fullscreen video mode?");
+	videoMode = VideoMode::FullScreen;
 }
 
 void CPDScript::Function_81(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_81 - Set embedded video mode?");
+	videoMode = VideoMode::Embedded;
 }
 
 void CPDScript::Function_82(CScriptState* pState)
@@ -1608,7 +1771,22 @@ void CPDScript::Function_88(CScriptState* pState)
 
 	// byte, word, word, word, word, word
 	//text += $"??? {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 2):X4}, {GetInt(data, offset + 3, 2):X4}, {GetInt(data, offset + 5, 2):X4}, {GetInt(data, offset + 7, 2):X4}, {GetInt(data, offset + 9, 2):X4}";
-	pState->ExecutionPointer += 11;
+
+	int index = pState->Read8();
+	float f1 = pState->Read12_4();
+	float f2 = pState->Read12_4();
+	float f3 = pState->Read12_4();
+	float f4 = pState->Read12_4();
+	int u = pState->Read8();
+	int v = pState->Read8();
+
+	// New table, 5 * 10 bytes
+	// min(p1, p3)
+	// min(p2, p4)
+	// max(p1, p3)
+	// max(p2, p4)
+	// p5
+	// p6 | 0x80
 }
 
 void CPDScript::Function_89(CScriptState* pState)
@@ -1638,20 +1816,24 @@ void CPDScript::Function_8B(CScriptState* pState)
 
 void CPDScript::Function_8C(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_8C");
-
+	DebugTrace(pState, L"Function_8C - Add Score if Game Player Level");
 	// byte
-	//text += $"If byte_2AFC99 = 1 Score += {GetInt(data, offset++, 1):X2}";
-	pState->ExecutionPointer++;
+
+	int score = pState->Read8();
+	if (CGameController::GetParameter(PD_SAVE_PARAMETERS_GAME_LEVEL) == 1)
+	{
+		CGameController::AddScore(score);
+	}
 }
 
 void CPDScript::Function_8D(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_8D");
-
+	DebugTrace(pState, L"Function_8D - Set Parameter Bits");
 	// word, byte
-	//text += $"A[{GetInt(data, offset, 2):X4}] |= {GetInt(data, offset + 2, 1):X2}";
-	pState->ExecutionPointer += 3;
+
+	int parameter = pState->Read16();
+	int bits = pState->Read8();
+	CGameController::SetParameter(parameter, CGameController::GetParameter(parameter) | bits);
 }
 
 void CPDScript::Function_8E(CScriptState* pState)
@@ -1688,71 +1870,13 @@ void CPDScript::Function_92(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_92");
 
+	// AskAbout base index?
 	// byte
 	//text += $"??? byte_2A89BB = 0 or 100+{GetInt(data, offset++, 1)}";
 	pState->ExecutionPointer++;
 }
 
-/*
-void CPDScript::Play(CScriptState* pState, int index, int bank, int rate)
-{
-	// TODO: Pass rate on to animation loader
-
-	// Swap caption pointers
-	std::list<CCaption*>* pOld = pDisplayCaptions;
-	pDisplayCaptions = pAddCaptions;
-	pAddCaptions = pOld;
-
-	ClearCaptions(pOld);
-
-	/*
-	if (_dmapEntry.ScriptFileEntry != 0 || _dmapEntry.ScriptFileIndex != 0)
-	{
-		if (bank == 1)
-		{
-			FileMap fm = _dmapEntry.VideoMap.at(index);
-			std::wstring fn = CGameController::GetFileName(fm.File);
-			if (fn != L"")
-			{
-				//CModuleController::Push(new CVideoModule(VideoType::Scripted, fn, mm.FileEntry));
-				CAnimationController::Load(fn.c_str(), fm.Entry);
-			}
-		}
-		else
-		{
-			FileMap fm = _dmapEntry.AudioMap.at(index);
-			std::wstring fn = CGameController::GetFileName(fm.File);
-			if (fn != L"")
-			{
-				CAnimationController::Load(fn.c_str(), fm.Entry);
-			}
-		}
-	}
-	else if (_mapEntry.ScriptFileEntry != 0 || _mapEntry.ScriptFileIndex != 0)
-	{
-		FileMap fm;
-		if (bank == 0)
-		{
-			fm = _mapEntry.SoundMap2.at(index);
-		}
-		else if (bank == 1)
-		{
-			fm = _mapEntry.VideoMap.at(index);
-		}
-
-		std::wstring fn = CGameController::GetFileName(fm.File);
-		if (fn != L"")
-		{
-			CAnimationController::Load(fn.c_str(), fm.Entry);
-		}
-	}
-	* /
-
-	pState->WaitingForMediaToFinish = TRUE;
-}
-*/
-
-int CPDScript::GetCurrentActions(CScriptState* pState, int currentObjectIndex)
+ActionType CPDScript::GetCurrentActions(CScriptState* pState, int currentObjectIndex)
 {
 	if (currentObjectIndex >= 0)
 	{
@@ -1763,6 +1887,7 @@ int CPDScript::GetCurrentActions(CScriptState* pState, int currentObjectIndex)
 		pState->ExecutionPointer = pState->GetScript(currentObjectIndex);
 		if (pState->ExecutionPointer >= 0)
 		{
+			pState->AllowedAction = ActionType::None;
 			// Set query action flag
 			pState->QueryAction = TRUE;
 
@@ -1787,7 +1912,7 @@ void CPDScript::Show(CScriptState* pState, int index)
 	}
 }
 
-void CPDScript::PlayAudio(CScriptState* pState, int index)
+void CPDScript::PlayAudio(int index)
 {
 	SwapCaptions();
 
@@ -1799,12 +1924,12 @@ void CPDScript::PlayAudio(CScriptState* pState, int index)
 	}
 }
 
-void CPDScript::PlaySound(CScriptState* pState, int index)
+void CPDScript::PlaySound(int index)
 {
-	CAmbientAudio::Play(_mapEntry, index);
+	CAmbientAudio::Play(_mapEntry, index, FALSE);
 }
 
-void CPDScript::PlayVideo(CScriptState* pState, int index, int rate)
+void CPDScript::PlayVideo(int index, int rate)
 {
 	SwapCaptions();
 
@@ -1813,5 +1938,41 @@ void CPDScript::PlayVideo(CScriptState* pState, int index, int rate)
 	if (fn != L"")
 	{
 		CAnimationController::Load(fn.c_str(), fm.Entry);
+	}
+}
+
+void CPDScript::SelectDialogueOption(CScriptState* pState, int option)
+{
+	pState->SelectedOption = option;
+
+	if (option >= 1 && option <= 3)
+	{
+		if (pState->WaitingForInput)
+		{
+			//pState->OfferMode = FALSE;
+			pState->Mode = InteractionMode::None;
+			Resume(pState, TRUE);
+		}
+	}
+	else if (option == 4)
+	{
+		pState->AskAbout = !pState->AskAbout;
+		pState->Buy = FALSE;
+		pState->Offer = FALSE;
+		pState->Mode = InteractionMode::AskAbout;
+	}
+	else if (option == 6)
+	{
+		pState->AskAbout = FALSE;
+		pState->Buy = !pState->Buy;
+		pState->Offer = FALSE;
+		pState->Mode = InteractionMode::Buy;
+	}
+	else if (option == 7)
+	{
+		pState->AskAbout = FALSE;
+		pState->Buy = FALSE;
+		pState->Offer = !pState->Offer;
+		pState->Mode = InteractionMode::Offer;
 	}
 }

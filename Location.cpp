@@ -12,14 +12,24 @@
 #include "Utilities.h"
 #include "Math.h"
 #include <tuple>
-#include "Elevation.h"
 #include "LocationDataHeader.h"
 #include <algorithm>
 #include <string>
+#include "IntersectionInfo.h"
 
 BOOL CLocation::_loading = FALSE;
 
-#define CLOSE	1.0f
+#ifdef DEBUG
+BOOL CLocation::_disableClipping = FALSE;
+BOOL CLocation::_renderTextured = TRUE;
+BOOL CLocation::_renderPoints = FALSE;
+BOOL CLocation::_renderLines = FALSE;
+BOOL CLocation::_renderPaths = FALSE;
+#endif
+
+//#define CLOSE							
+const double maxClipDistance = 2.0 / 3.0;
+const double maxClipDistanceSquared = maxClipDistance * maxClipDistance;
 
 #define OBJECT_FLAGS_HIDDEN				0x80000000
 #define SUBOBJECT_FLAGS_TRANSPARENT		0x00000001
@@ -66,10 +76,12 @@ float CLocation::_y = 0.0f;
 float CLocation::_z = 0.0f;
 float CLocation::_angle1 = 0.0f;
 float CLocation::_angle2 = 0.0f;
-float CLocation::_y_adj = 0.0f;
+float CLocation::_y_player_adjustment = 0.0f;
+float CLocation::_y_player_adjustment_min = 0.0f;
+float CLocation::_y_player_adjustment_max = 0.0f;
 float CLocation::_y_elevation = 0.0f;
-float CLocation::_y_min = 0.0f;
-float CLocation::_y_max = 0.0f;
+
+CElevation* CLocation::_pCurrentElevation = NULL;
 
 CLocation::CLocation()
 {
@@ -87,13 +99,7 @@ CLocation::CLocation()
 	HitSubObject = -1;
 	ObjectIndex = -1;
 
-	_vertexBuffer = NULL;
-	_indexBuffer = NULL;
 	_points = NULL;
-	_verticeCount = 0;
-	_indexCount = 0;
-
-	_pIndexes = NULL;
 
 	_texturedVertexBuffer = NULL;
 	_texturedVerticeCount = 0;
@@ -108,8 +114,12 @@ CLocation::CLocation()
 	_z = 0.0f;
 	_angle1 = 0.0f;
 	_angle2 = 0.0f;
-	_y_adj = 0.0f;
+	_y_player_adjustment = 0.0f;
+	_y_player_adjustment_min = 0.0f;
+	_y_player_adjustment_max = 0.0f;
 	_y_elevation = 0.0f;
+
+	_pCurrentElevation = NULL;
 
 	_spriteVertexBuffer = NULL;
 	_spriteVerticeCount = 0;
@@ -123,6 +133,17 @@ CLocation::CLocation()
 	ZeroMemory(Animations, 50 * sizeof(Animation));
 
 	_locationData = NULL;
+
+#ifdef DEBUG
+	_pathVertexBuffer = NULL;
+	_pathIndexBuffer = NULL;
+	_pathIndexCount = 0;
+	_vertexBuffer = NULL;
+	_indexBuffer = NULL;
+	_verticeCount = 0;
+	_indexCount = 0;
+	_pIndexes = NULL;
+#endif
 }
 
 CLocation::~CLocation()
@@ -218,7 +239,7 @@ BOOL CLocation::Load(int locationFileIndex)
 	}
 
 	// Prepare the visibility buffer
-	for (int i = 0; i < 3000; i++)
+	for (int i = 0; i < sizeof(_visibilityBuffer.visibility) / sizeof(XMFLOAT4); i++)
 	{
 		_visibilityBuffer.visibility[i] = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
@@ -245,23 +266,9 @@ BOOL CLocation::Load(int locationFileIndex)
 			_objectMap[ix].VisibilityFloatPointers.push_back(&_visibilityBuffer.visibility[ix].x);
 		}
 
-		//Trace(L"Object ");
-		//Trace(ix);
-		//Trace(L" maps to ");
-		//TraceLine(*oit, 16);
-
 		ix++;
 		oit++;
 	}
-
-	//int animIndex = 0;
-	//for (auto map : _mapEntry->AnimationMap)
-	//{
-	//	Trace(L"Animation ");
-	//	Trace(animIndex++);
-	//	Trace(L" maps to ");
-	//	TraceLine(map);
-	//}
 
 	// Improved object map to test proper visibilities
 	_subObjectCount = GetInt(p3d2, 8, 4);
@@ -508,6 +515,11 @@ BOOL CLocation::Load(int locationFileIndex)
 							TLPoint px = GetPoint(p3d2, thisSubOffset + 0x28, p, points, tw, th, _objectCount, i, six);
 							px.SubObjectId = j;
 
+#ifdef DEBUG
+							int pix = GetInt(p3d2, thisSubOffset + 0x28 + p * 4, 4) >> 4;
+							_indexes.push_back(pix);
+#endif
+
 							if ((flags & SUBOBJECT_FLAGS_SINGLE_COLOUR) != 0)
 							{
 								//float tu = px.U;
@@ -529,6 +541,13 @@ BOOL CLocation::Load(int locationFileIndex)
 							if (px.Point->Z < sminz) sminz = px.Point->Z;
 							if (px.Point->Z > smaxz) smaxz = px.Point->Z;
 						}
+
+						// Add point back to origin
+#ifdef DEBUG
+						int pix = GetInt(p3d2, thisSubOffset + 0x28, 4) >> 4;
+						_indexes.push_back(pix);
+						_indexes.push_back(-1);	// Indicate new linestrip follows
+#endif
 
 						int startp = 0;
 						int tri = points - 2;
@@ -569,32 +588,33 @@ BOOL CLocation::Load(int locationFileIndex)
 							if (v1.X != v2.X || v1.Y != v2.Y || v1.Z != v2.Z)
 							{
 								// Points form a triangle
-								Triangle t1;
-								t1.ObjectId = i;
-								t1.SubObjectId = sid & 0xffff;
-								t1.P1 = p0;
-								t1.P2 = p2;
-								t1.P3 = p1;
+								Triangle t;
+								t.ObjectId = i;
+								t.SubObjectId = sid & 0xffff;
+								t.Flags = _ppObjects[i]->SubObjects[j].Flags;
+								t.P1 = p0;
+								t.P2 = p2;
+								t.P3 = p1;
 
-								obj.Triangles.push_back(t1);
+								obj.Triangles.push_back(t);
 								if (stex != NULL)
 								{
 									if ((flags & SUBOBJECT_FLAGS_TRANSPARENT) == 0)
 									{
 										// Regular textured object
-										stex->Triangles.push_back(t1);
+										stex->Triangles.push_back(t);
 										texturedTriangles++;
 										obj.VertexCount += 3;
 									}
 									else
 									{
 										// Transparent object
-										stex->TransparentTriangles.push_back(t1);
+										stex->TransparentTriangles.push_back(t);
 										transparentTriangles++;
 									}
 								}
 
-								_ppObjects[i]->SubObjects[j].Triangles[trix++] = t1;
+								_ppObjects[i]->SubObjects[j].Triangles[trix++] = t;
 
 								// Remove point at prev1
 								vpoints.erase(vpoints.begin() + prev1);
@@ -695,6 +715,37 @@ BOOL CLocation::Load(int locationFileIndex)
 		}
 	}
 
+#ifdef DEBUG
+	// Create index buffer
+	_indexCount = _indexes.size();
+	if (_indexCount > 0)
+	{
+		_pIndexes = new int[_indexCount];
+
+		for (int i = 0; i < _indexCount; i++)
+		{
+			int cix = _indexes.at(i);
+			if (cix >= 0) cix += _objectCount;
+			_pIndexes[i] = cix;
+		}
+
+		D3D11_BUFFER_DESC indexBufferDesc;
+		indexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		indexBufferDesc.ByteWidth = sizeof(int) * _indexCount;
+		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		indexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		indexBufferDesc.MiscFlags = 0;
+		indexBufferDesc.StructureByteStride = 0;
+
+		D3D11_SUBRESOURCE_DATA indexData;
+		indexData.pSysMem = _pIndexes;
+		indexData.SysMemPitch = 0;
+		indexData.SysMemSlicePitch = 0;
+
+		dx.CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer, "Location Lines");
+	}
+#endif
+
 	// Create points vertex buffer
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
@@ -737,11 +788,6 @@ BOOL CLocation::Load(int locationFileIndex)
 		while (trit != trend)
 		{
 			Triangle* pTri = &(*trit);
-			if (pTri->ObjectId == 0 && pTri->SubObjectId == 0x004f)
-			{
-				int debug = 0;
-			}
-
 			if (pTri->ObjectId != curobid || pTri->SubObjectId != cursubobid)
 			{
 				pSub = NULL;
@@ -761,6 +807,8 @@ BOOL CLocation::Load(int locationFileIndex)
 				}
 			}
 
+			float shaderParameter = (pTri->Flags & SUBOBJECT_FLAGS_ALPHA) != 0 ? 1.0f : 0.0f;
+
 			if (pSub != NULL)
 			{
 				pSub->VertexCount += 3;
@@ -773,6 +821,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			pTV[tix].texture.y = pTri->P1.V;
 			pTV[tix].object.x = (float)pTri->P1.ObjectIndex;
 			pTV[tix].object.y = (float)pTri->P1.SubObjectIndex;
+			pTV[tix].objectParameters.x = shaderParameter;
 			tix++;
 			pTV[tix].position.x = pTri->P2.Point->X;
 			pTV[tix].position.y = pTri->P2.Point->Y;
@@ -781,6 +830,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			pTV[tix].texture.y = pTri->P2.V;
 			pTV[tix].object.x = (float)pTri->P2.ObjectIndex;
 			pTV[tix].object.y = (float)pTri->P2.SubObjectIndex;
+			pTV[tix].objectParameters.x = shaderParameter;
 			tix++;
 			pTV[tix].position.x = pTri->P3.Point->X;
 			pTV[tix].position.y = pTri->P3.Point->Y;
@@ -789,6 +839,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			pTV[tix].texture.y = pTri->P3.V;
 			pTV[tix].object.x = (float)pTri->P3.ObjectIndex;
 			pTV[tix].object.y = (float)pTri->P3.SubObjectIndex;
+			pTV[tix].objectParameters.x = shaderParameter;
 			tix++;
 
 			trit++;
@@ -815,6 +866,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			pTTV[ttix].colour = transparentColour;
 			pTTV[ttix].object.x = (float)pTri->P1.ObjectIndex;
 			pTTV[ttix].object.y = (float)pTri->P1.SubObjectIndex;
+			pTV[tix].objectParameters.x = 1.0f;
 			ttix++;
 			pTTV[ttix].position.x = pTri->P2.Point->X;
 			pTTV[ttix].position.y = pTri->P2.Point->Y;
@@ -823,6 +875,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			pTTV[ttix].colour = transparentColour;
 			pTTV[ttix].object.x = (float)pTri->P2.ObjectIndex;
 			pTTV[ttix].object.y = (float)pTri->P2.SubObjectIndex;
+			pTV[tix].objectParameters.x = 1.0f;
 			ttix++;
 			pTTV[ttix].position.x = pTri->P3.Point->X;
 			pTTV[ttix].position.y = pTri->P3.Point->Y;
@@ -831,6 +884,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			pTTV[ttix].colour = transparentColour;
 			pTTV[ttix].object.x = (float)pTri->P3.ObjectIndex;
 			pTTV[ttix].object.y = (float)pTri->P3.SubObjectIndex;
+			pTV[tix].objectParameters.x = 1.0f;
 			ttix++;
 
 			trit++;
@@ -993,7 +1047,7 @@ BOOL CLocation::Load(int locationFileIndex)
 			int type = GetInt(animbd.Data, offset, 4);
 			if (type == 16)
 			{
-				Elevations.push_back(animbd.Data + offset);
+				Elevations.push_back(new CElevation((Elevation*)(animbd.Data + offset)));
 			}
 		}
 	}
@@ -1068,11 +1122,21 @@ void CLocation::Clear()
 		_locationData = NULL;
 	}
 
+#ifdef DEBUG
 	if (_indexBuffer != NULL)
 	{
 		_indexBuffer->Release();
 		_indexBuffer = NULL;
 	}
+
+	if (_pIndexes != NULL)
+	{
+		delete[] _pIndexes;
+		_pIndexes = NULL;
+	}
+
+	_indexes.clear();
+#endif
 
 	if (_vertexBuffer != NULL)
 	{
@@ -1109,12 +1173,6 @@ void CLocation::Clear()
 		texit++;
 	}
 
-	if (_pIndexes != NULL)
-	{
-		delete[] _pIndexes;
-		_pIndexes = NULL;
-	}
-
 	if (_texturedVertexBuffer != NULL)
 	{
 		_texturedVertexBuffer->Release();
@@ -1129,7 +1187,6 @@ void CLocation::Clear()
 
 	_allTextures.clear();
 	_objects.clear();
-	_indexes.clear();
 
 	if (_spriteVertexBuffer != NULL)
 	{
@@ -1183,6 +1240,7 @@ void CLocation::LoadTextures()
 	int lqSize = GetInt(tex, 4, 4);
 	int texCount = GetInt(tex, 8, 4);
 	int texPtr = 12 + texCount * 12;
+	std::unordered_map<int, bool> animatedTextures;
 	for (int t = 0; t < texCount; t++)
 	{
 		pPal[3] = (transparentTextures[t] || processedTextures.find(t) == processedTextures.end()) ? 0 : 255;
@@ -1201,6 +1259,7 @@ void CLocation::LoadTextures()
 		if ((subType & 2) == 2)
 		{
 			// Animated texture, skip for now...
+			animatedTextures[t] = true;
 		}
 		else
 		{
@@ -1230,61 +1289,64 @@ void CLocation::LoadTextures()
 		{
 			int animated = GetInt(pAnim, offset + 12, 4);
 			int baseTexture = GetInt(pAnim, offset + 16, 4);
-			CTextureGroup* pBase = _allTextures.at(baseTexture);
-			CTextureGroup* pATex = _allTextures.at(animated);
-			LPBYTE pBaseImage = pBase->SourcePointer;
-			LPBYTE pMod = pATex->SourcePointer;
-
-			int w = GetInt(pBaseImage, 0, 4);
-			int h = GetInt(pBaseImage, 4, 4);
-
-			int mw = GetInt(pMod, 0, 4);
-			int mh = GetInt(pMod, 4, 4);
-
-			pMod += 12 + 4 * mh;   // Skip table
-			pBaseImage += 12 + 4 * h;
-
-			int v1 = GetInt(pMod, 0, 2);
-			int width = GetInt(pMod, 2, 2);
-			int height = GetInt(pMod, 4, 2);
-			int flags = GetInt(pMod, 6, 2);
-			int fbc = (flags & TEXTURE_FLAGS_LARGE) ? 4 : 2;
-
-			LPBYTE pEnd = pMod + mw * mh;
-			pMod += 8;
-			while (pMod < pEnd)
+			if (animatedTextures[animated] == true)
 			{
-				// Apply modifications
-				int destination = 0;
-				int bytesInFrame = GetInt(pMod, 0, fbc);
-				pMod += fbc;
-				while (bytesInFrame > 0)
+				CTextureGroup* pBase = _allTextures.at(baseTexture);
+				CTextureGroup* pATex = _allTextures.at(animated);
+				LPBYTE pBaseImage = pBase->SourcePointer;
+				LPBYTE pMod = pATex->SourcePointer;
+
+				int w = GetInt(pBaseImage, 0, 4);
+				int h = GetInt(pBaseImage, 4, 4);
+
+				int mw = GetInt(pMod, 0, 4);
+				int mh = GetInt(pMod, 4, 4);
+
+				pMod += 12 + 4 * mh;   // Skip table
+				pBaseImage += 12 + 4 * h;
+
+				int v1 = GetInt(pMod, 0, 2);
+				int width = GetInt(pMod, 2, 2);
+				int height = GetInt(pMod, 4, 2);
+				int flags = GetInt(pMod, 6, 2);
+				int fbc = (flags & TEXTURE_FLAGS_LARGE) ? 4 : 2;
+
+				LPBYTE pEnd = pMod + mw * mh;
+				pMod += 8;
+				while (pMod < pEnd)
 				{
-					int b = *(pMod++);
-					bytesInFrame--;
-					if ((b & 0x80) != 0)
+					// Apply modifications
+					int destination = 0;
+					int bytesInFrame = GetInt(pMod, 0, fbc);
+					pMod += fbc;
+					while (bytesInFrame > 0)
 					{
-						// Skip this many bytes
-						destination += (b & 0x7f);
+						int b = *(pMod++);
+						bytesInFrame--;
+						if ((b & 0x80) != 0)
+						{
+							// Skip this many bytes
+							destination += (b & 0x7f);
+						}
+						else
+						{
+							// Copy this many bytes
+							CopyMemory(pBaseImage + destination, pMod, b);
+							destination += b;
+							pMod += b;
+							bytesInFrame -= b;
+						}
 					}
-					else
-					{
-						// Copy this many bytes
-						CopyMemory(pBaseImage + destination, pMod, b);
-						destination += b;
-						pMod += b;
-						bytesInFrame -= b;
-					}
+
+					pPal[3] = pBase->Transparent ? 0 : 255;
+
+					CTexture* pTex = new CTexture(&dx, w, h, pBaseImage, palette, pBase->Rotated);
+					pATex->Textures.push_back(pTex);
+					pATex->Transparent = pBase->Transparent;
 				}
 
-				pPal[3] = pBase->Transparent ? 0 : 255;
-
-				CTexture* pTex = new CTexture(&dx, w, h, pBaseImage, palette, pBase->Rotated);
-				pATex->Textures.push_back(pTex);
-				pATex->Transparent = pBase->Transparent;
+				pATex->AnimatedTextureIndex = 0;
 			}
-
-			pATex->AnimatedTextureIndex = 0;
 		}
 	}
 
@@ -1308,15 +1370,28 @@ void CLocation::Render()
 	CConstantBuffers::Setup3D(dx);
 	dx.EnableZBuffer();
 
+	UpdateY();
+
 	XMMATRIX rm1 = XMMatrixRotationX(_angle1);
 	XMMATRIX rm2 = XMMatrixRotationY(_angle2);
-	XMMATRIX tm = XMMatrixTranslation(_x, _y + _y_adj + _y_elevation, _z);
+	XMMATRIX tm = XMMatrixTranslation(_x, _y, _z);
 
 	XMMATRIX wm;
 	wm = tm * rm2 * rm1;
 	CConstantBuffers::SetWorld(dx, &wm);
 
-	RenderTextured();
+#ifdef DEBUG
+	if (_renderTextured)
+	{
+#endif
+		RenderTextured();
+#ifdef DEBUG
+	}
+
+	if (_renderLines) RenderLines();
+	if (_renderPoints) RenderPoints();
+	if (_renderPaths) RenderPath();
+#endif
 
 	CShaders::SelectOrthoShader();
 	dx.DisableZBuffer();
@@ -1328,7 +1403,7 @@ void CLocation::Render()
 	char xbuffer[40];
 	_gcvt_s(xbuffer, sizeof(xbuffer), -_x, 3);
 	char ybuffer[40];
-	_gcvt_s(ybuffer, sizeof(ybuffer), -(_y + _y_adj + _y_elevation), 3);
+	_gcvt_s(ybuffer, sizeof(ybuffer), -_y, 3);
 	char zbuffer[40];
 	_gcvt_s(zbuffer, sizeof(zbuffer), -_z, 3);
 	char a1buffer[40];
@@ -1475,13 +1550,24 @@ void CLocation::SetPosition(StartupPosition pos)
 {
 	_x = pos.X;
 	_y = pos.Y;
-	_y_adj = -pos.Elevation;
+	_y_player_adjustment = pos.InitialEyeLevel;
+	_y_player_adjustment_min = pos.MinYAdj;
+	_y_player_adjustment_max = pos.MaxYAdj;
 	_y_elevation = pos.Elevation;
+
 	_z = pos.Z;
 	_angle1 = 0.0f;
 	_angle2 = pos.Angle;
-	_y_min = pos.MinY;
-	_y_max = pos.MaxY;
+
+	_pCurrentElevation = NULL;
+}
+
+void CLocation::SetPosition(float x, float y, float z, float angle)
+{
+	_x = x;
+	_y_player_adjustment = y;
+	_z = z;
+	_angle2 = angle;
 }
 
 double Dot(DPoint& p1, DPoint& p2)
@@ -1614,7 +1700,11 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 		double nz = _z + (mz * cos(_angle2) + mx * sin(_angle2));
 
 		// Check for collision with path objects
+#ifdef DEBUG
+		BOOL collision = !_disableClipping;
+#else
 		BOOL collision = TRUE;
+#endif
 
 		DPoint pp1{ -_x, 0.0, -_z };
 		DPoint pp2{ -nx, 0.0, -nz };
@@ -1628,87 +1718,62 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 			double closest_u = 0.0;
 			double closest_dist = 10000.0;
 			double closest_dp = 10000.0;
-			Line closestLine;
-			closestLine.P1.X = 0.0;
-			closestLine.P1.Y = 0.0;
-			closestLine.P1.Z = 0.0;
-			closestLine.P2.X = 0.0;
-			closestLine.P2.Y = 0.0;
-			closestLine.P2.Z = 0.0;
-			int closestPathIndex = -1;
-			int closestPathSubIndex = -1;
+			IntersectionInfo closestIntersection;
+			closestIntersection.LineSegmentP1 = DPoint{ 0.0, 0.0, 0.0 };
+			closestIntersection.LineSegmentP2 = DPoint{ 0.0, 0.0, 0.0 };
+			closestIntersection.ProjectionPoint = DPoint{ 0.0, 0.0, 0.0 };
+			closestIntersection.ProjectionLength = 0.0;
 
+			// TODO: Make a list of collisions, store projected point + movement length
+			// TODO: Get shortest movement, perform movement and adjust new vector
+			// TODO: Looks like I already have most of this, change to use towards-path-projected point (and modify destination point with same projection) to allow for radius (0.666666...)
+			// TODO: First get projected point on segment
+			// TODO: If distance is greater than or equal to the radius, move point radius units towards segment
+			// TODO: Otherwise ignore segment
 			for (int i = 0; i < _pathCount; i++)
 			{
-				if (_paths[i].enabled)
+				if (!_paths[i].enabled)
 				{
-					for (std::size_t p1 = 0; p1 < _paths[i].Points.size(); p1++)
+					continue;
+				}
+
+				for (std::size_t p1 = 0; p1 < _paths[i].Points.size(); p1++)
+				{
+					auto p2 = p1 + 1;
+					if (p2 == _paths[i].Points.size()) p2 = 0;
+
+					DPoint pt1 = _paths[i].Points.at(p1);
+					DPoint pt2 = _paths[i].Points.at(p2);
+
+					//DPoint projectedPoint = Project(pt1, pt2, pp1);	// Projection of current position on line segment
+					//double distanceFromLineSegmentSquared = DistanceSquared(pp1, projectedPoint);
+					//if (distanceFromLineSegmentSquared > maxClipDistanceSquared)
+					//{
+					//	continue;
+					//}
+
+					DPoint currentLineNormal = Normalize(Normal(Subtract(pt2, pt1)));
+					DPoint currentMovement = Normalize(Subtract(pp2, pp1));
+					double current_dp = Dot(currentMovement, currentLineNormal);
+					//if (!isnan(current_dp) && current_dp >= 0.0)	// Line should be checked
 					{
-						auto p2 = p1 + 1;
-						if (p2 == _paths[i].Points.size()) p2 = 0;
+						double t = 0.0, u = 0.0;
+						double d = LineSegmentsDistance(pp1, pp2, pt1, pt2, t, u);
 
-						DPoint pt1 = _paths[i].Points.at(p1);
-						DPoint pt2 = _paths[i].Points.at(p2);
+						// TODO: Should calculate projected distance (player position to line) and compare this value (may help edge cases)
+						// TODO: Should ignore walls where the projected point is more than 0.5 units away from edge points
 
-						DPoint currentLineNormal = Normalize(Normal(Subtract(pt2, pt1)));
-						DPoint currentMovement = Normalize(Subtract(pp2, pp1));
-						double current_dp = Dot(currentMovement, currentLineNormal);
-						//if (!isnan(current_dp) && current_dp >= 0.0)	// Line should be checked
+						if (d < 0.5 && d < closest_dist)// && t <= closest_t)
 						{
-							//Trace(L"Collision with line {");
-							//Trace((float)pt1.X);
-							//Trace(L", ");
-							//Trace((float)pt1.Z);
-							//Trace(L"} x {");
-							//Trace((float)pt2.X);
-							//Trace(L", ");
-							//Trace((float)pt2.Z);
-							//Trace(L"}, dot product is ");
-							//TraceLine((float)current_dp);
-							double t = 0.0, u = 0.0;
-							double d = LineSegmentsDistance(pp1, pp2, pt1, pt2, t, u);
-
-							// TODO: Should calculate projected distance (player position to line) and compare this value (may help edge cases)
-							// TODO: Should ignore walls where the projected point is more than 0.5 units away from edge points
-
-							if (d < 0.5 && d < closest_dist)// && t <= closest_t)
+							//if (current_dp < closest_dp)
 							{
-								//Trace(L"Collision of point {");
-								//Trace((float)pp1.X);
-								//Trace(L", ");
-								//Trace((float)pp1.Z);
-								//Trace(L"} x {");
-								//Trace((float)pp2.X);
-								//Trace(L", ");
-								//Trace((float)pp2.Z);
-								//Trace(L"} with line {");
-								//Trace((float)pt1.X);
-								//Trace(L", ");
-								//Trace((float)pt1.Z);
-								//Trace(L"} x {");
-								//Trace((float)pt2.X);
-								//Trace(L", ");
-								//Trace((float)pt2.Z);
-								//Trace(L"}, d = ");
-								//Trace((float)d);
-								//Trace(L"}, t = ");
-								//Trace((float)t);
-								//Trace(L"}, u = ");
-								//TraceLine((float)u);
-
-								//if (current_dp < closest_dp)
-								{
-									closestLine.P1 = pt1;
-									closestLine.P2 = pt2;
-									closest_t = t;
-									closest_u = u;
-									closest_dist = d;
-									closest_dp = current_dp;
-									collision = TRUE;
-
-									closestPathIndex = i;
-									closestPathSubIndex = static_cast<int>(p1);
-								}
+								closestIntersection.LineSegmentP1 = pt1;
+								closestIntersection.LineSegmentP2 = pt2;
+								closest_t = t;
+								closest_u = u;
+								closest_dist = d;
+								closest_dp = current_dp;
+								collision = TRUE;
 							}
 						}
 					}
@@ -1727,8 +1792,8 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 				// Move player to point close to line and project
 
 				// Calculate ProjectToX,ProjectToY and NewPointX,NewPointY
-				DPoint mp = Project(closestLine.P1, closestLine.P2, pp2);
-				DPoint pp = Project(closestLine.P1, closestLine.P2, pp1);
+				DPoint mp = Project(closestIntersection.LineSegmentP1, closestIntersection.LineSegmentP2, pp2);
+				DPoint pp = Project(closestIntersection.LineSegmentP1, closestIntersection.LineSegmentP2, pp1);
 
 				// Check distance projection/ball to movement/ball, will give extension direction (unless ball is midway between movement and projection, but then movement is away from line)
 				double distanceToMovement = sqrt(DistanceSquared(pp1, pp2));
@@ -1758,7 +1823,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 				}
 
 				DPoint tp{ pp1.X + (pp2.X - pp1.X) * percentage, 0.0, pp1.Z + (pp2.Z - pp1.Z) * percentage };
-				DPoint tpp = Project(closestLine.P1, closestLine.P2, tp);
+				DPoint tpp = Project(closestIntersection.LineSegmentP1, closestIntersection.LineSegmentP2, tp);
 				DPoint tmp = Subtract(mp, tpp);
 
 				pp1.X = tp.X;
@@ -1771,7 +1836,7 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 				nz = (pass == 0) ? -pp2.Z : -tp.Z;
 
 				DPoint ntp{ -nx, 0.0, -nz };
-				DPoint npp = Project(closestLine.P1, closestLine.P2, ntp);
+				DPoint npp = Project(closestIntersection.LineSegmentP1, closestIntersection.LineSegmentP2, ntp);
 				double newDistance = sqrt(DistanceSquared(ntp, npp));
 
 				double newClosestD = 10000.0;
@@ -1845,8 +1910,6 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 							if (newd < newClosestD)
 							{
 								newClosestD = newd;
-								newclosestpathindex = i;
-								newclosestPathSubIndex = static_cast<int>(p1);
 							}
 						}
 					}
@@ -1866,131 +1929,56 @@ void CLocation::Move(float mx, float my, float mz, float tmx)
 		_z = (float)nz;
 
 		// Check elevation
-		int eix = -1;
-		for (auto el : Elevations)
+#ifdef DEBUG
+		if (!_disableClipping)
+#endif
 		{
-			eix++;
-			Elevation* pE = (Elevation*)el;
-			float x1 = ((float)pE->X1) / 65536.0f;
-			float y1 = ((float)pE->Y1) / 65536.0f;
-			float z1 = ((float)pE->Z1) / 65536.0f;
-			float x2 = ((float)pE->X2) / 65536.0f;
-			float y2 = ((float)pE->Y2) / 65536.0f;
-			float z2 = ((float)pE->Z2) / 65536.0f;
-
-			float stepHeight = ((float)pE->StepHeight) / 65536.0f;
-			float stepLength = ((float)pE->StepLength) / 65536.0f;
-			float stepWidth = ((float)pE->StepWidth) / 65536.0f;
-
-			int numberOfSteps = pE->NumberOfSteps;
-			float len = ((float)pE->HorizontalLength) / 65536.0f;
-			float xv = ((float)pE->DirectionX) / 65536.0f;
-			float zv = ((float)pE->DirectionZ) / 65536.0f;
-
-			float halfStepWidthX = abs(zv) * stepWidth / 1;
-			float halfStepWidthZ = abs(xv) * stepWidth / 1;
-
-			float x11 = x1 + halfStepWidthX;
-			float x12 = x1 - halfStepWidthX;
-			float x21 = x2 + halfStepWidthX;
-			float x22 = x2 - halfStepWidthX;
-			float z11 = z1 + halfStepWidthZ;
-			float z12 = z1 - halfStepWidthZ;
-			float z21 = z2 + halfStepWidthZ;
-			float z22 = z2 - halfStepWidthZ;
-
-			float xt1 = min(min(min(x11, x12), x21), x22), xt2 = max(max(max(x11, x12), x21), x22);
-			float zt1 = min(min(min(z11, z12), z21), z22), zt2 = max(max(max(z11, z12), z21), z22);
-
-			if (-nx >= xt1 && -nx <= xt2 && -nz >= zt1 && -nz <= zt2)
+			if (_pCurrentElevation != NULL)
 			{
-				float cy = -_y_elevation;
-
-				float miny = min(y1, y2), maxy = max(y1, y2);
-				if ((cy + 3) >= miny && (cy - 3) <= maxy)
+				// Check if player has left active elevation
+				if (_pCurrentElevation->IsPointInElevation(-_x, -_y_elevation, -_z))
 				{
-					//Trace(L"Inside elevation ");
-					//TraceLine(eix);
-					//Trace(L"Current elevation: ");
-					//TraceLine(cy);
-					//Trace(L"Elevation anim: ");
-					//Trace(y1);
-					//Trace(L", ");
-					//TraceLine(y2);
-					//Trace(L"Elevation diff: ");
-					//Trace(cy + y1);
-					//Trace(L", ");
-					//TraceLine(cy + y2);
-
-					// TODO: Calculate full step index, then sub step value
-					// TODO: Should only move up on ~10% of step length?
-
-					// Find percentage position along elevation
-					double p = (1 - abs(zv * (z21 + nz) + xv * (x21 + nx)) / len);
-					double sp = 1.0 / numberOfSteps;
-					double t = p / sp;
-					double t2 = (double)((int)t);
-					double t3 = t - t2;
-					//Trace(L"t=");
-					//TraceLine((float)t);
-					//Trace(L"t2=");
-					//TraceLine((float)t2);
-					//Trace(L"t3=");
-					//TraceLine((float)t3);
-					if (t3 >= 0.2 && t3 < 0.5)
-					{
-						t2 += (t3 - 0.2) / 0.3;
-					}
-					else if (t3 >= 0.5)
-					{
-						t2 += 1.0;
-					}
-
-					//t2 += min(t3, 0.5);
-					//if (t3 < 0.5) t2 += t3;// (t3 / 0.5);
-					//Trace(L"SP=");
-					//TraceLine((float)sp);
-					//int t = (int)(p * 1000) % (int)(sp * 1000);
-					//Trace(L"T2=");
-					//TraceLine(t2);
-
-					double d = -(y1 + stepHeight * t2);
-
-					/*
-					// Movement is inside an elevation rectangle
-					if (xv == 0.0f)
-					{
-						// Elevation is in z-direction
-						//d = -(y2 + (y1 - y2) * zv * (z21 + nz) / len);
-						d = -(y1 + stepHeight * t2);
-					}
-					else if (zv == 0.0f)
-					{
-						// Elevation is in x-direction
-						//d = -(y2 + (y1 - y2) * xv * (x21 + nx) / len);
-						d = -(y1 + stepHeight * t2);
-					}
-					*/
-
-					_y_elevation = static_cast<float>(d + 1.5f);
+					_y_elevation = -_pCurrentElevation->GetElevationFromXZPosition(-_x, -_z);
+				}
+				else
+				{
+					_y_elevation = -_pCurrentElevation->GetClosestElevation(-_y_elevation);
 				}
 
-				//TraceLine(L"");
+				_pCurrentElevation = NULL;
+			}
+
+			if (_pCurrentElevation == NULL)
+			{
+				for (auto el : Elevations)
+				{
+					if (el->IsPointInElevation(-_x, -_y_elevation, -_z))
+					{
+						_y_elevation = -el->GetElevationFromXZPosition(-_x, -_z);
+						_pCurrentElevation = el;
+						break;
+					}
+				}
 			}
 		}
 	}
 
 	if (my != 0.0f)
 	{
-		//#ifndef DEBUG
-		if (_y >= _y_max && _y <= _y_min)
+		float miny = _y_player_adjustment_min;
+		float maxy = _y_player_adjustment_max;
+#ifdef DEBUG
+		if (_disableClipping)
+		{
+			miny = -1000;
+			maxy = 1000;
+		}
+#endif
+		if (_y_player_adjustment <= maxy && _y_player_adjustment >= miny)
 		{
 			// Allow movement up/down to limits
-			_y += (my < 0.0f) ? max(my, _y_max - _y) : min(my, _y_min - _y);
+			_y_player_adjustment += (my < 0.0f) ? max(my, miny - _y_player_adjustment) : min(my, maxy - _y_player_adjustment);
 		}
-		//#else
-		//		_y += my;
-		//#endif
 	}
 
 	UpdateSprites();
@@ -2050,6 +2038,8 @@ void CLocation::LoadPaths()
 		{
 			_paths[f].enabled = TRUE;
 			_paths[f].allowLeave = FALSE;
+			int pathId = GetInt(ppath, os + 14, 2);
+			_paths[f].Id = (pathId != 0) ? pathId : f;
 
 			int faceSize = GetInt(ppath, os + 4, 4);
 			int vertCount = GetInt(ppath, os + 8, 4);
@@ -2065,6 +2055,94 @@ void CLocation::LoadPaths()
 		}
 		else break;
 	}
+
+#ifdef DEBUG
+	// Create path vertice buffer
+	Point* pPV = new Point[pathVerticeCount];
+	if (pPV != NULL)
+	{
+		int pi = 0;
+		for (auto pt : points)
+		{
+			pPV[pi].X = pt.X;
+			pPV[pi].Y = pt.Y;
+			pPV[pi].Z = pt.Z;
+			pi++;
+		}
+
+		D3D11_BUFFER_DESC vertexBufferDesc;
+		vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		vertexBufferDesc.ByteWidth = sizeof(Point) * pathVerticeCount;
+		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		vertexBufferDesc.MiscFlags = 0;
+		vertexBufferDesc.StructureByteStride = 0;
+
+		D3D11_SUBRESOURCE_DATA vertexData;
+		vertexData.pSysMem = pPV;
+		vertexData.SysMemPitch = 0;
+		vertexData.SysMemSlicePitch = 0;
+
+		dx.CreateBuffer(&vertexBufferDesc, &vertexData, &_pathVertexBuffer, "Path Vertices");
+
+		delete pPV;
+	}
+
+	int faceCount = GetInt(ppath, 0x1a, 2);
+	std::vector<int> lines;
+	os = 0x80 + pathVerticeCount * 12;
+	for (int f = 0; f < faceCount; f++)
+	{
+		if (GetInt(ppath, os, 4) == 0x45434146)
+		{
+			int faceSize = GetInt(ppath, os + 4, 4);
+			int vertCount = GetInt(ppath, os + 8, 4);
+
+			for (int v = 0; v < vertCount; v++)
+			{
+				int pix = GetInt(ppath, os + 0x15 + v * 2, 2);
+				lines.push_back(pix);
+			}
+
+			if (vertCount > 2)
+			{
+				int pix = GetInt(ppath, os + 0x15, 2);
+				lines.push_back(pix);
+			}
+			lines.push_back(-1);
+
+			os += faceSize;
+		}
+		else break;
+	}
+
+	_pathIndexCount = lines.size();
+	int* pPI = new int[_pathIndexCount];
+	if (pPI != NULL)
+	{
+		for (int c = 0; c < _pathIndexCount; c++)
+		{
+			pPI[c] = lines.at(c);
+		}
+
+		D3D11_BUFFER_DESC indexBufferDesc;
+		indexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		indexBufferDesc.ByteWidth = sizeof(int) * _pathIndexCount;
+		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		indexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		indexBufferDesc.MiscFlags = 0;
+		indexBufferDesc.StructureByteStride = 0;
+
+		D3D11_SUBRESOURCE_DATA indexData;
+		indexData.pSysMem = pPI;
+		indexData.SysMemPitch = 0;
+		indexData.SysMemSlicePitch = 0;
+
+		dx.CreateBuffer(&indexBufferDesc, &indexData, &_pathIndexBuffer, "Path Indexes");
+
+		delete pPI;
+	}
+#endif
 }
 
 TLPoint CLocation::GetSpritePoint(PBYTE p3d2, int offset, int index, int objectCount, int object, int subObject)
@@ -2178,6 +2256,7 @@ void CLocation::UpdateSprites()
 				pTV[tix].texture.y = spr->V2;
 				pTV[tix].object.x = (float)spr->ObjectIndex;
 				pTV[tix].object.y = (float)spr->SubObjectIndex;
+				pTV[tix].objectParameters.x = 1.0f;
 				tix++;
 				pTV[tix].position.x = x2;
 				pTV[tix].position.y = sy1;
@@ -2186,6 +2265,7 @@ void CLocation::UpdateSprites()
 				pTV[tix].texture.y = spr->V2;
 				pTV[tix].object.x = (float)spr->ObjectIndex;
 				pTV[tix].object.y = (float)spr->SubObjectIndex;
+				pTV[tix].objectParameters.x = 1.0f;
 				tix++;
 				pTV[tix].position.x = x2;
 				pTV[tix].position.y = sy2;
@@ -2194,6 +2274,7 @@ void CLocation::UpdateSprites()
 				pTV[tix].texture.y = spr->V1;
 				pTV[tix].object.x = (float)spr->ObjectIndex;
 				pTV[tix].object.y = (float)spr->SubObjectIndex;
+				pTV[tix].objectParameters.x = 1.0f;
 				tix++;
 
 				pTV[tix].position.x = x1;
@@ -2203,6 +2284,7 @@ void CLocation::UpdateSprites()
 				pTV[tix].texture.y = spr->V2;
 				pTV[tix].object.x = (float)spr->ObjectIndex;
 				pTV[tix].object.y = (float)spr->SubObjectIndex;
+				pTV[tix].objectParameters.x = 1.0f;
 				tix++;
 				pTV[tix].position.x = x2;
 				pTV[tix].position.y = sy2;
@@ -2211,6 +2293,7 @@ void CLocation::UpdateSprites()
 				pTV[tix].texture.y = spr->V1;
 				pTV[tix].object.x = (float)spr->ObjectIndex;
 				pTV[tix].object.y = (float)spr->SubObjectIndex;
+				pTV[tix].objectParameters.x = 1.0f;
 				tix++;
 				pTV[tix].position.x = x1;
 				pTV[tix].position.y = sy2;
@@ -2219,6 +2302,7 @@ void CLocation::UpdateSprites()
 				pTV[tix].texture.y = spr->V1;
 				pTV[tix].object.x = (float)spr->ObjectIndex;
 				pTV[tix].object.y = (float)spr->SubObjectIndex;
+				pTV[tix].objectParameters.x = 1.0f;
 				tix++;
 
 				sit++;
@@ -2296,7 +2380,7 @@ int CLocation::GetPickObject(int& objectId, int& subObjectId)
 		{
 			Point teye;
 			teye.X = -_x - _translationBuffer.translation[i].x;
-			teye.Y = -(_y + _y_adj + _y_elevation) - _translationBuffer.translation[i].y;
+			teye.Y = -_y - _translationBuffer.translation[i].y;
 			teye.Z = -_z - _translationBuffer.translation[i].z;
 
 			if (Intersect(_ppObjects[i]->BoundingBox, teye, dir))
@@ -2598,6 +2682,11 @@ BOOL CLocation::IsAnimationFinished(int index)
 	return (mappedIndex >= 0 && mappedIndex < 50 && Animations[mappedIndex].Status == AnimationStatus::Completed);
 }
 
+BOOL CLocation::IsIndexedAnimationFinished(int index)
+{
+	return (index >= 0 && index < 50 && (Animations[index].Status == AnimationStatus::Completed || Animations[index].Status == AnimationStatus::NotStarted));
+}
+
 int CLocation::GetAnimationFrame(int index)
 {
 	int mappedIndex = _mapEntry->AnimationMap.at(index);
@@ -2620,7 +2709,16 @@ Point CLocation::GetPlayerPosition()
 {
 	Point p;
 	p.X = -_x;
-	p.Y = _y + _y_adj + _y_elevation;
+	p.Y = _y;
+	p.Z = -_z;
+	return p;
+}
+
+Point CLocation::GetUnadjustedPlayerPosition()
+{
+	Point p;
+	p.X = -_x;
+	p.Y = _y_elevation;
 	p.Z = -_z;
 	return p;
 }
@@ -2678,6 +2776,7 @@ SpritePosInfo CLocation::GetSpriteInfo(int index)
 void CLocation::ModifyLocationPoints(std::wstring file)
 {
 	// Modify points in global list
+	// UAKM
 	if (file == L"ALLEY.AP")
 	{
 		ModifyLocationPoints(238, 241, 0.0f, 0.1f, 0.0f);			// Plank
@@ -2795,11 +2894,19 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 	{
 		ModifyLocationPoints(2933, 2988, 0.0f, 0.6f, 0.0f);			// Trash
 		ModifyLocationPoints(2792, 2847, 0.0f, 0.6f, 0.0f);			// Trash
+		ModifyLocationPoints(3039, 3078, 0.0f, 0.6f, 0.0f);			// Trash
+		ModifyLocationPoints(3124, 3167, 0.0f, 0.6f, 0.0f);			// Trash
+		ModifyLocationPoints(3136, 3139, 0.0f, -0.005f, 0.0f);		// Trash, push a little back down
+		ModifyLocationPoints(3164, 3167, 0.0f, 0.2f, 0.0f);			// Trash, extra lift
+		ModifyLocationPoints(3132, 3135, 0.0f, 0.01f, 0.0f);		// Trash, extra lift
+		ModifyLocationPoints(3047, 3050, 0.0f, 0.01f, 0.0f);		// Trash, extra lift
+		ModifyLocationPoints(3063, 3066, 0.0f, 0.01f, 0.0f);		// Trash, extra lift
 		ModifyLocationPoints(2933, 2936, 0.0f, 0.01f, 0.0f);		// Trash, extra lift
 		ModifyLocationPoints(2957, 2960, 0.0f, 0.01f, 0.0f);		// Trash, extra lift
 		ModifyLocationPoints(2796, 2799, 0.0f, 0.01f, 0.0f);		// Trash, extra lift
 		ModifyLocationPoints(2804, 2811, 0.0f, 0.01f, 0.0f);		// Trash, extra lift
 		ModifyLocationPoints(2840, 2843, 0.0f, 0.01f, 0.0f);		// Trash, extra lift
+		ModifyLocationPoints(3192, 3195, 0.0f, -0.01f, 0.0f);		// Ground
 		ModifyLocationPoints(1708, 1717, 0.0f, 0.01f, 0.0f);		// Pavement, electronics shop
 		ModifyLocationPoints(2304, 2305, -0.01f, 0.0f, 0.0f);		// Hotel wall, part 1
 		ModifyLocationPoints(2315, 2315, -0.01f, 0.0f, 0.0f);		// Hotel wall, part 2
@@ -2885,6 +2992,99 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 	else if (file == L"WAREHOUS.AP")
 	{
 	}
+
+	// PD
+	else if (file == L"R01VR.AP")	// Tex's Office
+	{
+		ModifyLocationPoints(510, 517, 0.0f, 0.0f, -0.1f);			// Door to bedroom
+		ModifyLocationPoints(1446, 1560, 0.0f, 0.03f, 0.0f);		// Hutch
+		ModifyLocationPoints(4416, 4517, 0.0f, -0.15f, 0.0f);		// Guitar
+		ModifyLocationPoints(82, 82, 0.0f, -0.15f, 0.0f);			// Phonograph
+	}
+	else if (file == L"R02VR.AP")	// Ritz Lobby
+	{
+	}
+	else if (file == L"R03VR.AP")	// Apartment A?
+	{
+	}
+	else if (file == L"R04VR.AP")	// Chandler Avenue
+	{
+		ModifyLocationPoints(207, 598, 0.0f, 0.01f, 0.0f);			// Pavement
+		ModifyLocationPoints(846, 851, 0.0f, 0.0f, 0.01f);			// Electronics Shop door
+	}
+	else if (file == L"R05VR.AP")	// Ritz Stairs
+	{
+		ModifyLocationPoints(216, 219, -0.01f, 0.0f, 0.0f);			// Men's room sign
+	}
+	else if (file == L"R06VR.AP")	// Rusty's Funhouse
+	{
+	}
+	else if (file == L"R07VR.AP")	// Roof of Rusty's
+	{
+	}
+	else if (file == L"R08VR.AP")	// Water Tower
+	{
+	}
+	else if (file == L"R09VR.AP")	// Warehouse
+	{
+	}
+	else if (file == L"R11VR.AP")	// Alley
+	{
+		ModifyLocationPoints(62, 63, 0.0f, 0.0f, 0.01f);			// Llama sign
+		ModifyLocationPoints(72, 72, 0.0f, 0.0f, 0.01f);			// Llama sign
+		ModifyLocationPoints(75, 75, 0.0f, 0.0f, 0.01f);			// Llama sign
+	}
+	else if (file == L"R12VR.AP")	// Electronics Shop
+	{
+		ModifyLocationPoints(200, 205, 0.0f, 0.0f, -0.01f);			// Door
+	}
+	else if (file == L"R15VR.AP")	// Cabin
+	{
+	}
+	else if (file == L"R17VR.AP")	// Easter Egg Room
+	{
+	}
+	else if (file == L"R20VR.AP")	// Sandra Collins' place
+	{
+	}
+	else if (file == L"R21VR.AP")	// NSA Hallway?
+	{
+	}
+	else if (file == L"R17VR.AP")	// NSA Office?
+	{
+	}
+
+
+	else if (file == L"R67VR.AP")	// Sewers
+	{
+		ModifyLocationPoints(272, 275, 0.01f, 0.0f, 0.0f);			// Sign
+		ModifyLocationPoints(276, 279, -0.01f, 0.0f, 0.0f);			// Numbers
+		ModifyLocationPoints(280, 291, 0.01f, 0.0f, 0.0f);			// Signs
+		ModifyLocationPoints(292, 303, -0.01f, 0.0f, 0.0f);			// Numbers
+		ModifyLocationPoints(637, 644, 0.0f, 0.0f, -0.01f);			// Sign & numbers
+		ModifyLocationPoints(1705, 1720, 0.01f, 0.0f, 0.0f);		// Signs
+		ModifyLocationPoints(1721, 1736, -0.01f, 0.0f, 0.0f);		// Numbers
+		ModifyLocationPoints(2583, 2590, 0.0f, 0.0f, 0.01f);		// Sign & numbers
+		ModifyLocationPoints(2673, 2680, 0.0f, 0.01f, 0.0f);		// Money belt
+	}
+	else if (file == L"R68VR.AP")	// Corridor behind Pizza place
+	{
+	}
+	else if (file == L"R69VR.AP")	// Crazy Gary alley
+	{
+	}
+	else if (file == L"R70VR.AP")	// Tex' Bedroom
+	{
+		ModifyLocationPoints(230, 233, 0.0f, 0.0f, 0.01f);			// Door to Office background
+		ModifyLocationPoints(234, 237, -0.01f, 0.0f, 0.0f);			// Door to Computer Room background
+
+		ModifyLocationPoints(176, 177, 0.0f, 0.01f, 0.0f);			// Floor
+		ModifyLocationPoints(179, 181, 0.0f, 0.01f, 0.0f);			// Floor
+	}
+	else if (file == L"R71VR.AP")	// Tex' Computer Room
+	{
+		ModifyLocationPoints(1037, 1195, 0.0f, 0.0f, 0.01f);		// Shelves	
+	}
 }
 
 void CLocation::ModifyLocationPoints(int startix, int endix, float x, float y, float z)
@@ -2916,6 +3116,7 @@ void CLocation::ModifyLocationPoints(int startix, int endix, float x, float y, f
 
 XMFLOAT4 CLocation::GetTransparentColour(std::wstring file, int objectId, int subObjectId)
 {
+	// UAKM
 	if (file == L"ALLEY.AP")
 	{
 		// Glass shard
@@ -2963,6 +3164,13 @@ XMFLOAT4 CLocation::GetTransparentColour(std::wstring file, int objectId, int su
 		return XMFLOAT4(1.0f, 1.0f, 1.0f, 0.08f);
 	}
 
+	// PD
+	else if (file == L"R01VR.AP")
+	{
+		// Vestibule windows
+		return XMFLOAT4(1.0f, 1.0f, 1.0f, 0.2f);
+	}
+
 	return XMFLOAT4(0.3f, 0.3f, 0.7f, 0.4f);
 }
 
@@ -2988,900 +3196,30 @@ void CLocation::CTextureGroup::AddPoints(int first, int count)
 	Points.Add(first, count);
 }
 
-void CLocation::MoveObject(int direction)
+#ifdef DEBUG
+void CLocation::MoveObject(float delta, BOOL X, BOOL Y, BOOL Z)
 {
 	if (HitObject != -1)
 	{
-		_translationBuffer.translation[HitObject].y += 0.1f * direction;
+		if (X)
+		{
+			_translationBuffer.translation[HitObject].x += delta;
+		}
+		if (Y)
+		{
+			_translationBuffer.translation[HitObject].y += delta;
+		}
+		if (Z)
+		{
+			_translationBuffer.translation[HitObject].z += delta;
+		}
 		_translationChanged = TRUE;
 	}
 }
-
-BOOL CLocation::Load_Improved(int locationFileIndex)
-{
-	_loading = TRUE;
-
-	std::wstring file = CGameController::GetFileName(locationFileIndex);
-
-	PointingChanged = TRUE;
-
-	// Load location entries
-	CFile f;
-	if (f.Open(file.c_str()))
-	{
-		int len = f.Size();
-		_locationData = new BYTE[len];
-		if (_locationData != NULL)
-		{
-			f.Read(_locationData, len);
-		}
-
-		f.Close();
-	}
-
-	// Modify points
-	ModifyLocationPoints(file);
-
-	// Load path
-	LoadPaths();
-
-	// Load 3D data
-	BinaryData bd3d2 = GetLocationData(4);
-	PBYTE p3d2 = bd3d2.Data;
-	_verticeCount = GetInt(p3d2, 0, 4);
-	_objectCount = GetInt(p3d2, 12, 4);
-
-	// Quickly check which textures require transparency (flags & 0x10)
-	for (int tc = 0; tc < _objectCount; tc++)
-	{
-		int objectOffset = GetInt(p3d2, 0x30 + tc * 4, 4) + 0x30;
-		int subObjects = GetInt(p3d2, objectOffset + 12, 4);
-		int nextSubOffset = objectOffset + 40;
-		for (int ts = 0; ts < subObjects; ts++)
-		{
-			int thisSubOffset = nextSubOffset;
-			nextSubOffset = GetInt(p3d2, nextSubOffset, 4) + 0x30;
-
-			int points = GetInt(p3d2, thisSubOffset + 4, 4);
-			int flags = GetInt(p3d2, thisSubOffset + 8, 4);
-			int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
-
-			if ((flags & SUBOBJECT_FLAGS_ALPHA) != 0 || points == 1)	// Flagged having alpha or is used as sprite
-			{
-				transparentTextures[tex] = TRUE;
-			}
-			else
-			{
-				opaqueTextures[tex] = TRUE;
-			}
-			processedTextures[tex] = TRUE;
-		}
-	}
-
-	LoadTextures();
-
-	LocationDataHeader* pHeader = (LocationDataHeader*)p3d2;
-	LPBYTE base = p3d2 + 0x30;
-
-	// Load vertices
-	_points = new Point[_verticeCount];
-	int verticeOffset = 0;
-	for (int i = 0; i < _verticeCount; i++)
-	{
-		_points[i].X = ((float)GetInt(base, verticeOffset, 4)) / 65536.0f;
-		_points[i].Y = ((float)GetInt(base, verticeOffset + 4, 4)) / 65536.0f;
-		_points[i].Z = ((float)GetInt(base, verticeOffset + 8, 4)) / 65536.0f;
-		verticeOffset += 12;
-	}
-
-	// Prepare the visibility buffer
-	for (int i = 0; i < 3000; i++)
-	{
-		_visibilityBuffer.visibility[i] = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	}
-
-	// Prepare the translation buffer
-	for (int i = 0; i < 256; i++)
-	{
-		_translationBuffer.translation[i] = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-	}
-
-	/*
-	// Prepare the object mapping list
-	_objectMapCount = _mapEntry->ObjectMap.size();
-	_objectMap = new ObjectMap[_objectMapCount];
-	std::vector<int>::iterator oit = _mapEntry->ObjectMap.begin();
-	std::vector<int>::iterator oend = _mapEntry->ObjectMap.end();
-	int ix = 0;
-	while (oit != oend)
-	{
-		_objectMap[ix].id = *oit;
-		_objectMap[ix].ObjectIndex = ((_objectMap[ix].id & 0x80000800) == 0) ? _objectMap[ix].id : -1;
-
-		ix++;
-		oit++;
-	}
-
-	// Extract 3D data
-	int texturedTriangles = 0;
-	int transparentTriangles = 0;
-	int toalObjectCount = 0;
-
-	int spriteCount = 0;
-
-	Point lb1, lb2;
-	lb1.X = 10000.0f;
-	lb2.X = -lb1.X;
-	lb1.Y = lb1.X;
-	lb2.Y = -lb1.X;
-	lb1.Z = lb1.X;
-	lb2.Z = -lb1.X;
-
-	int six = 0;
-
-	_pLocObjects = new CLocationObject[_objectCount];
-	_pLocSubObjects = new CLocationSubObject[GetInt(p3d2, 8, 4)];
-	CLocationSubObject* pCurSubObjPtr = _pLocSubObjects;
-
-	_ppObjects = new ModelObject * [_objectCount];
-	for (int i = 0; i < _objectCount; i++)
-	{
-		_pLocObjects[i].pSubObjects = pCurSubObjPtr;
-
-		int objectOffset = GetInt(p3d2, 0x30 + i * 4, 4) + 0x30;
-		int type = (int)GetInt(p3d2, objectOffset, 4);
-
-		_ppObjects[i] = new ModelObject();
-		ZeroMemory(_ppObjects[i], sizeof(ModelObject));
-		_ppObjects[i]->Index = i;
-
-		float ominx = 10000.0f, omaxx = -ominx;
-		float ominy = ominx, omaxy = -ominx;
-		float ominz = ominx, omaxz = -ominx;
-
-		if ((type & 0x80000000) != 0)
-		{
-			// Object visibility
-			_visibilityBuffer.visibility[i].x = -1.0f;
-		}
-
-		int unkownOffset = GetInt(p3d2, objectOffset + 0x1c, 4);
-
-		// Header is 10 longs
-		// Pointer to next sub object is first long in object
-
-		int subObjects = GetInt(p3d2, objectOffset + 12, 4);
-		toalObjectCount += subObjects;
-		int nextSubOffset = objectOffset + 40;
-
-		_ppObjects[i]->SubObjectCount = subObjects;
-		_ppObjects[i]->SubObjects = new ModelSubObject[subObjects];
-		ZeroMemory(_ppObjects[i]->SubObjects, subObjects * sizeof(ModelSubObject));
-
-		_pLocObjects[i].SubObjectCount = subObjects;
-
-		for (int j = 0; j < subObjects; j++)
-		{
-			float sminx = 10000.0f, smaxx = -sminx;
-			float sminy = sminx, smaxy = -sminx;
-			float sminz = sminx, smaxz = -sminx;
-
-			int thisSubOffset = nextSubOffset;
-			nextSubOffset = GetInt(p3d2, nextSubOffset, 4) + 0x30;
-
-			if (thisSubOffset != unkownOffset)
-			{
-				int points = GetInt(p3d2, thisSubOffset + 4, 4);
-				int flags = GetInt(p3d2, thisSubOffset + 8, 4);
-				int sid = GetInt(p3d2, thisSubOffset + 0xc, 4);
-				int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
-				if ((flags & SUBOBJECT_FLAGS_TEXTURED) == 0) tex = -1;
-
-				pCurSubObjPtr[j].Id = sid;
-				pCurSubObjPtr[j].TextureIndex = tex;
-				pCurSubObjPtr[j].VertexIndex = -1;
-				pCurSubObjPtr[j].VertexCount = 0;
-
-				if ((sid & 0x88000000) != 0)
-				{
-					int rid = (sid >> 16) & 0xffff;
-					for (int z = 0; z < _objectMapCount; z++)
-					{
-						if (_objectMap[z].id == sid || ((rid & 0x800) != 0 && _objectMap[z].id == rid))
-						{
-							// TODO: This is not right! Can be set multiple times
-							// TODO: May have to do a reverse mapping, setting the object id on the triangle
-							//_objectMap[z].SubObjectIndex = six;
-							_objectMap[z].SubObjectIndices.push_back(six);
-						}
-					}
-				}
-
-				if ((flags & SUBOBJECT_FLAGS_HIDDEN) != 0)
-				{
-					// Sub-object visibility
-					_visibilityBuffer.visibility[six].y = -1.0f;
-				}
-
-				// Sub-object transparency indicator
-				_visibilityBuffer.visibility[six].z = (flags & SUBOBJECT_FLAGS_ALPHA) ? 1.0f : 0.0f;
-
-				_ppObjects[i]->SubObjects[j].ModelIndex = i;
-				_ppObjects[i]->SubObjects[j].SubObjectIndex = six;
-				_ppObjects[i]->SubObjects[j].Flags = flags;
-				_ppObjects[i]->SubObjects[j].Texture = tex;
-				_ppObjects[i]->SubObjects[j].Active = ((flags & SUBOBJECT_FLAGS_HIDDEN) == 0);
-				_ppObjects[i]->SubObjects[j].ID = sid;
-				_ppObjects[i]->SubObjects[j].PointCount = points;
-				_ppObjects[i]->SubObjects[j].Points = new TLPoint[points];
-				_ppObjects[i]->SubObjects[j].BoundingBox.X1 = _ppObjects[i]->SubObjects[j].BoundingBox.Y1 = _ppObjects[i]->SubObjects[j].BoundingBox.Z1 = 10000.0f;
-				_ppObjects[i]->SubObjects[j].BoundingBox.X2 = _ppObjects[i]->SubObjects[j].BoundingBox.Y2 = _ppObjects[i]->SubObjects[j].BoundingBox.Z2 = -_ppObjects[i]->SubObjects[j].BoundingBox.X1;
-				_ppObjects[i]->SubObjects[j].Triangles = (points > 2) ? new Triangle[points - 2] : NULL;
-
-				if (points > 0)
-				{
-					CTextureGroup* stex = (tex >= 0) ? _allTextures.at(tex) : NULL;
-
-					if (points == 1)
-					{
-						// 2020-11-27 New sprite loader
-
-						// Find number of sub-sprites
-						int subSprites = GetInt(p3d2, thisSubOffset + 0x38, 4);
-						// Find sprite main point
-						int spoio = thisSubOffset + 0x44 + subSprites * 32;
-						int pointIndex = _objectCount + (GetInt(p3d2, thisSubOffset + 0x44 + subSprites * 32, 4) >> 4);
-						float cx = _points[pointIndex].X;
-						float cy = _points[pointIndex].Y;
-						float cz = _points[pointIndex].Z;
-
-						if (subSprites > 0)
-						{
-							// Find sprite texture dimensions
-							float sw = (stex != NULL) ? stex->pTexture->Width() : 1.0f;
-							float sh = (stex != NULL) ? stex->pTexture->Height() : 1.0f;
-							float ssw = ((float)GetInt(p3d2, thisSubOffset + 0x30, 4)) / 65536.0f;
-							float ssh = ((float)GetInt(p3d2, thisSubOffset + 0x34, 4)) / 65536.0f;
-
-							// Find sprite world dimensions
-							float sww = ((float)GetInt(p3d2, thisSubOffset + 0x28, 4)) / 65536.0f;
-							float swh = ((float)GetInt(p3d2, thisSubOffset + 0x2c, 4)) / 65536.0f;
-
-							for (int ss = 0; ss < subSprites; ss++)
-							{
-								// Find sub-sprite x & y offsets
-								float subSpriteOffsetX = ((float)GetInt(p3d2, thisSubOffset + 0x44 + ss * 32, 4)) / 65536.0f;
-								float subSpriteOffsetY = ((float)GetInt(p3d2, thisSubOffset + 0x48 + ss * 32, 4)) / 65536.0f;
-
-								// Find sub-sprite width & height
-								float subSpriteTexX1 = ((float)GetInt(p3d2, thisSubOffset + 0x54 + ss * 32, 4)) / 65536.0f;
-								float subSpriteTexY1 = ((float)GetInt(p3d2, thisSubOffset + 0x58 + ss * 32, 4)) / 65536.0f;
-								float subSpriteTexX2 = 1.0f + (((float)GetInt(p3d2, thisSubOffset + 0x5c + ss * 32, 4)) / 65536.0f);
-								float subSpriteTexY2 = 1.0f + (((float)GetInt(p3d2, thisSubOffset + 0x60 + ss * 32, 4)) / 65536.0f);
-
-								float subSpriteWidth = subSpriteTexX2 - subSpriteTexX1;
-								float subSpriteHeight = subSpriteTexY2 - subSpriteTexY1;
-
-								// Add sprite
-								SpriteInfo si;
-								si.TextureIndex = tex;
-								si.P.X = cx;
-								si.P.Y = cy;
-								si.P.Z = cz;
-								si.OX = (sww * subSpriteOffsetX) / ssw;
-								si.OY = (swh * subSpriteOffsetY) / ssh;
-								si.W = (sww * subSpriteWidth) / ssw;
-								si.H = (swh * subSpriteHeight) / ssh;
-								si.U1 = subSpriteTexX1 / sw;
-								si.V1 = subSpriteTexY1 / sh;
-								si.U2 = subSpriteTexX2 / sw;
-								si.V2 = subSpriteTexY2 / sh;
-								si.ObjectIndex = i;
-								si.SubObjectIndex = six;
-								si.SubObjectId = sid;
-
-								if (stex != NULL) stex->SpriteInfos.push_back(si);
-
-								spriteCount++;
-
-								// Get sprite bounding box
-								if ((si.P.X - si.W / 2) < sminx)
-								{
-									sminx = si.P.X - si.W / 2;
-								}
-								if ((si.P.X + si.W / 2) > smaxx)
-								{
-									smaxx = si.P.X + si.W / 2;
-								}
-								if ((si.P.Y - si.H) < sminy)
-								{
-									sminy = si.P.Y - si.H;
-								}
-								if (si.P.Y > smaxy)
-								{
-									smaxy = si.P.Y;
-								}
-								if ((si.P.Z - si.W / 2) < sminz)
-								{
-									sminz = si.P.Z - si.W / 2;
-								}
-								if ((si.P.Z + si.W / 2) > smaxz)
-								{
-									smaxz = si.P.Z + si.W / 2;
-								}
-							}
-
-							// 2020-11-27 End of new sprite loader
-						}
-						else
-						{
-							sminx = smaxx = cx;
-							sminy = smaxy = cy;
-							sminz = smaxz = cz;
-						}
-					}
-					else if (points >= 3)
-					{
-						Object obj;
-						obj.TextureIndex = tex;
-
-						CTexture* pt = (stex != NULL) ? stex->pTexture : NULL;
-						float tw = (pt != NULL) ? pt->Width() : 0.0f;
-						float th = (pt != NULL) ? pt->Height() : 0.0f;
-
-						// Test new triangulation
-						std::vector<TLPoint> vpoints;
-						for (int p = 0; p < points; p++)
-						{
-							TLPoint px = GetPoint(p3d2, thisSubOffset + 0x28, p, points, tw, th, _objectCount, i, six);
-							px.SubObjectId = j;
-
-							if ((flags & SUBOBJECT_FLAGS_ROTATEDTEXTURE) != 0)
-							{
-								float tu = px.U;
-								px.U = px.V;
-								px.V = tu;
-							}
-
-							_ppObjects[i]->SubObjects[j].Points[p] = px;
-
-							vpoints.push_back(px);
-
-							// Get bounding box
-							if (px.Point->X < sminx) sminx = px.Point->X;
-							if (px.Point->X > smaxx) smaxx = px.Point->X;
-							if (px.Point->Y < sminy) sminy = px.Point->Y;
-							if (px.Point->Y > smaxy) smaxy = px.Point->Y;
-							if (px.Point->Z < sminz) sminz = px.Point->Z;
-							if (px.Point->Z > smaxz) smaxz = px.Point->Z;
-						}
-
-						int startp = 0;
-						int tri = points - 2;
-						int pointsLeft = points;
-						int trix = 0;
-						while (pointsLeft > 2)
-						{
-							int prev1 = startp - 1;
-							if (prev1 < 0) prev1 += pointsLeft;
-							int prev2 = startp - 2;
-							if (prev2 < 0) prev2 += pointsLeft;
-
-							// If this + 2 previous points form a proper triangle, create it and remove previous point
-							TLPoint p0 = vpoints.at(startp);
-							TLPoint p1 = vpoints.at(prev1);
-							TLPoint p2 = vpoints.at(prev2);
-
-							Point v1;
-							v1.X = p0.Point->X - p1.Point->X;
-							v1.Y = p0.Point->Y - p1.Point->Y;
-							v1.Z = p0.Point->Z - p1.Point->Z;
-
-							float len = sqrt(v1.X * v1.X + v1.Y * v1.Y + v1.Z * v1.Z);
-							v1.X /= len;
-							v1.Y /= len;
-							v1.Z /= len;
-
-							Point v2;
-							v2.X = p1.Point->X - p2.Point->X;
-							v2.Y = p1.Point->Y - p2.Point->Y;
-							v2.Z = p1.Point->Z - p2.Point->Z;
-
-							len = sqrt(v2.X * v2.X + v2.Y * v2.Y + v2.Z * v2.Z);
-							v2.X /= len;
-							v2.Y /= len;
-							v2.Z /= len;
-
-							if (v1.X != v2.X || v1.Y != v2.Y || v1.Z != v2.Z)
-							{
-								// Points form a triangle
-								Triangle t1;
-								t1.ObjectId = i;
-								t1.SubObjectId = sid & 0xffff;
-								t1.P1 = p0;
-								t1.P2 = p2;
-								t1.P3 = p1;
-
-								obj.Triangles.push_back(t1);
-								if (stex != NULL)
-								{
-									if ((flags & SUBOBJECT_FLAGS_TRANSPARENT) == 0)
-									{
-										// Regular textured object
-										stex->Triangles.push_back(t1);
-										texturedTriangles++;
-										obj.VertexCount += 3;
-									}
-									else
-									{
-										// Transparent object
-										stex->TransparentTriangles.push_back(t1);
-										transparentTriangles++;
-									}
-								}
-
-								_ppObjects[i]->SubObjects[j].Triangles[trix++] = t1;
-
-								// Remove point at prev1
-								vpoints.erase(vpoints.begin() + prev1);
-								pointsLeft--;
-							}
-							else
-							{
-								// Points do not form a triangle
-								//t--;
-								if (pointsLeft == 3)
-								{
-									//break;
-								}
-							}
-
-							startp++;
-							if (startp >= pointsLeft) startp -= pointsLeft;
-						}
-
-						_objects.push_back(obj);
-					}
-					else
-					{
-						int debug = 0;
-					}
-				}
-			}
-
-			if (sminx < ominx)
-			{
-				ominx = sminx;
-			}
-			if (sminy < ominy)
-			{
-				ominy = sminy;
-			}
-			if (sminz < ominz)
-			{
-				ominz = sminz;
-			}
-			if (smaxx > omaxx)
-			{
-				omaxx = smaxx;
-			}
-			if (smaxy > omaxy)
-			{
-				omaxy = smaxy;
-			}
-			if (smaxz > omaxz)
-			{
-				omaxz = smaxz;
-			}
-
-			_ppObjects[i]->SubObjects[j].BoundingBox.X1 = sminx;
-			_ppObjects[i]->SubObjects[j].BoundingBox.X2 = smaxx;
-			_ppObjects[i]->SubObjects[j].BoundingBox.Y1 = sminy;
-			_ppObjects[i]->SubObjects[j].BoundingBox.Y2 = smaxy;
-			_ppObjects[i]->SubObjects[j].BoundingBox.Z1 = sminz;
-			_ppObjects[i]->SubObjects[j].BoundingBox.Z2 = smaxz;
-
-			six++;
-
-			if (nextSubOffset < thisSubOffset) break;
-		}
-
-		pCurSubObjPtr += subObjects;
-
-		_ppObjects[i]->BoundingBox.X1 = ominx;
-		_ppObjects[i]->BoundingBox.X2 = omaxx;
-		_ppObjects[i]->BoundingBox.Y1 = ominy;
-		_ppObjects[i]->BoundingBox.Y2 = omaxy;
-		_ppObjects[i]->BoundingBox.Z1 = ominz;
-		_ppObjects[i]->BoundingBox.Z2 = omaxz;
-
-		if (ominx < lb1.X)
-		{
-			lb1.X = ominx;
-		}
-		if (omaxx > lb2.X)
-		{
-			lb2.X = omaxx;
-		}
-		if (ominy < lb1.Y)
-		{
-			lb1.Y = ominy;
-		}
-		if (omaxy > lb2.Y)
-		{
-			lb2.Y = omaxy;
-		}
-		if (ominz < lb1.Z)
-		{
-			lb1.Z = ominz;
-		}
-		if (omaxz > lb2.Z)
-		{
-			lb2.Z = omaxz;
-		}
-	}
-
-	// Create points vertex buffer
-	D3D11_BUFFER_DESC vertexBufferDesc;
-	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	vertexBufferDesc.ByteWidth = sizeof(Point) * _verticeCount;
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.CPUAccessFlags = 0;
-	vertexBufferDesc.MiscFlags = 0;
-	vertexBufferDesc.StructureByteStride = 0;
-
-	D3D11_SUBRESOURCE_DATA vertexData;
-	vertexData.pSysMem = _points;
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
-
-	dx.CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer, "Location Vertices");
-
-	// Create textured triangles
-	_texturedVerticeCount = texturedTriangles * 3;
-	TEXTURED_VERTEX* pTV = new TEXTURED_VERTEX[_texturedVerticeCount];
-	_transparentVerticeCount = transparentTriangles * 3;
-	COLOURED_VERTEX* pTTV = new COLOURED_VERTEX[_transparentVerticeCount];
-	std::vector<CTextureGroup*>::iterator tit = _allTextures.begin();
-	std::vector<CTextureGroup*>::iterator tend = _allTextures.end();
-	int tix = 0;
-	int ttix = 0;
-
-	while (tit != tend)
-	{
-		CTextureGroup* pTex = *tit;
-
-		int vertexStart = tix;
-
-		pTex->TransparentVertexStart = ttix;
-
-		std::vector<Triangle>::iterator trit = pTex->Triangles.begin();
-		std::vector<Triangle>::iterator trend = pTex->Triangles.end();
-		int curobid = -1;
-		int cursubobid = -1;
-		CLocationSubObject* pSub = NULL;
-		while (trit != trend)
-		{
-			Triangle* pTri = &(*trit);
-			if (pTri->ObjectId == 0 && pTri->SubObjectId == 0x004f)
-			{
-				int debug = 0;
-			}
-
-			if (pTri->ObjectId != curobid || pTri->SubObjectId != cursubobid)
-			{
-				pSub = NULL;
-
-				CLocationObject* pOb = &_pLocObjects[pTri->ObjectId];
-				for (int sx = 0; sx < pOb->SubObjectCount; sx++)
-				{
-					if ((pOb->pSubObjects[sx].Id & 0xffff) == pTri->SubObjectId)
-					{
-						pSub = &pOb->pSubObjects[sx];
-						if (pSub->VertexIndex < 0)
-						{
-							pSub->VertexIndex = tix;
-						}
-						break;
-					}
-				}
-			}
-
-			if (pSub != NULL)
-			{
-				pSub->VertexCount += 3;
-			}
-
-			pTV[tix].position.x = pTri->P1.Point->X;
-			pTV[tix].position.y = pTri->P1.Point->Y;
-			pTV[tix].position.z = pTri->P1.Point->Z;
-			pTV[tix].texture.x = pTri->P1.U;
-			pTV[tix].texture.y = pTri->P1.V;
-			pTV[tix].object.x = (float)pTri->P1.ObjectIndex;
-			pTV[tix].object.y = (float)pTri->P1.SubObjectIndex;
-			tix++;
-			pTV[tix].position.x = pTri->P2.Point->X;
-			pTV[tix].position.y = pTri->P2.Point->Y;
-			pTV[tix].position.z = pTri->P2.Point->Z;
-			pTV[tix].texture.x = pTri->P2.U;
-			pTV[tix].texture.y = pTri->P2.V;
-			pTV[tix].object.x = (float)pTri->P2.ObjectIndex;
-			pTV[tix].object.y = (float)pTri->P2.SubObjectIndex;
-			tix++;
-			pTV[tix].position.x = pTri->P3.Point->X;
-			pTV[tix].position.y = pTri->P3.Point->Y;
-			pTV[tix].position.z = pTri->P3.Point->Z;
-			pTV[tix].texture.x = pTri->P3.U;
-			pTV[tix].texture.y = pTri->P3.V;
-			pTV[tix].object.x = (float)pTri->P3.ObjectIndex;
-			pTV[tix].object.y = (float)pTri->P3.SubObjectIndex;
-			tix++;
-
-			trit++;
-		}
-
-		int vertexCount = tix - vertexStart;
-		if (vertexCount > 0)
-		{
-			pTex->Points.Add(vertexStart, vertexCount);
-		}
-
-		trit = pTex->TransparentTriangles.begin();
-		trend = pTex->TransparentTriangles.end();
-		while (trit != trend)
-		{
-			Triangle* pTri = &(*trit);
-
-			XMFLOAT4 transparentColour = GetTransparentColour(file, pTri->P1.ObjectIndex, pTri->P1.SubObjectId);
-
-			pTTV[ttix].position.x = pTri->P1.Point->X;
-			pTTV[ttix].position.y = pTri->P1.Point->Y;
-			pTTV[ttix].position.z = pTri->P1.Point->Z;
-			pTTV[ttix].position.w = 1.0f;
-			pTTV[ttix].colour = transparentColour;
-			pTTV[ttix].object.x = (float)pTri->P1.ObjectIndex;
-			pTTV[ttix].object.y = (float)pTri->P1.SubObjectIndex;
-			ttix++;
-			pTTV[ttix].position.x = pTri->P2.Point->X;
-			pTTV[ttix].position.y = pTri->P2.Point->Y;
-			pTTV[ttix].position.z = pTri->P2.Point->Z;
-			pTTV[ttix].position.w = 1.0f;
-			pTTV[ttix].colour = transparentColour;
-			pTTV[ttix].object.x = (float)pTri->P2.ObjectIndex;
-			pTTV[ttix].object.y = (float)pTri->P2.SubObjectIndex;
-			ttix++;
-			pTTV[ttix].position.x = pTri->P3.Point->X;
-			pTTV[ttix].position.y = pTri->P3.Point->Y;
-			pTTV[ttix].position.z = pTri->P3.Point->Z;
-			pTTV[ttix].position.w = 1.0f;
-			pTTV[ttix].colour = transparentColour;
-			pTTV[ttix].object.x = (float)pTri->P3.ObjectIndex;
-			pTTV[ttix].object.y = (float)pTri->P3.SubObjectIndex;
-			ttix++;
-
-			trit++;
-		}
-
-		pTex->TransparentVerticeCount = ttix - pTex->TransparentVertexStart;
-
-		tit++;
-	}
-
-	// Textured buffer
-	D3D11_BUFFER_DESC triBufferDesc;
-	triBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	triBufferDesc.ByteWidth = sizeof(TEXTURED_VERTEX) * _texturedVerticeCount;
-	triBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	triBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	triBufferDesc.MiscFlags = 0;
-	triBufferDesc.StructureByteStride = 0;
-
-	D3D11_SUBRESOURCE_DATA triData;
-	triData.pSysMem = pTV;
-	triData.SysMemPitch = 0;
-	triData.SysMemSlicePitch = 0;
-
-	dx.CreateBuffer(&triBufferDesc, &triData, &_texturedVertexBuffer, "Location Textured Triangles");
-
-	delete[] pTV;
-
-	// Transparent buffer
-	if (_transparentVerticeCount > 0)
-	{
-		triBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-		triBufferDesc.ByteWidth = sizeof(COLOURED_VERTEX) * _transparentVerticeCount;
-		triBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		triBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		triBufferDesc.MiscFlags = 0;
-		triBufferDesc.StructureByteStride = 0;
-
-		triData.pSysMem = pTTV;
-		triData.SysMemPitch = 0;
-		triData.SysMemSlicePitch = 0;
-
-		dx.CreateBuffer(&triBufferDesc, &triData, &_transparentVertexBuffer, "Location Transparent Triangles");
-	}
-	delete[] pTTV;
-
-	// Create sprite buffer
-
-	if (spriteCount > 0)
-	{
-		_spriteVerticeCount = spriteCount * 3 * 2;
-		pTV = new TEXTURED_VERTEX[_spriteVerticeCount];
-		tit = _allTextures.begin();
-		tend = _allTextures.end();
-		tix = 0;
-		while (tit != tend)
-		{
-			CTextureGroup* pTex = *tit;
-
-			pTex->SpriteVertexStart = tix;
-
-			std::vector<SpriteInfo>::iterator sit = pTex->SpriteInfos.begin();
-			std::vector<SpriteInfo>::iterator send = pTex->SpriteInfos.end();
-			while (sit != send)
-			{
-				SpriteInfo* spr = &(*sit);
-
-				pTV[tix].position.x = spr->P.X + spr->OX - spr->W / 2;
-				pTV[tix].position.y = spr->P.Y + spr->OY;
-				pTV[tix].position.z = spr->P.Z;
-				pTV[tix].texture.x = spr->U1;
-				pTV[tix].texture.y = spr->V1;
-				tix++;
-				pTV[tix].position.x = spr->P.X + spr->OX + spr->W / 2;
-				pTV[tix].position.y = spr->P.Y + spr->OY + spr->H;
-				pTV[tix].position.z = spr->P.Z;
-				pTV[tix].texture.x = spr->U2;
-				pTV[tix].texture.y = spr->V2;
-				tix++;
-				pTV[tix].position.x = spr->P.X + spr->OX - spr->W / 2;
-				pTV[tix].position.y = spr->P.Y + spr->OY;
-				pTV[tix].position.z = spr->P.Z;
-				pTV[tix].texture.x = spr->U2;
-				pTV[tix].texture.y = spr->V1;
-				tix++;
-
-				pTV[tix].position.x = spr->P.X + spr->OX - spr->W / 2;
-				pTV[tix].position.y = spr->P.Y + spr->OY;
-				pTV[tix].position.z = spr->P.Z;
-				pTV[tix].texture.x = spr->U1;
-				pTV[tix].texture.y = spr->V1;
-				tix++;
-				pTV[tix].position.x = spr->P.X + spr->OX - spr->W / 2;
-				pTV[tix].position.y = spr->P.Y + spr->OY + spr->H;
-				pTV[tix].position.z = spr->P.Z;
-				pTV[tix].texture.x = spr->U1;
-				pTV[tix].texture.y = spr->V2;
-				tix++;
-				pTV[tix].position.x = spr->P.X + spr->OX - spr->W / 2;
-				pTV[tix].position.y = spr->P.Y + spr->OY + spr->H;
-				pTV[tix].position.z = spr->P.Z;
-				pTV[tix].texture.x = spr->U2;
-				pTV[tix].texture.y = spr->V2;
-				tix++;
-
-				sit++;
-			}
-
-			pTex->SpriteVerticeCount = tix - pTex->SpriteVertexStart;
-
-			tit++;
-		}
-
-		triBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-		triBufferDesc.ByteWidth = sizeof(TEXTURED_VERTEX) * _spriteVerticeCount;
-		triBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		triBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		triBufferDesc.MiscFlags = 0;
-		triBufferDesc.StructureByteStride = 0;
-
-		triData.pSysMem = pTV;
-		triData.SysMemPitch = 0;
-		triData.SysMemSlicePitch = 0;
-
-		dx.CreateBuffer(&triBufferDesc, &triData, &_spriteVertexBuffer, "Location Sprites");
-
-		delete[] pTV;
-	}
-
-	// Load alternative textures
-	if (pConfig->AlternativeMedia)
-	{
-		wchar_t alternateName[1024];
-		ZeroMemory(alternateName, sizeof(alternateName));
-		wcscat(alternateName, file.c_str());
-		wchar_t* pAlter = alternateName + file.size() - 3;
-		pAlter[0] = L'\\';
-		pAlter++;
-
-		tit = _allTextures.begin();
-		tend = _allTextures.end();
-		int tix = 0;
-		while (tit != tend)
-		{
-			_itow(tix, pAlter, 10);
-			wchar_t* pAlter2 = pAlter + wcslen(pAlter);
-			wcscat(pAlter2, L".png");
-
-			// TODO: If file exists, replace texture...
-			if (CFile::Exists(alternateName))
-			{
-				(*tit)->pTexture->Init(alternateName);
-			}
-
-			tix++;
-			tit++;
-		}
-	}
-
-	_visibilityChanged = TRUE;
-	_translationChanged = TRUE;
-
-	// Start default animations
-	BinaryData animbd = GetLocationData(0);
-	int animationCount = GetInt(animbd.Data, 0, 4);
-	for (int i = 0; i < animationCount && i < 50; i++)
-	{
-		int offset = GetInt(animbd.Data, 8 + i * 8, 4);
-		int trigger = GetInt(animbd.Data, offset + 8, 4);
-		if (trigger == 1)
-		{
-			StartIndexedAnimation(i);
-		}
-		else
-		{
-			// Check type, if 16, add to Elevations
-			int type = GetInt(animbd.Data, offset, 4);
-			if (type == 16)
-			{
-				Elevations.push_back(animbd.Data + offset);
-			}
-		}
-	}
-
-	_loading = FALSE;
-
-	return TRUE;
-	*/
-
-	return FALSE;
-}
+#endif
 
 void CLocation::SetObjectVisibility(int objectId, BOOL visible)
 {
-	/*
-	if (_objectMap[objectId].ObjectIndex >= 0)
-	{
-		_visibilityBuffer.visibility[_objectMap[objectId].ObjectIndex].x = visible ? 1.0f : -1.0f;
-	}
-	//else if (_objectMap[objectId].SubObjectIndex >= 0)
-	//{
-	//	_visibility.visibility[_objectMap[objectId].SubObjectIndex].y = visible ? 1.0f : -1.0f;
-	//}
-	else if (_objectMap[objectId].SubObjectIndices.size() > 0)
-	{
-		for (auto it : _objectMap[objectId].SubObjectIndices)
-		{
-			_visibilityBuffer.visibility[it].y = visible ? 1.0f : -1.0f;
-		}
-	}
-	*/
-
-	//_visibilityBuffer.visibility[objectId].x = visible ? 1.0f : -1.0f;
-
-	/*
-	if (objectId >= 0 && objectId < _objectMapCount)
-	{
-		for (auto pVisibilityFloat : _objectMap[objectId].VisibilityFloatPointers)
-		{
-			*pVisibilityFloat = visible ? 1.0f : -1.0f;
-		}
-
-		_visibilityChanged = TRUE;
-	}
-	*/
 	int id = _objectMap[objectId].id;
 	if (id < 0x800)
 	{
@@ -3889,19 +3227,6 @@ void CLocation::SetObjectVisibility(int objectId, BOOL visible)
 	}
 	else
 	{
-		// Hide master object(s) containing the item
-		//Trace(L"Setting visibility of object ");
-		//Trace(id, 16);
-		//Trace(L" to ");
-		//if (visible)
-		//{
-		//	TraceLine(L"VISIBLE");
-		//}
-		//else
-		//{
-		//	TraceLine(L"HIDDEN");
-		//}
-
 		for (int i = 0; i < _subObjectCount; i++)
 		{
 			if (((_improvedObjectMap[i].SubObjectId >> 16) & 0xffff) == id)
@@ -3914,19 +3239,6 @@ void CLocation::SetObjectVisibility(int objectId, BOOL visible)
 
 void CLocation::ChangeVisibility(int id, BOOL visible, BOOL setOnSubObjects, std::wstring header)
 {
-	//Trace((LPWSTR)header.c_str());
-	//Trace(L"Setting visibility of object ");
-	//Trace(id, 16);
-	//Trace(L" to ");
-	//if (visible)
-	//{
-	//	TraceLine(L"VISIBLE");
-	//}
-	//else
-	//{
-	//	TraceLine(L"HIDDEN");
-	//}
-
 	BOOL found = FALSE;
 	if ((id & 0x80000000) != 0)
 	{
@@ -3960,41 +3272,9 @@ void CLocation::ChangeVisibility(int id, BOOL visible, BOOL setOnSubObjects, std
 		{
 			for (int i = 0; i < _subObjectCount; i++)
 			{
-				if (_improvedObjectMap[i].ObjectIndex == id)
+				if (_improvedObjectMap[i].ObjectIndex == id && (_improvedObjectMap[i].SubObjectId & 0x80000000) == 0)
 				{
-					if ((_improvedObjectMap[i].SubObjectId & 0x80000000) == 0)
-					{
-						//Trace(L"Setting object ");
-						//Trace(id, 16);
-						//Trace(L", sub-object ");
-						//Trace(_improvedObjectMap[i].SubObjectId, 16);
-						//Trace(L" visibility to ");
-						//if (visible)
-						//{
-						//	TraceLine(L"VISIBLE");
-						//}
-						//else
-						//{
-						//	TraceLine(L"HIDDEN");
-						//}
-						_visibilityBuffer.visibility[_improvedObjectMap[i].SubObjectIndex].y = visible ? 1.0f : -1.0f;
-					}
-					//else
-					//{
-					//	Trace(L"Visibility of object ");
-					//	Trace(id, 16);
-					//	Trace(L", sub-object ");
-					//	Trace(_improvedObjectMap[i].SubObjectId, 16);
-					//	Trace(L" remains ");
-					//	if (min(_visibilityBuffer.visibility[_improvedObjectMap[i].ObjectIndex].x, _visibilityBuffer.visibility[_improvedObjectMap[i].SubObjectIndex].y) > 0.0f)
-					//	{
-					//		TraceLine(L"VISIBLE");
-					//	}
-					//	else
-					//	{
-					//		TraceLine(L"HIDDEN");
-					//	}
-					//}
+					_visibilityBuffer.visibility[_improvedObjectMap[i].SubObjectIndex].y = visible ? 1.0f : -1.0f;
 				}
 			}
 		}
@@ -4029,95 +3309,240 @@ void CLocation::Animate()
 						{
 							switch (Animations[i].Type)
 							{
-							case 1:
-							{
-								// Texture switch
-								int objectId = Animations[i].ObjectId;
-								int subObjectId = Animations[i].Parameter;
-								int newTexture = p1;
-
-								// Take 2, using list of objects and sub-objects to find texture and vertices/indexes
-								CLocationObject* lo = &_pLocObjects[objectId];
-								for (int soi = 0; soi < lo->SubObjectCount; soi++)
-								{
-									CLocationSubObject* pSub = &lo->pSubObjects[soi];
-									if ((pSub->Id & 0xffff) == subObjectId)
-									{
-										CTextureGroup* pTG = _allTextures.at(pSub->TextureIndex);
-										CTextureGroup* pNewT = _allTextures.at(newTexture);
-										if (pTG->SpriteVerticeCount > 0)
-										{
-											pTG->RealTexture = pNewT->pTexture;
-										}
-										else
-										{
-											pTG->RemovePoints(pSub->VertexIndex, pSub->VertexCount);
-											pNewT->AddPoints(pSub->VertexIndex, pSub->VertexCount);
-											pSub->TextureIndex = newTexture;
-										}
-
-										break;
-									}
-								}
-
-								Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
-								pA += 4;
-								frameEnd = TRUE;
-								break;
-							}
-							case 2:
-							{
-								// Object translation
-								float x = ((float)p1) / 65536.0f;
-								float y = ((float)GetInt(pA, 0, 4)) / 65536.0f;
-								float z = ((float)GetInt(pA, 4, 4)) / 65536.0f;
-								Animations[i].FrameDuration = (DWORD)(GetInt(pA, 8, 4) * TIMER_SCALE);
-								pA += 12;
-								_translationBuffer.translation[Animations[i].ObjectId].x += x;
-								_translationBuffer.translation[Animations[i].ObjectId].y += y;
-								_translationBuffer.translation[Animations[i].ObjectId].z += z;
-								_translationChanged = TRUE;
-								PointingChanged = TRUE;
-								frameEnd = TRUE;
-								break;
-							}
-							case 3:
-							{
-								// Object visibility
-								// Get and hide object from parameter (must be set to -1 on initalization)
-								int objectToHide = Animations[i].Parameter;
-								int objectToShow = p1;
-								if (objectToShow >= 0)
-								{
-									Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
-									pA += 4;
-
-									if (objectToHide >= 0)
-									{
-										ChangeVisibility(objectToHide, FALSE, FALSE, L"Animation ");
-									}
-									ChangeVisibility(objectToShow, TRUE, FALSE, L"Animation ");
-
-									// Store object in parameter
-									Animations[i].Parameter = objectToShow;
-									PointingChanged = TRUE;
-								}
-
-								frameEnd = TRUE;
-								break;
-							}
-							case 4:
-							{
-								// All functions
-								switch (p1)
-								{
 								case 1:
 								{
 									// Texture switch
-									int objectId = GetInt(pA, 0, 4);
-									int subObjectId = GetInt(pA, 4, 4);
-									int newTexture = GetInt(pA, 8, 4);
+									int objectId = Animations[i].ObjectId;
+									int subObjectId = Animations[i].Parameter;
+									int newTexture = p1;
+
+									// Take 2, using list of objects and sub-objects to find texture and vertices/indexes
+									CLocationObject* lo = &_pLocObjects[objectId];
+									for (int soi = 0; soi < lo->SubObjectCount; soi++)
+									{
+										CLocationSubObject* pSub = &lo->pSubObjects[soi];
+										if ((pSub->Id & 0xffff) == subObjectId)
+										{
+											CTextureGroup* pTG = _allTextures.at(pSub->TextureIndex);
+											CTextureGroup* pNewT = _allTextures.at(newTexture);
+											if (pTG->SpriteVerticeCount > 0)
+											{
+												pTG->RealTexture = pNewT->pTexture;
+											}
+											else
+											{
+												pTG->RemovePoints(pSub->VertexIndex, pSub->VertexCount);
+												pNewT->AddPoints(pSub->VertexIndex, pSub->VertexCount);
+												pSub->TextureIndex = newTexture;
+											}
+
+											break;
+										}
+									}
+
+									Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
+									pA += 4;
+									frameEnd = TRUE;
+									break;
+								}
+								case 2:
+								{
+									// Object translation
+									float x = ((float)p1) / 65536.0f;
+									float y = ((float)GetInt(pA, 0, 4)) / 65536.0f;
+									float z = ((float)GetInt(pA, 4, 4)) / 65536.0f;
+									Animations[i].FrameDuration = (DWORD)(GetInt(pA, 8, 4) * TIMER_SCALE);
 									pA += 12;
+									_translationBuffer.translation[Animations[i].ObjectId].x += x;
+									_translationBuffer.translation[Animations[i].ObjectId].y += y;
+									_translationBuffer.translation[Animations[i].ObjectId].z += z;
+									_translationChanged = TRUE;
+									PointingChanged = TRUE;
+									frameEnd = TRUE;
+									break;
+								}
+								case 3:
+								{
+									// Object visibility
+									// Get and hide object from parameter (must be set to -1 on initalization)
+									int objectToHide = Animations[i].Parameter;
+									int objectToShow = p1;
+									if (objectToShow >= 0)
+									{
+										Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
+										pA += 4;
+
+										if (objectToHide >= 0)
+										{
+											ChangeVisibility(objectToHide, FALSE, FALSE, L"Animation ");
+										}
+										ChangeVisibility(objectToShow, TRUE, FALSE, L"Animation ");
+
+										// Store object in parameter
+										Animations[i].Parameter = objectToShow;
+										PointingChanged = TRUE;
+									}
+
+									frameEnd = TRUE;
+									break;
+								}
+								case 4:
+								{
+									// All functions
+									switch (p1)
+									{
+										case 1:
+										{
+											// Texture switch
+											int objectId = GetInt(pA, 0, 4);
+											int subObjectId = GetInt(pA, 4, 4);
+											int newTexture = GetInt(pA, 8, 4);
+											pA += 12;
+											BinaryData bd3d2 = GetLocationData(4);
+											PBYTE p3d2 = bd3d2.Data;
+											int objectOffset = GetInt(p3d2, 0x30 + objectId * 4, 4) + 0x30;
+
+											int subObjects = GetInt(p3d2, objectOffset + 12, 4);
+											int nextSubOffset = objectOffset + 40;
+											for (int ts = 0; ts < subObjects; ts++)
+											{
+												int thisSubOffset = nextSubOffset;
+												nextSubOffset = GetInt(p3d2, nextSubOffset, 4) + 0x30;
+
+												int sid = GetInt(p3d2, thisSubOffset + 0xc, 4);
+												if ((sid & 0xffff) == subObjectId)
+												{
+													int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
+													CTextureGroup* pTG = _allTextures.at(tex);
+													if (newTexture != tex)
+													{
+														CTextureGroup* pNewT = _allTextures.at(newTexture);
+														pTG->RealTexture = pNewT->pTexture;
+													}
+													else
+													{
+														pTG->RealTexture = NULL;
+													}
+												}
+											}
+
+											break;
+										}
+										case 2:
+										{
+											// Object translation
+											int p1 = GetInt(pA, 0, 4);
+											int p2 = GetInt(pA, 4, 4);
+											int p3 = GetInt(pA, 8, 4);
+											int p4 = GetInt(pA, 12, 4);
+											int p5 = GetInt(pA, 16, 4);
+											pA += 20;
+
+											float x = ((float)p2) / 65536.0f;
+											float y = ((float)p3) / 65536.0f;
+											float z = ((float)p4) / 65536.0f;
+
+											Animations[i].FrameDuration = (DWORD)(p5 * TIMER_SCALE);
+											_translationBuffer.translation[p1].x += x;
+											_translationBuffer.translation[p1].y += y;
+											_translationBuffer.translation[p1].z += z;
+											_translationChanged = TRUE;
+											PointingChanged = TRUE;
+											frameEnd = TRUE;
+											break;
+										}
+										case 3:
+										{
+											// Object visibility
+											// Get and hide object from parameter (must be set to -1 on initalization)
+											int objectId = GetInt(pA, 0, 4);
+											int visibility = GetInt(pA, 4, 4);
+											pA += 8;
+
+											ChangeVisibility(objectId, visibility, FALSE, L"Animation 4.3 ");
+
+											PointingChanged = TRUE;
+											break;
+										}
+										case 5:
+										{
+											// Object + subobject visibility
+											int objectId = GetInt(pA, 0, 4);
+											int subObjectId = GetInt(pA, 4, 4);
+											int visibility = GetInt(pA, 8, 4);
+											pA += 12;
+
+											ChangeVisibility(0x80000000 | (objectId << 16) | subObjectId, visibility, FALSE, L"Animation type 4.5 ");
+
+											PointingChanged = TRUE;
+											break;
+										}
+										case 6:
+										{
+											// Start indexed animation
+											int animix = GetInt(pA, 0, 4);
+											pA += 4;
+											StartIndexedAnimation(animix);
+											break;
+										}
+										case 7:
+										{
+											// Start indexed animation and wait for it to complete
+											int animix = GetInt(pA, 0, 4);
+											pA += 4;
+											StartIndexedAnimation(animix);
+											Animations[animix].ParentAnim = i;
+											Animations[i].Status = AnimationStatus::OnHold;
+											frameEnd = TRUE;
+											break;
+										}
+										case 8:
+										{
+											// Enable or disable path
+											int pid = GetInt(pA, 0, 4);
+											for (int p = 0; p < _pathCount; p++)
+											{
+												if (_paths[p].Id == pid)
+												{
+													_paths[p].enabled = GetInt(pA, 4, 4);
+													break;
+												}
+											}
+											//_paths[pix].allowLeave = false;	TODO: Check if player is currently inside path, if yes, allow leave
+											pA += 8;
+											break;
+										}
+									}
+									break;
+								}
+								case 14:
+								{
+									// Animated texture
+									int  animation = p1;
+									int texture = GetInt(pA, 0, 4);
+									int duration = GetInt(pA, 4, 4);
+									if (duration == 0)
+									{
+										duration = 3;// TODO: Find out what the default value should be (0 in 3 or 4 PD locations, no UAKM locations)
+									}
+									pA -= 4;
+									CTextureGroup* pTG = _allTextures.at(animation);
+									if (pTG->AnimatedTextureIndex >= pTG->Textures.size() - 1)
+									{
+										pTG->AnimatedTextureIndex = 0;
+									}
+									_allTextures.at(texture)->RealTexture = pTG->Textures.at(pTG->AnimatedTextureIndex++);
+									Animations[i].FrameDuration = (DWORD)(duration * TIMER_SCALE);
+									frameEnd = TRUE;
+									break;
+								}
+								case 15:
+								{
+									// Textures
+									int objectId = Animations[i].ObjectId;
+									int subObjectId = Animations[i].Parameter;
+									int newTexture = p1;
+
 									BinaryData bd3d2 = GetLocationData(4);
 									PBYTE p3d2 = bd3d2.Data;
 									int objectOffset = GetInt(p3d2, 0x30 + objectId * 4, 4) + 0x30;
@@ -4134,162 +3559,25 @@ void CLocation::Animate()
 										{
 											int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
 											CTextureGroup* pTG = _allTextures.at(tex);
-											if (newTexture != tex)
-											{
-												CTextureGroup* pNewT = _allTextures.at(newTexture);
-												pTG->RealTexture = pNewT->pTexture;
-											}
-											else
-											{
-												pTG->RealTexture = NULL;
-											}
+											CTextureGroup* pNewT = _allTextures.at(newTexture);
+											pTG->RealTexture = pNewT->pTexture;
 										}
 									}
 
-									break;
-								}
-								case 2:
-								{
-									// Object translation
-									int p1 = GetInt(pA, 0, 4);
-									int p2 = GetInt(pA, 4, 4);
-									int p3 = GetInt(pA, 8, 4);
-									int p4 = GetInt(pA, 12, 4);
-									int p5 = GetInt(pA, 16, 4);
-									pA += 20;
+									Animations[i].FrameDuration = Animations[i].ConstantFrameDuration;
+									if (pA >= Animations[i].AnimDataPointerEnd)
+									{
+										pA = Animations[i].AnimDataPointerInit;
+									}
 
-									float x = ((float)p2) / 65536.0f;
-									float y = ((float)p3) / 65536.0f;
-									float z = ((float)p4) / 65536.0f;
-
-									Animations[i].FrameDuration = (DWORD)(p5 * TIMER_SCALE);
-									_translationBuffer.translation[p1].x += x;
-									_translationBuffer.translation[p1].y += y;
-									_translationBuffer.translation[p1].z += z;
-									_translationChanged = TRUE;
-									PointingChanged = TRUE;
 									frameEnd = TRUE;
 									break;
 								}
-								case 3:
+								case 16:
 								{
-									// Object visibility
-									// Get and hide object from parameter (must be set to -1 on initalization)
-									int objectId = GetInt(pA, 0, 4);
-									int visibility = GetInt(pA, 4, 4);
-									pA += 8;
-
-									ChangeVisibility(objectId, visibility, FALSE, L"Animation 4.3 ");
-
-									PointingChanged = TRUE;
+									// Elevation, not animated
 									break;
 								}
-								case 5:
-								{
-									// Object + subobject visibility
-									int objectId = GetInt(pA, 0, 4);
-									int subObjectId = GetInt(pA, 4, 4);
-									int visibility = GetInt(pA, 8, 4);
-									pA += 12;
-
-									ChangeVisibility(0x80000000 | (objectId << 16) | subObjectId, visibility, FALSE, L"Animation type 4.5 ");
-
-									PointingChanged = TRUE;
-									break;
-								}
-								case 6:
-								{
-									// Start indexed animation
-									int animix = GetInt(pA, 0, 4);
-									pA += 4;
-									StartIndexedAnimation(animix);
-									break;
-								}
-								case 7:
-								{
-									// Start indexed animation and wait for it to complete
-									int animix = GetInt(pA, 0, 4);
-									pA += 4;
-									StartIndexedAnimation(animix);
-									Animations[animix].ParentAnim = i;
-									Animations[i].Status = AnimationStatus::OnHold;
-									frameEnd = TRUE;
-									break;
-								}
-								case 8:
-								{
-									// Enable or disable path
-									int pix = GetInt(pA, 0, 4);
-									if (pix >= 0 && pix < _pathCount)
-									{
-										_paths[pix].enabled = GetInt(pA, 4, 4);
-									}
-									//_paths[pix].allowLeave = false;	TODO: Check if player is currently inside path, if yes, allow leave
-									pA += 8;
-									break;
-								}
-								}
-								break;
-							}
-							case 14:
-							{
-								// Animated texture
-								int  animation = p1;
-								int texture = GetInt(pA, 0, 4);
-								int duration = GetInt(pA, 4, 4);
-								pA -= 4;
-								CTextureGroup* pTG = _allTextures.at(animation);
-								if (pTG->AnimatedTextureIndex >= pTG->Textures.size() - 1)
-								{
-									pTG->AnimatedTextureIndex = 0;
-								}
-								_allTextures.at(texture)->RealTexture = pTG->Textures.at(pTG->AnimatedTextureIndex++);
-								Animations[i].FrameDuration = (DWORD)(duration * TIMER_SCALE);
-								frameEnd = TRUE;
-								break;
-							}
-							case 15:
-							{
-								// Textures
-								int objectId = Animations[i].ObjectId;
-								int subObjectId = Animations[i].Parameter;
-								int newTexture = p1;
-
-								BinaryData bd3d2 = GetLocationData(4);
-								PBYTE p3d2 = bd3d2.Data;
-								int objectOffset = GetInt(p3d2, 0x30 + objectId * 4, 4) + 0x30;
-
-								int subObjects = GetInt(p3d2, objectOffset + 12, 4);
-								int nextSubOffset = objectOffset + 40;
-								for (int ts = 0; ts < subObjects; ts++)
-								{
-									int thisSubOffset = nextSubOffset;
-									nextSubOffset = GetInt(p3d2, nextSubOffset, 4) + 0x30;
-
-									int sid = GetInt(p3d2, thisSubOffset + 0xc, 4);
-									if ((sid & 0xffff) == subObjectId)
-									{
-										int tex = GetInt(p3d2, thisSubOffset + 0x24, 4);
-										CTextureGroup* pTG = _allTextures.at(tex);
-										CTextureGroup* pNewT = _allTextures.at(newTexture);
-										pTG->RealTexture = pNewT->pTexture;
-									}
-								}
-
-								Animations[i].FrameDuration = Animations[i].ConstantFrameDuration;
-								if (pA >= Animations[i].AnimDataPointerEnd)
-								{
-									pA = Animations[i].AnimDataPointerInit;
-								}
-
-								frameEnd = TRUE;
-								break;
-							}
-							case 16:
-							{
-								// Elevation, not animated
-								break;
-							}
 							}
 						}
 						else
@@ -4299,59 +3587,59 @@ void CLocation::Animate()
 							pA += 4;
 							switch (cmd)
 							{
-							case 0:
-							{
-								// Go back, x times
-								int p2 = GetInt(pA, 0, 4);
-								int p3 = GetInt(pA, 4, 4);
-								int p4 = GetInt(pA, 8, 4);
-								if (p3 == -1)
+								case 0:
 								{
-									// Initialization
-									p3 = p2;
-								}
+									// Go back, x times
+									int p2 = GetInt(pA, 0, 4);
+									int p3 = GetInt(pA, 4, 4);
+									int p4 = GetInt(pA, 8, 4);
+									if (p3 == -1)
+									{
+										// Initialization
+										p3 = p2;
+									}
 
-								SetInt(pA, 4, --p3, 4);
+									SetInt(pA, 4, --p3, 4);
 
-								pA += 12;
-								if (p3 > 0)
-								{
-									pA -= (p4 + 4);
-								}
-								else
-								{
-									// Reset counter
-									SetInt(pA, -8, -1, 4);
-								}
+									pA += 12;
+									if (p3 > 0)
+									{
+										pA -= (p4 + 4);
+									}
+									else
+									{
+										// Reset counter
+										SetInt(pA, -8, -1, 4);
+									}
 
-								break;
-							}
-							case 1:
-							{
-								// Go back, always
-								pA -= GetInt(pA, 0, 4);
-								break;
-							}
-							case 2:
-							{
-								// End animation
-								Animations[i].Status = AnimationStatus::Completed;
-								if (Animations[i].ParentAnim >= 0)
-								{
-									// Resume parent animation
-									Animations[Animations[i].ParentAnim].Status = AnimationStatus::Running;
+									break;
 								}
-								frameEnd = TRUE;
-								break;
-							}
-							case 3:
-							{
-								// Set frame duration (and end frame)
-								Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
-								pA += 4;
-								frameEnd = TRUE;
-								break;
-							}
+								case 1:
+								{
+									// Go back, always
+									pA -= GetInt(pA, 0, 4);
+									break;
+								}
+								case 2:
+								{
+									// End animation
+									Animations[i].Status = AnimationStatus::Completed;
+									if (Animations[i].ParentAnim >= 0)
+									{
+										// Resume parent animation
+										Animations[Animations[i].ParentAnim].Status = AnimationStatus::Running;
+									}
+									frameEnd = TRUE;
+									break;
+								}
+								case 3:
+								{
+									// Set frame duration (and end frame)
+									Animations[i].FrameDuration = (DWORD)(GetInt(pA, 0, 4) * TIMER_SCALE);
+									pA += 4;
+									frameEnd = TRUE;
+									break;
+								}
 							}
 						}
 					}
@@ -4362,4 +3650,59 @@ void CLocation::Animate()
 			}
 		}
 	}
+}
+
+#ifdef DEBUG
+void CLocation::RenderPoints()
+{
+	UINT stride = sizeof(Point);
+	UINT offset = 0;
+	dx.SetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+	dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+	CShaders::SelectBasicShader();
+	dx.Draw(_verticeCount, 0);
+}
+
+void CLocation::RenderLines()
+{
+	UINT stride = sizeof(Point);
+	UINT offset = 0;
+	dx.SetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+	dx.SetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+	CShaders::SelectBasicShader();
+	dx.DrawIndexed(_indexCount, 0, 0);
+}
+
+void CLocation::RenderPath()
+{
+	UINT stride = sizeof(Point);
+	UINT offset = 0;
+	dx.SetVertexBuffers(0, 1, &_pathVertexBuffer, &stride, &offset);
+	dx.SetIndexBuffer(_pathIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+	CShaders::SelectBasicShader();
+	dx.DrawIndexed(_pathIndexCount, 0, 0);
+}
+#endif
+
+void CLocation::SetMinY(float minY)
+{
+	_y_player_adjustment_min = minY;
+	//if (_y_player_adjustment > minY)
+	//{
+	//	_y_player_adjustment = minY;
+	//}
+}
+
+void CLocation::SetMaxY(float maxY)
+{
+	_y_player_adjustment_max = maxY;
+	//if (_y_player_adjustment < maxY)
+	//{
+	//	_y_player_adjustment = maxY;
+	//}
 }

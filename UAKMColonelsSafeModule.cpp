@@ -91,8 +91,6 @@ void CUAKMColonelsSafeModule::Render()
 
 	if (_vertexBuffer != NULL)
 	{
-		dx.Clear(0.0f, 0.0f, 0.0f);
-
 		dx.DisableZBuffer();
 
 		UINT stride = sizeof(TEXTURED_VERTEX);
@@ -115,8 +113,6 @@ void CUAKMColonelsSafeModule::Render()
 		dx.Draw(4, 0);
 
 		dx.EnableZBuffer();
-
-		dx.Present(1, 0);
 	}
 }
 
@@ -132,17 +128,7 @@ void CUAKMColonelsSafeModule::Initialize()
 		_screen = dd.File2.Data;
 
 		LPBYTE pPal = dd.File1.Data;
-		for (int c = 0; c < 256; c++)
-		{
-			double r = pPal[c * 3 + 0];
-			double g = pPal[c * 3 + 1];
-			double b = pPal[c * 3 + 2];
-			int ri = (byte)((r * 255.0) / 63.0);
-			int gi = (byte)((g * 255.0) / 63.0);
-			int bi = (byte)((b * 255.0) / 63.0);
-			int col = 0xff000000 | bi | (gi << 8) | (ri << 16);
-			_palette[c] = col;
-		}
+		ReadPalette(pPal);
 
 		delete[] pPal;
 	}

@@ -96,17 +96,7 @@ void CUAKMCrimeLinkModule::Initialize()
 	BinaryData bdPal = LoadEntry(L"SPECIAL.AP", 3);
 	if (bdPal.Data != NULL)
 	{
-		for (int c = 0; c < 256; c++)
-		{
-			double r = bdPal.Data[c * 3 + 0];
-			double g = bdPal.Data[c * 3 + 1];
-			double b = bdPal.Data[c * 3 + 2];
-			int ri = (byte)((r * 255.0) / 63.0);
-			int gi = (byte)((g * 255.0) / 63.0);
-			int bi = (byte)((b * 255.0) / 63.0);
-			int col = 0xff000000 | bi | (gi << 8) | (ri << 16);
-			_palette[c] = col;
-		}
+		ReadPalette(bdPal.Data);
 
 		delete[] bdPal.Data;
 	}
@@ -239,8 +229,6 @@ void CUAKMCrimeLinkModule::Render()
 
 	if (_vertexBuffer != NULL)
 	{
-		dx.Clear(0.0f, 0.0f, 0.0f);
-
 		dx.DisableZBuffer();
 
 		UINT stride = sizeof(TEXTURED_VERTEX);
@@ -261,8 +249,6 @@ void CUAKMCrimeLinkModule::Render()
 		}
 
 		dx.EnableZBuffer();
-
-		dx.Present(1, 0);
 	}
 }
 
@@ -417,8 +403,7 @@ void CUAKMCrimeLinkModule::Click(int entry, int category)
 		else if (test == 0x10)
 		{
 			// Quit
-			CModuleController::Pop(this);
-			return;
+			return CModuleController::Pop(this);
 		}
 		else if (test == 0x51)
 		{

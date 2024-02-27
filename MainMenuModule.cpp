@@ -99,7 +99,7 @@ void CMainMenuModule::ConfigCancel(LPVOID data)
 	_pScreen->PopModal();
 	// Revert config changes
 	cfg = *pConfig;
-	
+
 	pMIDIVolumeSlider->CalculateSliderPosition();
 	pMIDIVolumeSlider->UpdateValueText();
 	pVolumeSlider->CalculateSliderPosition();
@@ -126,6 +126,7 @@ void CMainMenuModule::ConfigAccept(LPVOID data)
 	BOOL change_fs = (pConfig->FullScreen != cfg.FullScreen);
 	BOOL changeMIDIDevice = (pConfig->PlayMIDI && pConfig->MIDIDeviceId != cfg.MIDIDeviceId);
 	BOOL changeFilter = (pConfig->AnisotropicFilter != cfg.AnisotropicFilter);
+	BOOL changeFontSize = (pConfig->FontScale != cfg.FontScale);
 
 	*pConfig = cfg;
 	pConfig->Save();
@@ -135,7 +136,7 @@ void CMainMenuModule::ConfigAccept(LPVOID data)
 		dx.SetFullScreen(cfg.FullScreen);
 	}
 
-	if (change_size)
+	if (change_size || changeFontSize)
 	{
 		dx.Resize(cfg.Width, cfg.Height);
 
@@ -165,7 +166,7 @@ void CMainMenuModule::ConfigAccept(LPVOID data)
 
 void CMainMenuModule::ConfigPreviousResolution(LPVOID data)
 {
-	if (cfg.ScreenMode > pConfig->MinAcceptedMode&& pConfig->pAdapter != NULL)
+	if (cfg.ScreenMode > pConfig->MinAcceptedMode && pConfig->pAdapter != NULL)
 	{
 		cfg.ScreenMode--;
 		cfg.Width = pConfig->pAdapter->_displayModeList[cfg.ScreenMode].Width;
@@ -233,15 +234,6 @@ void CMainMenuModule::Resume(LPVOID data)
 	CModuleController::SendToBack(MainMenuModule);
 }
 
-std::string IntToString(int value, int size)
-{
-	char buffer[10];
-	char format[20];
-	sprintf_s(format, 20, "%%0%ii", size);
-	sprintf_s(buffer, 10, format, value);
-	return buffer;
-}
-
 bool CompareSaveGames(const SaveGameInfo& first, const SaveGameInfo& second)
 {
 	unsigned int i = 0;
@@ -262,67 +254,17 @@ void CMainMenuModule::Load(LPVOID data)
 		((CMainMenuModule*)MainMenuModule)->SetupLoadFrame();
 	}
 
-	// Get list of current save games
-	_savedGames.clear();
-	WIN32_FIND_DATA fd;
-	HANDLE hFF = FindFirstFile(L"GAMES\\*.*", &fd);
-	BYTE buffer[0xd1];
-	if (hFF != INVALID_HANDLE_VALUE)
-	{
-		do
-		{
-			if (fd.nFileSizeLow > 0)
-			{
-				std::wstring name = std::wstring(fd.cFileName);
-				if (name != L"SAVEGAME.000")
-				{
-					// Real file, load header and extract info
-					CFile file;
-					std::wstring fileName = L"GAMES\\" + name;
-					if (file.Open((LPWSTR)fileName.c_str()))
-					{
-						if (file.Read(buffer, 0xd0) == 0xd0)
-						{
-							SaveGameInfo info;
-							info.FileName = fileName;
-							info.Player = std::string((const char*)(buffer + UAKM_SAVE_PLAYER), UAKM_SAVE_LOCATION - UAKM_SAVE_PLAYER);
-							info.Location = std::string((const char*)(buffer + UAKM_SAVE_LOCATION), UAKM_SAVE_GAME_DAY - UAKM_SAVE_LOCATION);
-							info.DayInGame = std::string("Day ") + std::to_string(buffer[UAKM_SAVE_GAME_DAY]);
-							info.DateTime = IntToString(buffer[UAKM_SAVE_YEAR] | (buffer[UAKM_SAVE_YEAR + 1] << 8), 4) + "-" + IntToString(buffer[UAKM_SAVE_MONTH], 2) + +"-" + IntToString(buffer[UAKM_SAVE_DAY], 2) + " " + IntToString(buffer[UAKM_SAVE_HOUR], 2) + ":" + IntToString(buffer[UAKM_SAVE_MINUTE], 2) + ":" + IntToString(buffer[UAKM_SAVE_SECOND], 2);
-							info.Comment = std::string((const char*)(buffer + UAKM_SAVE_COMMENT), UAKM_SAVE_PADDING1 - UAKM_SAVE_COMMENT);
-
-							_savedGames.push_back(info);
-						}
-
-						file.Close();
-					}
-				}
-			}
-
-		} while (FindNextFile(hFF, &fd));
-
-		FindClose(hFF);
-	}
-
-	// Sort list (by last written or by save game date?)
-	std::sort(_savedGames.begin(), _savedGames.end());
-
-	LoadSetup();
-
-	_pScreen->ShowModal(_pLoad);
+	((CMainMenuModule*)MainMenuModule)->SetupLoad();
 }
 
 void CMainMenuModule::Save(LPVOID data)
 {
-	// TODO: Ask for file name
-	//CGameController::SaveGame(L"games\\savegame.999");
-
 	if (_pSave == NULL)
 	{
 		((CMainMenuModule*)MainMenuModule)->SetupSaveFrame();
 	}
 
-	SaveSetup();
+	((CMainMenuModule*)MainMenuModule)->SetupSave();
 
 	_pScreen->ShowModal(_pSave);
 }
@@ -349,8 +291,6 @@ void CMainMenuModule::Quit(LPVOID data)
 
 void CMainMenuModule::Render()
 {
-	dx.Clear(0.0f, 0.0f, 0.0f);
-
 	CDXFont::SelectBlackFont();
 	_pScreen->Render();
 
@@ -381,8 +321,6 @@ void CMainMenuModule::Render()
 	// Render cursor
 	CModuleController::Cursors[0].SetPosition(_cursorPosX, _cursorPosY);
 	CModuleController::Cursors[0].Render();
-
-	dx.Present(1, 0);
 }
 
 void CMainMenuModule::Resize(int width, int height)
@@ -443,6 +381,7 @@ void CMainMenuModule::LoadGame(SaveGameInfo info)
 	SetCursorPos(pt.x, pt.y);
 	CAmbientAudio::StopAll();
 	CAmbientAudio::Clear();
+	videoMode = VideoMode::FullScreen;
 	CGameController::LoadGame((LPWSTR)info.FileName.c_str());
 	EnableSaveAndResume(TRUE);
 }
@@ -541,6 +480,7 @@ void CMainMenuModule::SaveIncrementSave(LPVOID data)
 	}
 }
 
+/*
 void CMainMenuModule::SaveSetup()
 {
 	SaveMode = SaveMode::Extension;
@@ -594,6 +534,7 @@ void CMainMenuModule::SaveSetup()
 	info.DateTime = IntToString(st.wYear, 4) + "-" + IntToString(st.wMonth, 2) + +"-" + IntToString(st.wDay, 2) + " " + IntToString(st.wHour, 2) + ":" + IntToString(st.wMinute, 2) + ":" + IntToString(st.wSecond, 2);
 	_saveControl->SetInfo(info);
 }
+*/
 
 void CMainMenuModule::Clear()
 {
@@ -1009,7 +950,7 @@ void CMainMenuModule::SetupConfigFrame()
 
 	_pConfig->AddChild(_pConfigTab, 8.0f, 8.0f);
 
-	float fontHeight = (TexFont.Height() * pConfig->FontScale);
+	float fontHeight = TexFont.Height() * pConfig->FontScale;
 	float buttonHeight = fontHeight + 24.0f;
 	float checkBoxWidth = 250.0f + 72 * pConfig->FontScale;
 
@@ -1018,7 +959,7 @@ void CMainMenuModule::SetupConfigFrame()
 	_pConfigVideo = new CDXTabItem(_pConfigTab, "Video", tw, h - 80.0f);
 	_pConfigTab->AddChild(_pConfigVideo, 0.0f, 0.0f);
 
-	float y = 46.0f;
+	float y = 46.0f + fontHeight;
 
 	// Resolution and full screen
 	CDXImageButton* pLBtn = new CDXImageButton(0, ConfigPreviousResolution);
@@ -1047,15 +988,15 @@ void CMainMenuModule::SetupConfigFrame()
 	_pConfigVideo->AddChild(new CDXCheckBox("Anisotropic filter", &cfg.AnisotropicFilter, checkBoxWidth), 22.0f, y);
 	y += buttonHeight;
 
-	_pConfigVideo->AddChild(pFontScaleSlider = new CDXSlider("Font scale", 1.0f, 3.0f, 0.25f, &cfg.FontScale, 2), 22.0f, y);
+	_pConfigVideo->AddChild(pFontScaleSlider = new CDXSlider("Font scale", 1.0f, 3.0f, 0.25f, &cfg.FontScale, 2, checkBoxWidth - 10), 22.0f, y);
 
 	// Audio config
 	_pConfigAudio = new CDXTabItem(_pConfigTab, "Audio", tw, h - 80.0f);
 	_pConfigTab->AddChild(_pConfigAudio, 0.0f, 0.0f);
 
-	y = 46.0f;
+	y = 46.0f + fontHeight;
 
-	_pConfigAudio->AddChild(pVolumeSlider = new CDXSlider("Volume", 0.0f, 100.0f, 1.0f, &cfg.Volume, 0), 22.0f, y);
+	_pConfigAudio->AddChild(pVolumeSlider = new CDXSlider("Volume", 0.0f, 100.0f, 1.0f, &cfg.Volume, 0, checkBoxWidth - 10), 22.0f, y);
 	y += buttonHeight * 1.5f;
 
 	// MIDI
@@ -1076,16 +1017,16 @@ void CMainMenuModule::SetupConfigFrame()
 	_pConfigAudio->AddChild(pMIDIDevice, checkBoxWidth - 60.0f, y);
 	y += buttonHeight;
 
-	_pConfigAudio->AddChild(pMIDIVolumeSlider = new CDXSlider("MIDI volume", 0.0f, 100.0f, 1.0f, &cfg.MIDIVolume, 0), 22.0f, y);
+	_pConfigAudio->AddChild(pMIDIVolumeSlider = new CDXSlider("MIDI volume", 0.0f, 100.0f, 1.0f, &cfg.MIDIVolume, 0, checkBoxWidth - 10), 22.0f, y);
 
 	// Control config
 	_pConfigControl = new CDXTabItem(_pConfigTab, "Controls", tw, h - 80.0f);
 	_pConfigTab->AddChild(_pConfigControl, 0.0f, 0.0f);
 
-	y = 66.0f;
+	y = 77.0f + fontHeight;
 
 	_pConfigControlTab = new CDXTabControl(w - 80.0f, h - 80.0f);
-	_pConfigControl->AddChild(_pConfigControlTab, 0.0f, 20.0f);
+	_pConfigControl->AddChild(_pConfigControlTab, 0.0f, 7 + fontHeight);
 
 	float ctw = (w - 80.0f) / 2 - 2.0f;
 	_pConfigControlKeyMouse = new CDXTabItem(_pConfigControlTab, "Mouse & Keyboard", ctw, h - 80.0f);
@@ -1101,47 +1042,47 @@ void CMainMenuModule::SetupConfigFrame()
 
 	// TODO: Change ConfigControlsCancel to take no params?
 	_pCancelConfigControlBtn = new CDXButton("Cancel", 64.0f * pConfig->FontScale, 32.0f * ::pConfig->FontScale, [](LPVOID) {
-		ConfigControlsCancel(InputAction::Cursor); 
-		});
+		ConfigControlsCancel(InputAction::Cursor);
+	});
 	_pCancelConfigControlBtn->SetVisible(FALSE);
 	_pConfigControl->AddChild(_pCancelConfigControlBtn, 24.0f, h - 72.0f - 54.0f * ::pConfig->FontScale);
 
+	float x = 22.0f;
+
 	_mouseKeyControls.clear();
-	_mouseKeyControls[InputAction::Cursor] = new CDXControlButton("Cursor", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Cursor);
-	_mouseKeyControls[InputAction::Action] = new CDXControlButton("Action", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Action);
-	_mouseKeyControls[InputAction::Cycle] = new CDXControlButton("Cycle", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Cycle);
-	_mouseKeyControls[InputAction::Back] = new CDXControlButton("Back", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Back);
-	_mouseKeyControls[InputAction::Travel] = new CDXControlButton("Travel", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Travel);
-	_mouseKeyControls[InputAction::Inventory] = new CDXControlButton("Inventory", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Inventory);
-	_mouseKeyControls[InputAction::Run] = new CDXControlButton("Run", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Run);
-	_mouseKeyControls[InputAction::Next] = new CDXControlButton("Next", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Next);
-	_mouseKeyControls[InputAction::Prev] = new CDXControlButton("Previous", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Prev);
-	_mouseKeyControls[InputAction::MoveForward] = new CDXControlButton("Move forward", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveForward);
-	_mouseKeyControls[InputAction::MoveBack] = new CDXControlButton("Move back", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveBack);
-	_mouseKeyControls[InputAction::MoveLeft] = new CDXControlButton("Move left", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveLeft);
-	_mouseKeyControls[InputAction::MoveRight] = new CDXControlButton("Move right", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveRight);
-	_mouseKeyControls[InputAction::MoveUp] = new CDXControlButton("Move up", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveUp);
-	_mouseKeyControls[InputAction::MoveDown] = new CDXControlButton("Move down", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveDown);
-	_mouseKeyControls[InputAction::Hints] = new CDXControlButton("Hints", &_controlMapping, FALSE, 0.0f, 0.0f, ConfigureControl, InputAction::Hints);
+	_mouseKeyControls[InputAction::Cursor] = new CDXControlButton("Cursor", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Cursor);
+	_mouseKeyControls[InputAction::Action] = new CDXControlButton("Action", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Action);
+	_mouseKeyControls[InputAction::Cycle] = new CDXControlButton("Cycle", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Cycle);
+	_mouseKeyControls[InputAction::Back] = new CDXControlButton("Back", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Back);
+	_mouseKeyControls[InputAction::Travel] = new CDXControlButton("Travel", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Travel);
+	_mouseKeyControls[InputAction::Inventory] = new CDXControlButton("Inventory", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Inventory);
+	_mouseKeyControls[InputAction::Run] = new CDXControlButton("Run", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Run);
+	_mouseKeyControls[InputAction::Next] = new CDXControlButton("Next", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Next);
+	_mouseKeyControls[InputAction::Prev] = new CDXControlButton("Previous", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Prev);
+	_mouseKeyControls[InputAction::MoveForward] = new CDXControlButton("Move forward", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::MoveForward);
+	_mouseKeyControls[InputAction::MoveBack] = new CDXControlButton("Move back", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::MoveBack);
+	_mouseKeyControls[InputAction::MoveLeft] = new CDXControlButton("Move left", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::MoveLeft);
+	_mouseKeyControls[InputAction::MoveRight] = new CDXControlButton("Move right", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::MoveRight);
+	_mouseKeyControls[InputAction::MoveUp] = new CDXControlButton("Move up", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::MoveUp);
+	_mouseKeyControls[InputAction::MoveDown] = new CDXControlButton("Move down", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::MoveDown);
+	_mouseKeyControls[InputAction::Hints] = new CDXControlButton("Hints", &_controlMapping, FALSE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Hints);
 
 	_mouseKeyControls[InputAction::Cursor]->SetEnabled(FALSE);	// Should not be possible to reconfigure this one
 
 	_joystickControls.clear();
-	_joystickControls[InputAction::Cursor] = new CDXControlButton("Cursor", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Cursor);
-	_joystickControls[InputAction::Action] = new CDXControlButton("Action", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Action);
-	_joystickControls[InputAction::Cycle] = new CDXControlButton("Cycle", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Cycle);
-	_joystickControls[InputAction::Back] = new CDXControlButton("Back", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Back);
-	_joystickControls[InputAction::Travel] = new CDXControlButton("Travel", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Travel);
-	_joystickControls[InputAction::Inventory] = new CDXControlButton("Inventory", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Inventory);
-	_joystickControls[InputAction::Run] = new CDXControlButton("Run", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Run);
-	_joystickControls[InputAction::Next] = new CDXControlButton("Next", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Next);
-	_joystickControls[InputAction::Prev] = new CDXControlButton("Previous", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Prev);
-	_joystickControls[InputAction::MoveForward] = new CDXControlButton("Movement", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveForward);
-	_joystickControls[InputAction::MoveUp] = new CDXControlButton("Move up", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveUp);
-	_joystickControls[InputAction::MoveDown] = new CDXControlButton("Move down", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::MoveDown);
-	_joystickControls[InputAction::Hints] = new CDXControlButton("Hints", &_controlMapping, TRUE, 0.0f, 0.0f, ConfigureControl, InputAction::Hints);
-
-	float x = 22.0f;
+	_joystickControls[InputAction::Cursor] = new CDXControlButton("Cursor", &_controlMapping, TRUE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Cursor);
+	_joystickControls[InputAction::Action] = new CDXControlButton("Action", &_controlMapping, TRUE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Action);
+	_joystickControls[InputAction::Cycle] = new CDXControlButton("Cycle", &_controlMapping, TRUE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Cycle);
+	_joystickControls[InputAction::Back] = new CDXControlButton("Back", &_controlMapping, TRUE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Back);
+	_joystickControls[InputAction::Travel] = new CDXControlButton("Travel", &_controlMapping, TRUE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Travel);
+	_joystickControls[InputAction::Inventory] = new CDXControlButton("Inventory", &_controlMapping, TRUE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Inventory);
+	_joystickControls[InputAction::Run] = new CDXControlButton("Run", &_controlMapping, TRUE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Run);
+	_joystickControls[InputAction::Next] = new CDXControlButton("Next", &_controlMapping, TRUE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Next);
+	_joystickControls[InputAction::Prev] = new CDXControlButton("Previous", &_controlMapping, TRUE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Prev);
+	_joystickControls[InputAction::MoveForward] = new CDXControlButton("Movement", &_controlMapping, TRUE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::MoveForward);
+	_joystickControls[InputAction::MoveUp] = new CDXControlButton("Move up", &_controlMapping, TRUE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::MoveUp);
+	_joystickControls[InputAction::MoveDown] = new CDXControlButton("Move down", &_controlMapping, TRUE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::MoveDown);
+	_joystickControls[InputAction::Hints] = new CDXControlButton("Hints", &_controlMapping, TRUE, 0.0f, 0.0f, checkBoxWidth - x, ConfigureControl, InputAction::Hints);
 
 	_pConfigControlKeyMouse->AddChild(_mouseKeyControls[InputAction::Cursor], x, y);
 	_pConfigControlJoystick->AddChild(_joystickControls[InputAction::Cursor], x, y);
@@ -1188,7 +1129,7 @@ void CMainMenuModule::SetupConfigFrame()
 	y += fontHeight;
 	_pConfigControlKeyMouse->AddChild(_mouseKeyControls[InputAction::Hints], x, y);
 	y += fontHeight * 2.0f;
-	_pConfigControlKeyMouse->AddChild(new CDXSlider("Mouse sensitivity", 0.25f, 2.0f, 0.05f, &cfg.MouselookScaling, 2), x, y);
+	_pConfigControlKeyMouse->AddChild(new CDXSlider("Mouse sensitivity", 0.25f, 2.0f, 0.05f, &cfg.MouselookScaling, 2, checkBoxWidth - 10), x, y);
 	y += fontHeight * 2.0f;
 
 	/*

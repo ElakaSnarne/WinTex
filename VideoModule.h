@@ -7,7 +7,7 @@
 #include "DXListBox.h"
 #include "ScriptState.h"
 
-enum VideoType
+enum class VideoType
 {
 	Single = 1,
 	Scripted = 2,
@@ -47,4 +47,6 @@ protected:
 	virtual void Cursor(float x, float y, BOOL relative);
 	virtual void BeginAction();
 	virtual void Back();
+
+	int _askAboutBase;
 };

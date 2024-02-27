@@ -21,14 +21,14 @@ CDXContainer::~CDXContainer()
 
 CDXBitmap* CDXContainer::AddBitmap(PWCHAR fileName, Alignment alignment)
 {
-	CDXBitmap* pBmp = new CDXBitmap(fileName);
+	CDXBitmap* pBmp = new CDXBitmap(fileName, alignment);
 	AddChild(pBmp, 0.0f, 0.0f);
 	return pBmp;
 }
 
 CDXBitmap* CDXContainer::AddBitmap(PBYTE pImg, DWORD size, Alignment alignment)
 {
-	CDXBitmap* pBmp = new CDXBitmap(pImg, size);
+	CDXBitmap* pBmp = new CDXBitmap(pImg, size, alignment);
 	AddChild(pBmp, 0.0f, 0.0f);
 	return pBmp;
 }
@@ -171,4 +171,19 @@ BOOL CDXContainer::IsModal()
 CDXControl* CDXContainer::GetModal()
 {
 	return _modalElements.size() > 0 ? _modalElements.front() : NULL;
+}
+
+void CDXContainer::SetColours(int colour1, int colour2, int colour3, int colour4)
+{
+	std::list<CDXControl*>::iterator it = _childElements.begin();
+	while (it != _childElements.end())
+	{
+		(*it++)->SetColours(colour1, colour2, colour3, colour4);
+	}
+
+	it = _modalElements.begin();
+	while (it != _modalElements.end())
+	{
+		(*it++)->SetColours(colour1, colour2, colour3, colour4);
+	}
 }

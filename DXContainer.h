@@ -30,6 +30,24 @@ public:
 	CDXControl* GetModal();
 	void PopModal();
 
+	CDXControl* GetChild(int index)
+	{
+		if (_childElements.size() >= index)
+		{
+			std::list<CDXControl*>::iterator it = _childElements.begin();
+			for (int i = 0; i < index; i++)
+			{
+				it++;
+			}
+
+			return *it;
+		}
+
+		return NULL;
+	}
+
+	virtual void SetColours(int colour1, int colour2, int colour3, int colour4);
+
 protected:
 	std::list<CDXControl*> _childElements;
 	std::list<CDXControl*> _modalElements;

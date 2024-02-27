@@ -3,10 +3,16 @@
 #include "Utilities.h"
 #include "DXScreen.h"
 #include "resource.h"
+#include "GameController.h"
 
 CTexture CDXButton::_texBackground;
 CTexture CDXButton::_texMouseOver;
 CDXSound* CDXButton::_pSound;
+
+int CDXButton::Colour1 = 0;
+int CDXButton::Colour2 = -1;
+int CDXButton::Colour3 = -1;
+int CDXButton::Colour4 = 0;
 
 CDXButton::CDXButton(LPSTR text, float w, float h, void(*onClick)(LPVOID), LPVOID data)
 {
@@ -107,7 +113,8 @@ void CDXButton::Render()
 	dx.Draw(54, 0);
 
 	// Draw text
-	_pText->SetColours((_mouseOver && _enabled) ? 0xffffffff : 0x80ffffff);
+	int mask = (_mouseOver && _enabled) ? 0xffffffff : 0x80ffffff;
+	_pText->SetColours(Colour1 & mask, Colour2 & mask, Colour3 & mask, Colour4 & mask);
 	float fontHeight = TexFont.Height();
 	_pText->Render(_textX + _x, _y + fontHeight * pConfig->FontScale);
 }
@@ -192,4 +199,12 @@ void CDXButton::Click()
 	{
 		_clicked(_data);
 	}
+}
+
+void CDXButton::SetButtonColours(int colour1, int colour2, int colour3, int colour4)
+{
+	Colour1 = colour1;
+	Colour2 = colour2;
+	Colour3 = colour3;
+	Colour4 = colour4;
 }

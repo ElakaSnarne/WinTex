@@ -2,7 +2,6 @@
 
 #include "AnimBase.h"
 #include <Windows.h>
-#include "DXAnimation.h"
 
 class CBIC : public CAnimBase
 {
