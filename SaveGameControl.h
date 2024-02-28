@@ -36,6 +36,10 @@ public:
 
 	void SetPDColours();
 
+	float GetColumn2();
+	float GetColumn4();
+	float GetXLimit();
+
 protected:
 	void(*_clicked)(SaveGameInfo info);
 

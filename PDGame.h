@@ -34,8 +34,8 @@
 #define PD_SAVE_TIMERS_CURRENT				0x19a
 #define PD_SAVE_TIMERS						0x1da
 #define PD_SAVE_PARAMETERS					0x1fa
+#define PD_SAVE_PARAMETERS_DAY_IN_GAME		0x2f4
 //#define PD_SAVE_MAP_FLAG_B					0x2f6 Same as A[252]
-
 #define PD_SAVE_PARAMETERS_GAME_LEVEL		0x394
 
 #define PD_SAVE_STARTUP_POSITION			0x3e4

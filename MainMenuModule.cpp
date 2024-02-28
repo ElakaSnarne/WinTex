@@ -10,6 +10,7 @@
 #include "AmbientAudio.h"
 #include "DXControlButton.h"
 #include "Gamepad.h"
+#include "Items.h"
 
 CConfiguration CMainMenuModule::cfg{};
 
@@ -44,7 +45,6 @@ CMainMenuModule* CMainMenuModule::MainMenuModule = NULL;
 CDXButton* CMainMenuModule::_pConfigCancelBtn = NULL;
 CDXButton* CMainMenuModule::_pConfigAcceptBtn = NULL;
 
-CDXListBox CMainMenuModule::_loadListBox;
 std::vector<SaveGameInfo> CMainMenuModule::_savedGames;
 std::vector<CSaveGameControl*> CMainMenuModule::_saveGameControls;
 int CMainMenuModule::_loadTopIndex = 0;
@@ -140,9 +140,29 @@ void CMainMenuModule::ConfigAccept(LPVOID data)
 	{
 		dx.Resize(cfg.Width, cfg.Height);
 
+		// Delete load & save screens
+		if (_pLoad != NULL)
+		{
+			_pScreen->RemoveChild(_pLoad);
+			delete _pLoad;
+			_pLoad = NULL;
+		}
+
+		if (_pSave != NULL)
+		{
+			_pScreen->RemoveChild(_pSave);
+			delete _pSave;
+			_pSave = NULL;
+		}
+
 		CModuleController::Resize(cfg.Width, cfg.Height);
 
 		CConstantBuffers::Setup2D(dx);
+
+		_saveCursor.SetText(L"_");
+
+		// Inventory descriptions need to be resized
+		CItems::ResetText();
 	}
 
 	if (changeFilter)
@@ -306,7 +326,7 @@ void CMainMenuModule::Render()
 			{
 				buffer[i] = info.FileName.at(i) & 0xFF;
 			}
-			float x = _saveControl->GetX() + 21 * pConfig->FontScale + ceil(TexFont.PixelWidth(buffer));
+			float x = _saveControl->GetColumn2() + ceil(TexFont.PixelWidth(buffer + 6));// Skip GAMES folder
 			float y = _saveControl->GetY() + 8 * pConfig->FontScale;
 			_saveCursor.Render(x, y);
 		}
@@ -480,62 +500,6 @@ void CMainMenuModule::SaveIncrementSave(LPVOID data)
 	}
 }
 
-/*
-void CMainMenuModule::SaveSetup()
-{
-	SaveMode = SaveMode::Extension;
-	SaveTypedChars = 3;
-
-	memset(_commentBuffer, 0, 256);
-
-	SaveGameInfo info;
-	info.FileName = L"GAMES\\";
-	auto nameLength = CurrentGameInfo.Player.length();
-	while (nameLength > 0 && CurrentGameInfo.Player.at(nameLength - 1) == ' ')
-	{
-		nameLength--;
-	}
-
-	for (int i = 0; i < 6; i++)
-	{
-		info.FileName += (WCHAR)((i < nameLength) ? CurrentGameInfo.Player.at(i) : '_');
-	}
-	info.FileName += L"00.";
-	// Append 3 digit number (from current savegame)
-	auto lastDot = CurrentGameInfo.FileName.find_last_of('.');
-	int fileIndex = lastDot > 0 ? min(999, std::stoi(CurrentGameInfo.FileName.c_str() + lastDot + 1)) : 1;
-	if (fileIndex < 100)
-	{
-		info.FileName += L"0";
-	}
-	if (fileIndex < 10)
-	{
-		info.FileName += L"0";
-	}
-	info.FileName += std::to_wstring(fileIndex);
-
-	info.Player = CurrentGameInfo.Player;
-	std::wstring sit;
-	if (CGameController::GetData(UAKM_SAVE_DMAP_FLAG) == 0)
-	{
-		// Location
-		sit = CGameController::GetSituationDescriptionL(CGameController::GetData(UAKM_SAVE_MAP_ENTRY));
-	}
-	else
-	{
-		// Dialogue
-		sit = CGameController::GetSituationDescriptionD(CGameController::GetData(UAKM_SAVE_DMAP_ENTRY));
-	}
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
-	info.Location = conv.to_bytes(sit);
-	info.DayInGame = "Day " + std::to_string(max(1, min(7, CGameController::GetData(UAKM_SAVE_GAME_DAY))));
-	SYSTEMTIME st;
-	GetLocalTime(&st);
-	info.DateTime = IntToString(st.wYear, 4) + "-" + IntToString(st.wMonth, 2) + +"-" + IntToString(st.wDay, 2) + " " + IntToString(st.wHour, 2) + ":" + IntToString(st.wMinute, 2) + ":" + IntToString(st.wSecond, 2);
-	_saveControl->SetInfo(info);
-}
-*/
-
 void CMainMenuModule::Clear()
 {
 	if (_pScreen != NULL)
@@ -704,20 +668,18 @@ void CMainMenuModule::BeginAction()
 				{
 					// Check if comment area has been clicked
 
-					float x = _cursorPosX - _saveControl->GetX();
 					float y = _cursorPosY - _saveControl->GetY();
 					if (y >= 68 * pConfig->FontScale && y <= 83 * pConfig->FontScale && SaveTypedChars == 3)
 					{
 						SaveMode = SaveMode::Comment;
 						SaveGameInfo info = _saveControl->GetInfo();
 						SaveTypedChars = static_cast<int>(info.Comment.length());
-						_caretPos = static_cast<int>(_saveControl->GetX() + 68 * pConfig->FontScale + ceil(TexFont.PixelWidth(_commentBuffer)));
+						_caretPos = static_cast<int>(_saveControl->GetColumn2() + ceil(TexFont.PixelWidth(_commentBuffer)));
 					}
 				}
 				else if (SaveMode == SaveMode::Comment)
 				{
 					// Check if extension area has been clicked
-					float x = _cursorPosX - _saveControl->GetX();
 					float y = _cursorPosY - _saveControl->GetY();
 					if (y >= 8 * pConfig->FontScale && y <= 22 * pConfig->FontScale && x < 350 * pConfig->FontScale)
 					{
@@ -861,7 +823,7 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 				SaveMode = SaveMode::Comment;
 				SaveGameInfo info = _saveControl->GetInfo();
 				SaveTypedChars = static_cast<int>(info.Comment.length());
-				_caretPos = static_cast<int>(_saveControl->GetX() + 68 * pConfig->FontScale);
+				_caretPos = static_cast<int>(_saveControl->GetColumn2());
 			}
 		}
 		else if (SaveMode == SaveMode::Comment)
@@ -873,7 +835,7 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 				{
 					_commentBuffer[--SaveTypedChars] = 0;
 					_saveControl->SetComment(_commentBuffer);
-					_caretPos = static_cast<int>(_saveControl->GetX() + 68 * pConfig->FontScale + ceil(TexFont.PixelWidth(_commentBuffer)));
+					_caretPos = static_cast<int>(_saveControl->GetColumn2() + ceil(TexFont.PixelWidth(_commentBuffer)));
 				}
 			}
 			else if (key == VK_RETURN)
@@ -891,12 +853,12 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 					if (ascii >= 0x20 && ascii <= 0x7f)
 					{
 						// Check if comment is too long to be display at current resolution
-						float x = _saveControl->GetX() + 68 + ceil(TexFont.PixelWidth(_commentBuffer));
-						if (x < (dx.GetWidth() - 48))
+						float x = _saveControl->GetColumn2() + ceil(TexFont.PixelWidth(_commentBuffer));
+						if (x < _saveControl->GetWidth() + 32)
 						{
 							_commentBuffer[SaveTypedChars++] = (char)ascii;
 							_saveControl->SetComment(_commentBuffer);
-							_caretPos = static_cast<int>(_saveControl->GetX() + 68 * pConfig->FontScale + ceil(TexFont.PixelWidth(_commentBuffer)));
+							_caretPos = static_cast<int>(_saveControl->GetColumn2() + ceil(TexFont.PixelWidth(_commentBuffer)));
 						}
 					}
 				}

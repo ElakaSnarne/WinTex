@@ -32,6 +32,10 @@ public:
 	void SetText(char const* text, Rect rect, Alignment alignment = Alignment::Left);
 	void SetText(LPCWSTR text, Alignment alignment = Alignment::Left);
 	void SetText(LPCWSTR text, Rect rect, Alignment alignment = Alignment::Left);
+	void ResetText();
+
+	void SetTextUnmodified(char const* text);
+	void SetTextUnmodified(WCHAR const* text);
 
 	float PixelWidth(char* text);
 	int Lines() { return _lines; }

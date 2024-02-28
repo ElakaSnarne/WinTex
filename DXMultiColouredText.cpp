@@ -62,7 +62,6 @@ void CDXMultiColouredText::SetText(LPCWSTR text, Rect rect)
 	LPCWSTR scan = text;
 	LPCWSTR start = scan;
 	float pixels = 0.0f;
-	float spaceWidth = TexFont.SpaceWidth();
 	_printableCharacters = 0;
 
 	float* pWidths = TexFont.Widths();
@@ -143,10 +142,10 @@ void CDXMultiColouredText::SetText(LPCWSTR text, Rect rect)
 					wordsInLine = 1;
 				}
 
-				while (pWL != NULL && (pixelsLeft - (pWL->Pixels() + spaceWidth)) > -0.01)	// Enough room for the next word?
+				while (pWL != NULL && (pixelsLeft - (pWL->Pixels() + pWidths[0])) > -0.01)	// Enough room for the next word?
 				{
 					wordsInLine++;
-					pixelsLeft -= pWL->Pixels() + spaceWidth;
+					pixelsLeft -= pWL->Pixels() + pWidths[0];
 					pWL = (CMCWordList*)pWL->Next();
 				}
 
@@ -199,13 +198,13 @@ void CDXMultiColouredText::SetText(LPCWSTR text, Rect rect)
 						}
 					}
 
-					sx += spaceWidth;
+					sx += pWidths[0];
 					print = (CMCWordList*)print->Next();
 				}
 
-				if (_width < (sx - spaceWidth - rect.Left))
+				if (_width < (sx - pWidths[0] - rect.Left))
 				{
-					_width = sx - spaceWidth - rect.Left;
+					_width = sx - pWidths[0] - rect.Left;
 				}
 
 				sy -= TexFont.Height() * pConfig->FontScale;

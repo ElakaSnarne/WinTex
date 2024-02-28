@@ -33,13 +33,11 @@ void CDXFont::Init(PBYTE pFont, DWORD size)
 			dx.Map(pTempTexture, 0, D3D11_MAP::D3D11_MAP_READ, 0, &mappedResource);
 
 			// Select font size based on screen
-			float spacing = 1.0f;
 
 			int w = dx.GetWidth();
 			int scanHeight = desc.Height / 4;	// TexFont has 4 layers
 			_y1 = 0.75f;
 			_y2 = 1.0f;
-			spacing = 4.0f;
 
 			int offset = 0;
 			int tallest = 0;
@@ -85,7 +83,7 @@ void CDXFont::Init(PBYTE pFont, DWORD size)
 
 				if (cw < 0) cw = 0;
 
-				_widths[c] = (c > 0) ? (float)(cw + 1) : spacing;
+				_widths[c] = (float)(cw + 1);
 
 				if ((lp - fp) > tallest)
 				{
@@ -94,6 +92,8 @@ void CDXFont::Init(PBYTE pFont, DWORD size)
 
 				offset += charwidth * 4;
 			}
+
+			_widths[0] = 5;	// Hardcoding space to be 5 pixels
 
 			_height = tallest + 1.0f;
 			_y1 = 0.75;
@@ -115,22 +115,13 @@ float CDXFont::PixelWidth(char* text)
 {
 	float pixels = 0.0f;
 
-	float spaceWidth = SpaceWidth();
-
 	while (*text)
 	{
 		char ch = *(text++);
 		if (ch >= 0x20 && ch <= 0x7f)
 		{
 			ch -= 0x20;
-			if (ch == 0)
-			{
-				pixels += spaceWidth;
-			}
-			else
-			{
-				pixels += _widths[ch] * pConfig->FontScale;
-			}
+			pixels += _widths[ch] * pConfig->FontScale;
 		}
 	}
 
@@ -139,7 +130,7 @@ float CDXFont::PixelWidth(char* text)
 
 float CDXFont::PixelWidth(char ch)
 {
-	return (ch == 0x20) ? SpaceWidth() : (ch >= 0x21 && ch <= 0x7f) ? _widths[ch] * pConfig->FontScale : 0.0f;
+	return _widths[ch] * pConfig->FontScale;
 }
 
 Size CDXFont::GetSize(char* text, float maxw)
@@ -152,7 +143,6 @@ Size CDXFont::GetSize(char* text, float maxw)
 	float maxwordwidth = 0.0f;
 	CDXText::CWordList wl;
 	int lines = 1;
-	float spaceWidth = SpaceWidth();
 
 	while (TRUE)
 	{
@@ -193,6 +183,7 @@ Size CDXFont::GetSize(char* text, float maxw)
 
 	lines = 0;
 	float maxLineWidth = 0.0f;
+	float spaceWidth = _widths[0] * pConfig->FontScale;
 	CDXText::CWordList* pWL = wl.Next();
 	while (pWL != NULL)
 	{
@@ -241,11 +232,10 @@ std::list<PointUV> CDXFont::Create(LPCWSTR text, BOOL texFont)
 	float y = 0.0f;
 	float x = 0.0f;
 	float fcw = 1.0f / (texFont ? 224.0f : 96.0f);
-	float spaceWidth = TexFont.SpaceWidth();
-	float* pWidths = TexFont.Widths();
 	float v1 = TexFont.Y1();
 	float v2 = TexFont.Y2();
 	float fh = TexFont.Height() * pConfig->FontScale;
+	float spaceWidth = _widths[0] * pConfig->FontScale;
 
 	while (*text)
 	{
@@ -258,7 +248,7 @@ std::list<PointUV> CDXFont::Create(LPCWSTR text, BOOL texFont)
 		{
 			c -= 0x20;
 
-			float fx = pWidths[c];
+			float fx = _widths[c];
 			float scaledFx = fx * pConfig->FontScale;
 
 			float u1 = fcw * (float)c;
@@ -416,11 +406,6 @@ void CDXFont::SelectFontColour(int colour1, int colour2, int colour3, int colour
 	XMVECTOR xcolour3 = { ((float)red3) / 255.0f, ((float)green3) / 255.0f, ((float)blue3) / 255.0f, ((float)alpha3) / 255.0f };
 	XMVECTOR xcolour4 = { ((float)red4) / 255.0f, ((float)green4) / 255.0f, ((float)blue4) / 255.0f, ((float)alpha4) / 255.0f };
 	CConstantBuffers::SetTexFont(dx, &xcolour1, &xcolour2, &xcolour3, &xcolour4);
-}
-
-float CDXFont::SpaceWidth()
-{
-	return (_height * 0.3f) * pConfig->FontScale;
 }
 
 float CDXFont::Height()

@@ -144,15 +144,16 @@ void CDXText::SetText(char const* text, Rect rect, Alignment alignment)
 	}
 
 	_lines = 0;
+	_width = 0;
 
 	CWordList wl;
 	auto scan = text;
 	auto start = scan;
 	float pixels = 0.0f;
-	float spaceWidth = TexFont.SpaceWidth();
 	_printableCharacters = 0;
 
 	float* pWidths = TexFont.Widths();
+	float spaceWidth = pWidths[0] * pConfig->FontScale;
 
 	while (TRUE)
 	{
@@ -274,7 +275,7 @@ void CDXText::SetText(char const* text, Rect rect, Alignment alignment)
 
 					while (print != NULL && wordsInLine-- > 0)
 					{
-						sx = floor(sx);
+						//sx = floor(sx);
 
 						for (int c = 0; c < print->Chars(); c++)
 						{
@@ -286,7 +287,7 @@ void CDXText::SetText(char const* text, Rect rect, Alignment alignment)
 								float fx = pWidths[ch];
 
 								float x1 = fcw * (float)ch;
-								float x2 = x1 + fx / 3584.0f;// 5760.0f;
+								float x2 = x1 + fx / 3584.0f;
 
 								fx *= pConfig->FontScale;
 
@@ -357,15 +358,16 @@ void CDXText::SetText(LPCWSTR text, Rect rect, Alignment alignment)
 	}
 
 	_lines = 0;
+	_width = 0;
 
 	CWordList wl;
 	LPCWSTR scan = text;
 	LPCWSTR start = scan;
 	float pixels = 0.0f;
-	float spaceWidth = TexFont.SpaceWidth();
 	_printableCharacters = 0;
 
 	float* pWidths = TexFont.Widths();
+	float spaceWidth = pWidths[0] * pConfig->FontScale;
 
 	while (TRUE)
 	{
@@ -537,6 +539,178 @@ void CDXText::SetText(LPCWSTR text, Rect rect, Alignment alignment)
 	}
 }
 
+void CDXText::SetTextUnmodified(char const* text)
+{
+	_string = text;
+
+	if (_vertexBuffer != NULL)
+	{
+		_vertexBuffer->Release();
+		_vertexBuffer = NULL;
+	}
+
+	_lines = 0;
+	_width = 0;
+
+	_printableCharacters = strlen(text);
+
+	float* pWidths = TexFont.Widths();
+
+	if (_printableCharacters > 0)
+	{
+		TEXTURED_VERTEX* pVB = new TEXTURED_VERTEX[6 * _printableCharacters];
+		if (pVB != NULL)
+		{
+			float sy = 0.0f;
+			float sx = 0.0f;
+			int cix = 0;
+			float fcw = 1 / 224.0f;
+			float y1 = TexFont.Y1();
+			float y2 = TexFont.Y2();
+			float fh = TexFont.Height() * pConfig->FontScale;
+			auto scan = text;
+			char ch;
+			while ((ch = *scan++))
+			{
+				if (ch >= 0x20 && ch <= 0x7f)
+				{
+					ch -= 0x20;
+					// Create vertices and indexes for this character...
+					float fx = pWidths[ch];
+
+					float x1 = fcw * (float)ch;
+					float x2 = x1 + fx / 3584.0f;
+
+					fx *= pConfig->FontScale;
+
+					// Create 6 vertices and 6 indexes per char
+					float rsx = floor(sx);
+					pVB[cix].position = XMFLOAT3(rsx, sy, -1.5f);
+					pVB[cix++].texture = XMFLOAT2(x1, y1);
+					pVB[cix].position = XMFLOAT3(rsx + fx, sy, -1.5f);
+					pVB[cix++].texture = XMFLOAT2(x2, y1);
+					pVB[cix].position = XMFLOAT3(rsx + fx, sy - fh, -1.5f);
+					pVB[cix++].texture = XMFLOAT2(x2, y2);
+
+					pVB[cix].position = XMFLOAT3(rsx, sy, -1.5f);
+					pVB[cix++].texture = XMFLOAT2(x1, y1);
+					pVB[cix].position = XMFLOAT3(rsx + fx, sy - fh, -1.5f);
+					pVB[cix++].texture = XMFLOAT2(x2, y2);
+					pVB[cix].position = XMFLOAT3(rsx, sy - fh, -1.5f);
+					pVB[cix++].texture = XMFLOAT2(x1, y2);
+
+					sx += fx;
+				}
+			}
+
+			_width = sx;
+
+			D3D11_BUFFER_DESC vbDesc;
+			vbDesc.Usage = D3D11_USAGE_DYNAMIC;
+			vbDesc.ByteWidth = sizeof(TEXTURED_VERTEX) * 6 * _printableCharacters;
+			vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			vbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			vbDesc.MiscFlags = 0;
+			vbDesc.StructureByteStride = 0;
+
+			D3D11_SUBRESOURCE_DATA vData;
+			vData.pSysMem = pVB;
+			vData.SysMemPitch = 0;
+			vData.SysMemSlicePitch = 0;
+
+			dx.CreateBuffer(&vbDesc, &vData, &_vertexBuffer, "Text");
+
+			delete[] pVB;
+		}
+	}
+}
+
+void CDXText::SetTextUnmodified(WCHAR const* text)
+{
+	_wstring = text;
+
+	if (_vertexBuffer != NULL)
+	{
+		_vertexBuffer->Release();
+		_vertexBuffer = NULL;
+	}
+
+	_lines = 0;
+	_width = 0;
+
+	_printableCharacters = _wstring.size();
+
+	float* pWidths = TexFont.Widths();
+
+	if (_printableCharacters > 0)
+	{
+		TEXTURED_VERTEX* pVB = new TEXTURED_VERTEX[6 * _printableCharacters];
+		if (pVB != NULL)
+		{
+			float sy = 0.0f;
+			float sx = 10.0f;
+			int cix = 0;
+			float fcw = 1 / 224.0f;
+			float y1 = TexFont.Y1();
+			float y2 = TexFont.Y2();
+			float fh = TexFont.Height() * pConfig->FontScale;
+			auto scan = text;
+			char ch;
+			while ((ch = *scan++))
+			{
+				if (ch >= 0x20 && ch <= 0x7f)
+				{
+					ch -= 0x20;
+					// Create vertices and indexes for this character...
+					float fx = pWidths[ch];
+
+					float x1 = fcw * (float)ch;
+					float x2 = x1 + fx / 3584.0f;
+
+					fx *= pConfig->FontScale;
+
+					// Create 6 vertices and 6 indexes per char
+					float rsx = floor(sx);
+					pVB[cix].position = XMFLOAT3(rsx, sy, -1.5f);
+					pVB[cix++].texture = XMFLOAT2(x1, y1);
+					pVB[cix].position = XMFLOAT3(rsx + fx, sy, -1.5f);
+					pVB[cix++].texture = XMFLOAT2(x2, y1);
+					pVB[cix].position = XMFLOAT3(rsx + fx, sy - fh, -1.5f);
+					pVB[cix++].texture = XMFLOAT2(x2, y2);
+
+					pVB[cix].position = XMFLOAT3(rsx, sy, -1.5f);
+					pVB[cix++].texture = XMFLOAT2(x1, y1);
+					pVB[cix].position = XMFLOAT3(rsx + fx, sy - fh, -1.5f);
+					pVB[cix++].texture = XMFLOAT2(x2, y2);
+					pVB[cix].position = XMFLOAT3(rsx, sy - fh, -1.5f);
+					pVB[cix++].texture = XMFLOAT2(x1, y2);
+
+					sx += fx;
+				}
+			}
+
+			_width = sx - 10;
+
+			D3D11_BUFFER_DESC vbDesc;
+			vbDesc.Usage = D3D11_USAGE_DYNAMIC;
+			vbDesc.ByteWidth = sizeof(TEXTURED_VERTEX) * 6 * _printableCharacters;
+			vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			vbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			vbDesc.MiscFlags = 0;
+			vbDesc.StructureByteStride = 0;
+
+			D3D11_SUBRESOURCE_DATA vData;
+			vData.pSysMem = pVB;
+			vData.SysMemPitch = 0;
+			vData.SysMemSlicePitch = 0;
+
+			dx.CreateBuffer(&vbDesc, &vData, &_vertexBuffer, "Text");
+
+			delete[] pVB;
+		}
+	}
+}
+
 float CDXText::PixelWidth(char* text)
 {
 	return TexFont.PixelWidth(text);
@@ -576,4 +750,9 @@ void CDXText::SetColours(int colour1, int colour2, int colour3, int colour4)
 	_colour2 = colour2;
 	_colour3 = colour3;
 	_colour4 = colour4;
+}
+
+void CDXText::ResetText()
+{
+	SetText(_wstring.c_str());
 }

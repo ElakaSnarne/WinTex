@@ -26,7 +26,7 @@ CPDInventoryModule::CPDInventoryModule() : CInventoryModule()
 	CItems::SetTextColours(0, 0, -1, 0);
 
 	// Update cash item description string
-	CItems::SetItemName(0, CGameController::GetItemName(0) + L" " + std::to_wstring(CGameController::GetWord(PD_SAVE_CASH)));
+	CItems::SetItemName(0, CGameController::GetItemName(0) + L" $" + std::to_wstring(CGameController::GetWord(PD_SAVE_CASH)));
 }
 
 void CPDInventoryModule::Examine()
