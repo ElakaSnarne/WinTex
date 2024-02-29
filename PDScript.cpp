@@ -1043,7 +1043,7 @@ void CPDScript::Function_3A(CScriptState* pState)
 		// He
 		CGameController::SetParameter(0, 1);
 	}
-	else if (pState->SelectedValue == 2)
+	else
 	{
 		// It
 		CGameController::SetParameter(0, 2);
