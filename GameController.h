@@ -41,6 +41,9 @@ public:
 	static void SetSituationDescriptionD(int ix, std::wstring value);
 	static std::wstring GetSituationDescriptionD(int ix);
 
+	static int GetSaveCommentOffset() { return Game->GetSaveCommentOffset(); }
+	static int GetSaveCommentLength() { return Game->GetSaveCommentLength(); }
+
 	static BYTE GetData(int offset) { return Game->GetData(offset); }
 	static void SetData(int offset, BYTE value) { Game->SetData(offset, value); }
 	static LPBYTE GetDataPointer() { return Game->GetDataPointer(); }

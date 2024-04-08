@@ -3,7 +3,7 @@
 #include "resource.h"
 #include "Utilities.h"
 #include "GameController.h"
-#include "UAKMGame.h"
+//#include "UAKMGame.h"
 #include "SaveGameControl.h"
 #include <algorithm>
 #include <codecvt>
@@ -271,20 +271,20 @@ void CMainMenuModule::Load(LPVOID data)
 {
 	if (_pLoad == NULL)
 	{
-		((CMainMenuModule*)MainMenuModule)->SetupLoadFrame();
+		(MainMenuModule)->SetupLoadFrame();
 	}
 
-	((CMainMenuModule*)MainMenuModule)->SetupLoad();
+	(MainMenuModule)->SetupLoad();
 }
 
 void CMainMenuModule::Save(LPVOID data)
 {
 	if (_pSave == NULL)
 	{
-		((CMainMenuModule*)MainMenuModule)->SetupSaveFrame();
+		(MainMenuModule)->SetupSaveFrame();
 	}
 
-	((CMainMenuModule*)MainMenuModule)->SetupSave();
+	(MainMenuModule)->SetupSave();
 
 	_pScreen->ShowModal(_pSave);
 }
@@ -294,7 +294,7 @@ void CMainMenuModule::Config(LPVOID data)
 	cfg = *pConfig;
 	if (_pConfig == NULL)
 	{
-		((CMainMenuModule*)MainMenuModule)->SetupConfigFrame();
+		(MainMenuModule)->SetupConfigFrame();
 	}
 
 	UpdateResolutionLabel();
@@ -454,9 +454,11 @@ void CMainMenuModule::SaveSave(LPVOID data)
 {
 	if (_saveControl != NULL)
 	{
-		for (int i = 0; i < UAKM_SAVE_PADDING1 - UAKM_SAVE_COMMENT; i++)
+		int commentOffset = CGameController::GetSaveCommentOffset();
+		int commentLength = CGameController::GetSaveCommentLength();
+		for (int i = 0; i < commentLength; i++)
 		{
-			CGameController::SetData(UAKM_SAVE_COMMENT + i, _commentBuffer[i]);
+			CGameController::SetData(commentOffset + i, _commentBuffer[i]);
 		}
 
 		SaveGameInfo info = _saveControl->GetInfo();
@@ -487,9 +489,11 @@ void CMainMenuModule::SaveIncrementSave(LPVOID data)
 			CurrentGameInfo.FileName = fn;
 
 			// Clear comment
-			for (int i = 0; i < UAKM_SAVE_PADDING1 - UAKM_SAVE_COMMENT; i++)
+			int commentOffset = CGameController::GetSaveCommentOffset();
+			int commentLength = CGameController::GetSaveCommentLength();
+			for (int i = 0; i < commentLength; i++)
 			{
-				CGameController::SetData(UAKM_SAVE_COMMENT + i, 0);
+				CGameController::SetData(commentOffset + i, 0);
 			}
 
 			CGameController::SaveGame(fn);

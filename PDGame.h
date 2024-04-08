@@ -66,6 +66,7 @@
 #define PD_SAVE_ASK_ABOUT_STATES			0xabd
 #define PD_SAVE_BUYABLES_ASK_ABOUT_STATES	0xb22
 
+#define PD_SAVE_VIDPHONE					0x10a8
 #define PD_SAVE_TRAVEL						0x10c1
 
 #define PD_SAVE_SCORE						0x1189
@@ -125,6 +126,9 @@ public:
 	virtual void LoadGame(LPWSTR fileName);
 	virtual void SaveGame(LPWSTR fileName);
 	virtual void NewGame();
+
+	virtual int GetSaveCommentOffset() { return PD_SAVE_COMMENT; }
+	virtual int GetSaveCommentLength() { return PD_SAVE_PADDING1 - PD_SAVE_COMMENT; }
 
 	virtual BYTE GetParameter(int index);
 	virtual void SetParameter(int index, BYTE value);
