@@ -101,33 +101,39 @@ void CSaveGameControl::Render()
 {
 	if (_vertexBuffer == NULL) return;
 
-	UINT stride = sizeof(TEXTURED_VERTEX_ORTHO);
-	UINT offset = 0;
-	dx.SetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+	if (_lock.Lock())
+	{
+		UINT stride = sizeof(TEXTURED_VERTEX_ORTHO);
+		UINT offset = 0;
+		dx.SetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 
-	XMMATRIX wm = XMMatrixTranslation(_x, -_y, 0.0f);
-	CConstantBuffers::SetWorld(dx, &wm);
+		XMMATRIX wm = XMMatrixTranslation(_x, -_y, 0.0f);
+		CConstantBuffers::SetWorld(dx, &wm);
 
-	ID3D11ShaderResourceView* pRV = (_mouseOver || _isSave) ? _texMouseOver.GetTextureRV() : _texBackground.GetTextureRV();
-	dx.SetShaderResources(0, 1, &pRV);
-	CShaders::SelectOrthoShader();
-	dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	dx.Draw(54, 0);
+		ID3D11ShaderResourceView* pRV = (_mouseOver || _isSave) ? _texMouseOver.GetTextureRV() : _texBackground.GetTextureRV();
+		dx.SetShaderResources(0, 1, &pRV);
+		CShaders::SelectOrthoShader();
+		dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		dx.Draw(54, 0);
 
-	// Draw text
-	float x1 = _x, x2 = _x + 68 * pConfig->FontScale, x3 = _w / 2, x4 = x3 + 78 * pConfig->FontScale;
-	_tFileName1.Render(x1, _y + 8 * pConfig->FontScale);
-	_tFileName2.Render(x2, _y + 8 * pConfig->FontScale);
-	_tDateTime1.Render(x3, _y + 8 * pConfig->FontScale);
-	_tDateTime2.Render(x4, _y + 8 * pConfig->FontScale);
-	_tPlayer1.Render(x1, _y + 28 * pConfig->FontScale);
-	_tPlayer2.Render(x2, _y + 28 * pConfig->FontScale);
-	_tDay1.Render(x3, _y + 28 * pConfig->FontScale);
-	_tDay2.Render(x4, _y + 28 * pConfig->FontScale);
-	_tLocation1.Render(x1, _y + 48 * pConfig->FontScale);
-	_tLocation2.Render(x2, _y + 48 * pConfig->FontScale);
-	_tComment1.Render(x1, _y + 68 * pConfig->FontScale);
-	_tComment2.Render(x2, _y + 68 * pConfig->FontScale);
+		// Draw text
+		float x1 = _x, x2 = GetColumn2(), x3 = _w / 2, x4 = GetColumn4();
+
+		_tFileName1.Render(x1, _y + 8 * pConfig->FontScale);
+		_tFileName2.Render(x2, _y + 8 * pConfig->FontScale);
+		_tDateTime1.Render(x3, _y + 8 * pConfig->FontScale);
+		_tDateTime2.Render(x4, _y + 8 * pConfig->FontScale);
+		_tPlayer1.Render(x1, _y + 28 * pConfig->FontScale);
+		_tPlayer2.Render(x2, _y + 28 * pConfig->FontScale);
+		_tDay1.Render(x3, _y + 28 * pConfig->FontScale);
+		_tDay2.Render(x4, _y + 28 * pConfig->FontScale);
+		_tLocation1.Render(x1, _y + 48 * pConfig->FontScale);
+		_tLocation2.Render(x2, _y + 48 * pConfig->FontScale);
+		_tComment1.Render(x1, _y + 68 * pConfig->FontScale);
+		_tComment2.Render(x2 + 10.0, _y + 68 * pConfig->FontScale);
+
+		_lock.Release();
+	}
 }
 
 void CSaveGameControl::MouseEnter()
@@ -199,7 +205,7 @@ void CSaveGameControl::SetInfo(SaveGameInfo info)
 	_tDay2.SetText((char*)info.DayInGame.c_str());
 	_tDateTime2.SetText((char*)info.DateTime.c_str());
 	_tLocation2.SetText((char*)info.Location.c_str());
-	_tComment2.SetText((char*)info.Comment.c_str());
+	_tComment2.SetTextUnmodified((char*)info.Comment.c_str());
 }
 
 void CSaveGameControl::Click()
@@ -223,8 +229,12 @@ void CSaveGameControl::SetFileName(std::wstring fileName)
 
 void CSaveGameControl::SetComment(std::string comment)
 {
-	_info.Comment = comment;
-	_tComment2.SetText((char*)comment.c_str());
+	if (_lock.Lock())
+	{
+		_info.Comment = comment;
+		_tComment2.SetTextUnmodified((char*)comment.c_str());
+		_lock.Release();
+	}
 }
 
 void CSaveGameControl::SetPDColours()
@@ -241,4 +251,14 @@ void CSaveGameControl::SetPDColours()
 	_tLocation2.SetColours(0, 0, 0xffae0000, 0);
 	_tComment1.SetColours(0, 0, 0xff3c0c9e, 0);
 	_tComment2.SetColours(0, 0, 0xffae0000, 0);
+}
+
+float CSaveGameControl::GetColumn2()
+{
+	return _x + max(max(max(_tFileName1.Width(), _tPlayer1.Width()), _tLocation1.Width()), _tComment1.Width()) + 10 * pConfig->FontScale;
+}
+
+float CSaveGameControl::GetColumn4()
+{
+	return _w / 2 + max(_tDateTime1.Width(), _tDay1.Width()) + 10 * pConfig->FontScale;
 }

@@ -2709,7 +2709,7 @@ Point CLocation::GetPlayerPosition()
 {
 	Point p;
 	p.X = -_x;
-	p.Y = _y;
+	p.Y = _y_elevation + _y_player_adjustment;
 	p.Z = -_z;
 	return p;
 }

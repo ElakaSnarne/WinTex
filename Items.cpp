@@ -386,3 +386,16 @@ void CItems::SetItemName(int id, std::wstring text)
 {
 	_items[id]->SetItemName(text);
 }
+
+void CItems::ResetText()
+{
+	for (auto it : _items)
+	{
+		it.second->ResetText();
+	}
+}
+
+void CItems::Inventory::ResetText()
+{
+	Text.ResetText();
+}

@@ -219,7 +219,7 @@ void CPDGame::NewGame()
 
 	// Set Unknowns 10 and 11 to 2 and 1
 	_gameData[PD_SAVE_PARAMETERS + 251] = 2;
-	_gameData[PD_SAVE_PARAMETERS + 250] = 1;
+	_gameData[PD_SAVE_PARAMETERS + 250] = 1;	// Day in game
 
 	// Parameter 0x19a, 0 = Entertainment Level, 1 = Game Player Level
 	_gameData[PD_SAVE_PARAMETERS_GAME_LEVEL] = 1;

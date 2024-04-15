@@ -34,8 +34,8 @@
 #define PD_SAVE_TIMERS_CURRENT				0x19a
 #define PD_SAVE_TIMERS						0x1da
 #define PD_SAVE_PARAMETERS					0x1fa
+#define PD_SAVE_PARAMETERS_DAY_IN_GAME		0x2f4
 //#define PD_SAVE_MAP_FLAG_B					0x2f6 Same as A[252]
-
 #define PD_SAVE_PARAMETERS_GAME_LEVEL		0x394
 
 #define PD_SAVE_STARTUP_POSITION			0x3e4
@@ -66,6 +66,7 @@
 #define PD_SAVE_ASK_ABOUT_STATES			0xabd
 #define PD_SAVE_BUYABLES_ASK_ABOUT_STATES	0xb22
 
+#define PD_SAVE_VIDPHONE					0x10a8
 #define PD_SAVE_TRAVEL						0x10c1
 
 #define PD_SAVE_SCORE						0x1189
@@ -125,6 +126,9 @@ public:
 	virtual void LoadGame(LPWSTR fileName);
 	virtual void SaveGame(LPWSTR fileName);
 	virtual void NewGame();
+
+	virtual int GetSaveCommentOffset() { return PD_SAVE_COMMENT; }
+	virtual int GetSaveCommentLength() { return PD_SAVE_PADDING1 - PD_SAVE_COMMENT; }
 
 	virtual BYTE GetParameter(int index);
 	virtual void SetParameter(int index, BYTE value);

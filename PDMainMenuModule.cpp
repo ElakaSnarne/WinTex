@@ -7,8 +7,9 @@
 #include <codecvt>
 #include <algorithm>
 
-CPDMainMenuModule::CPDMainMenuModule()
+CPDMainMenuModule::CPDMainMenuModule() : CMainMenuModule()
 {
+	_saveCursor.SetColours(0, 0, 0xffae0000, 0);
 }
 
 CPDMainMenuModule::~CPDMainMenuModule()
@@ -191,7 +192,7 @@ void CPDMainMenuModule::SetupSave()
 	}
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
 	info.Location = conv.to_bytes(sit);
-	//info.DayInGame = "Day " + std::to_string(max(1, min(7, CGameController::GetData(UAKM_SAVE_GAME_DAY))));
+	info.DayInGame = "Day " + std::to_string(max(1, min(10, CGameController::GetData(PD_SAVE_PARAMETERS_DAY_IN_GAME))));
 	SYSTEMTIME st;
 	GetLocalTime(&st);
 	info.DateTime = IntToString(st.wYear, 4) + "-" + IntToString(st.wMonth, 2) + +"-" + IntToString(st.wDay, 2) + " " + IntToString(st.wHour, 2) + ":" + IntToString(st.wMinute, 2) + ":" + IntToString(st.wSecond, 2);

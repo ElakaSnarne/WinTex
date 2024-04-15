@@ -211,7 +211,9 @@ void CDXSlider::UpdateValueText()
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(_precision) << *_pValue;
 	std::string data = stream.str();
+	float w = _pTValue->Width();
 	_pTValue->SetText(data.c_str(), rc, CDXText::Alignment::Center);
+	_pTValue->Width(w);
 }
 
 void CDXSlider::CalculateSliderPosition()

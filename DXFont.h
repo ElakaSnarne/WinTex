@@ -12,7 +12,6 @@ public:
 	void Init(PBYTE pFont, DWORD size);
 
 	float* Widths() { return _widths; };
-	float SpaceWidth();
 	float Y1() { return _y1; }
 	float Y2() { return _y2; }
 	float Height();

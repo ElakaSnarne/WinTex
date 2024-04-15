@@ -157,7 +157,7 @@ void CDXListBox::Init(std::vector<ListBoxItem> items, float btnX)
 
 	_visibleItemsCount = static_cast<int>(items.size());
 
-	_x = max(0.0f, btnX - _w / 2.0f);
+	_x = floor(max(0.0f, btnX - _w / 2.0f));
 }
 
 void CDXListBox::Clear()

@@ -100,7 +100,6 @@ protected:
 	static void LoadCancel(LPVOID data);
 	static void LoadLoad(LPVOID data);
 
-	static CDXListBox _loadListBox;
 	static std::vector<SaveGameInfo> _savedGames;
 	static std::vector<CSaveGameControl*> _saveGameControls;
 

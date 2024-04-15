@@ -20,6 +20,7 @@ public:
 	CDXControl* GetCurrentMouseOver();
 
 	void AddChild(CDXControl* pCtrl, float x, float y);
+	void RemoveChild(CDXControl* pCtrl);
 	virtual CDXControl* HitTest(float x, float y);
 
 	virtual CDXBitmap* AddBitmap(PWCHAR fileName, Alignment alignment = Alignment::Default);

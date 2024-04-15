@@ -86,6 +86,9 @@ public:
 	virtual void SaveGame(LPWSTR fileName);
 	virtual void NewGame();
 
+	virtual int GetSaveCommentOffset() { return UAKM_SAVE_COMMENT; }
+	virtual int GetSaveCommentLength() { return UAKM_SAVE_PADDING1 - UAKM_SAVE_COMMENT; }
+
 	virtual BYTE GetParameter(int index);
 	virtual void SetParameter(int index, BYTE value);
 

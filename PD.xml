@@ -820,11 +820,979 @@
 	</SaveSituations>
 
 	<Hints>
-		<HintCategory Index="1" Title="Getting Started in Tex's Office">
-			<Hint Index="1">Get all the &lt;MAIL&gt; by the door. &lt;(Sales Flyer, Gift Certificate, Application)&gt;</Hint>
-			<Hint Index="2">Look at the &lt; FAX MACHINE&gt; on top of the file cabinet.</Hint>
-			<Hint Index="3">Look at the &lt;CRIME LINK COMPUTER&gt; on the table behind Tex's desk.</Hint>
-			<Hint Index="4">To leave Tex's office, open the office door and walk down to the street.</Hint>
+		<HintCategory Index="1" Title="Finding Thomas Malloy">
+			<Hint Index="1">Take Gordon Fitzpatrick's case - EXAMINE &lt;FITZPATRICK'S CARD&gt; to get vid-phone number.  You can call him from the phone on Tex's desk.</Hint>
+			<Hint Index="3">Get Nilo to show up (See Directory)</Hint>
+			<Hint Index="2">Find out what Nilo (the Ritz Landlord) knows about Malloy (See Directory)</Hint>
+			<Hint Index="4">Get into Apartment A at the Ritz (See Directory)</Hint>
+			<Hint Index="5">Find and GET the &lt;SCARF&gt; in Apartment A on the bed</Hint>
+			<Hint Index="7">Find out who owns the &lt;SCARF&gt; (See Directory)</Hint>
+			<Hint Index="8">Find out about Emily (See Directory)</Hint>
+			<Hint Index="9">Find a way to meet Emily (See Directory)</Hint>
+			<Hint Index="11">Find out who is stalking Emily (See Directory)</Hint>
+			<Hint Index="12">Find out about the Black Arrow Killer (See Directory)</Hint>
+			<Hint Index="13">Track down the Black Arrow Killer (See Directory)</Hint>
+			<Hint Index="14">Catch the Black Arrow Killer (See Directory)</Hint>
+			<Hint Index="15">Find the box Stolen from Emily (See Directory)</Hint>
+			<Hint Index="16">Find the &lt;BROWN PAPER WRAPPER&gt; (See Directory)</Hint>
+			<Hint Index="17">Analyze the &lt;BROWN PAPER WRAPPER&gt; (See Directory)</Hint>
+			<Hint Index="18">Go to the Police Station and TALK to Mac Malden (if Mac isn't in, go to Tex's office and try Mac later)</Hint>
+			<Hint Index="19">Ask Mac Malden about PB Meter #38874121</Hint>
+			<Hint Index="20">Go to the Mission District Post Office</Hint>
+			<Hint Index="21">Get past the landlady at the Garden House (See Directory)</Hint>
+			<Hint Index="22">In Malloy's room at the Garden House, OPEN the center drawer of the rolltop desk, find and GET the &lt;ENVELOPE ADDRESSED TO WITT&gt;</Hint>
+			<Hint Index="23">EXAMINE the &lt;ENVELOPE ADDRESSED TO WITT&gt;</Hint>
+			<Hint Index="24">EXAMINE &lt;MALLOY'S DISC&gt;</Hint>
+			<Hint Index="26">Go to Tex's computer room and USE &lt;MALLOY'S DISC&gt; on the computer</Hint>
+			<Hint Index="27">Go to Malloy's room at the Garden House</Hint>
+			<Hint Index="28">Find and GET the &lt;JEANS&gt; on the chair</Hint>
+			<Hint Index="29">EXAMINE the &lt;JEANS&gt;</Hint>
+			<Hint Index="30">EXAMINE the &lt;RENTAL RECEIPT&gt;</Hint>
+			<Hint Index="31">Go to the Waterfront Warehouse</Hint>
+		</HintCategory>
+		<HintCategory Index="2" Title="Locating Sandra">
+			<Hint Index="32">Take Gordon Fitzpatrick's case</Hint>
+			<Hint Index="33">Arrange a meeting with Lucia Pernell (See Directory)</Hint>
+			<Hint Index="34">Go to Tex's Office and call Lucia Pernell</Hint>
+			<Hint Index="35">Ask Lucia Pernell about Sandra Collins</Hint>
+			<Hint Index="163">Travel to Sandra Collins room</Hint>
+		</HintCategory>
+		<HintCategory Index="3" Title="Making up with Chelsee">
+			<Hint Index="36">Go to the newsstand on the street and TALK to Chelsee</Hint>
+			<Hint Index="37">Get Chelsee to invite you to her apartment for dinner</Hint>
+		</HintCategory>
+		<HintCategory Index="4" Title="Finding out what Nilo knows about Thomas Malloy">
+			<Hint Index="38">Get Nilo to show up (See Directory)</Hint>
+			<Hint Index="39">OFFER Nilo $2100 for rent</Hint>
+			<Hint Index="40">Choose A B or C, then A or B</Hint>
+			<Hint Index="41">OFFER Nilo $100</Hint>
+			<Hint Index="42">Ask Nilo About the &lt;NEWSPAPER PHOTO OF MALLOY&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="5" Title="Getting Nilo to Show Up">
+			<Hint Index="43">Make up with Chelsee (See Directory)</Hint>
+			<Hint Index="44">Go the lobby of the Ritz and TALK to Nilo</Hint>
+		</HintCategory>
+		<HintCategory Index="6" Title="Getting Into Apartment A at the Ritz">
+			<Hint Index="45">Ask Nilo about the &lt;NEWSPAPER PHOTO OF MALLOY&gt;</Hint>
+			<Hint Index="46">Go to Apartment A and LOOK at the security panel by the door</Hint>
+			<Hint Index="47">Go to the front desk and TALK to Nilo</Hint>
+			<Hint Index="48">Use path C/C, then ask Nilo about the Code to Apartment A</Hint>
+			<Hint Index="50">Go to Apartment A and enter the security code (4827) on the panel</Hint>
+		</HintCategory>
+		<HintCategory Index="7" Title="Getting into Rusty's Fun House">
+			<Hint Index="52">LOOK at the door to Rusty's Fun House</Hint>
+			<Hint Index="53">Go to the Police Station and TALK to Mac Malden</Hint>
+			<Hint Index="54">Ask Mac Malden about Rusty's Fun House</Hint>
+			<Hint Index="55">Ask Mac Malden about &lt;KEY TO RUSTY'S&gt;</Hint>
+			<Hint Index="56">Go to Rusty's Fun House and USE &lt;KEY TO RUSTY'S&gt; on the Cop Lock on the door to Rusty's Fun House</Hint>
+			<Hint Index="57">Solve the Cop Lock (See Directory)</Hint>
+			<Hint Index="58">OPEN the door to Rusty's Fun House</Hint>
+		</HintCategory>
+		<HintCategory Index="8" Title="Getting Into the ACME Storage Warehouse">
+			<Hint Index="59">LOOK at the ACME Storage Warehouse</Hint>
+			<Hint Index="60">Find and TALK to Crazy Gary</Hint>
+			<Hint Index="61">Get Crazy Gary to Cooperate (See Directory)</Hint>
+			<Hint Index="62">Ask Crazy Gary about the &lt;NEWSPAPER PHOTO OF MALLOY&gt;</Hint>
+			<Hint Index="63">Ask Crazy Gary about &lt;MALLOY'S KEY&gt;</Hint>
+			<Hint Index="64">Go to the ACME Storage Warehouse and USE &lt;MALLOY'S KEY&gt; on the door</Hint>
+			<Hint Index="65">OPEN the door and enter</Hint>
+		</HintCategory>
+		<HintCategory Index="9" Title="Finding More Money">
+			<Hint Index="66">In the alley behind Rook's Pawnshop, find and MOVE the man-hole cover</Hint>
+			<Hint Index="68">Go into the sewer, then find and MOVE the box on the right</Hint>
+			<Hint Index="69">Find and GET the &lt;MONEY BELT&gt;</Hint>
+			<Hint Index="70">EXAMINE the &lt;MONEY BELT&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="11" Title="Finding Out Who Owns the Scarf">
+			<Hint Index="73">GET the &lt;SCARF&gt; from on top of the bed in Apartment A</Hint>
+			<Hint Index="6">EXAMINE the &lt;SCARF&gt;</Hint>
+			<Hint Index="75">Go to the Brew &amp; Stew (on the corner at the end of the street) and TALK to Louie</Hint>
+			<Hint Index="76">OFFER the &lt;SCARF&gt; to Louie</Hint>
+			<Hint Index="222">OFFER the &lt;NEWSPAPER PHOTO OF MALLOY&gt; to Louie</Hint>
+			<Hint Index="77">Ask Louie about the Young Blonde Woman</Hint>
+		</HintCategory>
+		<HintCategory Index="12" Title="Translating the Letter">
+			<Hint Index="78">EXAMINE the &lt;UNTRANSLATED LETTER&gt;</Hint>
+			<Hint Index="79">Go to the Brew &amp; Stew and TALK to Louie</Hint>
+			<Hint Index="80">OFFER the &lt;UNTRANSLATED LETTER&gt; to Louie</Hint>
+			<Hint Index="81">Go to Coit Tower (through the fence between the Golden Gate Hotel and the Fuchsia Flamingo) and TALK to Clint</Hint>
+			<Hint Index="82">Ask Clint about Yucatec Language</Hint>
+			<Hint Index="83">Go to the Pawnshop and TALK to Rook</Hint>
+			<Hint Index="84">Ask Rook about Yucatec Language</Hint>
+			<Hint Index="85">OFFER Rook $30</Hint>
+			<Hint Index="86">COMBINE the &lt;UNTRANSLATED LETTER&gt; with the &lt;YUCATEC MADE EASY BOOK&gt;</Hint>
+			<Hint Index="87">EXAMINE the &lt;TRANSLATED YUCATEC LETTER&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="13" Title="Finding out about Emily">
+			<Hint Index="88">Ask Louie about the Young Blonde Woman</Hint>
+			<Hint Index="89">Go to Coit Tower (through the fence between the Golden Gate Hotel and the Fuchsia Flamingo) and TALK to Clint</Hint>
+			<Hint Index="90">Ask Clint about Emily</Hint>
+			<Hint Index="91">Ask Clint about Gus Leach</Hint>
+			<Hint Index="92">Ask Clint about &lt;LEACH'S KEY&gt;</Hint>
+			<Hint Index="93">Go to the alley behind the Ritz and USE &lt;LEACH'S KEY&gt; on the side door to the Fuchsia Flamingo</Hint>
+			<Hint Index="94">OPEN the side door and enter</Hint>
+		</HintCategory>
+		<HintCategory Index="14" Title="Finding a way to meet Emily">
+			<Hint Index="95">TALK to Gus Leach at the Fuchsia Flamingo</Hint>
+			<Hint Index="96">TRAVEL to Chelsee's Apartment and TALK to Chelsee</Hint>
+		</HintCategory>
+		<HintCategory Index="15" Title="Finding Out Who is Stalking Emily">
+			<Hint Index="100">Assemble Emily's note (See Directory)</Hint>
+			<Hint Index="101">Go to the Police Station and TALK to Mac</Hint>
+			<Hint Index="102">OFFER &lt;EMILY'S THREATENING NOTE&gt; to Mac</Hint>
+		</HintCategory>
+		<HintCategory Index="16" Title="Assembling Emily's Note">
+			<Hint Index="103">TALK to Emily and GET &lt;EMILY'S NOTE SCRAPS&gt; from her</Hint>
+			<Hint Index="104">EXAMINE &lt;EMILY'S NOTE SCRAPS&gt;  [to rotate a scrap, click on it and press the left or right arrow key]</Hint>
+			<Hint Index="105">To bypass this puzzle:  with the puzzle on the screen, pick up a piece with the left mouse button and type 036.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+		</HintCategory>
+		<HintCategory Index="17" Title="Finding Out about the Black Arrow Killer">
+			<Hint Index="106">OFFER &lt;EMILY'S THREATENING NOTE&gt; to Mac</Hint>
+			<Hint Index="107">Go to the Brew &amp; Stew and TALK to Louie</Hint>
+			<Hint Index="108">Ask Louie about Black Arrow Killer</Hint>
+			<Hint Index="109">Ask Louie about Bay City Mirror</Hint>
+			<Hint Index="67">Go to the alley behind Rook's Pawn Shop and OPEN the garbage can by the drain pipe</Hint>
+			<Hint Index="110">Find and GET the &lt;OLD NEWSPAPER&gt; in the garbage can</Hint>
+			<Hint Index="112">Arrange a meeting with Lucia Pernell (See Directory)</Hint>
+		</HintCategory>
+		<HintCategory Index="18" Title="Arranging a Meeting with Lucia Pernell">
+			<Hint Index="111">EXAMINE the &lt;OLD NEWSPAPER&gt; found on Day 3 and read the article written by Lucia Pernell.  For instructions on finding the newspaper, see the puzzle &lt;FINDING OUT ABOUT THE BLACK ARROW KILLER&gt;</Hint>
+			<Hint Index="114">Go to the Pawnshop and TALK to Rook</Hint>
+			<Hint Index="115">Get Rook to cooperate by paying off your debt (See Directory)</Hint>
+			<Hint Index="116">Ask Rook about Lucia Pernell</Hint>
+			<Hint Index="117">EXAMINE &lt;PERNELL'S BUSINESS CARD&gt;</Hint>
+			<Hint Index="118">Go to Tex's office and call Lucia Pernell on the vid-phone on the desk</Hint>
+			<Hint Index="119">Get her to agree to meet you at the Brew &amp; Stew</Hint>
+			<Hint Index="120">Go to the Brew &amp; Stew and TALK to Lucia Pernell</Hint>
+		</HintCategory>
+		<HintCategory Index="19" Title="Getting Rook to Cooperate by Paying Off Your Debt">
+			<Hint Index="121">Go to the pawnshop and TALK to Rook</Hint>
+			<Hint Index="122">OFFER Rook $300</Hint>
+		</HintCategory>
+		<HintCategory Index="20" Title="Tracking Down the Black Arrow Killer">
+			<Hint Index="123">Arrange a meeting with Lucia Pernell (See Directory)</Hint>
+			<Hint Index="124">Locate Autotech (See Directory)</Hint>
+			<Hint Index="125">Get into Autotech (See Directory)</Hint>
+			<Hint Index="126">Get past the lobby in Autotech (See Directory)</Hint>
+			<Hint Index="127">Find and enter Dag Horton's office</Hint>
+			<Hint Index="135">Find and GET the &lt;PADLOCK KEY&gt; from on top of the bookcase</Hint>
+			<Hint Index="136">MOVE the book on the desk</Hint>
+			<Hint Index="137">GET the &lt;STICKY NOTES&gt;</Hint>
+			<Hint Index="138">EXAMINE the &lt;STICKY NOTES&gt;</Hint>
+			<Hint Index="339">Locate Gary Lee (See Directory)</Hint>
+			<Hint Index="141">Get Crazy Gary to cooperate (See Directory)</Hint>
+			<Hint Index="199">Ask Crazy Gary about Dag Horton</Hint>
+			<Hint Index="142">Go to Rusty's Fun House roof and climb the water tower ladder</Hint>
+			<Hint Index="143">In the water tower, find and turn ON the viewing device</Hint>
+		</HintCategory>
+		<HintCategory Index="21" Title="Locating Autotech">
+			<Hint Index="144">TALK to Lucia Pernell and find out about Autotech</Hint>
+			<Hint Index="148">Get into Rusty's Fun House (See Directory)</Hint>
+			<Hint Index="149">Find a way onto the roof of Rusty's Fun House (See Directory)</Hint>
+			<Hint Index="150">Find and GET the &lt;JACKET&gt; on the cooling unit</Hint>
+			<Hint Index="151">EXAMINE the &lt;JACKET&gt;</Hint>
+			<Hint Index="152">EXAMINE the torn &lt;PHOTOGRAPH SCRAPS&gt;</Hint>
+			<Hint Index="153">Assemble the torn photo (See Directory)</Hint>
+			<Hint Index="154">Analyze the assembled photograph (See Directory)</Hint>
+			<Hint Index="155">TRAVEL to Autotech</Hint>
+		</HintCategory>
+		<HintCategory Index="22" Title="Getting into Autotech">
+			<Hint Index="156">TRAVEL to Autotech</Hint>
+			<Hint Index="157">Go to Tex's office and call Pernell</Hint>
+			<Hint Index="158">Ask Pernell about Sandra Collins</Hint>
+			<Hint Index="159">Go to Sandra Collins' home</Hint>
+			<Hint Index="160">Find and GET the Autotech security card on the floor to the left of the sewing table</Hint>
+			<Hint Index="161">Go to Autotech</Hint>
+		</HintCategory>
+		<HintCategory Index="23" Title="Getting past the Lobby in Autotech">
+			<Hint Index="162">Get into Autotech (See Directory)</Hint>
+			<Hint Index="165">Walk to the hallway beside the receptionist's station and LOOK at the panel on the wall</Hint>
+			<Hint Index="550">MOVE the sliding window to the receptionist's area</Hint>
+			<Hint Index="166">LOOK at the &lt;CLIPBOARD&gt; through the open sliding window</Hint>
+			<Hint Index="167">Find and GET the &lt;HAIR BRUSH&gt; on the magazine table</Hint>
+			<Hint Index="168">Find and GET the &lt;CURTAIN CORD&gt; from the blinds on the door by the couch</Hint>
+			<Hint Index="169">COMBINE the &lt;CURTAIN CORD&gt; with the &lt;HAIR BRUSH&gt;</Hint>
+			<Hint Index="170">USE the &lt;BRUSH WITH CORD&gt; on the &lt;CLIPBOARD&gt;</Hint>
+			<Hint Index="171">EXAMINE the sheet on the &lt;CLIPBOARD&gt;</Hint>
+			<Hint Index="172">Find and GET the &lt;VISITOR'S PASS&gt; on the floor next to the ash tray</Hint>
+			<Hint Index="173">EXAMINE the &lt;VISITOR'S PASS&gt;</Hint>
+			<Hint Index="174">USE the &lt;VISITOR'S PASS&gt; on the panel by the door in the lobby</Hint>
+			<Hint Index="175">Enter the numbers 8338</Hint>
+		</HintCategory>
+		<HintCategory Index="24" Title="Getting into the Evidence Room in Autotech">
+			<Hint Index="176">LOOK at the door to the Evidence Room in Autotech</Hint>
+			<Hint Index="177">Find Thomas Malloy (See Directory)</Hint>
+			<Hint Index="760">In Tex's office at the start of day 5, GET the &lt;FAX&gt; from Lucia Pernell</Hint>
+			<Hint Index="762">EXAMINE the &lt;FAX&gt;</Hint>
+			<Hint Index="178">Go to the police station and TALK to Mac</Hint>
+			<Hint Index="179">Ask Mac about the Horton/NSA connection</Hint>
+			<Hint Index="180">Go to the Morgue</Hint>
+			<Hint Index="763">Find and get the &lt;SCALPEL&gt; from the set of tools on the tray</Hint>
+			<Hint Index="764">Find and LOOK at the drawer marked G through I</Hint>
+			<Hint Index="765">USE the &lt;SCALPEL&gt; on the drawer</Hint>
+			<Hint Index="766">OPEN the drawer</Hint>
+			<Hint Index="181">Find and GET &lt;HORTON'S WALLET&gt;</Hint>
+			<Hint Index="182">EXAMINE &lt;HORTON'S WALLET&gt;</Hint>
+			<Hint Index="183">EXAMINE the &lt;SECURITY SYSTEM CARD&gt;</Hint>
+			<Hint Index="113">Go to Autotech and USE the &lt;SECURITY SYSTEM CARD&gt; on the security panel outside the Evidence Room</Hint>
+			<Hint Index="184">Enter the code 773348 on the security panel</Hint>
+		</HintCategory>
+		<HintCategory Index="25" Title="Getting Crazy Gary to Cooperate">
+			<Hint Index="186">TALK to Crazy Gary</Hint>
+			<Hint Index="187">Go to the door around the corner from the Slice O' Heaven, OPEN it and enter</Hint>
+			<Hint Index="198">MOVE the box on top of the crate at the end of the hallway</Hint>
+			<Hint Index="188">Find and OPEN the crate</Hint>
+			<Hint Index="189">GET the bottle of &lt;SCOTCH&gt;</Hint>
+			<Hint Index="190">TALK to Crazy Gary and OFFER him the bottle of &lt;SCOTCH&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="26" Title="Solving the Cop Lock">
+			<Hint Index="192">LOOK at the Cop Lock</Hint>
+			<Hint Index="191">USE &lt;KEY TO RUSTY'S&gt; on the Cop Lock on the front door of Rusty's Fun House</Hint>
+			<Hint Index="193">To bypass this puzzle:  with the puzzle on the screen, type 356.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+		</HintCategory>
+		<HintCategory Index="27" Title="Finding a Way onto the Roof of Rusty's Fun House">
+			<Hint Index="200">Go to the Police Station and TALK to Mac Malden</Hint>
+			<Hint Index="201">Ask Mac about the Roof of Rusty's Fun House</Hint>
+			<Hint Index="74">Get into Rusty's Fun House (See Directory)</Hint>
+			<Hint Index="202">Go to Rusty's Fun House, MOVE the foot pedal behind the counter</Hint>
+			<Hint Index="203">Enter the secret room and climb the ladder</Hint>
+		</HintCategory>
+		<HintCategory Index="28" Title="Assembling the torn photo">
+			<Hint Index="863">EXAMINE the torn &lt;PHOTOGRAPH SCRAPS&gt;</Hint>
+			<Hint Index="206">To bypass this puzzle:  with the puzzle on the screen, pick up a piece with the left mouse button and type 897.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+		</HintCategory>
+		<HintCategory Index="29" Title="Analyzing the Assembled Photograph">
+			<Hint Index="207">Assemble the torn photo (See Directory)</Hint>
+			<Hint Index="208">Go to the Electronics Shop and settle your account (See Directory)</Hint>
+			<Hint Index="209">Find and LOOK at the Photo Analyzer (&lt;VISUAL ANALYZING APPARATUS&gt;)</Hint>
+			<Hint Index="210">Ask Zack about the &lt;VISUAL ANALYZING APPARATUS&gt;</Hint>
+			<Hint Index="211">BUY the &lt;VISUAL ANALYZING APPARATUS&gt; for $70 from Zack</Hint>
+			<Hint Index="212">COMBINE the &lt;ASSEMBLED PHOTO&gt; with the &lt;VISUAL ANALYZING APPARATUS&gt;</Hint>
+			<Hint Index="213">EXAMINE the &lt;VAA AND PHOTOGRAPH&gt;</Hint>
+			<Hint Index="214">Click the On/Off button on the VAA panel</Hint>
+			<Hint Index="215">Click on the second quadrant from the top on the far left side of the photo</Hint>
+			<Hint Index="216">Click the Zoom + button</Hint>
+			<Hint Index="217">Click the Zoom - button</Hint>
+			<Hint Index="218">Click on the second quadrant from the bottom on the far right side of the photo</Hint>
+			<Hint Index="219">Click the Zoom + button</Hint>
+		</HintCategory>
+		<HintCategory Index="30" Title="Settling your account at the Electronics Shop">
+			<Hint Index="220">Go to the Electronics Shop and TALK to Zack</Hint>
+			<Hint Index="221">OFFER Zack $1230</Hint>
+		</HintCategory>
+		<HintCategory Index="31" Title="Catching the Black Arrow Killer">
+			<Hint Index="225">Track down the Black Arrow Killer (See Directory)</Hint>
+			<Hint Index="226">Go to the pawnshop and TALK to Rook</Hint>
+			<Hint Index="227">Go to the roof of Rusty's Fun house</Hint>
+			<Hint Index="228">Wait for the Black Arrow Killer to turn away then climb the ladder down to the lower section of the roof, get down low, and hide behind the cooling unit</Hint>
+			<Hint Index="229">Elevate just enough to see the Black Arrow Killer over the top of the cooling unit, wait for him to turn and look at his watch, then run directly toward him</Hint>
+		</HintCategory>
+		<HintCategory Index="32" Title="Locating Autotech">
+		</HintCategory>
+		<HintCategory Index="33" Title="Finding out about the Box Stolen from Emily">
+			<Hint Index="237">Go to the Fuchsia Flamingo and TALK to Emily</Hint>
+			<Hint Index="238">Ask Emily about the Box Stolen from Emily</Hint>
+		</HintCategory>
+		<HintCategory Index="34" Title="Finding the Box Stolen from Emily">
+			<Hint Index="239">Go to Rusty's Fun House roof</Hint>
+			<Hint Index="780">Find and GET the &lt;TRACKING DEVICE&gt; by the skylight</Hint>
+			<Hint Index="240">EXAMINE the &lt;TRACKING DEVICE&gt;</Hint>
+			<Hint Index="242">Go to the Alley behind the Pawn Shop</Hint>
+			<Hint Index="241">Turn ON the &lt;TRACKING DEVICE&gt;</Hint>
+			<Hint Index="244">In the corner by the chain link fence, find and MOVE the man-hole cover and enter the sewer</Hint>
+			<Hint Index="245">Go to the end of the passage and turn left.  Go to the second section of the passage and look all over the wall area on the right, until you find a brick that can be moved.  MOVE the brick</Hint>
+			<Hint Index="243">Go down the passage to the three way intersection and turn right.  Find and OPEN the crate on the left</Hint>
+			<Hint Index="246">GET the &lt;CHISEL&gt; from the opened crate</Hint>
+			<Hint Index="247">USE the &lt;CHISEL&gt; on the brick in the wall</Hint>
+			<Hint Index="781">MOVE the loosened brick</Hint>
+			<Hint Index="871">LOOK at the &lt;BOX STOLEN FROM EMILY&gt;</Hint>
+			<Hint Index="782">Disarm the explosive device on the Box Stolen from Emily (See Directory)</Hint>
+			<Hint Index="248">GET the &lt;BOX STOLEN FROM EMILY&gt; and return to Tex's Office</Hint>
+		</HintCategory>
+		<HintCategory Index="35" Title="Disarming the Explosive Device on the Box Stolen from Emily">
+			<Hint Index="767">LOOK at the &lt;BOX STOLEN FROM EMILY&gt;</Hint>
+			<Hint Index="768">Click the button at the bottom of the Clayborne Mine.</Hint>
+			<Hint Index="769">To bypass this puzzle:  with the puzzle on the screen, type 438.  Warning!:  Doing this will reduce your score by 100 points.</Hint>
+		</HintCategory>
+		<HintCategory Index="36" Title="Surviving the Conversation with Jackson Cross">
+			<Hint Index="249">Select Response &lt;New-age clarification&gt;</Hint>
+			<Hint Index="783">Select Response &lt;Afraid irresponsible past finally caught up&gt;</Hint>
+			<Hint Index="784">Select Response &lt;A little tax humor&gt;</Hint>
+			<Hint Index="785">Select Response &lt;Apologize quickly and completely&gt;</Hint>
+			<Hint Index="786">Select Response &lt;Suspicious of commitment&gt;</Hint>
+			<Hint Index="787">Select Response &lt;Tell part of the story&gt;</Hint>
+			<Hint Index="788">Select Response &lt;Ask for leniency&gt;</Hint>
+			<Hint Index="789">Select Response &lt;Let him in on the box&gt;</Hint>
+			<Hint Index="790">Select Response &lt;Bargain&gt;</Hint>
+			<Hint Index="791">Select Response &lt;Hand it over&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="37" Title="Finding All the Boxes Malloy Sent">
+			<Hint Index="250">TALK to Regan Madsen</Hint>
+			<Hint Index="251">Find Thomas Malloy (See Directory)</Hint>
+			<Hint Index="253">Unlock the closet in Malloy's room at the Garden House (See Directory)</Hint>
+			<Hint Index="254">Find and GET &lt;MALLOY'S BRIEFCASE&gt;</Hint>
+			<Hint Index="255">EXAMINE &lt;MALLOY'S BRIEFCASE&gt;</Hint>
+			<Hint Index="257">EXAMINE &lt;MALLOY'S NOTEBOOK&gt;</Hint>
+			<Hint Index="794">EXAMINE &lt;REGAN'S NOTE&gt;</Hint>
+			<Hint Index="258">Go to Tex's office and call Regan</Hint>
+			<Hint Index="259">Go to the Imperial Lounge and TALK to Regan</Hint>
+			<Hint Index="252">Recover the box from the NSA (See Directory)</Hint>
+			<Hint Index="264">In Tex's office, answer Regan's call</Hint>
+			<Hint Index="265">Locate AE (See Directory)</Hint>
+			<Hint Index="266">Find the password for &lt;MALLOY'S DISC&gt; (See Directory)</Hint>
+			<Hint Index="267">Locate Elijah Witt (See Directory)</Hint>
+			<Hint Index="268">Search Witt's Apartment (See Directory)</Hint>
+			<Hint Index="269">In Malloy's room at the Garden House, find and GET the &lt;PACKAGE&gt; on the bed</Hint>
+			<Hint Index="270">EXAMINE the &lt;PACKAGE&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="38" Title="Recovering the Box from the NSA">
+			<Hint Index="271">Find Thomas Malloy (See Directory)</Hint>
+			<Hint Index="273">Get into the Evidence Room in Autotech (See Directory)</Hint>
+			<Hint Index="274">Go to the Morgue, find and GET Dag &lt;HORTON'S KEY&gt; in the G through I drawer</Hint>
+			<Hint Index="275">Go to Horton's office at Autotech and USE &lt;HORTON'S KEY&gt; on the left top file cabinet drawer</Hint>
+			<Hint Index="276">OPEN the upper drawer of the file cabinet</Hint>
+			<Hint Index="277">GET the &lt;MANILA ENVELOPE&gt;</Hint>
+			<Hint Index="278">EXAMINE the &lt;MANILA ENVELOPE&gt;</Hint>
+			<Hint Index="792">EXAMINE the &lt;NSA KEY&gt; from the manila envelope</Hint>
+			<Hint Index="279">Go to locker #B17 in the Evidence Room and USE the &lt;NSA KEY&gt; on the locker</Hint>
+			<Hint Index="281">OPEN the door and GET the &lt;PUZZLE BOX&gt;</Hint>
+			<Hint Index="282">Go to the Evidence Scanning Machine in the Evidence Room and MOVE the Open button on the panel</Hint>
+			<Hint Index="283">USE the &lt;PUZZLE BOX&gt; on the open compartment</Hint>
+			<Hint Index="793">EXAMINE the &lt;PAPERS FROM MANILA ENVELOPE&gt;</Hint>
+			<Hint Index="256">EXAMINE the &lt;PAPER WITH NUMBERS&gt;</Hint>
+			<Hint Index="285">Enter the code 1-0-9-1, then press Enter</Hint>
+			<Hint Index="287">GET the &lt;DEMAGNETIZED PUZZLE BOX&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="39" Title="Finding the Brown Paper Wrapper">
+			<Hint Index="288">Go to the Fuchsia Flamingo and Ask Emily about the box stolen from her</Hint>
+			<Hint Index="289">Ask Emily about the &lt;BROWN PAPER WRAPPER&gt;</Hint>
+			<Hint Index="290">Ask Gus Leach about the &lt;BROWN PAPER WRAPPER&gt;</Hint>
+			<Hint Index="291">Go to the alley behind the Ritz</Hint>
+			<Hint Index="292">Find and LOOK at the &lt;BROWN PAPER WRAPPER&gt; up on the streetlight pole</Hint>
+			<Hint Index="293">Find and GET the &lt;ANTENNA&gt; in the trash can near the Fuchsia Flamingo's back door</Hint>
+			<Hint Index="294">EXAMINE the &lt;ANTENNA&gt;</Hint>
+			<Hint Index="295">USE the &lt;EXTENDED ANTENNA&gt; on the &lt;BROWN PAPER WRAPPER&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="40" Title="Finding the Brown Paper Wrapper">
+			<Hint Index="296">Go to the police station and TALK to Mac when he gets back to the office</Hint>
+			<Hint Index="297">Ask Mac about &lt;EMILY'S PUZZLE BOX&gt;</Hint>
+			<Hint Index="298">Ask Mac about the &lt;BROWN PAPER WRAPPER&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="41" Title="Analyzing the Brown Paper Wrapper">
+			<Hint Index="299">GET the &lt;BROWN PAPER WRAPPER&gt;</Hint>
+			<Hint Index="300">EXAMINE the &lt;BROWN PAPER WRAPPER&gt;</Hint>
+			<Hint Index="301">COMBINE the &lt;VISUAL ANALYZING APPARATUS&gt; with the &lt;BROWN PAPER WRAPPER&gt;</Hint>
+			<Hint Index="302">EXAMINE the &lt;VAA AND BROWN WRAPPER&gt;</Hint>
+			<Hint Index="303">Click the On/Off button on the VAA panel</Hint>
+			<Hint Index="304">Click on the quadrant in the bottom left corner of the wrapper</Hint>
+			<Hint Index="305">Click the Zoom + button</Hint>
+		</HintCategory>
+		<HintCategory Index="42" Title="Getting Past the Landlady at the Garden House">
+			<Hint Index="306">Go to the Garden House</Hint>
+			<Hint Index="307">Get the landlady to let you into Malloy's room</Hint>
+		</HintCategory>
+		<HintCategory Index="43" Title="Locating Elijah Witt">
+			<Hint Index="864">EXAMINE the &lt;ENVELOPE ADDRESSED TO WITT&gt;</Hint>
+			<Hint Index="309">Find the password for &lt;MALLOY'S DISC&gt; (See Directory)</Hint>
+			<Hint Index="310">Read the contents of &lt;MALLOY'S DISC&gt;</Hint>
+			<Hint Index="311">Go to the Electronics Shop and LOOK at the &lt;ROBCO CALL TRACER&gt;</Hint>
+			<Hint Index="312">Ask Zack about the &lt;ROBCO CALL TRACER&gt;</Hint>
+			<Hint Index="313">Buy the &lt;ROBCO CALL TRACER&gt; from Zack for $40</Hint>
+			<Hint Index="314">Go to Tex's office and USE the &lt;ROBCO CALL TRACER&gt; on the vid-phone</Hint>
+			<Hint Index="315">Call Elijah Witt</Hint>
+			<Hint Index="316">Use path B/A/B/C/C/C/C/C</Hint>
+			<Hint Index="317">TRAVEL to Witt's apartment</Hint>
+		</HintCategory>
+		<HintCategory Index="44" Title="Unlocking the Closet in Malloy's Room at the Garden House">
+			<Hint Index="318">Try to OPEN the closet in Malloy's room at the Garden House</Hint>
+			<Hint Index="319">Find Thomas Malloy (See Directory)</Hint>
+			<Hint Index="320">Go to the Waterfront Warehouse, find and MOVE the pallets in the corner</Hint>
+			<Hint Index="260">LOOK at the safe</Hint>
+			<Hint Index="261">Unlock the safe (See Directory)</Hint>
+			<Hint Index="321">Find and GET the &lt;SMALL KEY&gt; from the safe</Hint>
+			<Hint Index="322">Go to Malloy's room at the Garden House</Hint>
+			<Hint Index="323">USE the &lt;SMALL KEY&gt; on the closet door</Hint>
+		</HintCategory>
+		<HintCategory Index="45" Title="Finding the Password for Malloy's Disc">
+			<Hint Index="324">USE &lt;MALLOY'S DISC&gt; on the computer in Tex's computer room</Hint>
+			<Hint Index="325">In Malloy's room at the Garden House, find and GET the &lt;PUZZLE BOOK&gt; on the nightstand by the bed</Hint>
+			<Hint Index="326">EXAMINE the &lt;PUZZLE BOOK&gt;</Hint>
+			<Hint Index="327">Unlock the closet in Malloy's room at the Garden House (See Directory)</Hint>
+			<Hint Index="328">Find and GET the `There are Messages from Outer Space' book on the floor of the closet</Hint>
+			<Hint Index="329">EXAMINE the `There are Messages from Outer Space' book</Hint>
+			<Hint Index="330">Go back to Tex's office and get the message from Lucia Pernell</Hint>
+			<Hint Index="331">Call Lucia Pernell</Hint>
+			<Hint Index="332">Ask Pernell about Anagrams</Hint>
+			<Hint Index="333">Find the Operation Euphoria file for Lucia Pernell (See Directory)</Hint>
+			<Hint Index="334">Call and TALK to Lucia Pernell</Hint>
+			<Hint Index="335">GET the &lt;LIST OF ANAGRAMS&gt; from the fax machine</Hint>
+			<Hint Index="336">EXAMINE the &lt;LIST OF ANAGRAMS&gt;</Hint>
+			<Hint Index="338">USE &lt;MALLOY'S DISC&gt; on the computer</Hint>
+			<Hint Index="834">Type in 'MERGE THE FOUR RARE CASES TO SEE MAPS'</Hint>
+		</HintCategory>
+		<HintCategory Index="46" Title="Locating Gary Lee">
+			<Hint Index="865">EXAMINE the &lt;STICKY NOTES&gt;</Hint>
+			<Hint Index="140">Go to the alley behind the Golden Gate Hotel and TALK to Crazy Gary</Hint>
+		</HintCategory>
+		<HintCategory Index="47" Title="Opening the Demagnetized Puzzle Box">
+			<Hint Index="340">Recover the box from the NSA (See Directory)</Hint>
+			<Hint Index="341">Find Thomas Malloy (See Directory)</Hint>
+			<Hint Index="342">Unlock the closet in Malloy's room at the Garden House (See Directory)</Hint>
+			<Hint Index="343">Find and GET &lt;MALLOY'S BRIEFCASE&gt;</Hint>
+			<Hint Index="357">EXAMINE &lt;MALLOY'S BRIEFCASE&gt;</Hint>
+			<Hint Index="358">EXAMINE &lt;MALLOY'S NOTEBOOK&gt;</Hint>
+			<Hint Index="359">EXAMINE &lt;REGAN'S NOTE&gt;</Hint>
+			<Hint Index="346">Go to Tex's office and call Regan</Hint>
+			<Hint Index="347">Travel to the Imperial Lounge</Hint>
+			<Hint Index="348">Open the puzzle box from Regan (See Directory)</Hint>
+			<Hint Index="349">EXAMINE &lt;REGAN'S UNLOCKED PUZZLE BOX&gt;</Hint>
+			<Hint Index="350">COMBINE the &lt;PEGS&gt; with the &lt;DEMAGNETIZED PUZZLE BOX&gt;</Hint>
+			<Hint Index="351">In the Waterfront Warehouse, find and GET the &lt;FLIGHT SCHEDULE&gt; on the floor near the table</Hint>
+			<Hint Index="352">EXAMINE the &lt;FLIGHT SCHEDULE&gt;</Hint>
+			<Hint Index="360">In the ACME Warehouse, find and GET the &lt;MAP OF ASIA&gt; on the pallet underneath Malloy's crate</Hint>
+			<Hint Index="25">EXAMINE the &lt;MAP OF ASIA&gt;</Hint>
+			<Hint Index="761">COMBINE the &lt;MAP OF ASIA&gt; with the &lt;FLIGHT SCHEDULE&gt;</Hint>
+			<Hint Index="99">EXAMINE the &lt;FILLED MAP, FLIGHT SCHEDULE&gt;</Hint>
+			<Hint Index="145">COMBINE the &lt;FILLED MAP, FLIGHT SCHEDULE&gt; with the &lt;DEMAGNETIZED BOX, PEGS&gt;</Hint>
+			<Hint Index="146">The map and flight schedule contain the information needed to open the box.</Hint>
+			<Hint Index="353">EXAMINE the &lt;BOX, PEGS, FLIGHT SCHED, MAP&gt;</Hint>
+			<Hint Index="354">To bypass this puzzle:  with the puzzle on the screen, type 380.  Warning!:  Doing this will reduce your score by 200 points</Hint>
+		</HintCategory>
+		<HintCategory Index="48" Title="Opening the Puzzle Box from Regan">
+			<Hint Index="355">TALK to Regan at the Imperial Lounge</Hint>
+			<Hint Index="356">EXAMINE &lt;REGAN'S PUZZLE BOX&gt;</Hint>
+			<Hint Index="873">Get into the ACME Storage Warehouse (See Directory)</Hint>
+			<Hint Index="361">Find and LOOK at the crate with Malloy's name on it just inside the warehouse door and to the right</Hint>
+			<Hint Index="362">Get into Malloy's crate (See Directory)</Hint>
+			<Hint Index="363">GET the &lt;TAPESTRY&gt; from Malloy's crate</Hint>
+			<Hint Index="364">COMBINE &lt;REGAN'S PUZZLE BOX&gt; with the &lt;TAPESTRY&gt; from Malloy's crate</Hint>
+			<Hint Index="365">EXAMINE &lt;REGAN'S BOX, TAPESTRY&gt;</Hint>
+			<Hint Index="366">To bypass this puzzle:  with the puzzle on the screen, type 649.  Warning!:  Doing this will reduce your score by 200 points</Hint>
+		</HintCategory>
+		<HintCategory Index="49" Title="Getting Into Malloy's Crate in the ACME Warehouse">
+			<Hint Index="367">Find and LOOK at Malloy's crate</Hint>
+			<Hint Index="368">LOOK at the pulley system above Malloy's crate</Hint>
+			<Hint Index="369">Find and OPEN the pulley control box on the wall across the room from Malloy's crate</Hint>
+			<Hint Index="370">Turn on the pulley control</Hint>
+			<Hint Index="371">Click the directional control to lower the boom</Hint>
+			<Hint Index="372">Find and OPEN the Pirate Supplies chest across the room from the warehouse door</Hint>
+			<Hint Index="373">GET the &lt;PEG LEG&gt; from the Pirate Supplies chest</Hint>
+			<Hint Index="374">USE the &lt;PEG LEG&gt; on the hole on the pulley attachment</Hint>
+			<Hint Index="375">Click the directional control lever to raise Malloy's crate</Hint>
+			<Hint Index="376">OPEN Malloy's crate</Hint>
+		</HintCategory>
+		<HintCategory Index="50" Title="Finding out about Item #186">
+			<Hint Index="378">EXAMINE the &lt;SLIDE&gt; from the &lt;DEMAGNETIZED PUZZLE BOX&gt;</Hint>
+			<Hint Index="379">Locate AE (See Directory)</Hint>
+			<Hint Index="380">OFFER the &lt;SLIDE OF ITEM #186&gt; to Archie Ellis</Hint>
+		</HintCategory>
+		<HintCategory Index="51" Title="Finding the Power Cell (Item #186)">
+			<Hint Index="381">OFFER the &lt;SLIDE OF ITEM #186&gt; to Archie Ellis</Hint>
+			<Hint Index="382">Ask Archie Ellis about Roswell</Hint>
+			<Hint Index="383">Go to Tex's Office and call Gordon Fitzpatrick on the vid-phone</Hint>
+			<Hint Index="384">Ask Fitzpatrick about Roswell</Hint>
+			<Hint Index="795">Travel to Roswell</Hint>
+			<Hint Index="796">Get Access into the Roswell Military Complex (See Directory)</Hint>
+			<Hint Index="797">Get into the Roswell Underground Complex (See Directory)</Hint>
+			<Hint Index="798">Eliminate the alien entity (See Directory)</Hint>
+			<Hint Index="807">Find and open the elevator doors</Hint>
+			<Hint Index="808">Go into the elevator, find and MOVE the 2 button</Hint>
+			<Hint Index="799">Get to Level 3 of the Roswell Underground Complex (See Directory)</Hint>
+			<Hint Index="577">Get into the locked inventory Storage Area (See Directory)</Hint>
+			<Hint Index="578">OPEN the door to the inventory storage area, enter and LOOK at the inventory control computer</Hint>
+			<Hint Index="579">Turn ON the computer</Hint>
+			<Hint Index="580">Under Enter Item #, enter the numbers 1-8-6 and press ENTER</Hint>
+			<Hint Index="810">Return to the compound (outside), travel to the Waterfront Warehouse, find and GET &lt;ITEM #186 SCRAP&gt; on the table</Hint>
+			<Hint Index="811">EXAMINE &lt;ITEM #186 SCRAP&gt;</Hint>
+			<Hint Index="581">Return to the inventory storage area on Level 3 in Roswell, turn on the computer and enter the item number and then 7-A-C for the Access item code</Hint>
+			<Hint Index="582">The computer is in manual mode.  You must move other objects out of the way of object 186 in order to retrieve it through the transfer tunnel.  To bypass this puzzle:  with the puzzle on the screen, type 540.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+			<Hint Index="467">OPEN the glass doors to the conveyor track area</Hint>
+			<Hint Index="468">Find and GET the &lt;POWER CELL&gt; from the conveyor track</Hint>
+		</HintCategory>
+		<HintCategory Index="52" Title="Unlocking the Safe in the Waterfront Warehouse">
+			<Hint Index="385">LOOK at the safe in the Waterfront Warehouse</Hint>
+			<Hint Index="386">In Malloy's room at the Garden House, find and OPEN the rolltop desk</Hint>
+			<Hint Index="280">Find and GET the &lt;ETS BUSINESS CARD&gt;</Hint>
+			<Hint Index="387">EXAMINE the &lt;ETS BUSINESS CARD&gt;</Hint>
+			<Hint Index="388">In the Electronics Shop, find and LOOK at the &lt;ROBCO COMBUSTER&gt;</Hint>
+			<Hint Index="389">Ask Zack about the &lt;ROBCO COMBUSTER&gt;</Hint>
+			<Hint Index="390">Buy the &lt;ROBCO COMBUSTER&gt; from Zack for $50</Hint>
+			<Hint Index="391">Go to the warehouse and USE the &lt;ROBCO COMBUSTER&gt; on the safe</Hint>
+			<Hint Index="392">Turn on the combuster, then turn the safe dial one full turn to get the four numbers in the combination</Hint>
+			<Hint Index="393">Find the mathematical relationship between the numbers on the business card and the four numbers of the safe combination to find the order of the numbers in the combination.  Enter the combination.  To bypass this puzzle:  with the puzzle on the screen, type 197.  Warning!:  Doing this will reduce your score by 100 points.</Hint>
+		</HintCategory>
+		<HintCategory Index="53" Title="Locating AE">
+			<Hint Index="395">Find out about AE (Initials) from Regan Madsen</Hint>
+			<Hint Index="71">EXAMINE &lt;FITZPATRICK'S CARD&gt;</Hint>
+			<Hint Index="396">Go to Tex's office and call Fitzpatrick</Hint>
+			<Hint Index="397">Ask Fitzpatrick about Initials</Hint>
+			<Hint Index="398">Unlock the closet in Malloy's room at the Garden House (See Directory)</Hint>
+			<Hint Index="399">In the closet at the Garden House, find and GET the `&lt;THERE ARE MESSAGES...&gt;' book from the floor of the closet</Hint>
+			<Hint Index="872">EXAMINE the `There are Messages from Outer Space' book</Hint>
+			<Hint Index="589">In the closet at the Garden House, find and GET &lt;MALLOY'S BRIEFCASE&gt;</Hint>
+			<Hint Index="866">EXAMINE &lt;MALLOY'S BRIEFCASE&gt;</Hint>
+			<Hint Index="401">EXAMINE &lt;GATE OF THE SUN PHOTO&gt;</Hint>
+			<Hint Index="591">Get into the ACME Storage Warehouse (See Directory)</Hint>
+			<Hint Index="402">Get into Malloy's crate in the ACME Warehouse (See Directory)</Hint>
+			<Hint Index="403">Find and GET the &lt;PHOTOGRAPH OF NAZCA&gt; in Malloy's crate in the ACME Warehouse</Hint>
+			<Hint Index="404">EXAMINE the &lt;PHOTOGRAPH OF NAZCA&gt;</Hint>
+			<Hint Index="405">In Tex's office, call Archie Ellis</Hint>
+			<Hint Index="406">Use conversation path A/C/C/A/A/A</Hint>
+			<Hint Index="407">Go to the Cosmic Connection and Talk to Archie Ellis</Hint>
+		</HintCategory>
+		<HintCategory Index="54" Title="Finding the Operation Euphoria file for Lucia Pernell">
+			<Hint Index="10">Call Lucia Pernell (and ask her about the deal)</Hint>
+			<Hint Index="408">Ask Lucia Pernell about &lt;ANAGRAMS&gt;</Hint>
+			<Hint Index="410">Get into the Evidence Room at Autotech (See Directory)</Hint>
+			<Hint Index="837">Recover the box from the NSA (See Directory)</Hint>
+			<Hint Index="411">In the Evidence Room at Autotech, USE &lt;PERNELL'S KEY&gt; on locker #E36</Hint>
+			<Hint Index="412">OPEN the door to locker #E36</Hint>
+			<Hint Index="413">GET the &lt;OPERATION EUPHORIA DISC&gt;</Hint>
+			<Hint Index="415">Go to the Evidence Scanning machine, push the Open button and USE the &lt;OPERATION EUPHORIA DISC&gt; on the open compartment</Hint>
+			<Hint Index="417">Enter the code 1-0-9-1, then press Enter</Hint>
+			<Hint Index="419">GET the &lt;DEMAGNETIZED DISC&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="55" Title="Getting Access Into the Roswell Military Complex">
+			<Hint Index="420">Travel to Autotech</Hint>
+			<Hint Index="421">Find and OPEN locker #E13 in the evidence room</Hint>
+			<Hint Index="422">GET the &lt;NSA ID BADGE&gt;</Hint>
+			<Hint Index="377">TRAVEL to Roswell</Hint>
+		</HintCategory>
+		<HintCategory Index="56" Title="Getting into the Roswell Underground Complex">
+			<Hint Index="424">Leave the Roswell guardhouse through the back door</Hint>
+			<Hint Index="425">In the main compound area, LOOK at the door with the 'Danger - Laserfield' sign</Hint>
+			<Hint Index="426">Get across the Laserfield (See Directory)</Hint>
+			<Hint Index="427">LOOK at the steel doors inside the tunnel</Hint>
+			<Hint Index="428">Open the door to the Underground Complex (See Directory)</Hint>
+			<Hint Index="806">OPEN the blasted door</Hint>
+		</HintCategory>
+		<HintCategory Index="57" Title="Getting into the Emergency Bunker in the Guard House">
+			<Hint Index="432">LOOK at the door to the Emergency Bunker in the Guard House</Hint>
+			<Hint Index="802">Find and GET the &lt;EMERGENCY PROCEDURES BOOK&gt; on the chair by the nightstand</Hint>
+			<Hint Index="803">EXAMINE the &lt;EMERGENCY PROCEDURES BOOK&gt;</Hint>
+			<Hint Index="433">Go to the compound (outside) and LOOK at the power switch near the guard house back door</Hint>
+			<Hint Index="394">Find the tower in the compound and LOOK at the broken cable attached to it</Hint>
+			<Hint Index="435">Repair the cable on the tower (See Directory)</Hint>
+			<Hint Index="436">Go back to the Guard House and enter the Emergency Bunker</Hint>
+		</HintCategory>
+		<HintCategory Index="58" Title="Repairing the Cable on the Tower">
+			<Hint Index="437">Go to the tower and LOOK at the broken power cable</Hint>
+			<Hint Index="439">MOVE the box at the base of the tower</Hint>
+			<Hint Index="440">LOOK at the locked shed in the compound area</Hint>
+			<Hint Index="416">Go inside the guard house and OPEN the locker on the right side</Hint>
+			<Hint Index="429">Find and GET the &lt;ROSWELL PADLOCK KEY&gt; on the floor of the locker</Hint>
+			<Hint Index="430">USE the &lt;ROSWELL PADLOCK KEY&gt; on the shed padlock, open the door and enter</Hint>
+			<Hint Index="442">Find and GET the &lt;TOOLBOX&gt; on the shelf in the shed</Hint>
+			<Hint Index="443">EXAMINE the &lt;TOOLBOX&gt;</Hint>
+			<Hint Index="49">Get across the Laserfield (See Directory)</Hint>
+			<Hint Index="441">Find and GET the &lt;POWER CABLE&gt; by the entrance to the tunnel on the far side of the laserfield</Hint>
+			<Hint Index="444">COMBINE the &lt;WIRE STRIPPERS&gt; with the &lt;POWER CABLE&gt;</Hint>
+			<Hint Index="445">USE the &lt;STRIPPED POWER CABLE&gt; on the broken power cable</Hint>
+			<Hint Index="446">Go to the power box by the guard house and MOVE the lever (to ON)</Hint>
+		</HintCategory>
+		<HintCategory Index="59" Title="Getting Across the Laserfield">
+			<Hint Index="447">Go into the compound area and LOOK at the card reader next to the laserfield door</Hint>
+			<Hint Index="448">Go into the guardhouse and OPEN the nightstand drawer near the beds</Hint>
+			<Hint Index="449">GET the &lt;ROSWELL SECURITY CARD&gt;</Hint>
+			<Hint Index="450">USE the &lt;ROSWELL SECURITY CARD&gt; on the card reader</Hint>
+			<Hint Index="451">LOOK at the laserfield control system directly across from the laserfield door</Hint>
+			<Hint Index="553">Go into the guard house and get the &lt;LASER FIELD DIAGRAM&gt; that is partially hidden under the bottom mattress</Hint>
+			<Hint Index="554">EXAMINE the &lt;LASER FIELD DIAGRAM&gt;</Hint>
+			<Hint Index="805">Turn ON the laserfield control system</Hint>
+			<Hint Index="555">Solve the puzzle to get access to the laserfield, then follow the blue path through the laserfield.  To bypass this puzzle:  with the puzzle on the scren, type 253.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+		</HintCategory>
+		<HintCategory Index="60" Title="Opening the Door to the Underground Complex">
+			<Hint Index="452">Try to OPEN the steel doors</Hint>
+			<Hint Index="453">Get into the Emergency Bunker in the Guard House (See Directory)</Hint>
+			<Hint Index="454">Find and OPEN the trap door on the floor of the Emergency Bunker</Hint>
+			<Hint Index="455">GET the &lt;DYNAMITE BOX&gt;</Hint>
+			<Hint Index="456">EXAMINE the &lt;DYNAMITE BOX&gt;</Hint>
+			<Hint Index="459">In the Guard House, find and GET the &lt;MATCHBOX&gt; on the night stand next to the beds</Hint>
+			<Hint Index="457">In the compound, find and GET the &lt;FUSE&gt; on top of the box near the shed that cannot be opened</Hint>
+			<Hint Index="460">COMBINE the &lt;DYNAMITE&gt; with the &lt;FUSE&gt;</Hint>
+			<Hint Index="461">COMBINE the &lt;DYNAMITE WITH FUSE&gt; with the &lt;MATCHBOX&gt;</Hint>
+			<Hint Index="462">Get across the Laserfield (See Directory)</Hint>
+			<Hint Index="463">USE the &lt;LIT DYNAMITE&gt; on the door</Hint>
+			<Hint Index="464">Run away!</Hint>
+		</HintCategory>
+		<HintCategory Index="61" Title="Exploring with the 'Abductor'">
+			<Hint Index="465">Once inside the duct area, EXAMINE the &lt;LIVE ABDUCTOR WITH REMOTE&gt; and press ON</Hint>
+			<Hint Index="466">Look at the reference numbers located throughout the ductwork to keep track of where you are.  Find your way to the 2nd level and search to find the four retrievable objects in rooms found at the end of the airducts.  To retrieve objects, place your cursor over the object.  When the cursor turns red, press the 'Activate Arm' button.  If it can be retrieved, it will be added to your inventory.  To avoid being hit by the fan blades, elevate as high as possible and fly over the fan between the blades</Hint>
+		</HintCategory>
+		<HintCategory Index="63" Title="Eliminating the Alien Entity">
+			<Hint Index="472">Find and LOOK at the Dorm door on level 1</Hint>
+			<Hint Index="474">Go to the Compound (outside), find and GET the &lt;SHOVEL&gt; next to the locked storage shed</Hint>
+			<Hint Index="475">USE the &lt;SHOVEL&gt; on the Dorm door and enter the Dorm</Hint>
+			<Hint Index="477">Find and GET the &lt;CD&gt; on the floor near the door</Hint>
+			<Hint Index="478">Find and GET the &lt;DISC PLAYER&gt; in one of the storage drawers in the sleeping area</Hint>
+			<Hint Index="479">COMBINE the &lt;CD&gt; with the &lt;DISC PLAYER&gt;</Hint>
+			<Hint Index="838">EXAMINE the &lt;DISC PLAYER WITH CD&gt;</Hint>
+			<Hint Index="480">Find and GET the &lt;CONTAINMENT UNIT&gt; in one of the storage drawers in the Dorm</Hint>
+			<Hint Index="481">COMBINE the &lt;CONTAINMENT UNIT&gt; with the &lt;CONTAINMENT SCRAP&gt; found in the safe at the Waterfront Warehouse</Hint>
+			<Hint Index="482">Turn on the backup generator in the Generator Room (See Directory)</Hint>
+			<Hint Index="483">Leave the Generator Room and listen for the generator to shut off</Hint>
+			<Hint Index="484">Rush back to the generator and USE the &lt;OPEN CONTAINMENT UNIT&gt; on the dormant alien entity</Hint>
+		</HintCategory>
+		<HintCategory Index="64" Title="Turning on the Backup Generator in the Generator Room">
+			<Hint Index="487">Find and OPEN the door to the Generator Room on Level 1</Hint>
+			<Hint Index="488">LOOK at the generator</Hint>
+			<Hint Index="489">Find and OPEN the door to the Mess Hall on Level 1</Hint>
+			<Hint Index="490">OPEN the upper cabinet in the kitchen area</Hint>
+			<Hint Index="491">GET the &lt;POT&gt;</Hint>
+			<Hint Index="492">OPEN the freezer door on the refrigerator on the left</Hint>
+			<Hint Index="493">GET the &lt;ICE PICK&gt;</Hint>
+			<Hint Index="494">Find and OPEN storage room door 104 on Level 1</Hint>
+			<Hint Index="495">USE the &lt;ICE PICK&gt; on the partially full fuel drum</Hint>
+			<Hint Index="496">USE the &lt;POT&gt; on the fuel leaking from the opened fuel drum</Hint>
+			<Hint Index="497">Go to the Mess Hall and USE the &lt;POT OF DIESEL FUEL&gt; on the right stove</Hint>
+			<Hint Index="498">Turn ON the stove</Hint>
+			<Hint Index="499">GET the &lt;LIQUIFIED FUEL&gt; from the stove</Hint>
+			<Hint Index="804">Go to the generator and MOVE the fuel cap</Hint>
+			<Hint Index="500">USE the &lt;LIQUIFIED FUEL&gt; on the gas spout of the generator</Hint>
+			<Hint Index="501">Find the fuel prime handle and MOVE it three times to turn ON the generator</Hint>
+			<Hint Index="502">Get the generator to work (See Directory)</Hint>
+		</HintCategory>
+		<HintCategory Index="65" Title="Getting the Generator to Work">
+			<Hint Index="431">OPEN the larger cover on the backup generator</Hint>
+			<Hint Index="503">Try to turn on the generator by moving the green button</Hint>
+			<Hint Index="504">Find and OPEN the door to the storage room 102 on Level 1</Hint>
+			<Hint Index="505">Find and GET the &lt;BOX OF SPARK PLUGS&gt;</Hint>
+			<Hint Index="506">Go to the Generator Room and OPEN the smaller cover on the generator to reveal a cylinder head</Hint>
+			<Hint Index="507">EXAMINE the &lt;BOX OF SPARK PLUGS&gt; and USE the &lt;SPARK PLUG&gt; on the cylinder head</Hint>
+			<Hint Index="508">Turn ON the generator</Hint>
+		</HintCategory>
+		<HintCategory Index="66" Title="Getting Into the War Room">
+			<Hint Index="509">LOOK at the door to the War Room on Level 2</Hint>
+			<Hint Index="510">Go to the Dormitory on Level 1</Hint>
+			<Hint Index="511">Find the jammed open door and LOOK at the &lt;ROSWELL ID BADGE&gt; lying on the floor behind the door - this is difficult to find so look carefully</Hint>
+			<Hint Index="512">Go to the Rec Hall on Level 1 and find and GET the &lt;DART&gt; in the dartboard on the wall</Hint>
+			<Hint Index="513">In the Rec Hall on Level 1, find and GET the &lt;POOL CUE&gt; by the pool table</Hint>
+			<Hint Index="514">Go to the Dorm on Level 1 and find and GET the &lt;DUCT TAPE&gt; in one of the storage drawers in the sleeping area</Hint>
+			<Hint Index="515">COMBINE the &lt;DART&gt; with the &lt;POOL CUE&gt;</Hint>
+			<Hint Index="516">COMBINE the &lt;DUCT TAPE&gt; with the &lt;DART WITH POOL CUE&gt;</Hint>
+			<Hint Index="517">USE the &lt;MAKESHIFT SPEAR&gt; on the &lt;ROSWELL ID BADGE&gt;</Hint>
+			<Hint Index="518">Go to the door to the War Room on Level 2 and USE the &lt;ROSWELL ID BADGE&gt; on the panel</Hint>
+		</HintCategory>
+		<HintCategory Index="67" Title="Getting to Level 3 of the Roswell Underground Complex">
+			<Hint Index="520">Find and LOOK at the Elevator to Level 3 (by the Metallurgy lab)</Hint>
+			<Hint Index="523">Use the Abductor (See Directory)</Hint>
+			<Hint Index="524">From the ventilation fan, find a down arrow (near sign J1-5) in the ducts to take you to the 2nd level</Hint>
+			<Hint Index="809">Find the duct shaft directly opposite from the reference sign J2-3.  Follow this shaft to the Linguistics Lab</Hint>
+			<Hint Index="525">Using the Abductor Arm, find and pick up the &lt;PASSCARD&gt; on a computer console in the Linguistics Lab</Hint>
+			<Hint Index="526">USE the &lt;RED PASSCARD&gt; on the panel by the elevator to Level 3</Hint>
+			<Hint Index="527">Defuse the Explosive Device in the Level 3 Elevator (See Directory)</Hint>
+			<Hint Index="528">In the elevator to go to Level 3, push the Level 3 button</Hint>
+		</HintCategory>
+		<HintCategory Index="68" Title="Using the `Abductor'">
+			<Hint Index="529">Find and GET the Alien &lt;ABDUCTOR&gt; from the conversation pit in the Rec Hall on level 1</Hint>
+			<Hint Index="521">Get into the War Room (See Directory)</Hint>
+			<Hint Index="530">Find and GET the &lt;ADBUCTOR REMOTE&gt; in the War Room, under the Video Projector</Hint>
+			<Hint Index="531">Return to the compound (outside), TRAVEL to the Electronics Shop and LOOK at the &lt;ROBCO BATTERY PACK&gt;</Hint>
+			<Hint Index="532">Ask Zack about the &lt;ROBCO BATTERY PACK&gt;</Hint>
+			<Hint Index="533">Buy the &lt;ROBCO BATTERY PACK&gt; from Zack for $20</Hint>
+			<Hint Index="534">COMBINE the Alien &lt;ABDUCTOR&gt; with the &lt;ROBCO BATTERY PACK&gt;</Hint>
+			<Hint Index="536">COMBINE the &lt;LIVE ABDUCTOR&gt; with the &lt;ABDUCTOR REMOTE&gt;</Hint>
+			<Hint Index="537">In the Rec Hall, find and GET the &lt;FREE WEIGHT BAR&gt; in the workout area</Hint>
+			<Hint Index="538">On level 1, OPEN the door at the end of the hall just past the Rec Hall</Hint>
+			<Hint Index="535">LOOK at the ventilation fan</Hint>
+			<Hint Index="539">USE the &lt;FREE WEIGHT BAR&gt; on the ventilation fan</Hint>
+			<Hint Index="540">USE the &lt;LIVE ABDUCTOR WITH REMOTE&gt; on the fan</Hint>
+		</HintCategory>
+		<HintCategory Index="69" Title="Defusing the Explosive Device in the Level 3 Elevator">
+			<Hint Index="542">LOOK at the red and blue wires on the panel in the elevator to Level 3</Hint>
+			<Hint Index="543">Use the Abductor (See Directory)</Hint>
+			<Hint Index="867">From the ventilation fan, find a down arrow (near sign J1-5) in the ducts to take you to the 2nd level</Hint>
+			<Hint Index="544">Find the duct shaft directly opposite from the reference sign J2-12 and follow this shaft to the Computer Science Lab</Hint>
+			<Hint Index="545">Using the Abductor Arm, find and pick up the &lt;PHILLIPS SCREWDRIVER&gt; on the floor near the tipped-over chair</Hint>
+			<Hint Index="546">USE the &lt;PHILLIPS SCREWDRIVER&gt; on the panel in the elevator to Level 3</Hint>
+			<Hint Index="549">OPEN the panel</Hint>
+			<Hint Index="547">In the Generator Room on Level 1, find and GET the &lt;WIRE CUTTERS&gt; from on top of the box</Hint>
+			<Hint Index="548">USE the &lt;WIRE CUTTERS&gt; on the red and blue wires</Hint>
+			<Hint Index="551">GET the &lt;EXPLOSIVE DEVICE&gt;</Hint>
+			<Hint Index="558">Find the Waste Disposal Unit mounted on the wall near the Bio Lab area and OPEN it</Hint>
+			<Hint Index="559">USE the &lt;EXPLOSIVE DEVICE&gt; on the open Waste Disposal Unit</Hint>
+		</HintCategory>
+		<HintCategory Index="70" Title="Getting into Locked Inventory Storage Area 101-200">
+			<Hint Index="561">LOOK at the Locked Storage Area (Items 101-200) on Level 3</Hint>
+			<Hint Index="562">Find and GET the &lt;ACETYLENE TORCH HANDLE&gt; on a shelf in Storage Room 104 on Level 1</Hint>
+			<Hint Index="563">Find and GET the &lt;PLASTIC CASE&gt; in Storage Room 102 on Level 1</Hint>
+			<Hint Index="564">EXAMINE the &lt;PLASTIC CASE&gt;</Hint>
+			<Hint Index="565">Find and GET the &lt;OXYGEN TANK&gt; in the corner of the Generator Room on Level 1</Hint>
+			<Hint Index="566">Find and GET the &lt;ACETYLENE TANK&gt; on a shelf in the Miscellaneous Storage Room on Level 3</Hint>
+			<Hint Index="567">Find and GET the &lt;STRIKER&gt; hanging on the side of a crate in the Miscellaneous Storage Room on Level 3</Hint>
+			<Hint Index="568">Use the Abductor (See Directory)</Hint>
+			<Hint Index="868">From the ventilation fan, find a down arrow (near sign J1-5) in the ducts to take you to the 2nd level</Hint>
+			<Hint Index="569">Find the Duct shaft directly opposite from the reference sign J2-8 and follow this shaft to the Metallurgy Lab</Hint>
+			<Hint Index="570">With the abductor arm, find and pick up the &lt;HOSES&gt; on the wall in the Metallurgy Lab.</Hint>
+			<Hint Index="571">COMBINE the &lt;HOSES&gt; with the &lt;OXYGEN TANK&gt;.</Hint>
+			<Hint Index="572">COMBINE the &lt;OXYGEN TANK, HOSES&gt; with the &lt;ACETYLENE TANK&gt;</Hint>
+			<Hint Index="573">COMBINE the &lt;ACETYLENE TORCH HANDLE&gt; with the &lt;ACETYLENE TORCH CUTTING TIP&gt;</Hint>
+			<Hint Index="574">COMBINE the &lt;ACETYLENE TORCH&gt; with the &lt;TANKS AND HOSES&gt;</Hint>
+			<Hint Index="575">COMBINE the &lt;ACETYLENE KIT&gt; with the &lt;STRIKER&gt;</Hint>
+			<Hint Index="576">USE the &lt;LIT ACETYLENE TORCH&gt; on the lock on the door to Storage Area (Items 101-200)</Hint>
+		</HintCategory>
+		<HintCategory Index="71" Title="Getting the Power Cell (Item #186)">
+		</HintCategory>
+		<HintCategory Index="73" Title="What to do after Roswell">
+			<Hint Index="592">Go to Tex's office and check the vid-phone for messages</Hint>
+		</HintCategory>
+		<HintCategory Index="74" Title="Turning off the Alarm in Witt's Apartment">
+			<Hint Index="593">LOOK at the alarm panel by the door to Witt's apartment</Hint>
+			<Hint Index="594">Find and MOVE the death mask on the wall to the left of the bookcase</Hint>
+			<Hint Index="595">MOVE the switch behind the death mask</Hint>
+			<Hint Index="597">MOVE the switch behind the tree by the table and chairs</Hint>
+			<Hint Index="598">Find and LOOK at the alarm switch high on the wall above the fireplace</Hint>
+			<Hint Index="599">Find and GET a &lt;BAMBOO POLE&gt; from the pot beside the fireplace</Hint>
+			<Hint Index="600">USE the &lt;BAMBOO POLE&gt; on the alarm switch to turn it off</Hint>
+			<Hint Index="601">Ride the lift to the loft</Hint>
+			<Hint Index="602">MOVE the plant on top of the dresser to the right of the bed</Hint>
+			<Hint Index="603">MOVE the alarm switch</Hint>
+		</HintCategory>
+		<HintCategory Index="75" Title="Searching Witt's Apartment">
+			<Hint Index="813">Turn off the alarm in Witt's apartment (See Directory)</Hint>
+			<Hint Index="604">LOOK at the stone statue in the corner by the fireplace</Hint>
+			<Hint Index="605">Find and LOOK at the keyhole on the stone statue</Hint>
+			<Hint Index="814">MOVE the tree on the left side of the fireplace</Hint>
+			<Hint Index="608">MOVE the diamond design on the wall to the left of the fireplace to turn off the flames in the fireplace</Hint>
+			<Hint Index="842">Ride the lift to the loft</Hint>
+			<Hint Index="610">GET the &lt;TWEEZERS&gt; from on top of the dresser to the left of the bed</Hint>
+			<Hint Index="611">Go to the fireplace and USE the &lt;TWEEZERS&gt; on the &lt;FOIL PACKET&gt;</Hint>
+			<Hint Index="612">EXAMINE the &lt;FOIL PACKET&gt;</Hint>
+			<Hint Index="613">USE the &lt;COPPER KEY&gt; on the keyhole in the stone statue</Hint>
+			<Hint Index="614">Solve the slider puzzle in the stone statue (See Directory)</Hint>
+			<Hint Index="615">Go to the open bookcase and find and GET &lt;WITT'S PUZZLE BOX&gt;</Hint>
+		</HintCategory>
+		<HintCategory Index="76" Title="Solving the Slider Puzzle in the Stone Statue">
+			<Hint Index="617">In the bedroom loft, find and GET the &lt;SCRAPBOOK&gt; in the bottom drawer of the dresser on the right</Hint>
+			<Hint Index="618">EXAMINE the &lt;SCRAPBOOK&gt;</Hint>
+			<Hint Index="619">EXAMINE the &lt;PHOTOGRAPH OF WITT'S STATUE&gt;</Hint>
+			<Hint Index="620">Find and LOOK at the chart on the wall by the masks</Hint>
+			<Hint Index="622">Arrange the tiles to correspond to the numbers on the back of the &lt;PHOTOGRAPH OF WITT'S STATUE&gt;.  To bypass this puzzle:  with the puzzle on the screen, type 204.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+		</HintCategory>
+		<HintCategory Index="77" Title="Opening Witt's Puzzle Box">
+			<Hint Index="557">EXAMINE &lt;WITT'S PUZZLE BOX&gt;</Hint>
+			<Hint Index="584">Find and GET &lt;WITT'S NOTES&gt; on the bed in the loft</Hint>
+			<Hint Index="585">EXAMINE &lt;WITT'S NOTES&gt;</Hint>
+			<Hint Index="586">Find and GET the &lt;CALENDAR BOOK&gt; to the right of the sofa</Hint>
+			<Hint Index="587">EXAMINE the &lt;CALENDAR BOOK&gt;</Hint>
+			<Hint Index="839">Find and GET the &lt;CULTURE BOOK&gt; to the left of the sofa</Hint>
+			<Hint Index="840">EXAMINE the &lt;CULTURE BOOK&gt;</Hint>
+			<Hint Index="841">Find and GET a &lt;BAMBOO POLE&gt; from the pot beside the fireplace</Hint>
+			<Hint Index="843">While standing in the loft, use the &lt;BAMBOO POLE&gt; on the &lt;PLAQUE&gt; on the wall above the alarm panel</Hint>
+			<Hint Index="844">EXAMINE the &lt;PLAQUE&gt;</Hint>
+			<Hint Index="588">To bypass this puzzle:  with the puzzle on the screen, type 514.  Warning!:  Doing this will reduce your score by 200 points</Hint>
+		</HintCategory>
+		<HintCategory Index="78" Title="Opening the Puzzle Box from the Garden House">
+			<Hint Index="623">EXAMINE &lt;GARDEN HOUSE PUZZLE BOX&gt;</Hint>
+			<Hint Index="624">Open Witt's puzzle box (See Directory)</Hint>
+			<Hint Index="625">EXAMINE &lt;WITT'S UNLOCKED PUZZLE BOX&gt;</Hint>
+			<Hint Index="626">COMBINE the &lt;ONYX PIECES&gt; with &lt;GARDEN HOUSE PUZZLE BOX&gt;</Hint>
+			<Hint Index="628">Place the onyx pieces in the grooves on the box.  To bypass this puzzle:  with the puzzle on the screen, pick up a piece with the left mouse button and type 928.  Warning!:  Doing this will reduce your score by 200 points</Hint>
+		</HintCategory>
+		<HintCategory Index="79" Title="The Pandora Device">
+			<Hint Index="869">Go to the Cosmic Connection and Talk to Archie Ellis</Hint>
+			<Hint Index="631">Open the &lt;DEMAGNETIZED PUZZLE BOX&gt; (See Directory)</Hint>
+			<Hint Index="632">EXAMINE &lt;UNLOCKED DEMAGNETIZED BOX&gt;</Hint>
+			<Hint Index="800">Find out about Item #186 (See Directory)</Hint>
+			<Hint Index="801">Find the Power Cell (Item #186) (See Directory)</Hint>
+			<Hint Index="812">Find all the boxes Malloy sent (See Directory)</Hint>
+			<Hint Index="633">Open Witt's puzzle box (See Directory)</Hint>
+			<Hint Index="870">EXAMINE &lt;WITT'S UNLOCKED PUZZLE BOX&gt;</Hint>
+			<Hint Index="635">Open the puzzle box from the Garden House (See Directory)</Hint>
+			<Hint Index="636">EXAMINE &lt;GARDEN HOUSE UNLOCKED BOX&gt;</Hint>
+			<Hint Index="637">COMBINE the &lt;INCOMPLETE PANDORA DEVICE&gt; by combining all of the device pieces from the puzzle boxes</Hint>
+			<Hint Index="638">COMBINE the &lt;ASSEMBLED PANDORA DEVICE&gt; with the &lt;POWER CELL&gt;</Hint>
+			<Hint Index="845">EXAMINE the &lt;PANDORA DEVICE W/POWER CELL</Hint>
+			<Hint Index="815">Go to Tex's office</Hint>
+		</HintCategory>
+		<HintCategory Index="80" Title="Assembling the Map in the Snake Chamber">
+			<Hint Index="639">LOOK at the Labyrinth Map Altar</Hint>
+			<Hint Index="640">Find and GET the 14 pieces of the Labyrinth Map scattered high and low around the chamber</Hint>
+			<Hint Index="641">USE a piece of the map on the altar</Hint>
+			<Hint Index="643">Assemble the pieces.  To bypass this puzzle:  with the puzzle on the screen, pick up a piece with the left mouse button and type 962.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+		</HintCategory>
+		<HintCategory Index="81" Title="Getting through the Mayan Labyrinth">
+			<Hint Index="51">Assemble the map in the Snake Chamber (See Directory)</Hint>
+			<Hint Index="729">OPEN the door behind the round stone with the stars symbol above it and leave the Snake Chamber.  Go to the first intersection and turn right.  At the end of the passage turn left, go all the way to the end and turn left again.  Take yet another left, and LOOK at the dead man</Hint>
+			<Hint Index="667">Find and GET the &lt;PRESCRIPTION GLASSES&gt; by Edsen</Hint>
+			<Hint Index="669">Find and GET the &lt;LANTERN&gt; by Edsen</Hint>
+			<Hint Index="730">Find and GET the &lt;GUN&gt; by Edsen</Hint>
+			<Hint Index="671">Find and GET the &lt;HANDKERCHIEF&gt; by Edsen</Hint>
+			<Hint Index="705">Turn around and go back the way you came in (two right turns), then go into the first opening on the right.  Find and GET the &lt;WHITE DAGGER&gt;</Hint>
+			<Hint Index="735">Turn around, go back to the intersection, turn right and go to the end of the passage.  Turn right, then go into the first opening on the right.  Follow the passage to the dead end (three right turns), find and GET the &lt;SMALL STONE BOWL&gt;</Hint>
+			<Hint Index="674">Turn around and go out the way you came in (three left turns).  At the first intersection, turn right and go to the end of the passage.  Turn right and follow the passage (through a right turn and a left turn).  Go into the first opening on the right, then follow the passage to the end (two left turns).  Climb the stairs and LOOK at the skeleton</Hint>
+			<Hint Index="668">EXAMINE the &lt;PRESCRIPTION GLASSES&gt;</Hint>
+			<Hint Index="675">USE the &lt;BROKEN LENS&gt; on the &lt;HEMP CORD&gt; wrapped around the skeltons hand</Hint>
+			<Hint Index="819">GET the &lt;HEMP CORD&gt;</Hint>
+			<Hint Index="676">GET the &lt;MAYAN SPEAR&gt;</Hint>
+			<Hint Index="820">Turn around and go out the way you came in (right, right, left, right, left).  Go to the end of the passage, turn left, open the door to the Snake Chamber and enter</Hint>
+			<Hint Index="649">Open the door directly across the chamber with the sun symbol above it and leave through it.  Follow the passage (through a left turn, then a right turn) and go to the intersection.  Turn right, turn left, then left again.  Go into the first opening on the right, take another right, find and GET the &lt;BLUNT HATCHET&gt;</Hint>
+			<Hint Index="703">Turn around and go back the way you came in and return to the intersection.  Turn right, then go into the next opening on the right.  Turn right, find and GET the &lt;SILVER DAGGER&gt;</Hint>
+			<Hint Index="821">Turn around and go back the way you came in (two left hand turns).  Go to the end of the passage, take two right turns, then go all the way to the end of the long passage.  Turn right, climb the stairs, open the door with the symbol of two birds on it, and enter the Bird Chamber</Hint>
+			<Hint Index="822">Solve the Sound Stones Puzzle in the Bird Chamber (See Directory)</Hint>
+			<Hint Index="706">Open the door across from the monolith with the stars symbol above it and leave the Bird Chamber.  Follow the passage (through a left turn, then a right turn), go to the end of the passage, then turn left.  Go to the end of the passage, take a left turn, two right turns, and a left turn.  Find and GET the &lt;GOLD DAGGER&gt;</Hint>
+			<Hint Index="823">Turn around and go back the way you came in (right, left, left, right), then go into the first opening on the right.  Follow the passage (turn right, then left) to the door with the wasp symbol.  OPEN the door and enter the Wasp Chamber</Hint>
+			<Hint Index="824">Get rid of the wasps in the Wasp Chamber (See Directory)</Hint>
+			<Hint Index="825">Solve the 3 Mayan Kings puzzle in the Wasp Chamber (See Directory)</Hint>
+			<Hint Index="707">Open the door under the moon symbol and leave the Wasp Chamber.  Go to the intersection, turn right, then left, then right.  Go to the end of the passage, turn right, find and GET the &lt;RED DAGGER&gt;</Hint>
+			<Hint Index="826">Turn around, turn left, then go into the next opening on the left.  Open the door with the dagger symbol and enter the Dagger Chamber</Hint>
+			<Hint Index="827">Solve the 5 daggers puzzle in the Dagger Chamber (See Directory)</Hint>
+			<Hint Index="828">Open the door behind the 3-legged monolith with the black sun symbol above it and leave the Dagger Chamber.  Go to the end of the passage, turn right, right, left, OPEN the door with the pentagon symbol and enter</Hint>
+		</HintCategory>
+		<HintCategory Index="82" Title="Solving the Sound Stones Puzzle">
+			<Hint Index="646">LOOK at the Sound Stones Altar</Hint>
+			<Hint Index="647">LOOK at the art on the walls of the Bird Chamber for hints to solving the puzzle</Hint>
+			<Hint Index="650">USE the &lt;BLUNT HATCHET&gt; on the Sound Stones Altar</Hint>
+			<Hint Index="835">Use the Blunt Hatchet on the Sound Stones in the correct sequence.  To bypass this puzzle:  with the puzzle on the screen, type 962.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+		</HintCategory>
+		<HintCategory Index="83" Title="Getting Rid of the Wasps in the Wasp Chamber">
+			<Hint Index="663">LOOK at the Stone Wasp Head high up on the wall in the Wasp Chamber</Hint>
+			<Hint Index="670">EXAMINE the &lt;LANTERN&gt;</Hint>
+			<Hint Index="677">COMBINE the &lt;HANDKERCHIEF&gt; with the &lt;LANTERN FUEL&gt;</Hint>
+			<Hint Index="678">COMBINE the &lt;OILY HANDKERCHIEF&gt; with &lt;MAYAN SPEAR&gt;</Hint>
+			<Hint Index="679">COMBINE the &lt;SPEAR, OILY HANDKERCHIEF&gt; with &lt;MATCHBOX&gt;</Hint>
+			<Hint Index="681">USE &lt;FIERY SPEAR&gt; on the Stone Wasp Head</Hint>
+		</HintCategory>
+		<HintCategory Index="84" Title="Solving the 3 Mayan Kings Puzzle in the Wasp Chamber">
+			<Hint Index="682">LOOK at the Altar in the Wasp Chamber</Hint>
+			<Hint Index="683">LOOK at the art on the walls of the chamber for hints to solving the puzzle</Hint>
+			<Hint Index="684">Find and GET the &lt;KING TILES&gt; on the floor by the altar</Hint>
+			<Hint Index="685">USE the &lt;KING TILES&gt; on the Altar</Hint>
+			<Hint Index="836">Arrange the King Tiles in the correct sequence.  To bypass this puzzle:  with the puzzle on the screen, pick up a piece with the left mouse button and type 749.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+		</HintCategory>
+		<HintCategory Index="85" Title="Solving the 5 Daggers Puzzle in the Dagger Chamber">
+			<Hint Index="695">LOOK at the 5 Daggers Altar</Hint>
+			<Hint Index="696">Find and GET the &lt;BLACK DAGGER&gt; leaning against one of the benches.</Hint>
+			<Hint Index="702">LOOK at the totem art on the walls of the chamber for hints to solving the puzzle</Hint>
+			<Hint Index="832">USE one of the daggers on the altar.</Hint>
+			<Hint Index="833">Insert the daggers into the slots in the correct sequence.  To bypass this puzzle:  with the puzzle on the screen, pick up a piece with the left mouse button and type 350.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+		</HintCategory>
+		<HintCategory Index="86" Title="Getting Past the Fireballs">
+		</HintCategory>
+		<HintCategory Index="87" Title="Solving the 5 Chamber Symbols Puzzle in the Pentagon Chamber">
+		</HintCategory>
+		<HintCategory Index="88" Title="Getting Out of the Ascension Chamber">
+			<Hint Index="740">Find and GET &lt;REGAN'S BACKPACK&gt; in the corner on the floor</Hint>
+			<Hint Index="741">EXAMINE &lt;REGAN'S BACKPACK&gt;</Hint>
+			<Hint Index="742">USE the &lt;ROPE&gt; on the statue</Hint>
+			<Hint Index="743">TALK to Regan</Hint>
+			<Hint Index="816">LOOK at the statue fragments</Hint>
+			<Hint Index="731">EXAMINE the &lt;GUN&gt;</Hint>
+			<Hint Index="732">EXAMINE the &lt;BULLETS&gt;</Hint>
+			<Hint Index="817">COMBINE the &lt;JACKKNIFE&gt; with the &lt;BULLETS&gt;</Hint>
+			<Hint Index="818">EXAMINE the &lt;JACKKNIFE WITH BULLETS&gt;</Hint>
+			<Hint Index="744">COMBINE the &lt;SMALL STONE BOWL&gt; with the &lt;GUNPOWDER&gt;</Hint>
+			<Hint Index="745">COMBINE &lt;HEMP CORD&gt; with &lt;LANTERN FUEL&gt;</Hint>
+			<Hint Index="746">COMBINE &lt;PRIMITIVE FUSE&gt; with &lt;PRIMITIVE EXPLOSIVE&gt;</Hint>
+			<Hint Index="748">COMBINE &lt;MATCHBOX&gt; with &lt;PRIMITIVE EXPLOSIVE, FUSE&gt;</Hint>
+			<Hint Index="747">USE &lt;LIT PRIMITIVE EXPLOSIVE&gt; on the crack in the large statue fragment</Hint>
+			<Hint Index="749">GET &lt;STATUE FRAGMENT #1&gt;</Hint>
+			<Hint Index="750">USE &lt;STATUE FRAGMENT #1&gt; on one of the undepressed square stones</Hint>
+			<Hint Index="751">GET &lt;STATUE FRAGMENT #2&gt;</Hint>
+			<Hint Index="752">USE &lt;STATUE FRAGMENT #2&gt; on a second undepressed square stone</Hint>
+		</HintCategory>
+		<HintCategory Index="89" Title="Getting Past the Darts in the Passageway">
+		</HintCategory>
+		<HintCategory Index="90" Title="Operating the Console in the Spacecraft">
+			<Hint Index="734">Click on the Black Sun Symbol at the top of the console</Hint>
+			<Hint Index="756">Press the following buttons in order:  North, Circle, Red</Hint>
+			<Hint Index="757">Press the following buttons in order:  East, Cross, Orange</Hint>
+			<Hint Index="758">Press the following buttons in order:  South, Triangle, Yellow</Hint>
+			<Hint Index="759">Press the following buttons in order:  West, Square, Green</Hint>
+		</HintCategory>
+		<HintCategory Index="91" Title="Creating a portable map of the Mayan Labyrinth">
+			<Hint Index="644">Assemble the map in the Snake Chamber (See Directory)</Hint>
+			<Hint Index="645">In the Snake Chamber, find and GET the &lt;PAPYRUS&gt; on top of the bench</Hint>
+			<Hint Index="469">Open the door with the Black Sun symbol above it and exit the chamber</Hint>
+			<Hint Index="470">In the Labyrinth Hallway, find and GET the &lt;CHARCOAL&gt; on the floor of the passage</Hint>
+			<Hint Index="471">Go back to the Snake Chamber</Hint>
+			<Hint Index="485">COMBINE the &lt;PAPYRUS&gt; with the &lt;CHARCOAL&gt;</Hint>
+			<Hint Index="486">EXAMINE the &lt;PAPYRUS DRAWING&gt; to get through the labyrinth</Hint>
+		</HintCategory>
+		<HintCategory Index="92" Title="Finding More Money Again">
+			<Hint Index="846">Go to the evidence room at Autotech</Hint>
+			<Hint Index="847">Find and OPEN locker B-15</Hint>
+			<Hint Index="848">GET the &lt;CASH FROM LOCKER&gt;</Hint>
+			<Hint Index="849">Go to the Evidence Scanning Machine in the Evidence Room and press the Open button</Hint>
+			<Hint Index="850">USE the &lt;CASH FROM LOCKER&gt; on the open compartment</Hint>
+			<Hint Index="851">Enter the code 1-0-9-1, then press Enter</Hint>
+			<Hint Index="852">GET the &lt;CASH&gt; from the open compartment</Hint>
+		</HintCategory>
+		<HintCategory Index="93" Title="Locating David Wright">
+			<Hint Index="853">EXAMINE &lt;MALLOY'S LETTER&gt; (from David Wright)</Hint>
+			<Hint Index="854">Travel to the Cabin</Hint>
+			<Hint Index="855">Climb the stairs, MOVE the painting on the wall, and LOOK at the control panel</Hint>
+			<Hint Index="128">Open the upstairs door in the cabin (See Directory)</Hint>
+			<Hint Index="861">Enter the upstairs room, find the loose floor board and MOVE it</Hint>
+			<Hint Index="862">LOOK at the corpse</Hint>
+			<Hint Index="604">LOOK at the stone statue in the corner by the fireplace</Hint>
+			<Hint Index="605">Find and LOOK at the keyhole on the stone statue</Hint>
+			<Hint Index="814">MOVE the tree on the left side of the fireplace</Hint>
+			<Hint Index="608">MOVE the diamond design on the wall to the left of the fireplace to turn off the flames in the fireplace</Hint>
+			<Hint Index="842">Ride the lift to the loft</Hint>
+			<Hint Index="610">GET the &lt;TWEEZERS&gt; from on top of the dresser to the left of the bed</Hint>
+			<Hint Index="611">Go to the fireplace and USE the &lt;TWEEZERS&gt; on the &lt;FOIL PACKET&gt;</Hint>
+			<Hint Index="612">EXAMINE the &lt;FOIL PACKET&gt;</Hint>
+			<Hint Index="613">USE the &lt;COPPER KEY&gt; on the keyhole in the stone statue</Hint>
+			<Hint Index="617">In the bedroom loft, find and GET the &lt;SCRAPBOOK&gt; in the bottom drawer of the dresser on the right</Hint>
+			<Hint Index="618">EXAMINE the &lt;SCRAPBOOK&gt;</Hint>
+			<Hint Index="619">EXAMINE the &lt;PHOTOGRAPH OF WITT'S STATUE&gt;</Hint>
+			<Hint Index="620">Find and LOOK at the chart on the wall by the masks</Hint>
+			<Hint Index="622">Arrange the tiles to correspond to the numbers on the back of the &lt;PHOTOGRAPH OF WITT'S STATUE&gt;.  To bypass this puzzle:  with the puzzle on the screen, type 204.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+			<Hint Index="584">Find and GET &lt;WITT'S NOTES&gt; on the bed in the loft</Hint>
+			<Hint Index="585">EXAMINE &lt;WITT'S NOTES&gt;</Hint>
+			<Hint Index="586">Find and GET the &lt;CALENDAR BOOK&gt; to the right of the sofa</Hint>
+			<Hint Index="587">EXAMINE the &lt;CALENDAR BOOK&gt;</Hint>
+			<Hint Index="839">Find and GET the &lt;CULTURE BOOK&gt; to the left of the sofa</Hint>
+			<Hint Index="840">EXAMINE the &lt;CULTURE BOOK&gt;</Hint>
+			<Hint Index="841">Find and GET a &lt;BAMBOO POLE&gt; from the pot beside the fireplace</Hint>
+			<Hint Index="843">While standing in the loft, use the &lt;BAMBOO POLE&gt; on the &lt;PLAQUE&gt; on the wall above the alarm panel</Hint>
+			<Hint Index="844">EXAMINE the &lt;PLAQUE&gt;</Hint>
+			<Hint Index="857">Go downstairs and OPEN the table drawer, find and GET the &lt;CD&gt;</Hint>
+			<Hint Index="97">GET the &lt;CRUMPLED PAGE&gt; on the floor by the door</Hint>
+			<Hint Index="98">EXAMINE the &lt;CRUMPLED PAGE&gt;</Hint>
+			<Hint Index="858">Travel to Tex's computer room and USE the &lt;CD&gt; on Tex's computer</Hint>
+			<Hint Index="859">Fill the grid with the colored squares by following the directions on the &lt;CRUMPLED PAGE&gt;.  To bypass this puzzle:  with the puzzle on the screen, pick up a piece with the left mouse button and type 143.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+			<Hint Index="860">The four orange squares correspond to the squares that must be pressed on the control panel in the cabin.  Travel to the cabin, press the correct squares, and OPEN the door.</Hint>
+		</HintCategory>
+		<HintCategory Index="94" Title="What to do in Tex's World">
+			<Hint Index="604">LOOK at the stone statue in the corner by the fireplace</Hint>
+			<Hint Index="605">Find and LOOK at the keyhole on the stone statue</Hint>
+			<Hint Index="814">MOVE the tree on the left side of the fireplace</Hint>
+			<Hint Index="608">MOVE the diamond design on the wall to the left of the fireplace to turn off the flames in the fireplace</Hint>
+			<Hint Index="842">Ride the lift to the loft</Hint>
+			<Hint Index="610">GET the &lt;TWEEZERS&gt; from on top of the dresser to the left of the bed</Hint>
+			<Hint Index="611">Go to the fireplace and USE the &lt;TWEEZERS&gt; on the &lt;FOIL PACKET&gt;</Hint>
+			<Hint Index="612">EXAMINE the &lt;FOIL PACKET&gt;</Hint>
+			<Hint Index="613">USE the &lt;COPPER KEY&gt; on the keyhole in the stone statue</Hint>
+			<Hint Index="617">In the bedroom loft, find and GET the &lt;SCRAPBOOK&gt; in the bottom drawer of the dresser on the right</Hint>
+			<Hint Index="618">EXAMINE the &lt;SCRAPBOOK&gt;</Hint>
+			<Hint Index="619">EXAMINE the &lt;PHOTOGRAPH OF WITT'S STATUE&gt;</Hint>
+			<Hint Index="620">Find and LOOK at the chart on the wall by the masks</Hint>
+			<Hint Index="622">Arrange the tiles to correspond to the numbers on the back of the &lt;PHOTOGRAPH OF WITT'S STATUE&gt;.  To bypass this puzzle:  with the puzzle on the screen, type 204.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+			<Hint Index="584">Find and GET &lt;WITT'S NOTES&gt; on the bed in the loft</Hint>
+			<Hint Index="585">EXAMINE &lt;WITT'S NOTES&gt;</Hint>
+			<Hint Index="586">Find and GET the &lt;CALENDAR BOOK&gt; to the right of the sofa</Hint>
+			<Hint Index="587">EXAMINE the &lt;CALENDAR BOOK&gt;</Hint>
+			<Hint Index="839">Find and GET the &lt;CULTURE BOOK&gt; to the left of the sofa</Hint>
+			<Hint Index="840">EXAMINE the &lt;CULTURE BOOK&gt;</Hint>
+			<Hint Index="841">Find and GET a &lt;BAMBOO POLE&gt; from the pot beside the fireplace</Hint>
+			<Hint Index="843">While standing in the loft, use the &lt;BAMBOO POLE&gt; on the &lt;PLAQUE&gt; on the wall above the alarm panel</Hint>
+			<Hint Index="844">EXAMINE the &lt;PLAQUE&gt;</Hint>
+			<Hint Index="857">Go downstairs and OPEN the table drawer, find and GET the &lt;CD&gt;</Hint>
+			<Hint Index="97">GET the &lt;CRUMPLED PAGE&gt; on the floor by the door</Hint>
+			<Hint Index="98">EXAMINE the &lt;CRUMPLED PAGE&gt;</Hint>
+			<Hint Index="858">Travel to Tex's computer room and USE the &lt;CD&gt; on Tex's computer</Hint>
+			<Hint Index="859">Fill the grid with the colored squares by following the directions on the &lt;CRUMPLED PAGE&gt;.  To bypass this puzzle:  with the puzzle on the screen, pick up a piece with the left mouse button and type 143.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+			<Hint Index="860">The four orange squares correspond to the squares that must be pressed on the control panel in the cabin.  Travel to the cabin, press the correct squares, and OPEN the door.</Hint>
+		</HintCategory>
+		<HintCategory Index="95" Title="Opening the upstairs door in the cabin">
+			<Hint Index="857">Go downstairs and OPEN the table drawer, find and GET the &lt;CD&gt;</Hint>
+			<Hint Index="97">GET the &lt;CRUMPLED PAGE&gt; on the floor by the door</Hint>
+			<Hint Index="98">EXAMINE the &lt;CRUMPLED PAGE&gt;</Hint>
+			<Hint Index="858">Travel to Tex's computer room and USE the &lt;CD&gt; on Tex's computer</Hint>
+			<Hint Index="859">Fill the grid with the colored squares by following the directions on the &lt;CRUMPLED PAGE&gt;.  To bypass this puzzle:  with the puzzle on the screen, pick up a piece with the left mouse button and type 143.  Warning!:  Doing this will reduce your score by 100 points</Hint>
+			<Hint Index="860">The four orange squares correspond to the squares that must be pressed on the control panel in the cabin.  Travel to the cabin, press the correct squares, and OPEN the door.</Hint>
 		</HintCategory>
 	</Hints>
 </GameData>

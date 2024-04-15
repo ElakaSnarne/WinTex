@@ -2,6 +2,7 @@
 #include "Globals.h"
 #include "Utilities.h"
 #include "DXBitmap.h"
+#include <algorithm>
 
 CDXContainer::CDXContainer()
 {
@@ -45,6 +46,11 @@ void CDXContainer::AddChild(CDXControl* pCtrl, float x, float y)
 	// Position is relative to parent...
 	pCtrl->SetPosition(_x + x, _y + y);
 	_childElements.push_back(pCtrl);
+}
+
+void CDXContainer::RemoveChild(CDXControl* pCtrl)
+{
+	_childElements.remove(pCtrl);
 }
 
 void CDXContainer::Render()

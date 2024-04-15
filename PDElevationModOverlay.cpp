@@ -15,12 +15,9 @@ void CPDElevationModOverlay::Render()
 	if (diff > 0.0f)
 	{
 		CLocation::_y_player_adjustment -= _speed / diff;
-		//CLocation::_y_player_adjustment_min -= _speed / diff;
-		//CLocation::_y_player_adjustment_max -= _speed / diff;
 		if ((_speed > 0.0f && CLocation::_y_player_adjustment <= _targetY) || (_speed < 0.0f && CLocation::_y_player_adjustment >= _targetY))
 		{
-			CLocation::_y_player_adjustment = _targetY;
-			pOverlay = NULL;
+			BeginAction();
 		}
 		_lastUpdate = now;
 	}
@@ -28,11 +25,13 @@ void CPDElevationModOverlay::Render()
 
 void CPDElevationModOverlay::BeginAction()
 {
+	CLocation::_y_player_adjustment = _targetY;
+	pOverlay = NULL;
 }
 
 void CPDElevationModOverlay::SetData(int p1, int p2)
 {
 	_targetY = -From12_4(p1);
-	_speed = From12_4(p2) * 2;
+	_speed = From12_4(p2) * 3;
 	_lastUpdate = GetTickCount64();
 }

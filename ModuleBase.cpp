@@ -20,7 +20,7 @@ void CModuleBase::SetCursorClipping()
 	RECT clientRect{};
 	GetClientRect(_hWnd, &clientRect);
 	SetCursorClipping(clientRect.left, clientRect.top,
-		clientRect.right, clientRect.bottom);
+					  clientRect.right, clientRect.bottom);
 }
 
 void CModuleBase::SetCursorClipping(int x1, int y1, int x2, int y2)
@@ -28,7 +28,7 @@ void CModuleBase::SetCursorClipping(int x1, int y1, int x2, int y2)
 	if (!_cursorIsClipped) {
 		GetClipCursor(&_oldClippingArea);
 	}
-	POINT clientOrigin{0,0};
+	POINT clientOrigin{ 0,0 };
 	ClientToScreen(_hWnd, &clientOrigin);
 	RECT clientRect{ x1, y1, x2, y2 };
 	clientRect.left += clientOrigin.x;
@@ -93,6 +93,7 @@ void CModuleBase::LostFocus()
 {
 	ShowCursor(true);
 	_hasFocus = false;
+	UnsetCursorClipping();
 }
 
 void CModuleBase::CreateTexturedRectangle(float top, float left, float bottom, float right, ID3D11Buffer** ppBuffer, char* pName)

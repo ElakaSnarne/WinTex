@@ -38,6 +38,9 @@ public:
 	virtual void SaveGame(LPWSTR fileName) = NULL;
 	virtual void NewGame() = NULL;
 
+	virtual int GetSaveCommentOffset() = NULL;
+	virtual int GetSaveCommentLength() = NULL;
+
 	virtual BYTE GetParameter(int index) = NULL;
 	virtual void SetParameter(int index, BYTE value) = NULL;
 
