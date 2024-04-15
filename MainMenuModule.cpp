@@ -234,8 +234,13 @@ void CMainMenuModule::ConfigNextMIDIDevice(LPVOID data)
 
 void CMainMenuModule::UpdateMIDIDeviceLabel()
 {
-	MIDIOUTCAPSA midiCaps = pConfig->MIDIDevices.at(cfg.MIDIDeviceId);
-	pMIDIDevice->SetText(midiCaps.szPname);
+	if (cfg.MIDIDeviceId > -1) {
+		MIDIOUTCAPSA midiCaps = pConfig->MIDIDevices.at(cfg.MIDIDeviceId);
+		pMIDIDevice->SetText(midiCaps.szPname);
+	}
+	else {
+		pMIDIDevice->SetText("None");
+	}
 }
 
 void CMainMenuModule::NewGame(LPVOID data)
