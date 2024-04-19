@@ -87,7 +87,8 @@ enum class Alignment
 	CenterY = 0x20,
 	ScaleX = 0x40,
 	ScaleY = 0x80,
-	Scale = ScaleX | ScaleY
+	Scale = ScaleX | ScaleY,
+	Crop = 0x100
 };
 
 #endif

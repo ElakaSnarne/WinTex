@@ -32,7 +32,7 @@ void CPDMainMenuModule::SetupScreen()
 {
 	DWORD s;
 	PBYTE pImg = GetResource(IDB_PD_TITLE, L"JPG", &s);
-	CDXBitmap* pBmp = _pScreen->AddBitmap(pImg, s, Alignment::CenterX | Alignment::CenterY | Alignment::Scale);
+	CDXBitmap* pBmp = _pScreen->AddBitmap(pImg, s, Alignment::CenterX | Alignment::CenterY | Alignment::Scale | Alignment::Crop);
 
 	// TODO: Use string resources, or read from configuration file
 	char* pNG = "New game";
