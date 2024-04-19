@@ -42,7 +42,8 @@ void CDXBitmap::Init()
 	float imageRatioX = static_cast<float>(_w / sw);
 	float imageRatioY = static_cast<float>(_h / sh);
 
-	float imageRatio = max(imageRatioX, imageRatioY);
+	float imageRatio = ((_alignment & Alignment::Crop) != Alignment::Default) ? 
+		min(imageRatioX, imageRatioY) : max(imageRatioX, imageRatioY);
 	if (imageRatio > 1.0f || ((_alignment & Alignment::Scale) != Alignment::Default))
 	{
 		_w /= imageRatio;
