@@ -36,7 +36,7 @@ void CUAKMMainMenuModule::SetupScreen()
 {
 	DWORD s;
 	PBYTE pImg = GetResource(IDB_UAKM_TITLE, L"JPG", &s);
-	CDXBitmap* pBmp = _pScreen->AddBitmap(pImg, s, Alignment::CenterX | Alignment::CenterY | Alignment::Scale);
+	CDXBitmap* pBmp = _pScreen->AddBitmap(pImg, s, Alignment::CenterX | Alignment::CenterY | Alignment::Scale | Alignment::Crop);
 
 	// TODO: Use string resources, or read from configuration file
 	char* pNG = "New game";
@@ -67,7 +67,7 @@ void CUAKMMainMenuModule::SetupScreen()
 	float moonH = ih * 0.64f;
 
 	float moonCenterX = w - imageLeft - moonW / 2.0f;
-	float moonCenterY = imageTop + moonH / 2.0f;
+	float moonCenterY = h / 2.2f;
 
 	float btnRight = moonCenterX + 32.0f * pConfig->FontScale;
 	float btnLeft = btnRight - maxw - 96.0f * pConfig->FontScale;
