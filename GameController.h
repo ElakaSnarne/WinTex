@@ -50,6 +50,7 @@ public:
 	static WORD GetWord(int offset) { return Game->GetWord(offset); }
 	static void SetWord(int offset, WORD value) { Game->SetWord(offset, value); }
 
+	static void TransformItem(int fromId, int toId);
 	static void SetItemState(int item, int state);
 	static int GetItemState(int item);
 	static int GetItemCount() { return Game->GetItemCount(); }

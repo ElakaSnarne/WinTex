@@ -57,3 +57,5 @@ ActionType& operator|=(ActionType& left, ActionType right);
 ActionType& operator<<=(ActionType& left, int amount);
 ActionType operator&(ActionType left, ActionType right);
 ActionType operator>>(ActionType left, int amount);
+
+int ReadBits(LPBYTE data, int bitsToRead, int& bitOffset);

@@ -390,6 +390,9 @@
     <ClCompile Include="PDElevationModOverlay.cpp">
       <Filter>PD</Filter>
     </ClCompile>
+    <ClCompile Include="TexFont.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DXFrame.h">
@@ -805,6 +808,9 @@
     </ClInclude>
     <ClInclude Include="PDElevationModOverlay.h">
       <Filter>PD</Filter>
+    </ClInclude>
+    <ClInclude Include="TexFont.h">
+      <Filter>Shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

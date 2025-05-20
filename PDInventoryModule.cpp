@@ -9,6 +9,7 @@
 #include "PDGame.h"
 //#include "LocationModule.h"
 #include "PDExamStruct.h"
+#include "PDCrosswordModule.h"
 
 //short pdComboTable[] = { 0,5,26,1,4,0,1,5,129,4,129,26,7,37,39,9,12,2,10,77,78,14,15,49,17,35,138,18,112,114,27,28,52,42,43,85,45,46,88,45,48,87,46,87,107,48,88,107,58,59,90,60,90,93,61,70,102,65,66,108,66,73,110,66,96,132,73,131,96,79,80,76,91,103,95,110,131,132,111,114,124 };
 //
@@ -27,12 +28,15 @@ CPDInventoryModule::CPDInventoryModule() : CInventoryModule()
 
 	// Update cash item description string
 	CItems::SetItemName(0, CGameController::GetItemName(0) + L" $" + std::to_wstring(CGameController::GetWord(PD_SAVE_CASH)));
+
+	_closeOnResume = FALSE;
 }
 
 void CPDInventoryModule::Examine()
 {
 	if (_selectedItemId >= 0)
 	{
+		_closeOnResume = FALSE;
 		_anim = NULL;
 
 		PDExamStruct* pExam = (PDExamStruct*)(_examData + 8 + _selectedItemId * sizeof(PDExamStruct));
@@ -53,7 +57,11 @@ void CPDInventoryModule::Examine()
 		_lineAdjustment = max(0, min(_lineCount - _visibleLineCount, _lineCount));
 		UpdateButtons();
 
-		if ((pExam->Flags & EXAMINE_FLAG_VIDEO) != 0)
+		if (_selectedItemId == PD_INVENTORY_CROSSWORD_PUZZLE)
+		{
+			CModuleController::Push(new CPDCrosswordModule());
+		}
+		else if ((pExam->Flags & EXAMINE_FLAG_VIDEO) != 0)
 		{
 			BinaryData bd = LoadEntry(_examFileName, pExam->ExamEntryNumber);
 			_anim = CAnimationController::Load(bd, 2);
@@ -98,14 +106,19 @@ void CPDInventoryModule::Examine()
 
 void CPDInventoryModule::Resume()
 {
-	if (_anim == NULL)
+	if (_closeOnResume == TRUE)
 	{
 		CModuleController::Pop(CModuleController::CurrentModule);
 	}
 	else
 	{
-		delete _anim;
-		_anim = NULL;
+		_closeOnResume = TRUE;
+
+		if (_anim != NULL)
+		{
+			delete _anim;
+			_anim = NULL;
+		}
 
 		PDExamStruct* pExam = (PDExamStruct*)(_examData + 8 + _selectedItemId * sizeof(PDExamStruct));
 		if (pExam->Id != _selectedItemId)

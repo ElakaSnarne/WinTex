@@ -25,6 +25,8 @@ public:
 
 	static int ExamineItemOnResume;
 
+	static void SetSelectedItem(int itemId) { _selectedItemId = itemId; }
+
 protected:
 	static CInventoryModule* Instance;
 	virtual void Initialize();

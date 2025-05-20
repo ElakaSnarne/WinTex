@@ -178,6 +178,7 @@
     <ClCompile Include="PDTravelModule.cpp" />
     <ClCompile Include="PDVidPhoneModule.cpp" />
     <ClCompile Include="ResumeGameModule.cpp" />
+    <ClCompile Include="TexFont.cpp" />
     <ClCompile Include="TravelImage.cpp" />
     <ClCompile Include="TravelModule.cpp" />
     <ClCompile Include="UAKMDMap.cpp" />
@@ -314,6 +315,7 @@
     <ClInclude Include="ResumeGameModule.h" />
     <ClInclude Include="ShaderStructs.h" />
     <ClInclude Include="SubLocation.h" />
+    <ClInclude Include="TexFont.h" />
     <ClInclude Include="TravelImage.h" />
     <ClInclude Include="TravelModule.h" />
     <ClInclude Include="UAKMExamStruct.h" />

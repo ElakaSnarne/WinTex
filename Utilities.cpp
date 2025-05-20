@@ -387,3 +387,17 @@ ActionType operator>>(ActionType left, int amount)
 {
 	return static_cast<ActionType>(static_cast<int>(left) >> amount);
 }
+
+int ReadBits(LPBYTE data, int bitsToRead, int& bitOffset)
+{
+	int byteOffset = bitOffset / 8;
+	int bitShift = 8 - bitsToRead - (bitOffset & 7);
+	int mask = 0xff >> (8 - bitsToRead);
+	int bits = data[byteOffset] | data[byteOffset + 1] << 8;
+
+	bits >>= bitShift;
+	bitOffset += bitsToRead;
+	bits = bits & mask;
+
+	return bits;
+}

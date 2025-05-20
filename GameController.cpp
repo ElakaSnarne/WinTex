@@ -196,3 +196,9 @@ std::wstring CGameController::GetSituationDescriptionD(int ix)
 
 	return L"";
 }
+
+void CGameController::TransformItem(int fromId, int toId)
+{
+	SetItemState(fromId, 2);
+	SetItemState(toId, 1);
+}
