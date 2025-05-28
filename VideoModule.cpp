@@ -255,7 +255,7 @@ void CVideoModule::Resume()
 	//{
 	//	_scriptEngine->Resume(_scriptState, TRUE);
 	//}
-	if (_scriptState->WaitingForExternalModule)
+	if (_scriptState->WaitingForExternalModule || _scriptState->WaitingForInput)
 	{
 		_scriptEngine->Resume(_scriptState, TRUE);
 	}

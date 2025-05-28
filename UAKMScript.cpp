@@ -306,7 +306,7 @@ void CUAKMScript::Function_94(CScriptState* pState)
 
 	CGameController::SetData(UAKM_SAVE_DMAP_ENTRY, ix);
 	CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 1);
-	CGameController::SetData(UAKM_SAVE_SCRIPT_ID, 0);
+	CGameController::SetData(UAKM_SAVE_SCRIPT_ID, (BYTE)0);
 
 	CGameController::AutoSave();
 
@@ -638,7 +638,7 @@ void CUAKMScript::Function_AF(CScriptState* pState)
 			for (int i = 0; i < 40; i++)
 			{
 				CGameController::SetData(UAKM_SAVE_TRAVEL_BACKUP + i, CGameController::GetData(UAKM_SAVE_TRAVEL + i));
-				CGameController::SetData(UAKM_SAVE_TRAVEL + i, 0);
+				CGameController::SetData(UAKM_SAVE_TRAVEL + i, (BYTE)0);
 			}
 			CGameController::SetData(UAKM_SAVE_TRAVEL + 5, 1);	// Enable travel to Tex' office
 		}
@@ -1296,7 +1296,7 @@ void CUAKMScript::Function_93(CScriptState* pState)
 
 	int locationId = pState->Script[pState->ExecutionPointer];
 	CGameController::SetData(UAKM_SAVE_MAP_ENTRY, locationId);
-	CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 0);
+	CGameController::SetData(UAKM_SAVE_DMAP_FLAG, (BYTE)0);
 
 	CGameController::AutoSave();
 

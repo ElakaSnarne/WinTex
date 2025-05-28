@@ -35,6 +35,4 @@ protected:
 	const short* _coordinates;
 	const short* _hotspots;
 	const signed char* _resultTable;
-
-	virtual void Travel() = NULL;
 };

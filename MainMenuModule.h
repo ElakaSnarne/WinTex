@@ -36,6 +36,8 @@ public:
 	static void EnableSaveAndResume(BOOL enable);
 	static void UpdateSaveGameData();
 
+	static void SetPlayerNameAndEnableButtons();
+
 protected:
 	virtual void Initialize();
 

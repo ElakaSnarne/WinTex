@@ -85,7 +85,7 @@ void CModuleBase::GotFocus()
 {
 	ShowCursor(false);
 	_hasFocus = true;
-	CenterMouse();
+	//CenterMouse();
 	RefreshCursorClipping();
 }
 

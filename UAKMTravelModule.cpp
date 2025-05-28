@@ -362,7 +362,3 @@ void CUAKMTravelModule::Render()
 		dx.EnableZBuffer();
 	}
 }
-
-void CUAKMTravelModule::Travel()
-{
-}

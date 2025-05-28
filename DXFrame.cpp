@@ -93,6 +93,7 @@ void CDXFrame::Render()
 	UINT stride = sizeof(TEXTURED_VERTEX_ORTHO);
 	UINT offset = 0;
 	dx.SetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+	dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	XMMATRIX wm = XMMatrixTranslation(_x, -_y, 0.0f);
 	CConstantBuffers::SetWorld(dx, &wm);

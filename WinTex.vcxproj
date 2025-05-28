@@ -41,13 +41,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -175,10 +175,12 @@
     <ClCompile Include="PDLocationModule.cpp" />
     <ClCompile Include="PDMIDIPlayer.cpp" />
     <ClCompile Include="PDRitzSecurityKeypadModule.cpp" />
+    <ClCompile Include="PDSelectLevelModule.cpp" />
+    <ClCompile Include="PDSubLocation.cpp" />
     <ClCompile Include="PDTravelModule.cpp" />
     <ClCompile Include="PDVidPhoneModule.cpp" />
+    <ClCompile Include="RawFont.cpp" />
     <ClCompile Include="ResumeGameModule.cpp" />
-    <ClCompile Include="TexFont.cpp" />
     <ClCompile Include="TravelImage.cpp" />
     <ClCompile Include="TravelModule.cpp" />
     <ClCompile Include="UAKMDMap.cpp" />
@@ -269,6 +271,7 @@
     <ClCompile Include="Mutex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Images\PDFont.bin" />
     <None Include="Images\UAKMFont.bin" />
     <None Include="shaders.shader">
       <FileType>Document</FileType>
@@ -309,13 +312,15 @@
     <ClInclude Include="PDMIDIPlayer.h" />
     <ClInclude Include="PDRitzSecurityKeypadModule.h" />
     <ClInclude Include="PDScriptState.h" />
+    <ClInclude Include="PDSelectLevelModule.h" />
+    <ClInclude Include="PDSubLocation.h" />
     <ClInclude Include="PDTravelModule.h" />
     <ClInclude Include="PDVidPhoneModule.h" />
     <ClInclude Include="Point.h" />
+    <ClInclude Include="RawFont.h" />
     <ClInclude Include="ResumeGameModule.h" />
     <ClInclude Include="ShaderStructs.h" />
     <ClInclude Include="SubLocation.h" />
-    <ClInclude Include="TexFont.h" />
     <ClInclude Include="TravelImage.h" />
     <ClInclude Include="TravelModule.h" />
     <ClInclude Include="UAKMExamStruct.h" />
@@ -437,7 +442,6 @@
     <Image Include="Images\Slider.png" />
     <Image Include="Images\TabHeader.png" />
     <Image Include="Images\UAKM-Title.jpg" />
-    <Image Include="Images\UAKM-Title3.png" />
     <Image Include="Images\UAKM.ico" />
     <Image Include="Images\WinTex.ico" />
   </ItemGroup>

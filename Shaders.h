@@ -8,6 +8,7 @@ public:
 	static void SelectTextureShader();
 	static void SelectTexFontShader();
 	static void SelectMultiColouredFontShader();
+	static void SelectMultiColouredFontShaderPD();
 	static void SelectColourShader();
 	static void SelectTransparentColourShader();
 	static void SelectYUVShader();

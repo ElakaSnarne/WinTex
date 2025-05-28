@@ -248,10 +248,14 @@ void CMainMenuModule::NewGame(LPVOID data)
 	pMIDI->Stop();
 	CAmbientAudio::StopAll();
 	CAmbientAudio::Clear();
+	CGameController::NewGame();
+}
+
+void CMainMenuModule::SetPlayerNameAndEnableButtons()
+{
 	CurrentGameInfo.Player = "TEX";
 	CurrentGameInfo.FileName = L"GAMES\\TEX___00.000";
 	EnableSaveAndResume(TRUE);
-	CGameController::NewGame();
 }
 
 void CMainMenuModule::Resume(LPVOID data)
@@ -498,7 +502,7 @@ void CMainMenuModule::SaveIncrementSave(LPVOID data)
 			int commentLength = CGameController::GetSaveCommentLength();
 			for (int i = 0; i < commentLength; i++)
 			{
-				CGameController::SetData(commentOffset + i, 0);
+				CGameController::SetData(commentOffset + i, (BYTE)0);
 			}
 
 			CGameController::SaveGame(fn);

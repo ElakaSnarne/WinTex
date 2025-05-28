@@ -29,7 +29,7 @@ protected:
 
 	int _originalPalette[256];
 	int _palette[256];
-	void ReadPalette(LPBYTE pPalette);
+	void ReadPalette(LPBYTE pPalette, int startColour = 0, int colourCount = 256);
 	std::unordered_map<int, LPBYTE> _files;
 
 	LPBYTE _data;
@@ -47,7 +47,8 @@ protected:
 	BOOL _inputEnabled;
 
 	void RenderItem(int entry, int offset_x, int offset_y, int x1 = -1, int x2 = -1, int y1 = -1, int y2 = -1, int transparent = -1);
-	void RenderItem(LPBYTE data, int offset_x, int offset_y, int x1 = -1, int x2 = -1, int y1 = -1, int y2 = -1, int transparent = -1);
+	RECT RenderItem(LPBYTE data, int offset_x, int offset_y, int x1 = -1, int x2 = -1, int y1 = -1, int y2 = -1, int transparent = -1);
+	void RenderItemOffset(LPBYTE data, int srcOffsetX, int srcOffsetY, int dstOffsetX, int dstOffsetY, int w, int h);
 	void RenderRaw(int entry, int offset_x, int offset_y, int width, int height);
 	void RenderRaw(LPBYTE data, int offset_x, int offset_y, int width, int height);
 	void DrawRectangle(int x1, int y1, int x2, int y2, BYTE colour);

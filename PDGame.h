@@ -63,6 +63,8 @@
 
 #define PD_SAVE_HINT_CATEGORY_STATES		0xa5a
 
+//0xab9-0xabc
+
 #define PD_SAVE_ASK_ABOUT_STATES			0xabd
 #define PD_SAVE_BUYABLES_ASK_ABOUT_STATES	0xb22
 
@@ -71,6 +73,7 @@
 
 #define PD_SAVE_VIDPHONE					0x10a8
 #define PD_SAVE_TRAVEL						0x10c1
+#define PD_SAVE_TRAVEL_END					0x1124
 
 #define PD_SAVE_SCORE						0x1189
 #define PD_SAVE_CASH						0x118b

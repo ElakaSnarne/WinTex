@@ -150,7 +150,7 @@ void CFullScreenModule::RenderItem(int entry, int offset_x, int offset_y, int x1
 	RenderItem(_files[entry], offset_x, offset_y, x1, x2, y1, y2, transparent);
 }
 
-void CFullScreenModule::RenderItem(LPBYTE data, int offset_x, int offset_y, int x1, int x2, int y1, int y2, int transparent)
+RECT CFullScreenModule::RenderItem(LPBYTE data, int offset_x, int offset_y, int x1, int x2, int y1, int y2, int transparent)
 {
 	if (x1 < 0)
 	{
@@ -173,6 +173,8 @@ void CFullScreenModule::RenderItem(LPBYTE data, int offset_x, int offset_y, int 
 	int h = GetInt(data, 4, 2);
 	int inPtr = 16;
 
+	RECT box{ offset_x, offset_y, offset_x + w, offset_y + h };
+
 	for (int y = 0; y < h; y++)
 	{
 		int c1 = GetInt(data, inPtr, 2);
@@ -193,6 +195,45 @@ void CFullScreenModule::RenderItem(LPBYTE data, int offset_x, int offset_y, int 
 					}
 				}
 			}
+		}
+
+		inPtr += 4 + c2;
+	}
+
+	return box;
+}
+
+void CFullScreenModule::RenderItemOffset(LPBYTE data, int srcOffsetX, int srcOffsetY, int dstOffsetX, int dstOffsetY, int w, int h)
+{
+	int imgW = GetInt(data, 2, 2);
+	int imgH = GetInt(data, 4, 2);
+	int inPtr = 16;
+
+	int dy = dstOffsetY;
+	int yend = srcOffsetY + h;
+	int xend = srcOffsetX + w;
+	for (int y = 0; y < imgH; y++)
+	{
+		int c1 = GetInt(data, inPtr, 2);
+		int c2 = GetInt(data, inPtr + 2, 2);
+
+		if (y >= srcOffsetY && y < yend)
+		{
+			int dx = dstOffsetX;
+			for (int x = 0; x < imgW; x++)
+			{
+				if (x >= srcOffsetX && x < xend)
+				{
+					if (dx >= 0 && dy >= 0 && dx < 640 && dy < 480)
+					{
+						_screen[dy * 640 + dx] = data[inPtr + 4 + x - c1];
+					}
+
+					dx++;
+				}
+			}
+
+			dy++;
 		}
 
 		inPtr += 4 + c2;
@@ -332,17 +373,17 @@ void CFullScreenModule::Back()
 	}
 }
 
-void CFullScreenModule::ReadPalette(LPBYTE pPalette)
+void CFullScreenModule::ReadPalette(LPBYTE pPalette, int startColour, int colourCount)
 {
-	for (int c = 0; c < 256; c++)
+	for (int c = 0; c < colourCount; c++)
 	{
-		double r = pPalette[c * 3 + 0];
-		double g = pPalette[c * 3 + 1];
-		double b = pPalette[c * 3 + 2];
+		double r = pPalette[(startColour + c) * 3 + 0];
+		double g = pPalette[(startColour + c) * 3 + 1];
+		double b = pPalette[(startColour + c) * 3 + 2];
 		int ri = (byte)((r * 255.0) / 63.0);
 		int gi = (byte)((g * 255.0) / 63.0);
 		int bi = (byte)((b * 255.0) / 63.0);
 		int col = 0xff000000 | bi | (gi << 8) | (ri << 16);
-		_palette[c] = col;
+		_palette[startColour + c] = col;
 	}
 }

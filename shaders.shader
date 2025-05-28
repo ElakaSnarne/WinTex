@@ -253,6 +253,26 @@ float4 MultiColouredFontPS(MultiColouredPixelInputType input) : SV_TARGET
 	return ret;
 }
 
+float4 MultiColouredFontPSPD(MultiColouredPixelInputType input) : SV_TARGET
+{
+	float2 tt1 = float2(input.tex.x, input.tex.y);
+	float2 tt2 = float2(input.tex.x, input.tex.y - 0.25f);
+	float2 tt3 = float2(input.tex.x, input.tex.y - 0.5f);
+	float2 tt4 = float2(input.tex.x, input.tex.y - 0.75f);
+	float4 textureColor1 = shaderTexture.Sample(SampleType, tt1);
+	float4 textureColor2 = shaderTexture.Sample(SampleType, tt2);
+	float4 textureColor3 = shaderTexture.Sample(SampleType, tt3);
+	float4 textureColor4 = shaderTexture.Sample(SampleType, tt4);
+
+	float4 ret;
+	ret.a = saturate(textureColor3.a * input.colour.a);
+	ret.r = saturate(textureColor3.r * input.colour.r);
+	ret.g = saturate(textureColor3.g * input.colour.g);
+	ret.b = saturate(textureColor3.b * input.colour.b);
+
+	return ret;
+}
+
 // NV12/YUV shader for e.g. external H.264 video
 
 //https://github.com/balapradeepswork/D3D11NV12Rendering

@@ -188,7 +188,7 @@ void CDXButton::SetMouseOver(BOOL mouseOver)
 	{
 		// Play sound
 		DWORD s;
-		PBYTE pWave = GetResource(IDR_BUTTON_MOUSEOVER_WAVE, L"WAVE", &s);
+		PBYTE pWave = GetResource(IDR_WAVE_BUTTON_MOUSEOVER, L"WAVE", &s);
 		_pSound->Play(pWave, s);
 	}
 }

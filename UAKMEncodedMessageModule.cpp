@@ -188,7 +188,7 @@ void CUAKMEncodedMessageModule::Initialize()
 	_cursorPosY = dx.GetHeight() / 2.0f;
 
 	DWORD s;
-	_font = GetResource(IDR_RAWFONT, L"BIN", &s);
+	_font = GetResource(IDR_RAWFONT_UAKM, L"BIN", &s);
 	if (_font != NULL)
 	{
 		for (int i = 0; i < 224; i++)

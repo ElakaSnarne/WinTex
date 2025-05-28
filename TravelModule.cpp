@@ -17,6 +17,11 @@ CTravelModule::CTravelModule() : CFullScreenModule(ModuleType::Travel)
 	_coordinates = NULL;
 	_hotspots = NULL;
 	_resultTable = NULL;
+
+	_cursorMinX = 0.0;
+	_cursorMaxX = dx.GetWidth();
+	_cursorMinY = 0.0;
+	_cursorMaxY = dx.GetHeight();
 }
 
 CTravelModule::~CTravelModule()

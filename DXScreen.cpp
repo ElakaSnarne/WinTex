@@ -28,7 +28,7 @@ CDXScreen::~CDXScreen()
 void CDXScreen::Init()
 {
 	DWORD size;
-	PBYTE pFont = GetResource(isUAKM ? IDB_TEXFONT : IDB_PANDORAFONT, L"PNG", &size);
+	PBYTE pFont = GetResource(isUAKM ? IDB_FONT_UAKM : IDB_FONT_PD, L"PNG", &size);
 	TexFont.Init(pFont, size);
 
 	UpVector = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);

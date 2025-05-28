@@ -3,7 +3,7 @@
 #include <Windows.h>
 
 #pragma pack(1)
-typedef struct PDExamStruct
+struct PDExamStruct
 {
 	short Id;
 	short AddItemId;

@@ -53,6 +53,7 @@ enum class ModuleType
 	Hints = 20,
 	VidPhone = 21,
 	Crossword = 22,
+	NewGame = 23
 };
 
 enum class ActionType

@@ -35,7 +35,7 @@ void CUAKMMainMenuModule::Credits(LPVOID data)
 void CUAKMMainMenuModule::SetupScreen()
 {
 	DWORD s;
-	PBYTE pImg = GetResource(IDB_UAKM_TITLE, L"JPG", &s);
+	PBYTE pImg = GetResource(IDB_JPG_UAKM_TITLE, L"JPG", &s);
 	CDXBitmap* pBmp = _pScreen->AddBitmap(pImg, s, Alignment::CenterX | Alignment::CenterY | Alignment::Scale | Alignment::Crop);
 
 	// TODO: Use string resources, or read from configuration file

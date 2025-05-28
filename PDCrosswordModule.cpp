@@ -170,7 +170,7 @@ void CPDCrosswordModule::KeyDown(WPARAM key, LPARAM lParam)
 			if (key >= 'A' && key <= 'Z')
 			{
 				// Render new char
-				_font.Render(_screen, 640, 480, cellCenterX, cellCenterY, key, PD_CROSSWORD_COLOUR_BLACK - 1, TRUE);
+				_font.Render(_screen, 640, 480, cellCenterX, cellCenterY, (BYTE)key, PD_CROSSWORD_COLOUR_BLACK - 1, TRUE);
 			}
 
 			CGameController::SetData(PD_SAVE_CROSSWORD_PUZZLE + cellIndex, (BYTE)key);
@@ -184,7 +184,7 @@ void CPDCrosswordModule::KeyDown(WPARAM key, LPARAM lParam)
 			_cursorPosY = ((cellCenterY + PD_CROSSWORD_CELL_SIZE * _advanceY + PD_CROSSWORD_CELL_CURSOR_Y_OFFSET) * _scale) + _top;
 
 			_inputEnabled = FALSE;
-			POINT pt{ _cursorPosX, _cursorPosY };
+			POINT pt{ (LONG)_cursorPosX, (LONG)_cursorPosY };
 			ClientToScreen(_hWnd, &pt);
 			SetCursorPos(pt.x, pt.y);
 		}

@@ -59,7 +59,7 @@ CUAKMGame::CUAKMGame()
 	_lastDialoguePoint = -1;
 	_frameTrigger = -1;
 
-	ReadGameXMLInfo(IDR_UAKM_XML);
+	ReadGameXMLInfo(IDR_XML_UAKM);
 
 	SetGamePath(L".\\");
 }
@@ -108,6 +108,8 @@ void CUAKMGame::KeyUp(WPARAM key, LPARAM lParam)
 
 void CUAKMGame::NewGame()
 {
+	CMainMenuModule::SetPlayerNameAndEnableButtons();
+
 	// Reset game buffer
 	ZeroMemory(_gameData, UAKM_SAVE_SIZE);
 	FillMemory(_gameData + 2, UAKM_SAVE_PADDING1 - 2, ' ');

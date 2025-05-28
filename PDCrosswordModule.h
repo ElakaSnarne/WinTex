@@ -1,7 +1,7 @@
 #pragma once
 
 #include "FullScreenModule.h"
-#include "TexFont.h"
+#include "RawFont.h"
 #include "BinaryData.h"
 #include "Utilities.h"
 #include "AmbientAudio.h"
@@ -18,7 +18,7 @@ public:
 
 protected:
 	virtual void Initialize();
-	CTexFont _font;
+	CRawFont _font;
 	CAmbientAudio _sound;
 	BOOL _updateTexture;
 	static char* Solution;

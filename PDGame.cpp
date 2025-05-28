@@ -20,6 +20,7 @@
 #include "PDClimbLadderOverlay.h"
 #include "PDConvertPointsOverlay.h"
 #include "PDElevationModOverlay.h"
+#include "PDSelectLevelModule.h"
 
 BOOL CPDGame::Init()
 {
@@ -73,7 +74,7 @@ CPDGame::CPDGame()
 	_lastDialoguePoint = -1;
 	_frameTrigger = -1;
 
-	ReadGameXMLInfo(IDR_PD_XML);
+	ReadGameXMLInfo(IDR_XML_PD);
 
 	SetGamePath(L".\\");
 }
@@ -196,49 +197,8 @@ void CPDGame::SaveGame(LPWSTR fileName)
 
 void CPDGame::NewGame()
 {
-	// Reset game buffer
-	ZeroMemory(_gameData, PD_SAVE_SIZE);
-
-	_gameData[PD_SAVE_UNKNOWN1] = 6;
-	SetData(PD_SAVE_PLAYER, "TEX");
-
-	SetData(PD_SAVE_TRAVEL + 1, 1);		// Tex' Office
-	SetData(PD_SAVE_TRAVEL + 70, 1);	// Tex' Bedroom
-	SetData(PD_SAVE_TRAVEL + 71, 1);	// Tex' Computer Room
-
-	SetAskAboutState(0, 1);		// Enable AskAbout Tex Murphy
-	SetAskAboutState(1, 1);		// Enable AskAbout Chelsee Bando
-	SetAskAboutState(2, 1);		// Enable AskAbout Louie LaMintz
-	SetAskAboutState(3, 1);		// Enable AskAbout Rook Garner
-	SetAskAboutState(6, 1);		// Enable AskAbout Gordon Fitzpatrick
-	SetAskAboutState(7, 1);		// Enable AskAbout Thomas Malloy
-	SetAskAboutState(9, 1);		// Enable AskAbout Nilo
-	SetAskAboutState(40, 1);	// Enable AskAbout Tyson Matthews
-	SetAskAboutState(56, 1);	// Enable AskAbout Newspaper photo of Malloy
-	SetAskAboutState(61, 1);	// Enable AskAbout Sandra
-
-	// Set Unknowns 10 and 11 to 2 and 1
-	_gameData[PD_SAVE_PARAMETERS + 251] = 2;
-	_gameData[PD_SAVE_PARAMETERS + 250] = 1;	// Day in game
-
-	// Parameter 0x19a, 0 = Entertainment Level, 1 = Game Player Level
-	_gameData[PD_SAVE_PARAMETERS_GAME_LEVEL] = 1;
-
-	SetWord(PD_SAVE_CASH, 4000);
-	SetItemState(0, 1);	// Cash
-	SetItemState(1, 1);	// Photo of Malloy
-	SetItemState(2, 1);	// Credit card
-	SetItemState(4, 1);	// Fitzpatrick's card
-
-	// Set hint category states 1-4
-	SetHintCategoryState(1, 1);
-	SetHintCategoryState(2, 1);
-	SetHintCategoryState(3, 1);
-	SetHintCategoryState(4, 1);
-
-	// TODO: Clear some tables (hints?)
-
-	LoadFromDMap(42);
+	CPDSelectLevelModule* pSelectLevelModule = new CPDSelectLevelModule(_gameData);
+	CModuleController::Push(pSelectLevelModule);
 }
 
 BYTE CPDGame::GetParameter(int index)

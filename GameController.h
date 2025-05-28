@@ -46,6 +46,7 @@ public:
 
 	static BYTE GetData(int offset) { return Game->GetData(offset); }
 	static void SetData(int offset, BYTE value) { Game->SetData(offset, value); }
+	static void SetData(int offset, char* text) { Game->SetData(offset, text); }
 	static LPBYTE GetDataPointer() { return Game->GetDataPointer(); }
 	static WORD GetWord(int offset) { return Game->GetWord(offset); }
 	static void SetWord(int offset, WORD value) { Game->SetWord(offset, value); }

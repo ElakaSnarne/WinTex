@@ -390,7 +390,13 @@
     <ClCompile Include="PDElevationModOverlay.cpp">
       <Filter>PD</Filter>
     </ClCompile>
-    <ClCompile Include="TexFont.cpp">
+    <ClCompile Include="PDSelectLevelModule.cpp">
+      <Filter>Modules\PD</Filter>
+    </ClCompile>
+    <ClCompile Include="PDSubLocation.cpp">
+      <Filter>PD</Filter>
+    </ClCompile>
+    <ClCompile Include="RawFont.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
   </ItemGroup>
@@ -809,7 +815,13 @@
     <ClInclude Include="PDElevationModOverlay.h">
       <Filter>PD</Filter>
     </ClInclude>
-    <ClInclude Include="TexFont.h">
+    <ClInclude Include="PDSelectLevelModule.h">
+      <Filter>Modules\PD</Filter>
+    </ClInclude>
+    <ClInclude Include="PDSubLocation.h">
+      <Filter>PD</Filter>
+    </ClInclude>
+    <ClInclude Include="RawFont.h">
       <Filter>Shared</Filter>
     </ClInclude>
   </ItemGroup>
@@ -841,9 +853,6 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Images\ListBox.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Images\UAKM-Title3.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Images\UAKMFont.png">
@@ -885,6 +894,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="Images\UAKMFont.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Images\PDFont.bin">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

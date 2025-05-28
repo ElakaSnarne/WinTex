@@ -15,6 +15,7 @@
 #include <algorithm>
 #include "PDVidPhoneModule.h"
 #include "PDRitzSecurityKeypadModule.h"
+#include "PDTravelModule.h"
 
 CPDScript::CPDScript()
 {
@@ -490,7 +491,7 @@ void CPDScript::Function_14(CScriptState* pState)
 	//CGameController::SetData(PD_SAVE_DMAP_ENTRY_B, ix);
 	//CGameController::SetData(PD_SAVE_MAP_FLAG_A, 0);
 	CGameController::SetData(PD_SAVE_DMAP_ID, ix);
-	CGameController::SetData(PD_SAVE_SCRIPT_ID, 0);
+	CGameController::SetData(PD_SAVE_SCRIPT_ID, (BYTE)0);
 	CGameController::SetParameter(252, 0);
 
 	CGameController::AutoSave();
@@ -741,10 +742,9 @@ void CPDScript::Function_2C(CScriptState* pState)
 
 void CPDScript::Function_2D(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_2D");
-	//pState->ExecutionPointer = -1;
-
-	//text += $"???";
+	DebugTrace(pState, L"Function_2D - Travel");
+	CModuleController::Push(new CPDTravelModule());
+	pState->WaitingForInput = TRUE;
 }
 
 void CPDScript::Function_2E(CScriptState* pState)
