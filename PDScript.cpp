@@ -744,7 +744,7 @@ void CPDScript::Function_2D(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_2D - Travel");
 	CModuleController::Push(new CPDTravelModule());
-	pState->WaitingForInput = TRUE;
+	pState->WaitingForExternalModule = TRUE;
 }
 
 void CPDScript::Function_2E(CScriptState* pState)

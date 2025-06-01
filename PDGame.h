@@ -40,6 +40,8 @@
 
 #define PD_SAVE_STARTUP_POSITION			0x3e4
 
+#define PD_SAVE_VIDPHONE_FITZPATRICK		0x42c
+
 #define PD_SAVE_ITEM_STATES					0x499
 
 #define PD_SAVE_SCRIPT_ID					0x6b5
@@ -71,7 +73,9 @@
 #define PD_SAVE_CROSSWORD_PUZZLE			0xf9b
 #define PD_SAVE_CROSSWORD_PUZZLE_END		0x102a
 
-#define PD_SAVE_VIDPHONE					0x10a8
+#define PD_SAVE_UNKNOWN_1					0x108f
+#define PD_SAVE_UNKNOWN_2					0x10a8
+
 #define PD_SAVE_TRAVEL						0x10c1
 #define PD_SAVE_TRAVEL_END					0x1124
 
@@ -80,33 +84,6 @@
 
 #define PD_SAVE_UNKNOWN12					0x11f2
 #define PD_SAVE_SIZE						0x11f3
-
-// Unverified
-//#define PD_SAVE_LOCATION					0x1a
-
-//#define PD_SAVE_PADDING2					0x100
-//#define PD_SAVE_CRIMELINK_SELECTIONS		0x12c
-//#define PD_SAVE_MAP_ENTRY					0x14a
-//#define PD_SAVE_UNKNOWN2					0x14c
-//#define PD_SAVE_DMAP_ENTRY					0x150
-//#define PD_SAVE_UNKNOWN3					0x152
-//#define PD_SAVE_HINT_STATES					0x388
-//#define PD_SAVE_COLONELS_SAFE_CODE			0x431
-//#define PD_SAVE_CODED_MESSAGE				0x435
-//#define PD_SAVE_STASIS_SLIDER1				0x4c5
-//#define PD_SAVE_STASIS_SLIDER2				0x4c7
-//#define PD_SAVE_SCRIPT_ID					0x4c9
-//#define PD_SAVE_ITEMS_EXAMINED_FLAGS		0x4cb
-//#define PD_SAVE_STASIS_SETTINGS				0x4dd
-//#define PD_SAVE_STASIS_STAGES				0x4df
-
-//#define PD_SAVE_UNKNOWN5					0x4e4
-//#define PD_SAVE_HINT_CATEGORY_STATES		0x5ae
-//#define PD_SAVE_CHAPTER						0x636
-//#define PD_SAVE_AF_ACTIONS					0x638
-//#define PD_SAVE_PUZZLE_DATA					0x69d
-//#define PD_SAVE_TRAVEL_BACKUP				0x8c2
-//#define PD_SAVE_UNKNOWN7					0x8e9
 
 #define PD_MAX_ITEM_COUNT					300
 
