@@ -61,6 +61,9 @@ public:
 	static int SelectNextItem() { return Game->SelectNextItem(); }
 	static int SelectPreviousItem() { return Game->SelectPreviousItem(); }
 
+	static void SetItemState(int base, int item, int state);
+	static int GetItemState(int base, int item);
+
 	static void SetAskAboutState(int index, BYTE state);
 	static BYTE GetAskAboutState(int index);
 	static int GetAskAboutCount() { return Game->GetAskAboutCount(); }

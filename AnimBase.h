@@ -19,7 +19,7 @@ public:
 	BOOL Init(BinaryData bd);
 
 	void Render();
-	virtual void Update();
+	virtual BOOL Update();
 
 	virtual BOOL IsWave() { return FALSE; }
 	virtual BOOL HasVideo() { return TRUE; }

@@ -85,6 +85,16 @@ void CGameController::SetItemState(int item, int state)
 	ItemsChanged = TRUE;
 }
 
+void CGameController::SetItemState(int base, int item, int state)
+{
+	Game->SetItemState(base, item, state);
+}
+
+int CGameController::GetItemState(int base, int item)
+{
+	return Game->GetItemState(base, item);
+}
+
 void CGameController::SetFileName(int index, std::wstring name)
 {
 	FileMap[index] = name;

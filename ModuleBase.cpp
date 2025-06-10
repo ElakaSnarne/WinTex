@@ -101,16 +101,16 @@ void CModuleBase::CreateTexturedRectangle(float top, float left, float bottom, f
 	TEXTURED_VERTEX* vertices = new TEXTURED_VERTEX[4];
 	if (vertices != NULL)
 	{
-		vertices[0].position = XMFLOAT3(right, top, 0.0f);
+		vertices[0].position = XMFLOAT3(right, top, -1.0f);
 		vertices[0].texture = XMFLOAT2(1.0f, 0.0f);
 
-		vertices[1].position = XMFLOAT3(right, bottom, 0.0f);
+		vertices[1].position = XMFLOAT3(right, bottom, -1.0f);
 		vertices[1].texture = XMFLOAT2(1.0f, 1.0f);
 
-		vertices[2].position = XMFLOAT3(left, top, 0.0f);
+		vertices[2].position = XMFLOAT3(left, top, -1.0f);
 		vertices[2].texture = XMFLOAT2(0.0f, 0.0f);
 
-		vertices[3].position = XMFLOAT3(left, bottom, 0.0f);
+		vertices[3].position = XMFLOAT3(left, bottom, -1.0f);
 		vertices[3].texture = XMFLOAT2(0.0f, 1.0f);
 
 		D3D11_BUFFER_DESC vertexBufferDesc;

@@ -35,6 +35,14 @@ CH2O::CH2O(int factor)
 	_decodedSize = 0;
 
 	_startAudioOnFrame = -1;
+
+	_configuredOutputBuffer = NULL;
+	_renderWidth = 0;
+	_renderHeight = 0;
+	_offsetX = 0;
+	_offsetY = 0;
+	_minColAllowChange = 0;
+	_maxColAllowChange = 256;
 }
 
 CH2O::~CH2O()
@@ -72,12 +80,13 @@ BOOL CH2O::Init(LPBYTE pData, int length)
 	// Validate that the file is a H2O
 	if (ret && GetInt(pData, 0, 4) == H2O)
 	{
-		_width = GetInt(pData, 4, 2);
-		_height = GetInt(pData, 8, 2);
+		_renderWidth = _width = GetInt(pData, 4, 2);
+		_renderHeight = _height = GetInt(pData, 8, 2);
 		_rate = GetInt(pData, 16, 2);
 		_frameTime = _rate;
 
 		CreateBuffers(_width, _height, _factor);
+		_configuredOutputBuffer = _pVideoOutputBuffer;
 		_texture.Init(_width, _height);
 
 		// Find video and audio pointers
@@ -91,6 +100,8 @@ BOOL CH2O::Init(LPBYTE pData, int length)
 		_audioFramePointer = 0x40;
 
 		_audioCompressed = (GetInt(_pInputBuffer, 0x2c, 4) != 0);
+
+		_configuredPalette = _pPalette;
 	}
 
 	return ret;
@@ -345,7 +356,11 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 							// Fix for Pandora inventory module
 							col = 0xff000000;
 						}
-						_pPalette[currentIndex++] = col;
+						if (c >= _minColAllowChange && c < _maxColAllowChange)
+						{
+							_configuredPalette[currentIndex] = col;
+						}
+						currentIndex++;
 					}
 				}
 			}
@@ -642,7 +657,7 @@ void CH2O::SkipOrFill(int val)
 				{
 					for (int x = 0; x < 4; x++)
 					{
-						_pVideoOutputBuffer[(_y + y) * _width + _x + b * 4 + x] = set;
+						_configuredOutputBuffer[(_y + y + _offsetY) * _renderWidth + _offsetX + _x + b * 4 + x] = set;
 					}
 				}
 			}
@@ -713,10 +728,10 @@ int CH2O::GetPattern(int function, int input)
 
 void CH2O::Write(int x, int y, int value)
 {
-	_pVideoOutputBuffer[y * _width + x + 0] = (byte)(value & 0xff);
-	_pVideoOutputBuffer[y * _width + x + 1] = (byte)((value >> 8) & 0xff);
-	_pVideoOutputBuffer[y * _width + x + 2] = (byte)((value >> 16) & 0xff);
-	_pVideoOutputBuffer[y * _width + x + 3] = (byte)((value >> 24) & 0xff);
+	_configuredOutputBuffer[(y + _offsetY) * _renderWidth + _offsetX + x + 0] = (byte)(value & 0xff);
+	_configuredOutputBuffer[(y + _offsetY) * _renderWidth + _offsetX + x + 1] = (byte)((value >> 8) & 0xff);
+	_configuredOutputBuffer[(y + _offsetY) * _renderWidth + _offsetX + x + 2] = (byte)((value >> 16) & 0xff);
+	_configuredOutputBuffer[(y + _offsetY) * _renderWidth + _offsetX + x + 3] = (byte)((value >> 24) & 0xff);
 }
 
 void CH2O::PatternCopy(int val)
@@ -740,7 +755,7 @@ void CH2O::PatternCopy(int val)
 				{
 					if ((function & (1 << b)) != 0)
 					{
-						_pVideoOutputBuffer[(_y + i) * _width + _x + b] = _pDecodingBuffer[_inputOffset++];
+						_configuredOutputBuffer[(_y + i + _offsetY) * _renderWidth + _offsetX + _x + b] = _pDecodingBuffer[_inputOffset++];
 					}
 				}
 			}
@@ -760,4 +775,16 @@ void CH2O::PatternCopy(int val)
 			NewLine();
 		}
 	}
+}
+
+void CH2O::SetOutputBuffer(LPBYTE pBuffer, int width, int height, int offsetX, int offsetY, LPINT pPalette, int minColAllowChange, int maxColAllowChange)
+{
+	_configuredOutputBuffer = pBuffer;
+	_renderWidth = width;
+	_renderHeight = height;
+	_configuredPalette = pPalette;
+	_minColAllowChange = minColAllowChange;
+	_maxColAllowChange = maxColAllowChange;
+	_offsetX = offsetX;
+	_offsetY = offsetY;
 }

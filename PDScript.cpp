@@ -628,6 +628,7 @@ void CPDScript::Function_1F(CScriptState* pState)
 	int timer = pState->Read8();
 	int compare = pState->Read16() & 0xff;
 	int address = pState->Read16();
+
 	if (CGameController::GetTimerState(timer) == compare)
 	{
 		pState->ExecutionPointer = address;
@@ -1308,8 +1309,12 @@ void CPDScript::Function_50(CScriptState* pState)
 	DebugTrace(pState, L"Function_50");
 
 	// byte, word
-	//text += $"If Function({GetInt(data, offset, 1):X2}) <> 0 jump to {GetInt(data, offset + 1, 2):X4}";
-	pState->ExecutionPointer += 3;
+	int parameter = pState->Read8();
+	int address = pState->Read16();
+
+	// TODO: Execute function
+
+	pState->ExecutionPointer = address;
 }
 
 void CPDScript::Function_51(CScriptState* pState)
@@ -1418,11 +1423,11 @@ void CPDScript::Function_5D(CScriptState* pState)
 
 void CPDScript::Function_5E(CScriptState* pState)
 {
-	DebugTrace(pState, L"Function_5E");
+	DebugTrace(pState, L"Function_5E - Set VidPhone phonebook State");
 
-	// byte, byte
-	//text += $"??? {GetInt(data, offset, 1):X2}, {GetInt(data, offset + 1, 1):X2}";
-	pState->ExecutionPointer += 2;
+	int index = pState->Read8();
+	int state = pState->Read8();
+	CGameController::SetItemState(PD_SAVE_VIDPHONE, index, state);
 }
 
 void CPDScript::Function_5F(CScriptState* pState)

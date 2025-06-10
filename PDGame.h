@@ -55,12 +55,8 @@
 #define PD_SAVE_BUYABLES					0x7b9
 
 #define PD_SAVE_ITEM_COUNT					0x7f7
-
 #define PD_SAVE_CURRENT_ITEM				0x7fb
 #define PD_SAVE_CURRENT_ITEM_HIGH			0x7fc
-
-//#define PD_SAVE_UNKNOWN6					0x51b
-
 #define PD_SAVE_INVENTORY					0x801
 
 #define PD_SAVE_HINT_CATEGORY_STATES		0xa5a
@@ -72,6 +68,10 @@
 
 #define PD_SAVE_CROSSWORD_PUZZLE			0xf9b
 #define PD_SAVE_CROSSWORD_PUZZLE_END		0x102a
+
+#define PD_SAVE_VIDPHONE					0x1053
+#define PD_SAVE_VIDPHONE_ENTRIES_COUNT		0x1053
+#define PD_SAVE_VIDPHONE_ENTRIES			0x105d
 
 #define PD_SAVE_UNKNOWN_1					0x108f
 #define PD_SAVE_UNKNOWN_2					0x10a8
@@ -136,6 +136,9 @@ public:
 	virtual void SetCurrentItemId(int item);
 	virtual int SelectNextItem();
 	virtual int SelectPreviousItem();
+
+	virtual int GetItemState(int base, int item);
+	virtual void SetItemState(int base, int item, int state);
 
 	virtual BYTE GetHintState(int index);
 	virtual void SetHintState(int index, BYTE state, int score);

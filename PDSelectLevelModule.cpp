@@ -66,10 +66,10 @@ void CPDSelectLevelModule::Initialize()
 
 	_pCBEntertainment = new CDXCheckBox("Entertainment", &_bEntertainment, 0.0f);
 	_pCBEntertainment->SetColours(0, 0, -1, 0);
-	_pCBEntertainment->SetPosition(0, dx.GetHeight() / 2);
+	_pCBEntertainment->SetPosition(0, r3.Bottom - 40);
 	_pCBGamePlayer = new CDXCheckBox("Game player", &_bGamePlayer, 0.0f);
 	_pCBGamePlayer->SetColours(0, 0, -1, 0);
-	_pCBGamePlayer->SetPosition(dx.GetWidth() - _pCBGamePlayer->GetWidth() - 10, dx.GetHeight() / 2);
+	_pCBGamePlayer->SetPosition(dx.GetWidth() - _pCBGamePlayer->GetWidth() - 10, r3.Bottom - 40);
 
 	_pBtnOK = new CDXButton("OK", 80, 20);
 	_pBtnOK->SetPosition(10, dx.GetHeight() - _pBtnOK->GetHeight() - 10);

@@ -26,7 +26,7 @@ public:
 	void SetColours(int colour1, int colour2);
 	void SetColours(int colour1, int colour2, int colour3, int colour4);
 
-	virtual void Render(float x, float y);
+	virtual void Render(float x, float y, float z = -1.0f);
 
 	void SetText(char const* text, Alignment alignment = Alignment::Left);
 	void SetText(char const* text, Rect rect, Alignment alignment = Alignment::Left);

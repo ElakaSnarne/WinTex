@@ -152,6 +152,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>if $(ConfigurationName) == Release copy x64\Release\WinTex.exe Binary</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AmbientAudio.cpp" />
@@ -174,6 +177,7 @@
     <ClCompile Include="PDInventoryModule.cpp" />
     <ClCompile Include="PDLocationModule.cpp" />
     <ClCompile Include="PDMIDIPlayer.cpp" />
+    <ClCompile Include="PDNewspaperModule.cpp" />
     <ClCompile Include="PDRitzSecurityKeypadModule.cpp" />
     <ClCompile Include="PDSelectLevelModule.cpp" />
     <ClCompile Include="PDSubLocation.cpp" />
@@ -310,6 +314,7 @@
     <ClInclude Include="PDLocationModule.h" />
     <ClInclude Include="MediaIdentifiers.h" />
     <ClInclude Include="PDMIDIPlayer.h" />
+    <ClInclude Include="PDNewspaperModule.h" />
     <ClInclude Include="PDRitzSecurityKeypadModule.h" />
     <ClInclude Include="PDScriptState.h" />
     <ClInclude Include="PDSelectLevelModule.h" />

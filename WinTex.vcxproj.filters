@@ -399,6 +399,9 @@
     <ClCompile Include="RawFont.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="PDNewspaperModule.cpp">
+      <Filter>Modules\PD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DXFrame.h">
@@ -823,6 +826,9 @@
     </ClInclude>
     <ClInclude Include="RawFont.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="PDNewspaperModule.h">
+      <Filter>Modules\PD</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

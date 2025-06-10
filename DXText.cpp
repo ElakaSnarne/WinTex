@@ -31,7 +31,7 @@ CDXText::~CDXText()
 	}
 }
 
-void CDXText::Render(float x, float y)
+void CDXText::Render(float x, float y, float z)
 {
 	if (_vertexBuffer == NULL) return;
 
@@ -41,7 +41,7 @@ void CDXText::Render(float x, float y)
 	dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	ID3D11ShaderResourceView* pRV = TexFont.GetTextureRV();
-	XMMATRIX wm = XMMatrixTranslation(floor(x), -floor(y), -1.0f);
+	XMMATRIX wm = XMMatrixTranslation(floor(x), -floor(y), z);
 
 	CShaders::SelectTexFontShader();
 

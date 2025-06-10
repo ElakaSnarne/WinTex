@@ -172,8 +172,10 @@ BOOL CAnimBase::Init(BinaryData bd)
 	return Init(bd.Data, bd.Length);
 }
 
-void CAnimBase::Update()
+BOOL CAnimBase::Update()
 {
+	BOOL updated = FALSE;
+
 	if (!_done)
 	{
 		ULONGLONG tick = GetTickCount64();
@@ -238,8 +240,12 @@ void CAnimBase::Update()
 
 				//_lock.Release();
 			}
+
+			updated = TRUE;
 		}
 	}
+
+	return updated;
 }
 
 void CAnimBase::Skip()

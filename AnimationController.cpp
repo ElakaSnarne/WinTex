@@ -1,4 +1,4 @@
-#include "VideoPlayer.h"
+//#include "VideoPlayer.h"
 #include "AnimationController.h"
 #include "Globals.h"
 #include "PTF.h"
@@ -126,13 +126,15 @@ BOOL CAnimationController::NoAnimOrWave()
 	return naow;
 }
 
-void CAnimationController::UpdateAndRender()
+BOOL CAnimationController::UpdateAndRender(BOOL render)
 {
-	UpdateAndRender(_anim);
+	return UpdateAndRender(_anim, render);
 }
 
-void CAnimationController::UpdateAndRender(CAnimBase* pAnim)
+BOOL CAnimationController::UpdateAndRender(CAnimBase* pAnim, BOOL render)
 {
+	BOOL updated = FALSE;
+
 	if (pAnim != NULL)
 	{
 		int frame = Frame(pAnim);
@@ -152,14 +154,19 @@ void CAnimationController::UpdateAndRender(CAnimBase* pAnim)
 			pC->SetProcessed(TRUE);
 		}
 
-		pAnim->Update();
-		pAnim->Render();
+		updated = pAnim->Update();
+		if (render)
+		{
+			pAnim->Render();
+		}
 
 		if (pConfig->Captions && !pAnim->IsDone())
 		{
-			_pCaption->Render(0.0f, dx.GetHeight() - _pCaption->Height() - 10.0f);
+			_pCaption->Render(0.0f, dx.GetHeight() - _pCaption->Height() - 10.0f, -1.0f);
 		}
 	}
+
+	return updated;
 }
 
 BOOL CAnimationController::IsDone()
@@ -253,4 +260,18 @@ void CAnimationController::SetCaptionColours(int texColour1, int texColour2, int
 	_otherCaptionColour2 = otherColour2;
 	_otherCaptionColour3 = otherColour3;
 	_otherCaptionColour4 = otherColour4;
+}
+
+void CAnimationController::SetOutputBuffer(LPBYTE pBuffer, int width, int height, int offsetX, int offsetY, LPINT pPalette, int minColAllowChange, int maxColAllowChange)
+{
+	// Only supported by H2O
+	((CH2O*)_anim)->SetOutputBuffer(pBuffer, width, height, offsetX, offsetY, pPalette, minColAllowChange, maxColAllowChange);
+}
+
+void CAnimationController::RenderCaptions(float z)
+{
+	if (pConfig->Captions && _anim != NULL && !_anim->IsDone())
+	{
+		_pCaption->Render(0.0f, dx.GetHeight() - _pCaption->Height() - 10.0f, z);
+	}
 }

@@ -388,6 +388,59 @@ void CPDGame::SetItemState(int item, int state)
 	}
 }
 
+int CPDGame::GetItemState(int base, int item)
+{
+	// Return the item state based on item id, base is from count, actual list is from base + 10
+	return 0;
+}
+
+void CPDGame::SetItemState(int base, int item, int state)
+{
+	int count = GetInt(_gameData, base, 2);
+
+	// Add or remove from list
+	if (state == 0 || state == 2)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			if (GetInt(_gameData, base + 10 + i * 2, 2) == item)
+			{
+				for (int j = i + 1; j < count && j < PD_MAX_ITEM_COUNT; j++)
+				{
+					SetInt(_gameData, base + 10 + (j - 1) * 2, GetInt(_gameData, base + 10 + j * 2, 2), 2);
+				}
+
+				SetInt(_gameData, base, count - 1, 2);
+
+				if (GetInt(_gameData, base + 4, 2) == item)
+				{
+					SetInt(_gameData, base + 4, -1, 2);
+				}
+
+				break;
+			}
+		}
+	}
+	else if (state == 1)
+	{
+		BOOL itemExists = FALSE;
+		for (int i = 0; i < count; i++)
+		{
+			if (GetInt(_gameData, base + 10 + i * 2, 2) == item)
+			{
+				itemExists = TRUE;
+				break;
+			}
+		}
+
+		if (!itemExists)
+		{
+			SetInt(_gameData, base + 10 + count * 2, item, 2);
+			SetInt(_gameData, base, count + 1, 2);
+		}
+	}
+}
+
 int CPDGame::GetCurrentItemId()
 {
 	int itemId = GetInt(_gameData, PD_SAVE_CURRENT_ITEM, 2);

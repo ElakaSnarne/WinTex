@@ -10,6 +10,7 @@
 //#include "LocationModule.h"
 #include "PDExamStruct.h"
 #include "PDCrosswordModule.h"
+#include "PDNewspaperModule.h"
 
 //short pdComboTable[] = { 0,5,26,1,4,0,1,5,129,4,129,26,7,37,39,9,12,2,10,77,78,14,15,49,17,35,138,18,112,114,27,28,52,42,43,85,45,46,88,45,48,87,46,87,107,48,88,107,58,59,90,60,90,93,61,70,102,65,66,108,66,73,110,66,96,132,73,131,96,79,80,76,91,103,95,110,131,132,111,114,124 };
 //
@@ -29,7 +30,7 @@ CPDInventoryModule::CPDInventoryModule() : CInventoryModule()
 	// Update cash item description string
 	CItems::SetItemName(0, CGameController::GetItemName(0) + L" $" + std::to_wstring(CGameController::GetWord(PD_SAVE_CASH)));
 
-	_closeOnResume = FALSE;
+	_closeOnResume = TRUE;
 }
 
 void CPDInventoryModule::Examine()
@@ -60,6 +61,10 @@ void CPDInventoryModule::Examine()
 		if (_selectedItemId == PD_INVENTORY_CROSSWORD_PUZZLE)
 		{
 			CModuleController::Push(new CPDCrosswordModule());
+		}
+		else if (_selectedItemId == PD_INVENTORY_OLD_NEWSPAPER)
+		{
+			CModuleController::Push(new CPDNewspaperModule());
 		}
 		else if ((pExam->Flags & EXAMINE_FLAG_VIDEO) != 0)
 		{
@@ -127,7 +132,7 @@ void CPDInventoryModule::Resume()
 			CGameController::SetItemState(_selectedItemId, 2);
 			CGameController::SetItemState(pExam->Id, 1);
 		}
-		if (pExam->AddItemId != 0xff)
+		if (pExam->AddItemId != -1)
 		{
 			CGameController::SetItemState(pExam->AddItemId, 1);
 		}
@@ -139,7 +144,7 @@ void CPDInventoryModule::Resume()
 		{
 			CGameController::SetAskAboutState(pExam->AskAbout2, 1);
 		}
-		if (pExam->ParameterAIndex != 0xff)
+		if (pExam->ParameterAIndex != -1)
 		{
 			CGameController::SetParameter(pExam->ParameterAIndex, pExam->ParameterAValue);
 		}
@@ -151,7 +156,7 @@ void CPDInventoryModule::Resume()
 		{
 			CGameController::SetData(PD_SAVE_TRAVEL + pExam->Travel2, 1);
 		}
-		if (pExam->HintState != 0xffff)
+		if (pExam->HintState != -1)
 		{
 			CGameController::SetHintState(pExam->HintState, 1, 1);
 		}

@@ -15,8 +15,8 @@ public:
 	static BOOL IsWave();
 	static BOOL HasAnim();
 	static BOOL NoAnimOrWave();
-	static void UpdateAndRender();
-	static void UpdateAndRender(CAnimBase* pAnim);
+	static BOOL UpdateAndRender(BOOL render = TRUE);
+	static BOOL UpdateAndRender(CAnimBase* pAnim, BOOL render = TRUE);
 	static BOOL IsDone();
 	static BOOL AnimNotDoneOrCondition(BOOL condition);
 	static BOOL NoVideoAnim();
@@ -24,6 +24,7 @@ public:
 	static int Frame(CAnimBase* pAnim);
 	static int Exists() { return (_anim != NULL); };
 	static void Resize(int width, int height);
+	static void SetOutputBuffer(LPBYTE pBuffer, int width, int height, int offsetX, int offsetY, LPINT pPalette, int minColAllowChange, int maxColAllowChange);
 
 	static CAnimBase* Load(BinaryData bd, int factor = 1);
 	static CImage* LoadImage(DoubleData bd, int width, int height, int factor = 1);
@@ -33,6 +34,8 @@ public:
 	static int Height() { return (_anim != NULL) ? _anim->Height() : 0; }
 
 	static void SetCaptionColours(int texColour1, int texColour2, int texColour3, int texColour4, int otherColour1, int otherColour2, int otherColour3, int otherColour4);
+
+	static void RenderCaptions(float z);
 
 protected:
 	static CAnimBase* _anim;

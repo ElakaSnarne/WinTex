@@ -96,7 +96,7 @@ void CVideoModule::Render()
 	{
 		CAnimationController::UpdateAndRender();
 
-		if (_scriptState->WaitingForInput && CAnimationController::IsDone() && CAnimationController::IsDone())
+		if (_scriptState->WaitingForInput && CAnimationController::IsDone())
 		{
 			if (DialogueOptionsCount >= 1)
 			{

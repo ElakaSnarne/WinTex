@@ -197,7 +197,7 @@ public:
 	~CVideoPlayer();
 
 	void Init(HWND hWnd, LPCTSTR fileName);
-	virtual void Update();
+	virtual BOOL Update();
 
 	// MFPlay event handler functions
 	void OnMediaItemCreated(MFP_MEDIAITEM_CREATED_EVENT* pEvent);

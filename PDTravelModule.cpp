@@ -352,7 +352,7 @@ void CPDTravelModule::BeginAction()
 	for (auto location : _subLocations)
 	{
 		CPDSubLocation* pPDSL = (CPDSubLocation*)location;
-		if (pPDSL->ParentLocation == _area && CGameController::GetData(PD_SAVE_TRAVEL + pPDSL->TravelIndex) != 0 && pPDSL->HitTest(x, y))
+		if (pPDSL->ParentLocation == _area && (pPDSL->Type == 6 || CGameController::GetData(PD_SAVE_TRAVEL + pPDSL->TravelIndex) != 0) && pPDSL->HitTest(x, y))
 		{
 			Fill(16, 114, 191, 236, 0);	// Clear location/sub-location image (update to render default image)
 			Fill(18, 253, 191, 429, 0);	// Clear sub-locations list
@@ -383,7 +383,7 @@ void CPDTravelModule::BeginAction()
 				for (auto subLocation : _subLocations)
 				{
 					CPDSubLocation* pSPDSL = (CPDSubLocation*)subLocation;
-					if (pSPDSL->IndicatorX == 0 && pSPDSL->ParentLocation == pPDSL->Id && CGameController::GetData(PD_SAVE_TRAVEL + pSPDSL->TravelIndex) != 0)
+					if (pSPDSL->IndicatorX == 0 && pSPDSL->ParentLocation == pPDSL->Id && (pPDSL->Type == 6 || CGameController::GetData(PD_SAVE_TRAVEL + pSPDSL->TravelIndex) != 0))
 					{
 						pSPDSL->IconHitBox = RenderSubImage(2, PD_TRAVEL_INDICATOR_LOCATION, 35, 251 + y);
 						pSPDSL->NameHitBox = _rawFont.Render(_screen, 640, 480, 50, 251 + y, (char*)pSPDSL->Text.c_str(), colourMap, -1, -1, TRUE);
@@ -535,7 +535,7 @@ void CPDTravelModule::RenderLocations()
 		CPDSubLocation* pPDSL = (CPDSubLocation*)location;
 		if (pPDSL->ParentLocation == _area)
 		{
-			if (CGameController::GetData(PD_SAVE_TRAVEL + pPDSL->TravelIndex) != 0)
+			if (pPDSL->Type == 6 || CGameController::GetData(PD_SAVE_TRAVEL + pPDSL->TravelIndex) != 0)
 			{
 				std::unordered_map<int, int> colourMap;
 				colourMap[2] = pPDSL->ColourIndex;

@@ -68,6 +68,9 @@ public:
 	virtual int SelectNextItem() = NULL;
 	virtual int SelectPreviousItem() = NULL;
 
+	virtual int GetItemState(int base, int item) = NULL;
+	virtual void SetItemState(int base, int item, int state) = NULL;
+
 	virtual BYTE GetHintState(int index) = NULL;
 	virtual void SetHintState(int index, BYTE state, int score) = NULL;
 	virtual BYTE GetHintCategoryState(int index) = NULL;

@@ -10,7 +10,7 @@ public:
 	CImage(LPBYTE palette, BinaryData bd, int width, int height, int factor = 1);
 	virtual ~CImage();
 
-	virtual void Update();
+	virtual BOOL Update();
 
 protected:
 	virtual BOOL DecodeFrame() { return (_frame == 0); }

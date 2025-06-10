@@ -21,10 +21,11 @@ CImage::~CImage()
 {
 }
 
-void CImage::Update()
+BOOL CImage::Update()
 {
-	CAnimBase::Update();
+	BOOL updated = CAnimBase::Update();
 	_done = FALSE;
+	return updated;
 }
 
 void CImage::Init(LPBYTE palette, BinaryData bd, int width, int height, int factor)

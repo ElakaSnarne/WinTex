@@ -11,6 +11,8 @@ public:
 	virtual BOOL Init(LPBYTE pData, int length);
 	virtual BOOL HasVideo() { return (_videoFramePointer != NULL); }
 
+	void SetOutputBuffer(LPBYTE pBuffer, int width, int height, int offsetX, int offsetY, LPINT pPalette, int minColAllowChange, int maxColAllowChange);
+
 protected:
 	int _factor;
 
@@ -50,4 +52,13 @@ protected:
 	int _qw;
 
 	int _startAudioOnFrame;
+
+	LPBYTE _configuredOutputBuffer;
+	LPINT _configuredPalette;
+	int _minColAllowChange;
+	int _maxColAllowChange;
+	int _renderWidth;
+	int _renderHeight;
+	int _offsetX;
+	int _offsetY;
 };
