@@ -160,6 +160,8 @@ void CPDSelectLevelModule::NewGame()
 	_gameData[PD_SAVE_UNKNOWN1] = 6;
 	CGameController::SetData(PD_SAVE_PLAYER, "TEX");
 
+	CGameController::SetData(PD_SAVE_GAME_DAY, 1);
+
 	CGameController::SetData(PD_SAVE_TRAVEL + 1, 1);	// Tex' Office
 	CGameController::SetData(PD_SAVE_TRAVEL + 70, 1);	// Tex' Bedroom
 	CGameController::SetData(PD_SAVE_TRAVEL + 71, 1);	// Tex' Computer Room
