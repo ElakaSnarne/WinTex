@@ -59,3 +59,8 @@ extern COverlay* pOverlay;
 extern COverlay* pClimbLadderOverlay;
 extern COverlay* pConvertPointsOverlay;
 extern COverlay* pElevationModOverlay;
+
+extern int DefaultCaptionColour1;
+extern int DefaultCaptionColour2;
+extern int DefaultCaptionColour3;
+extern int DefaultCaptionColour4;

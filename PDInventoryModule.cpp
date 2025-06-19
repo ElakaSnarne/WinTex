@@ -138,11 +138,11 @@ void CPDInventoryModule::Resume()
 		}
 		if (pExam->AskAbout1 != 0xff)
 		{
-			CGameController::SetAskAboutState(pExam->AskAbout1, 1);
+			CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, pExam->AskAbout1, 1);
 		}
 		if (pExam->AskAbout2 != 0xff)
 		{
-			CGameController::SetAskAboutState(pExam->AskAbout2, 1);
+			CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, pExam->AskAbout2, 1);
 		}
 		if (pExam->ParameterAIndex != -1)
 		{

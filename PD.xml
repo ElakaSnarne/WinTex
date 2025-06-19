@@ -739,7 +739,7 @@
 		</L>
 
 		<D Default="Movie sequence">
-			<!--<DD Name=""/>-->
+			<DD Name=""/>
 			<DD Name="Tex Murphy"/>
 			<DD Name="Chelsee Bando"/>
 			<DD Name="Louie Lamintz"/>

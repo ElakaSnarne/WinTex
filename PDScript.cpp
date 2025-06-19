@@ -16,6 +16,7 @@
 #include "PDVidPhoneModule.h"
 #include "PDRitzSecurityKeypadModule.h"
 #include "PDTravelModule.h"
+#include "PDLaptopModule.h"
 
 CPDScript::CPDScript()
 {
@@ -444,7 +445,7 @@ void CPDScript::Function_13(CScriptState* pState)
 
 	int locationId = pState->Read8();
 	int startupPosition = pState->Read8();
-	int unknown = pState->Read8();
+	int p241 = pState->Read8();
 	//CGameController::SetData(UAKM_SAVE_MAP_ENTRY, locationId);
 
 	if (startupPosition == 0xff)
@@ -452,16 +453,12 @@ void CPDScript::Function_13(CScriptState* pState)
 		startupPosition = CGameController::GetData(PD_SAVE_STARTUP_POSITION);
 	}
 
-	if (unknown != 0xff)
-	{
-		CGameController::SetParameter(241, unknown);	// Will always be set to 0 later in LoadLocation
-	}
-
-	CGameController::SetParameter(252, 1);
 	//CGameController::SetData(PD_SAVE_MAP_ENTRY_A, locationId);
-	CGameController::SetData(PD_SAVE_LOCATION_ID, locationId);
+	CGameController::SetData(PD_SAVE_MAP_ID, locationId);
 	CGameController::SetData(PD_SAVE_STARTUP_POSITION, startupPosition);
 	//CGameController::SetData(PD_SAVE_MAP_FLAG_A, 1);
+	CGameController::SetParameter(241, 0);
+	CGameController::SetParameter(252, 1);
 
 	CGameController::AutoSave();
 
@@ -482,10 +479,10 @@ void CPDScript::Function_14(CScriptState* pState)
 	int ix = pState->Read8();
 	int unknown = pState->Read8();
 
-	if (unknown != 0xff)
-	{
-		CGameController::SetParameter(241, unknown);	// Will always be set to 0 later in LoadLocation
-	}
+	//if (unknown != 0xff)
+	//{
+	//	CGameController::SetParameter(241, unknown);
+	//}
 
 	//CGameController::SetData(PD_SAVE_DMAP_ENTRY_A, ix);
 	//CGameController::SetData(PD_SAVE_DMAP_ENTRY_B, ix);
@@ -605,7 +602,7 @@ void CPDScript::Function_1D(CScriptState* pState)
 	// byte, byte
 	int askAboutIndex = pState->Read8();
 	int state = pState->Read8();
-	CGameController::SetAskAboutState(askAboutIndex, state);
+	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, askAboutIndex, state);
 }
 
 void CPDScript::Function_1E(CScriptState* pState)
@@ -778,6 +775,13 @@ void CPDScript::Function_2F(CScriptState* pState)
 		{
 			// Vidphone
 			CModuleController::Push(new CPDVidPhoneModule());
+			pState->WaitingForInput = TRUE;
+			break;
+		}
+		case 21:
+		{
+			// Laptop in Tex's computer room
+			CModuleController::Push(new CPDLaptopModule(p1));
 			pState->WaitingForInput = TRUE;
 			break;
 		}
@@ -1220,35 +1224,11 @@ void CPDScript::Function_4C(CScriptState* pState)
 {
 	DebugTrace(pState, L"Function_4C - Set hint state, conditional score increment");
 
-	// word
-	//text += $"??? {GetInt(data, offset, 2):X4}";
-	//offset += 2;
+	int val = pState->Read16();
+	int scoreToAdd = val < 0 ? 0 : 1;
+	val = abs(val);
 
-	/*
-	DebugTrace(pState, L"Function_CC - Conditional Score Increment");
-	int val = pState->GetInt(pState->ExecutionPointer, 2);
-	pState->ExecutionPointer += 2;
-
-	if (val >= 1000)
-	{
-		val -= 1000;
-		//Set dword_2198D8 bit val * 2, score not affected
-		CGameController::SetHintState(val, 1, 0);
-	}
-	else
-	{
-		// If dword_2198D8 bit val * 2 is set, add 1 to score
-		// Set dword_2198D8 bit val * 2
-		int currentState = CGameController::GetHintState(val);
-		CGameController::SetHintState(val, currentState | 1, 0);
-		if (currentState == 0)
-		{
-			CGameController::AddScore(1);
-		}
-	}
-	*/
-
-	pState->ExecutionPointer += 2;
+	CGameController::SetHintState(val, 1, scoreToAdd);
 }
 
 void CPDScript::Function_4D(CScriptState* pState)
@@ -1427,7 +1407,7 @@ void CPDScript::Function_5E(CScriptState* pState)
 
 	int index = pState->Read8();
 	int state = pState->Read8();
-	CGameController::SetItemState(PD_SAVE_VIDPHONE, index, state);
+	CGameController::SetItemState(PD_SAVE_VIDPHONE_BASE, index, state);
 }
 
 void CPDScript::Function_5F(CScriptState* pState)

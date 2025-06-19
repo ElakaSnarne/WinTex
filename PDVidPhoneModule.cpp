@@ -7,6 +7,10 @@
 #include <codecvt>
 #include <algorithm>
 
+#define VIDPHONE_SCREEN				5
+#define VIDPHONE_BUTTONS			7
+#define VIDPHONE_SCREEN_RESET		9
+
 #define VIDPHONE_MODE_DEFAULT		0
 #define VIDPHONE_MODE_DIALLING		1
 #define VIDPHONE_MODE_IN_CALL		2
@@ -23,8 +27,6 @@
 
 CPDVidPhoneModule::CPDVidPhoneModule() : CFullScreenModule(ModuleType::VidPhone)
 {
-	_vertexBuffer = NULL;
-
 	_callMap[1] = 0x1b;
 	_callMap[6] = 0x25;
 	_callMap[8] = 0x14;
@@ -92,12 +94,14 @@ void CPDVidPhoneModule::Initialize()
 	_pdRawFont.Init(IDR_RAWFONT_PD);
 	_uakmRawFont.Init(IDR_RAWFONT_UAKM);
 
-	DoubleData dd = LoadDoubleEntry(L"GRAPHICS.AP", 5);
+	DoubleData dd = LoadDoubleEntry(L"GRAPHICS.AP", VIDPHONE_SCREEN);
 	ReadPalette(dd.File1.Data);
 	for (int i = 0; i < 256; i++)
 	{
 		_originalPalette[i] = _palette[i];
 	}
+
+	delete[] dd.File1.Data;
 
 	_screen = dd.File2.Data;
 	FillMemory(_screen + 640 * 366, 640 * 114, 0);
@@ -109,11 +113,11 @@ void CPDVidPhoneModule::Initialize()
 	_cursorPosY = static_cast<float>(h) / 2.0f;
 
 	_cursorMinX = 0;
-	_cursorMaxX = dx.GetWidth();
+	_cursorMaxX = w;
 	_cursorMinY = 0;
-	_cursorMaxY = dx.GetHeight();
+	_cursorMaxY = h;
 
-	BinaryData bd = LoadEntry(L"GRAPHICS.AP", 7);
+	BinaryData bd = LoadEntry(L"GRAPHICS.AP", VIDPHONE_BUTTONS);
 	if (bd.Data != NULL)
 	{
 		_data = bd.Data;
@@ -124,7 +128,7 @@ void CPDVidPhoneModule::Initialize()
 		}
 	}
 
-	bd = LoadEntry(L"GRAPHICS.AP", 9);
+	bd = LoadEntry(L"GRAPHICS.AP", VIDPHONE_SCREEN_RESET);
 	if (bd.Data != NULL)
 	{
 		_screenResetData = bd.Data;
@@ -143,8 +147,6 @@ void CPDVidPhoneModule::Initialize()
 	DialogueOptions[0].SetClick(DialogueOptionA);
 	DialogueOptions[1].SetClick(DialogueOptionB);
 	DialogueOptions[2].SetClick(DialogueOptionC);
-
-	delete[] dd.File1.Data;
 }
 
 void CPDVidPhoneModule::Resize(int width, int height)
@@ -310,8 +312,6 @@ void CPDVidPhoneModule::Render()
 		else if (_scriptState.ExecutionPointer == -1)
 		{
 			CAnimationController::Clear();
-			//CModuleController::Pop(this);
-			// TODO: Should only clear when truly done
 		}
 	}
 }
@@ -327,8 +327,7 @@ void CPDVidPhoneModule::RenderScreen()
 		dx.SetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 		dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		CShaders::SelectOrthoShader();
-		//XMMATRIX wm = XMMatrixIdentity();
-		XMMATRIX wm = XMMatrixTranslation(0.0, 0.0, 0.0);
+		XMMATRIX wm = XMMatrixIdentity();
 		CConstantBuffers::SetWorld(dx, &wm);
 		ID3D11ShaderResourceView* pRV = _texture.GetTextureRV();
 		dx.SetShaderResources(0, 1, &pRV);
@@ -441,7 +440,10 @@ void CPDVidPhoneModule::BeginAction()
 
 void CPDVidPhoneModule::Back()
 {
-	CModuleController::Pop(this);
+	if (_mode == VIDPHONE_MODE_DEFAULT)
+	{
+		CModuleController::Pop(this);
+	}
 }
 
 void CPDVidPhoneModule::UpdatePhonebook()
@@ -466,7 +468,7 @@ void CPDVidPhoneModule::RenderPhonebook()
 	std::unordered_map<int, int> colourMap;
 	for (auto pb : _phonebook)
 	{
-		std::wstring name = CGameController::GetSituationDescriptionD(pb->Index);
+		std::wstring name = CGameController::GetSituationDescriptionD(pb->Index + 1);
 		colourMap[2] = pb->IsSelected ? 15 : 13;
 		pb->Box = _pdRawFont.Render(_screen, 640, 480, 462, y, (char*)conv.to_bytes(name).c_str(), colourMap, -1, -1, TRUE);
 		y += _pdRawFont.GetHeight();

@@ -26,6 +26,11 @@ BOOL CPDGame::Init()
 {
 	if (CModuleController::Init(new CPDMap(), new CPDDMap()) && LoadIcons() && CItems::Init())
 	{
+		DefaultCaptionColour1 = 0;
+		DefaultCaptionColour2 = 0;
+		DefaultCaptionColour3 = -1;
+		DefaultCaptionColour4 = 0;
+
 		CAnimationController::SetCaptionColours(0xff000000, 0xff000000, 0xff00c300, 0xff000000, 0xff000000, 0xff000000, 0xff0096ff, 0xff000000);
 		CDXListBox::SetGreyColours(0, 0, 0xffc3c3c3, 0);
 		CDXListBox::SetBlackColours(0, 0, 0xff000000, 0);
@@ -144,7 +149,7 @@ void CPDGame::LoadGame(LPWSTR fileName)
 			// Should now load location or dialogue
 			if (_gameData[PD_SAVE_PARAMETERS + 252])
 			{
-				CModuleController::Push(new CPDLocationModule(_gameData[PD_SAVE_LOCATION_ID], _gameData[PD_SAVE_STARTUP_POSITION]));
+				CModuleController::Push(new CPDLocationModule(_gameData[PD_SAVE_MAP_ID], _gameData[PD_SAVE_STARTUP_POSITION]));
 			}
 			else
 			{
@@ -182,13 +187,21 @@ void CPDGame::SaveGame(LPWSTR fileName)
 		SYSTEMTIME time;
 		GetLocalTime(&time);
 		//_gameData[PD_SAVE_GAME_DAY] = min(7, max(1, _gameData[PD_SAVE_PARAMETERS + 250]));
-		_gameData[PD_SAVE_YEAR] = (BYTE)(time.wYear & 0xff);
-		_gameData[PD_SAVE_YEAR + 1] = (BYTE)((time.wYear >> 8) & 0xff);
-		_gameData[PD_SAVE_MONTH] = (BYTE)time.wMonth;
-		_gameData[PD_SAVE_DAY] = (BYTE)time.wDay;
-		_gameData[PD_SAVE_HOUR] = (BYTE)time.wHour;
-		_gameData[PD_SAVE_MINUTE] = (BYTE)time.wMinute;
-		_gameData[PD_SAVE_SECOND] = (BYTE)time.wSecond;
+		_gameData[PD_SAVE_HEADER_YEAR] = (BYTE)(time.wYear & 0xff);
+		_gameData[PD_SAVE_HEADER_YEAR + 1] = (BYTE)((time.wYear >> 8) & 0xff);
+		_gameData[PD_SAVE_HEADER_MONTH] = (BYTE)time.wMonth;
+		_gameData[PD_SAVE_HEADER_DAY] = (BYTE)time.wDay;
+		_gameData[PD_SAVE_HEADER_HOUR] = (BYTE)time.wHour;
+		_gameData[PD_SAVE_HEADER_MINUTE] = (BYTE)time.wMinute;
+		_gameData[PD_SAVE_HEADER_SECOND] = (BYTE)time.wSecond;
+
+		_gameData[PD_SAVE_HEADER_MAP_ID] = _gameData[PD_SAVE_MAP_ID];
+		_gameData[PD_SAVE_HEADER_DMAP_ID] = _gameData[PD_SAVE_DMAP_ID];
+
+		_gameData[PD_SAVE_HEADER_GAME_LEVEL] = _gameData[PD_SAVE_PARAMETERS_GAME_LEVEL];
+		_gameData[PD_SAVE_HEADER_SCORE] = _gameData[PD_SAVE_SCORE];
+		_gameData[PD_SAVE_HEADER_SCORE + 1] = _gameData[PD_SAVE_SCORE + 1];
+
 
 		file.Write(_gameData, PD_SAVE_SIZE);
 		file.Close();
@@ -380,7 +393,13 @@ void CPDGame::SetItemState(int item, int state)
 
 			if (!alreadyInInventory)
 			{
-				SetInt(_gameData, PD_SAVE_INVENTORY + count * 2, item, 2);
+				// Push all other items back, insert at index 0
+				for (int i = count; i > 0; i--)
+				{
+					SetInt(_gameData, PD_SAVE_INVENTORY + i * 2, GetInt(_gameData, PD_SAVE_INVENTORY + (i - 1) * 2, 2), 2);
+				}
+
+				SetInt(_gameData, PD_SAVE_INVENTORY, item, 2);
 				_gameData[PD_SAVE_ITEM_COUNT]++;
 				SetInt(_gameData, PD_SAVE_CURRENT_ITEM, item, 2);
 			}
@@ -405,7 +424,7 @@ void CPDGame::SetItemState(int base, int item, int state)
 		{
 			if (GetInt(_gameData, base + 10 + i * 2, 2) == item)
 			{
-				for (int j = i + 1; j < count && j < PD_MAX_ITEM_COUNT; j++)
+				for (int j = i + 1; j < count; j++)
 				{
 					SetInt(_gameData, base + 10 + (j - 1) * 2, GetInt(_gameData, base + 10 + j * 2, 2), 2);
 				}
@@ -435,8 +454,15 @@ void CPDGame::SetItemState(int base, int item, int state)
 
 		if (!itemExists)
 		{
-			SetInt(_gameData, base + 10 + count * 2, item, 2);
-			SetInt(_gameData, base, count + 1, 2);
+			// Push all other items back, insert at index 0
+			for (int i = count; i > 0; i--)
+			{
+				SetInt(_gameData, base + 10 + i * 2, GetInt(_gameData, base + 10 + (i - 1) * 2, 2), 2);
+			}
+
+			SetInt(_gameData, base + 10, item, 2);	// Insert item
+			SetInt(_gameData, base, count + 1, 2);	// Increment count
+			SetInt(_gameData, base + 4, item, 2);	// set new item as current
 		}
 	}
 }
@@ -487,18 +513,84 @@ BYTE CPDGame::GetHintState(int index)
 	return 0;
 }
 
+int PDHintStatePairs[] = { 71, 1, 152, 863, 255, 357, 257, 358, 794, 359, 23, 864, 138, 865, 255, 866, 625, 870, 329, 872, 365, 356, 353, 761, 353, 99, 353, 145, 353, 146, 146, 145, 146, 99, 761, 25, 761, 352, 679, 678, 153, 207, -1 };
 void CPDGame::SetHintState(int index, BYTE state, int score)
 {
+	if (index >= 0 && index < 861)
+	{
+		int byte = index / 4;
+		int shift = (index & 3) * 2;
+		int oldState = (_gameData[PD_SAVE_HINT_STATES + byte] >> shift) & 3;
+		_gameData[PD_SAVE_HINT_STATES + byte] |= (state & 3) << shift;
+		if (oldState == 0 && score > 0)
+		{
+			AddScore(score);
+			SetHintCategoryStateFromHint(index);
+		}
+
+		for (int i = 0; PDHintStatePairs[i * 2] != -1; i++)
+		{
+			if (PDHintStatePairs[i * 2] == index)
+			{
+				int pair = PDHintStatePairs[i * 2 + 1];
+				byte = pair / 4;
+				shift = (pair & 3) * 2;
+				oldState = (_gameData[PD_SAVE_HINT_STATES + byte] >> shift) & 3;
+				_gameData[PD_SAVE_HINT_STATES + byte] |= (state & 3) << shift;
+				if (oldState == 0)
+				{
+					AddScore(score);
+					SetHintCategoryStateFromHint(pair);
+				}
+			}
+		}
+	}
+}
+
+int PDHintCategoryPairs[] = { 78, 12, -1, 100, 15, -1, 152, 28, -1, 767, 34, -1, 23, 43, -1, 138, 46, -1, 378, 50, -1, 465, 61, -1, 557, 77, -1, 270, 78, -1, 100, 15, -1, 153, 29, -1, 853, 93, -1, -1 };
+
+void CPDGame::SetHintCategoryStateFromHint(int hintIndex)
+{
+	int ix = 0;
+	while (true)
+	{
+		int test = PDHintCategoryPairs[ix];
+		if (test == -1) break;
+
+		if (test == hintIndex)
+		{
+			while (true)
+			{
+				ix++;
+				int category = PDHintCategoryPairs[ix];
+				if (category == -1) break;
+
+				if (_gameData[PD_SAVE_HINT_CATEGORY_STATES + category] == 0)
+				{
+					_gameData[PD_SAVE_HINT_CATEGORY_STATES + category] = 1;
+				}
+			}
+		}
+		else
+		{
+			while (PDHintCategoryPairs[ix] != -1)
+			{
+				ix++;
+			}
+		}
+
+		ix++;
+	}
 }
 
 BYTE CPDGame::GetHintCategoryState(int index)
 {
-	return (index >= 0 && index < 1000) ? _gameData[PD_SAVE_HINT_CATEGORY_STATES + index] : 0;
+	return (index >= 0 && index < 96) ? _gameData[PD_SAVE_HINT_CATEGORY_STATES + index] : 0;
 }
 
 void CPDGame::SetHintCategoryState(int index, BYTE state)
 {
-	if (index >= 0 && index < 1000)//TODO: Find hint category count
+	if (index >= 0 && index < 96)
 	{
 		_gameData[PD_SAVE_HINT_CATEGORY_STATES + index] = state;
 	}

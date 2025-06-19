@@ -188,7 +188,7 @@ void CPDMainMenuModule::SetupSave()
 	else
 	{
 		// Location
-		sit = CGameController::GetSituationDescriptionL(CGameController::GetData(PD_SAVE_LOCATION_ID) + 1);
+		sit = CGameController::GetSituationDescriptionL(CGameController::GetData(PD_SAVE_MAP_ID) + 1);
 	}
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
 	info.Location = conv.to_bytes(sit);
@@ -225,7 +225,7 @@ void CPDMainMenuModule::SetupLoad()
 						{
 							SaveGameInfo info;
 							info.FileName = fileName;
-							info.Player = std::string((const char*)(buffer + PD_SAVE_PLAYER), 10);
+							info.Player = std::string((const char*)(buffer + PD_SAVE_HEADER_PLAYER), 10);
 							//info.Location = std::string((const char*)(buffer + UAKM_SAVE_LOCATION), UAKM_SAVE_GAME_DAY - UAKM_SAVE_LOCATION);
 							std::wstring sit;
 							if (buffer[PD_SAVE_PARAMETERS + 252] == 0)
@@ -236,14 +236,14 @@ void CPDMainMenuModule::SetupLoad()
 							else
 							{
 								// Location
-								sit = CGameController::GetSituationDescriptionL(buffer[PD_SAVE_LOCATION_ID] + 1);
+								sit = CGameController::GetSituationDescriptionL(buffer[PD_SAVE_MAP_ID] + 1);
 							}
 							std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
 							info.Location = conv.to_bytes(sit);
 
-							info.DayInGame = std::string("Day ") + std::to_string(buffer[PD_SAVE_GAME_DAY]);
-							info.DateTime = IntToString(buffer[PD_SAVE_YEAR] | (buffer[PD_SAVE_YEAR + 1] << 8), 4) + "-" + IntToString(buffer[PD_SAVE_MONTH], 2) + +"-" + IntToString(buffer[PD_SAVE_DAY], 2) + " " + IntToString(buffer[PD_SAVE_HOUR], 2) + ":" + IntToString(buffer[PD_SAVE_MINUTE], 2) + ":" + IntToString(buffer[PD_SAVE_SECOND], 2);
-							info.Comment = std::string((const char*)(buffer + PD_SAVE_COMMENT), PD_SAVE_PADDING1 - PD_SAVE_COMMENT);
+							info.DayInGame = std::string("Day ") + std::to_string(buffer[PD_SAVE_HEADER_GAME_DAY]);
+							info.DateTime = IntToString(buffer[PD_SAVE_HEADER_YEAR] | (buffer[PD_SAVE_HEADER_YEAR + 1] << 8), 4) + "-" + IntToString(buffer[PD_SAVE_HEADER_MONTH], 2) + +"-" + IntToString(buffer[PD_SAVE_HEADER_DAY], 2) + " " + IntToString(buffer[PD_SAVE_HEADER_HOUR], 2) + ":" + IntToString(buffer[PD_SAVE_HEADER_MINUTE], 2) + ":" + IntToString(buffer[PD_SAVE_HEADER_SECOND], 2);
+							info.Comment = std::string((const char*)(buffer + PD_SAVE_HEADER_COMMENT), PD_SAVE_HEADER_PADDING - PD_SAVE_HEADER_COMMENT);
 
 							_savedGames.push_back(info);
 						}

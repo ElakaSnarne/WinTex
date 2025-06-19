@@ -175,6 +175,7 @@
     <ClCompile Include="PDElevationModOverlay.cpp" />
     <ClCompile Include="PDHintModule.cpp" />
     <ClCompile Include="PDInventoryModule.cpp" />
+    <ClCompile Include="PDLaptopModule.cpp" />
     <ClCompile Include="PDLocationModule.cpp" />
     <ClCompile Include="PDMIDIPlayer.cpp" />
     <ClCompile Include="PDNewspaperModule.cpp" />
@@ -311,6 +312,7 @@
     <ClInclude Include="ObjectMap.h" />
     <ClInclude Include="PDExamStruct.h" />
     <ClInclude Include="PDInventoryModule.h" />
+    <ClInclude Include="PDLaptopModule.h" />
     <ClInclude Include="PDLocationModule.h" />
     <ClInclude Include="MediaIdentifiers.h" />
     <ClInclude Include="PDMIDIPlayer.h" />

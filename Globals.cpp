@@ -37,3 +37,8 @@ COverlay* pOverlay = NULL;
 COverlay* pClimbLadderOverlay = NULL;
 COverlay* pConvertPointsOverlay = NULL;
 COverlay* pElevationModOverlay = NULL;
+
+int DefaultCaptionColour1 = 0;
+int DefaultCaptionColour2 = -1;
+int DefaultCaptionColour3 = -1;
+int DefaultCaptionColour4 = 0;

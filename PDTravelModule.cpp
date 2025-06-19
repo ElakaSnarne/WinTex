@@ -346,8 +346,8 @@ void CPDTravelModule::Render()
 
 void CPDTravelModule::BeginAction()
 {
-	int x = (_cursorPosX - _left) / _scale;
-	int y = (_cursorPosY - _top) / _scale;
+	int x = (int)((_cursorPosX - _left) / _scale);
+	int y = (int)((_cursorPosY - _top) / _scale);
 
 	for (auto location : _subLocations)
 	{
@@ -505,6 +505,8 @@ RECT CPDTravelModule::RenderSubImage(int entryIndex, int subEntryIndex, int x, i
 		LPBYTE pImage = bd.Data + GetInt(bd.Data, 2 + subEntryIndex * 4, 4);
 		return RenderItem(pImage, x, y, -1, -1, -1, -1, 0);
 	}
+
+	return { 0 };
 }
 
 void CPDTravelModule::RenderSubImage(int entryIndex, int subEntryIndex, int srcOffsetX, int srcOffsetY, int dstX, int dstY, int w, int h)

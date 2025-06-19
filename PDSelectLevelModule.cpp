@@ -157,38 +157,38 @@ void CPDSelectLevelModule::NewGame()
 	// Reset game buffer
 	ZeroMemory(_gameData, PD_SAVE_SIZE);
 
-	_gameData[PD_SAVE_UNKNOWN1] = 6;
-	CGameController::SetData(PD_SAVE_PLAYER, "TEX");
+	_gameData[PD_SAVE_HEADER_UNKNOWN1] = 6;
+	CGameController::SetData(PD_SAVE_HEADER_PLAYER, "TEX");
 
-	CGameController::SetData(PD_SAVE_GAME_DAY, 1);
+	CGameController::SetData(PD_SAVE_HEADER_GAME_DAY, 1);
 
 	CGameController::SetData(PD_SAVE_TRAVEL + 1, 1);	// Tex' Office
 	CGameController::SetData(PD_SAVE_TRAVEL + 70, 1);	// Tex' Bedroom
 	CGameController::SetData(PD_SAVE_TRAVEL + 71, 1);	// Tex' Computer Room
 
-	CGameController::SetAskAboutState(0, 1);			// Enable AskAbout Tex Murphy
-	CGameController::SetAskAboutState(1, 1);			// Enable AskAbout Chelsee Bando
-	CGameController::SetAskAboutState(2, 1);			// Enable AskAbout Louie LaMintz
-	CGameController::SetAskAboutState(3, 1);			// Enable AskAbout Rook Garner
-	CGameController::SetAskAboutState(6, 1);			// Enable AskAbout Gordon Fitzpatrick
-	CGameController::SetAskAboutState(7, 1);			// Enable AskAbout Thomas Malloy
-	CGameController::SetAskAboutState(9, 1);			// Enable AskAbout Nilo
-	CGameController::SetAskAboutState(40, 1);			// Enable AskAbout Tyson Matthews
-	CGameController::SetAskAboutState(56, 1);			// Enable AskAbout Newspaper photo of Malloy
-	CGameController::SetAskAboutState(61, 1);			// Enable AskAbout Sandra
+	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 0, 1);	// Enable AskAbout Tex Murphy
+	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 1, 1);	// Enable AskAbout Chelsee Bando
+	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 2, 1);	// Enable AskAbout Louie LaMintz
+	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 3, 1);	// Enable AskAbout Rook Garner
+	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 6, 1);	// Enable AskAbout Gordon Fitzpatrick
+	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 7, 1);	// Enable AskAbout Thomas Malloy
+	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 9, 1);	// Enable AskAbout Nilo
+	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 40, 1);	// Enable AskAbout Tyson Matthews
+	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 56, 1);	// Enable AskAbout Newspaper photo of Malloy
+	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 61, 1);	// Enable AskAbout Sandra
 
 	// Set Unknowns 10 and 11 to 2 and 1
-	_gameData[PD_SAVE_PARAMETERS + 251] = 2;
+	_gameData[PD_SAVE_PARAMETERS + 251] = 2;			// Preferred CD?
 	_gameData[PD_SAVE_PARAMETERS + 250] = 1;			// Day in game
 
 	// Parameter 0x19a, 0 = Entertainment Level, 1 = Game Player Level
 	_gameData[PD_SAVE_PARAMETERS_GAME_LEVEL] = _bGamePlayer;
 
 	CGameController::SetWord(PD_SAVE_CASH, 4000);
-	CGameController::SetItemState(0, 1);				// Cash
-	CGameController::SetItemState(1, 1);				// Photo of Malloy
-	CGameController::SetItemState(2, 1);				// Credit card
-	CGameController::SetItemState(4, 1);				// Fitzpatrick's card
+	CGameController::SetItemState(PD_SAVE_ITEMS_BASE, 0, 1);		// Cash
+	CGameController::SetItemState(PD_SAVE_ITEMS_BASE, 1, 1);		// Photo of Malloy
+	CGameController::SetItemState(PD_SAVE_ITEMS_BASE, 2, 1);		// Credit card
+	CGameController::SetItemState(PD_SAVE_ITEMS_BASE, 4, 1);		// Fitzpatrick's card
 
 	// Set hint category states 1-4
 	CGameController::SetHintCategoryState(1, 1);

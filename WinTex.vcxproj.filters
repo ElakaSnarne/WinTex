@@ -402,6 +402,9 @@
     <ClCompile Include="PDNewspaperModule.cpp">
       <Filter>Modules\PD</Filter>
     </ClCompile>
+    <ClCompile Include="PDLaptopModule.cpp">
+      <Filter>Modules\PD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DXFrame.h">
@@ -828,6 +831,9 @@
       <Filter>Shared</Filter>
     </ClInclude>
     <ClInclude Include="PDNewspaperModule.h">
+      <Filter>Modules\PD</Filter>
+    </ClInclude>
+    <ClInclude Include="PDLaptopModule.h">
       <Filter>Modules\PD</Filter>
     </ClInclude>
   </ItemGroup>

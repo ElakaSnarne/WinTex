@@ -16,10 +16,10 @@ CDXText::CDXText()
 	_width = 0.0f;
 
 	// Default colours, white without border
-	_colour1 = 0;
-	_colour2 = -1;
-	_colour3 = -1;
-	_colour4 = 0;
+	_colour1 = DefaultCaptionColour1;
+	_colour2 = DefaultCaptionColour2;
+	_colour3 = DefaultCaptionColour3;
+	_colour4 = DefaultCaptionColour4;
 }
 
 CDXText::~CDXText()

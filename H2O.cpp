@@ -517,7 +517,6 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 					XAUDIO2_BUFFER buf = { 0 };
 					buf.AudioBytes = ab.Size;
 					buf.pAudioData = ab.pData;
-					//if (_remainingAudioLength == 0) buf.Flags = XAUDIO2_END_OF_STREAM;
 
 					_sourceVoice->SubmitSourceBuffer(&buf);
 
@@ -528,7 +527,7 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 			}
 		}
 
-		return ((video && (frameFlags & 0xc3) != 0) || (!video && (frameFlags & 0x4) != 0));
+		return offset < _inputBufferLength;
 	}
 
 	return FALSE;
