@@ -43,6 +43,9 @@ CH2O::CH2O(int factor)
 	_offsetY = 0;
 	_minColAllowChange = 0;
 	_maxColAllowChange = 256;
+
+	_h2oWidth = 0;
+	_h2oHeight = 0;
 }
 
 CH2O::~CH2O()
@@ -80,8 +83,8 @@ BOOL CH2O::Init(LPBYTE pData, int length)
 	// Validate that the file is a H2O
 	if (ret && GetInt(pData, 0, 4) == H2O)
 	{
-		_renderWidth = _width = GetInt(pData, 4, 2);
-		_renderHeight = _height = GetInt(pData, 8, 2);
+		_renderWidth = _width = _h2oWidth = GetInt(pData, 4, 2);
+		_renderHeight = _height = _h2oHeight = GetInt(pData, 8, 2);
 		_rate = GetInt(pData, 16, 2);
 		_frameTime = _rate;
 
@@ -178,7 +181,7 @@ int CH2O::DecodeH2OAudio(LPBYTE source, LPBYTE destination, int chunkLength)
 	int channelRepeatCounters[2];
 	channelRepeatCounters[0] = channelRepeatCounters[1] = 0;
 	int channel = 0;
-	// outerloop
+
 	while (true && (readBitsCount >> 3) < endOffset)
 	{
 		bool fullBreak = false;
@@ -186,7 +189,6 @@ int CH2O::DecodeH2OAudio(LPBYTE source, LPBYTE destination, int chunkLength)
 		int sampleValue = 0;
 		if (channelRepeatCounters[channel] == 0)
 		{
-			// middleloop
 			while (true)
 			{
 				// Read new sample
@@ -203,13 +205,11 @@ int CH2O::DecodeH2OAudio(LPBYTE source, LPBYTE destination, int chunkLength)
 					sampleValue += channelPreviousSamples[channel];
 				}
 
-				// innerloop
 				if (commandFlag)
 				{
 					flags = ReadBits(source, 2, readBitsCount, commandFlag) & 3;
 					if (flags == 0)
 					{
-						// continue13
 						int innertemp = ReadBits(source, 4, readBitsCount, commandFlag) & 15;
 
 						if (innertemp == 0)
@@ -230,25 +230,21 @@ int CH2O::DecodeH2OAudio(LPBYTE source, LPBYTE destination, int chunkLength)
 					}
 					else if (flags == 1)
 					{
-						// continue11
 						// New channel bit size
 						channelBitsPerSample[channel] = min(16, channelBitsPerSample[channel] + 1);
 					}
 					else if (flags == 2)
 					{
-						// continue12
 						// New channel bit size
 						channelBitsPerSample[channel] = max(2, channelBitsPerSample[channel] - 1);
 					}
 					else
 					{
-						// continue8
 						break;
 					}
 				}
 				else
 				{
-					// continue8
 					break;
 				}
 			}
@@ -289,8 +285,41 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 		int chunkOffset = offset + 4;
 		if ((frameFlags & 0x80) != 0)
 		{
-			// Unknown
+			// View changed
 			int chunkSize = GetInt(_pInputBuffer, chunkOffset, 4);
+			if (video)
+			{
+				int newWidth = GetInt(_pInputBuffer, chunkOffset + 4, 4);
+				int newHeight = GetInt(_pInputBuffer, chunkOffset + 8, 4);
+
+				if (newWidth != _h2oWidth || newHeight != _h2oHeight)
+				{
+					if (newWidth < _h2oWidth)
+					{
+						// Clear left/right
+						for (int y = 0; y < _renderHeight; y++)
+						{
+							for (int x = 0; x < (_h2oWidth - newWidth) / 2; x++)
+							{
+								_configuredOutputBuffer[y * _renderWidth + x] = 0;
+								_configuredOutputBuffer[(y + 1) * _renderWidth - 1 - x] = 0;
+							}
+						}
+					}
+
+					if (newHeight < _h2oHeight)
+					{
+						// Clear top/bottom
+						int clearSize = ((_h2oHeight - newHeight) / 2) * _renderWidth;
+						ZeroMemory(_configuredOutputBuffer, clearSize);
+						ZeroMemory(_configuredOutputBuffer + _renderHeight * _renderWidth - clearSize, clearSize);
+					}
+
+					_h2oWidth = newWidth;
+					_h2oHeight = newHeight;
+				}
+			}
+
 			chunkOffset += chunkSize + 4;
 		}
 		if ((frameFlags & 0x40) != 0)
@@ -379,11 +408,11 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 				Unpack(videoOffset, chunkSize);
 
 				// Decode video
-				_qw = _width / 4;
-				int qh = _height / 4;
+				_qw = _h2oWidth / 4;
+				int qh = _h2oHeight / 4;
 				_inputOffset = 0;
-				_x = 0;
-				_y = 0;
+				_x = (_renderWidth - _h2oWidth) / 2;
+				_y = (_renderHeight - _h2oHeight) / 2;
 				_remainingX = _qw;
 				_remainingY = qh;
 				while (_inputOffset < _decodedSize && _remainingY > 0)
@@ -676,7 +705,7 @@ void CH2O::SkipOrFill(int val)
 void CH2O::NewLine()
 {
 	_y += 4;
-	_x = 0;
+	_x = (_renderWidth - _h2oWidth) / 2;
 	_remainingX = _qw;
 	_remainingY--;
 }
@@ -684,14 +713,14 @@ void CH2O::NewLine()
 void CH2O::PatternFill(int val)
 {
 	int lineCountOrByteCount = (val & 0xfff) + 1;
-	while (lineCountOrByteCount > 0 && _remainingY > 0)//loop1
+	while (lineCountOrByteCount > 0 && _remainingY > 0)
 	{
 		int count = min(lineCountOrByteCount, _remainingX);
 
 		_remainingX -= count;
 		lineCountOrByteCount -= count;
 
-		while (count > 0)//loop2
+		while (count > 0)
 		{
 			int functions = GetInt(_pDecodingBuffer, _inputOffset, 2) & 0xffff;
 			int pattern = GetInt(_pDecodingBuffer, _inputOffset + 2, 2) & 0xffff;
@@ -736,13 +765,13 @@ void CH2O::Write(int x, int y, int value)
 void CH2O::PatternCopy(int val)
 {
 	int lineCountOrByteCount = (val & 0xfff) + 1;
-	while (lineCountOrByteCount > 0 && _remainingY > 0)//loop1
+	while (lineCountOrByteCount > 0 && _remainingY > 0)
 	{
 		int count = min(lineCountOrByteCount, _remainingX);
 		_remainingX -= count;
 		lineCountOrByteCount -= count;
 
-		while (count > 0 && _remainingY > 0)//loop2
+		while (count > 0 && _remainingY > 0)
 		{
 			int functions = GetInt(_pDecodingBuffer, _inputOffset, 2) & 0xffff;
 			_inputOffset += 2;

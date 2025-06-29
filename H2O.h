@@ -61,4 +61,7 @@ protected:
 	int _renderHeight;
 	int _offsetX;
 	int _offsetY;
+
+	int _h2oWidth;
+	int _h2oHeight;
 };
