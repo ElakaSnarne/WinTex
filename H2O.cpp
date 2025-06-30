@@ -294,29 +294,32 @@ BOOL CH2O::ProcessFrame(int& offset, BOOL video)
 
 				if (newWidth != _h2oWidth || newHeight != _h2oHeight)
 				{
-					if (newWidth < _h2oWidth)
+					if (newWidth <= _renderWidth && newHeight <= _renderHeight)
 					{
-						// Clear left/right
-						for (int y = 0; y < _renderHeight; y++)
+						if (newWidth < _h2oWidth)
 						{
-							for (int x = 0; x < (_h2oWidth - newWidth) / 2; x++)
+							// Clear left/right
+							for (int y = 0; y < _renderHeight; y++)
 							{
-								_configuredOutputBuffer[y * _renderWidth + x] = 0;
-								_configuredOutputBuffer[(y + 1) * _renderWidth - 1 - x] = 0;
+								for (int x = 0; x < (_h2oWidth - newWidth) / 2; x++)
+								{
+									_configuredOutputBuffer[y * _renderWidth + x] = 0;
+									_configuredOutputBuffer[(y + 1) * _renderWidth - 1 - x] = 0;
+								}
 							}
 						}
-					}
 
-					if (newHeight < _h2oHeight)
-					{
-						// Clear top/bottom
-						int clearSize = ((_h2oHeight - newHeight) / 2) * _renderWidth;
-						ZeroMemory(_configuredOutputBuffer, clearSize);
-						ZeroMemory(_configuredOutputBuffer + _renderHeight * _renderWidth - clearSize, clearSize);
-					}
+						if (newHeight < _h2oHeight)
+						{
+							// Clear top/bottom
+							int clearSize = ((_h2oHeight - newHeight) / 2) * _renderWidth;
+							ZeroMemory(_configuredOutputBuffer, clearSize);
+							ZeroMemory(_configuredOutputBuffer + _renderHeight * _renderWidth - clearSize, clearSize);
+						}
 
-					_h2oWidth = newWidth;
-					_h2oHeight = newHeight;
+						_h2oWidth = newWidth;
+						_h2oHeight = newHeight;
+					}
 				}
 			}
 
