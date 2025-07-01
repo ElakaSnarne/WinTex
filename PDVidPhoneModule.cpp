@@ -96,10 +96,6 @@ void CPDVidPhoneModule::Initialize()
 
 	DoubleData dd = LoadDoubleEntry(L"GRAPHICS.AP", VIDPHONE_SCREEN);
 	ReadPalette(dd.File1.Data);
-	for (int i = 0; i < 256; i++)
-	{
-		_originalPalette[i] = _palette[i];
-	}
 
 	delete[] dd.File1.Data;
 
@@ -197,7 +193,7 @@ void CPDVidPhoneModule::Render()
 
 	if (CAnimationController::Exists())
 	{
-		CAnimationController::SetOutputBuffer(_screen, 640, 480, 62, 42, _palette, 0x60, 256);
+		CAnimationController::SetOutputBuffer(_screen, 640, 480, -110, -84, _palette, 0x60, 256);
 		if (CAnimationController::UpdateAndRender())
 		{
 			UpdateTexture();

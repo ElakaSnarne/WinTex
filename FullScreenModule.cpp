@@ -385,5 +385,6 @@ void CFullScreenModule::ReadPalette(LPBYTE pPalette, int startColour, int colour
 		int bi = (byte)((b * 255.0) / 63.0);
 		int col = 0xff000000 | bi | (gi << 8) | (ri << 16);
 		_palette[startColour + c] = col;
+		_originalPalette[startColour + c] = col;
 	}
 }

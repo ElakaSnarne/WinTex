@@ -37,7 +37,7 @@ void CPDLaptopModule::Render()
 	{
 		if (CAnimationController::Exists())
 		{
-			CAnimationController::SetOutputBuffer(_screen, 640, 480, 108, 14, _palette, 0x0, 256);
+			CAnimationController::SetOutputBuffer(_screen, 640, 480, 1, -96, _palette, 0, 256);
 			if (!CAnimationController::UpdateAndRender() && CAnimationController::IsDone())
 			{
 				_mode = LAPTOP_MODE_SEARCHING;
