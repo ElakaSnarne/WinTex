@@ -50,6 +50,7 @@ public:
 	static LPBYTE GetDataPointer() { return Game->GetDataPointer(); }
 	static WORD GetWord(int offset) { return Game->GetWord(offset); }
 	static void SetWord(int offset, WORD value) { Game->SetWord(offset, value); }
+	static void Copy(LPBYTE source, int destinationOffset, int length) { Game->Copy(source, destinationOffset, length); }
 
 	static void TransformItem(int fromId, int toId);
 	static void SetItemState(int item, int state);

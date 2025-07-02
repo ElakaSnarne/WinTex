@@ -54,7 +54,8 @@ enum class ModuleType
 	VidPhone = 21,
 	Crossword = 22,
 	NewGame = 23,
-	Laptop = 24
+	Laptop = 24,
+	DragDropPuzzle = 25,
 };
 
 enum class ActionType

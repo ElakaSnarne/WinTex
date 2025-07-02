@@ -17,6 +17,8 @@
 #include "PDRitzSecurityKeypadModule.h"
 #include "PDTravelModule.h"
 #include "PDLaptopModule.h"
+#include "PDCabinKeypadModule.h"
+#include "PDDragDropPuzzleModule.h"
 
 CPDScript::CPDScript()
 {
@@ -778,6 +780,13 @@ void CPDScript::Function_2F(CScriptState* pState)
 			pState->WaitingForInput = TRUE;
 			break;
 		}
+		case 7:
+		{
+			// Drag/drop puzzle
+			CModuleController::Push(new CPDDragDropPuzzleModule(p1));
+			pState->WaitingForInput = TRUE;
+			break;
+		}
 		case 21:
 		{
 			// Laptop in Tex's computer room
@@ -789,6 +798,19 @@ void CPDScript::Function_2F(CScriptState* pState)
 		{
 			// Ritz door security keypad
 			CModuleController::Push(new CPDRitzSecurityKeypadModule());
+			pState->WaitingForInput = TRUE;
+			break;
+		}
+		case 39:
+		{
+			// Cabin keypad
+			CModuleController::Push(new CPDCabinKeypadModule());
+			pState->WaitingForInput = TRUE;
+			break;
+		}
+		case 40:
+		{
+			CModuleController::Push(new CPDLaptopModule(p1));
 			pState->WaitingForInput = TRUE;
 			break;
 		}

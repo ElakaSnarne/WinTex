@@ -67,6 +67,17 @@
 #define PD_SAVE_ASK_ABOUT_STATES			0xabd
 #define PD_SAVE_BUYABLES_ASK_ABOUT_STATES	0xb22
 
+#define PD_SAVE_DRAG_DROP_PUZZLES			0xbd5
+#define PD_SAVE_PANDORA_PUZZLE				0xbd5
+#define PD_SAVE_FIGURES_PUZZLE				0xc71
+#define PD_SAVE_TORN_NOTE_PUZZLE			0xca7
+#define PD_SAVE_HOLE_PUNCH_PUZZLE			0xd7f
+#define PD_SAVE_LABYRINTH_PUZZLE			0xe0f
+#define PD_SAVE_DAGGER_PUZZLE				0xe63
+#define PD_SAVE_TORN_PHOTO_PUZZLE			0xe81
+#define PD_SAVE_LAPTOP_PUZZLE				0xeed
+#define PD_SAVE_DRAG_DROP_PUZZLES_END		0xf4d
+
 #define PD_SAVE_CROSSWORD_PUZZLE			0xf9b
 #define PD_SAVE_CROSSWORD_PUZZLE_END		0x102a
 
@@ -168,6 +179,7 @@ public:
 protected:
 	virtual int GetWord(int offset, BOOL signExtend = FALSE);
 	virtual void SetWord(int offset, int value);
+	virtual void Copy(LPBYTE source, int destinationOffset, int length);
 
 	int _lastDialoguePoint;
 	int _frameTrigger;

@@ -220,3 +220,22 @@ RECT CRawFont::Render(LPBYTE screen, int screenWidth, int screenHeight, int x, i
 
 	return box;
 }
+
+int CRawFont::Measure(char* text, int horizontalAdjustment)
+{
+	int x = 0;
+	int lineCount = 0;
+
+	while (*text != 0)
+	{
+		char character = *(text++);
+
+		LPBYTE pCharData = _fontMap[character];
+		if (pCharData != NULL)
+		{
+			x += pCharData[0] + horizontalAdjustment;
+		}
+	}
+
+	return x;
+}

@@ -17,6 +17,8 @@
 #include "Elevation.h"
 #include "ShaderStructs.h"
 
+#define MAX_ANIMATIONS		100
+
 class CLocation
 {
 public:
@@ -253,7 +255,8 @@ protected:
 
 	XMFLOAT4 GetTransparentColour(std::wstring file, int objectId, int subObjectId);
 
-	Animation Animations[50];
+	int _locationAnimationCount;
+	Animation Animations[MAX_ANIMATIONS];
 
 	BinaryData GetLocationData(int index);
 	std::list<CElevation*> Elevations;

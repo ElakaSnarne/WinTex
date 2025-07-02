@@ -64,12 +64,14 @@ void CPDSelectLevelModule::Initialize()
 	_line3.SetColours(0xffffffff, 0, 0);
 	_line3.SetTextPD(L"Play level", r3);
 
+	float chkY = (_line2.Height() + dx.GetHeight()) / 2;
+
 	_pCBEntertainment = new CDXCheckBox("Entertainment", &_bEntertainment, 0.0f);
 	_pCBEntertainment->SetColours(0, 0, -1, 0);
-	_pCBEntertainment->SetPosition(0, r3.Bottom - 40);
+	_pCBEntertainment->SetPosition(0, chkY);
 	_pCBGamePlayer = new CDXCheckBox("Game player", &_bGamePlayer, 0.0f);
 	_pCBGamePlayer->SetColours(0, 0, -1, 0);
-	_pCBGamePlayer->SetPosition(dx.GetWidth() - _pCBGamePlayer->GetWidth() - 10, r3.Bottom - 40);
+	_pCBGamePlayer->SetPosition(dx.GetWidth() - _pCBGamePlayer->GetWidth() - 10, chkY);
 
 	_pBtnOK = new CDXButton("OK", 80, 20);
 	_pBtnOK->SetPosition(10, dx.GetHeight() - _pBtnOK->GetHeight() - 10);
@@ -91,7 +93,8 @@ void CPDSelectLevelModule::Render()
 {
 	_line1.Render((dx.GetWidth() - _line1.Width()) / 2.0f, 50);
 	_line2.Render(0, 100);
-	_line3.Render((dx.GetWidth() - _line3.Width()) / 2.0f, 370);
+	float chkY = (_line2.Height() + dx.GetHeight()) / 2;
+	_line3.Render((dx.GetWidth() - _line3.Width()) / 2.0f, chkY);
 
 	_pCBEntertainment->Render();
 	_pCBGamePlayer->Render();

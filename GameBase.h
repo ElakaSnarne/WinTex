@@ -50,6 +50,7 @@ public:
 	virtual LPBYTE GetDataPointer() { return _gameData; };
 	virtual int GetWord(int offset, BOOL signExtend = FALSE) = NULL;
 	virtual void SetWord(int offset, int value) = NULL;
+	virtual void Copy(LPBYTE source, int destinationOffset, int length) = NULL;
 
 	virtual BYTE GetAskAboutState(int index) = NULL;
 	virtual void SetAskAboutState(int index, BYTE value) = NULL;

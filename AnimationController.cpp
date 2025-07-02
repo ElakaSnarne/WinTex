@@ -84,7 +84,7 @@ BOOL CAnimationController::Load(LPCWSTR fileName, int itemIndex)
 	if (bd.Data != NULL && bd.Length > 0)
 	{
 		_anim = Load(bd);
-		return TRUE;
+		return (_anim != NULL);
 	}
 	else
 	{

@@ -216,10 +216,6 @@ void CPDTravelModule::Initialize()
 			ReadPalette(_data + GetInt(_data, 2, 4), 0, 0x23);
 			ReadPalette(_data + GetInt(_data, 2 + 6 * 4, 4), 0x23, 0x5d);	// Palette for Chandler Avenue, San Francisco and North America
 			//ReadPalette(_data + GetInt(_data, 2 + 12 * 4, 4), 0x23, 0x5d);	// Palette for Roswell
-			for (int i = 0; i < 256; i++)
-			{
-				_originalPalette[i] = _palette[i];
-			}
 
 			// TODO: Screen to use depends on default map / current player location
 			_screen = new BYTE[640 * 480];
@@ -451,20 +447,17 @@ void CPDTravelModule::BeginAction()
 			if (_pDestination->DMapId == -1)
 			{
 				// Load location module
-				//int locationId = _resultTable[ix * 2];
-				//CGameController::SetData(UAKM_SAVE_MAP_ENTRY, locationId);
-				//CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 0);
-				//CGameController::SetParameter(249, 0);
-				//CGameController::AutoSave();
+				CGameController::SetData(PD_SAVE_MAP_ID, _pDestination->MapId);
+				CGameController::SetData(PD_SAVE_MAP_FLAG, 1);
+				CGameController::AutoSave();
 				CModuleController::Push(new CPDLocationModule(_pDestination->MapId, 0));
 			}
 			else
 			{
 				// Load video module
-				//int id = _resultTable[ix * 2 + 1];
-				//CGameController::SetData(UAKM_SAVE_DMAP_ENTRY, id);
-				//CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 1);
-				//CGameController::AutoSave();
+				CGameController::SetData(PD_SAVE_DMAP_ID, _pDestination->DMapId);
+				CGameController::SetData(PD_SAVE_MAP_FLAG, (BYTE)0);
+				CGameController::AutoSave();
 				CModuleController::Push(new CVideoModule(VideoType::Scripted, _pDestination->DMapId));
 			}
 		}

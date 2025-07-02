@@ -7,6 +7,7 @@
 #include <vector>
 #include "DXText.h"
 #include "DXButton.h"
+#include "PuzzlePiece.h"
 
 class CUAKMTornNoteModule : public CModuleBase
 {
@@ -31,25 +32,6 @@ protected:
 	int _newItem;
 	int _palette[256];
 
-	class CNoteScrap
-	{
-	public:
-		ID3D11Buffer* VertexBuffers;
-		CTexture Texture;
-		float X;
-		float Y;
-		int Orientation;
-		LPBYTE RawImage;
-		float Width;
-		float Height;
-		int OriginalWidth;
-		int OriginalHeight;
-		int Offset;
-		int Z;
-	};
-
-	std::unordered_map<int, CNoteScrap*> _images;
-	std::vector<CNoteScrap*> _zImages;
 	ID3D11Buffer* _vertexBuffer;
 
 	int _numberOfImages;
@@ -59,8 +41,7 @@ protected:
 	float _scale;
 	float _screenHeight;
 
-	CNoteScrap* _selectedScrap;
-	CNoteScrap* HitTest(float mx, float my);
+	CPuzzlePiece* _selectedScrap;
 	POINT _pt;
 
 	BOOL _completed;

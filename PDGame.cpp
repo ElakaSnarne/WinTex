@@ -826,3 +826,11 @@ void CPDGame::AddCash(int cashToAdd)
 	int currentCash = GetWord(PD_SAVE_CASH);
 	SetWord(PD_SAVE_CASH, currentCash + cashToAdd);
 }
+
+void CPDGame::Copy(LPBYTE source, int destinationOffset, int length)
+{
+	if (source != NULL && destinationOffset >= 0 && (destinationOffset + length) < PD_SAVE_SIZE)
+	{
+		CopyMemory(_gameData + destinationOffset, source, length);
+	}
+}

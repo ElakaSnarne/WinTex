@@ -1521,7 +1521,7 @@ void CUAKMScript::Play(CScriptState* pState, int index, int bank, int rate)
 		}
 	}
 
-	pState->WaitingForMediaToFinish = TRUE;
+	pState->WaitingForMediaToFinish = CAnimationController::Exists();
 }
 
 void CUAKMScript::PlayAudio(CScriptState* pState, int index)

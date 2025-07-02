@@ -130,7 +130,7 @@ CLocation::CLocation()
 	_objectMap = NULL;
 	_objectMapCount = 0;
 
-	ZeroMemory(Animations, 50 * sizeof(Animation));
+	ZeroMemory(Animations, MAX_ANIMATIONS * sizeof(Animation));
 
 	_locationData = NULL;
 
@@ -1032,8 +1032,8 @@ BOOL CLocation::Load(int locationFileIndex)
 
 	// Start default animations
 	BinaryData animbd = GetLocationData(0);
-	int animationCount = GetInt(animbd.Data, 0, 4);
-	for (int i = 0; i < animationCount && i < 50; i++)
+	_locationAnimationCount = GetInt(animbd.Data, 0, 4);
+	for (int i = 0; i < _locationAnimationCount && i < MAX_ANIMATIONS; i++)
 	{
 		int offset = GetInt(animbd.Data, 8 + i * 8, 4);
 		int trigger = GetInt(animbd.Data, offset + 8, 4);
@@ -1202,7 +1202,7 @@ void CLocation::Clear()
 	}
 	_objectMapCount = 0;
 
-	ZeroMemory(Animations, 50 * sizeof(Animation));
+	ZeroMemory(Animations, MAX_ANIMATIONS * sizeof(Animation));
 
 	Elevations.clear();
 }
@@ -2539,14 +2539,13 @@ void CLocation::StartMappedAnimation(int index)
 void CLocation::StartIndexedAnimation(int index)
 {
 	BinaryData bd = GetLocationData(0);
-	int animationCount = GetInt(bd.Data, 0, 4);
-	if (index >= 0 && index < animationCount && index < 50)
+	if (index >= 0 && index < _locationAnimationCount && index < MAX_ANIMATIONS)
 	{
 		if (Animations[index].Status == AnimationStatus::NotStarted || Animations[index].Status == AnimationStatus::Completed)
 		{
 			Animations[index].ObjectId = GetInt(bd.Data, index * 8 + 4, 4);
 			PBYTE pA = bd.Data + GetInt(bd.Data, index * 8 + 8, 4);
-			PBYTE pAE = (index < (animationCount - 1)) ? bd.Data + GetInt(bd.Data, index * 8 + 16, 4) : bd.Data + bd.Length;
+			PBYTE pAE = (index < (_locationAnimationCount - 1)) ? bd.Data + GetInt(bd.Data, index * 8 + 16, 4) : bd.Data + bd.Length;
 
 			//Trace(L"Starting animation with index ");
 			//Trace(index);
@@ -2597,8 +2596,7 @@ void CLocation::StartIdAnimation(int index)
 	int mappedId = _mapEntry->AnimationMap.at(index);
 
 	BinaryData bd = GetLocationData(0);
-	int animationCount = GetInt(bd.Data, 0, 4);
-	for (int index = 0; index < animationCount && index < 50; index++)
+	for (int index = 0; index < _locationAnimationCount && index < MAX_ANIMATIONS; index++)
 	{
 		int animId = GetInt(bd.Data, index * 8 + 4, 4);
 		if (animId == mappedId)
@@ -2607,7 +2605,7 @@ void CLocation::StartIdAnimation(int index)
 			{
 				Animations[index].ObjectId = GetInt(bd.Data, index * 8 + 4, 4);
 				PBYTE pA = bd.Data + GetInt(bd.Data, index * 8 + 8, 4);
-				PBYTE pAE = (index < (animationCount - 1)) ? bd.Data + GetInt(bd.Data, index * 8 + 16, 4) : bd.Data + bd.Length;
+				PBYTE pAE = (index < (_locationAnimationCount - 1)) ? bd.Data + GetInt(bd.Data, index * 8 + 16, 4) : bd.Data + bd.Length;
 
 				//Trace(L"Starting animation with index ");
 				//Trace(index);
@@ -2658,7 +2656,7 @@ void CLocation::StartIdAnimation(int index)
 
 void CLocation::StopMappedAnimation(int index)
 {
-	if (index >= 0 && index < 50)
+	if (index >= 0 && index < _locationAnimationCount && index < MAX_ANIMATIONS)
 	{
 		// Lookup animation map
 		int mappedIndex = _mapEntry->AnimationMap.at(index);
@@ -2668,9 +2666,8 @@ void CLocation::StopMappedAnimation(int index)
 
 void CLocation::StopIndexedAnimation(int index)
 {
-	if (index >= 0 && index < 50)
+	if (index >= 0 && index < _locationAnimationCount && index < MAX_ANIMATIONS)
 	{
-
 		Animations[index].Status = AnimationStatus::Completed;
 	}
 }
@@ -2679,23 +2676,23 @@ BOOL CLocation::IsAnimationFinished(int index)
 {
 	// Should return the mapped animation status
 	int mappedIndex = _mapEntry->AnimationMap.at(index);
-	return (mappedIndex >= 0 && mappedIndex < 50 && Animations[mappedIndex].Status == AnimationStatus::Completed);
+	return (mappedIndex >= 0 && mappedIndex < _locationAnimationCount && mappedIndex < MAX_ANIMATIONS && Animations[mappedIndex].Status == AnimationStatus::Completed);
 }
 
 BOOL CLocation::IsIndexedAnimationFinished(int index)
 {
-	return (index >= 0 && index < 50 && (Animations[index].Status == AnimationStatus::Completed || Animations[index].Status == AnimationStatus::NotStarted));
+	return (index >= 0 && index < _locationAnimationCount && index < MAX_ANIMATIONS && (Animations[index].Status == AnimationStatus::Completed || Animations[index].Status == AnimationStatus::NotStarted));
 }
 
 int CLocation::GetAnimationFrame(int index)
 {
 	int mappedIndex = _mapEntry->AnimationMap.at(index);
-	return (mappedIndex >= 0 && mappedIndex < 50) ? Animations[mappedIndex].FrameCounter : -1;
+	return (mappedIndex >= 0 && mappedIndex < _locationAnimationCount && mappedIndex < MAX_ANIMATIONS) ? Animations[mappedIndex].FrameCounter : -1;
 }
 
 int CLocation::GetIndexedAnimationFrame(int index)
 {
-	return (index >= 0 && index < 50) ? Animations[index].FrameCounter : -1;
+	return (index >= 0 && index < _locationAnimationCount && index < MAX_ANIMATIONS) ? Animations[index].FrameCounter : -1;
 }
 
 double CLocation::GetPlayerDistanceFromPoint(double x, double z)
@@ -3004,7 +3001,7 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 	else if (file == L"R02VR.AP")	// Ritz Lobby
 	{
 	}
-	else if (file == L"R03VR.AP")	// Apartment A?
+	else if (file == L"R03VR.AP")	// Malloy's Room
 	{
 	}
 	else if (file == L"R04VR.AP")	// Chandler Avenue
@@ -3040,6 +3037,15 @@ void CLocation::ModifyLocationPoints(std::wstring file)
 	}
 	else if (file == L"R15VR.AP")	// Cabin
 	{
+		ModifyLocationPoints(99, 111, 0.0f, 0.001f, 0.0f);			// Papers
+		ModifyLocationPoints(161, 164, 0.0f, 0.001f, 0.0f);			// Papers
+		ModifyLocationPoints(165, 168, 0.0f, 0.002f, 0.0f);			// Papers
+
+		ModifyLocationPoints(147, 154, 0.0f, -0.065f, 0.0f);		// Casings
+		ModifyLocationPoints(2855, 2874, 0.0f, 0.01f, 0.0f);		// Tree base
+
+		ModifyLocationPoints(320, 321, -0.03f, 0.0f, 0.0f);			// Outside when door open
+		ModifyLocationPoints(324, 325, -0.03f, 0.0f, 0.0f);			// Outside when door open
 	}
 	else if (file == L"R17VR.AP")	// Easter Egg Room
 	{
@@ -3170,6 +3176,11 @@ XMFLOAT4 CLocation::GetTransparentColour(std::wstring file, int objectId, int su
 		// Vestibule windows
 		return XMFLOAT4(1.0f, 1.0f, 1.0f, 0.2f);
 	}
+	else if (file == L"R15VR.AP")
+	{
+		// Broken window
+		return XMFLOAT4(0.2f, 0.2f, 0.2f, 0.5f);
+	}
 
 	return XMFLOAT4(0.3f, 0.3f, 0.7f, 0.4f);
 }
@@ -3290,7 +3301,7 @@ void CLocation::Animate()
 	if (!_loading)
 	{
 		ULONGLONG now = GetTickCount64();
-		for (int i = 0; i < 50; i++)
+		for (int i = 0; i < _locationAnimationCount && i < MAX_ANIMATIONS; i++)
 		{
 			if (Animations[i].Status == AnimationStatus::Running)
 			{

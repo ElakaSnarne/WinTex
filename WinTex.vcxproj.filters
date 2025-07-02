@@ -405,6 +405,15 @@
     <ClCompile Include="PDLaptopModule.cpp">
       <Filter>Modules\PD</Filter>
     </ClCompile>
+    <ClCompile Include="PDCabinKeypadModule.cpp">
+      <Filter>Modules\PD</Filter>
+    </ClCompile>
+    <ClCompile Include="PDDragDropPuzzleModule.cpp">
+      <Filter>Modules\PD</Filter>
+    </ClCompile>
+    <ClCompile Include="PuzzlePiece.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DXFrame.h">
@@ -835,6 +844,15 @@
     </ClInclude>
     <ClInclude Include="PDLaptopModule.h">
       <Filter>Modules\PD</Filter>
+    </ClInclude>
+    <ClInclude Include="PDCabinKeypadModule.h">
+      <Filter>Modules\PD</Filter>
+    </ClInclude>
+    <ClInclude Include="PDDragDropPuzzleModule.h">
+      <Filter>Modules\PD</Filter>
+    </ClInclude>
+    <ClInclude Include="PuzzlePiece.h">
+      <Filter>Shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

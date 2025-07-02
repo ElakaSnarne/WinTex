@@ -7,9 +7,9 @@ class CPDLaptopModule : public CFullScreenModule
 {
 public:
 	CPDLaptopModule(BOOL cdUsed);
+	CPDLaptopModule(LPBYTE screen, LPINT palette);
 	~CPDLaptopModule();
 
-	virtual void Resize(int width, int height);
 	virtual void Render();
 
 protected:
@@ -27,7 +27,13 @@ protected:
 	BOOL _cdUsed;
 
 	int _mode;
-	int _dots;
+	int _stage;
 	int _dotX;
-	ULONGLONG _dotTime;
+	ULONGLONG _time;
+
+	static int CellSequence[];
+
+	void RenderButton(int x1, int y1, int x2, int y2, char* text, int boxColour, int textColour);
+
+	void RenderArticleButtons();
 };

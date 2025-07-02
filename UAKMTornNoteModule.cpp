@@ -62,16 +62,8 @@ void CUAKMTornNoteModule::Dispose()
 		_vertexBuffer = NULL;
 	}
 
-	// Clear unordered maps
-	for (auto it : _images)
-	{
-		delete it.second;
-	}
-
-	_images.clear();
+	CPuzzlePiece::Dispose();
 }
-
-float rotationAngles[] = { 0.0f, -XM_PI / 2.0f, -XM_PI, XM_PI / 2.0f };
 
 void CUAKMTornNoteModule::Render()
 {
@@ -87,31 +79,16 @@ void CUAKMTornNoteModule::Render()
 		dx.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		CShaders::SelectOrthoShader();
 
-		for (int i = 0; i < _numberOfImages; i++)
-		{
-			CNoteScrap* pN = _zImages[i];
-			float w = pN->Width;
-			float h = pN->Height;
-			// Scale, rotate, translate by correct dimension depending on rotation, translate x & y
-			float itx = (pN->Orientation == 0 || pN->Orientation == 2) ? w / 2.0f : h / 2.0f;
-			float ity = (pN->Orientation == 0 || pN->Orientation == 2) ? h / 2.0f : w / 2.0f;
-			float x = itx + pN->X;
-			float y = ity + pN->Y;
-
-			XMMATRIX wm = XMMatrixScaling(w, h, 1.0f) * XMMatrixRotationZ(rotationAngles[pN->Orientation]) * XMMatrixTranslation(x, -y, 0.0f);
-
-			CConstantBuffers::SetWorld(dx, &wm);
-			ID3D11ShaderResourceView* pRV = pN->Texture.GetTextureRV();
-			dx.SetShaderResources(0, 1, &pRV);
-			dx.Draw(4, 0);
-		}
+		CPuzzlePiece::Render();
 
 		if (_completed)
 		{
 			_caption.Render(0.0f, dx.GetHeight() - 10.0f - _caption.Height());
 		}
-
-		_pBtnResume->Render();
+		else
+		{
+			_pBtnResume->Render();
+		}
 
 		CModuleController::Cursors[0].SetPosition((float)_cursorPosX, (float)_cursorPosY);
 		CModuleController::Cursors[0].Render();
@@ -128,6 +105,8 @@ void CUAKMTornNoteModule::Render()
 
 void CUAKMTornNoteModule::Initialize()
 {
+	CPuzzlePiece::Reset();
+
 	_cursorPosX = dx.GetWidth() / 2.0f;
 	_cursorPosY = dx.GetHeight() / 2.0f;
 
@@ -195,60 +174,10 @@ void CUAKMTornNoteModule::Initialize()
 
 			for (int i = 0; i < count; i++)
 			{
-				LPBYTE pImage = _pImageData + GetInt(_pImageData, 2 + i * 4, 4);
-				int width = GetInt(pImage, 0, 2);
-				int height = GetInt(pImage, 2, 2);
-				CNoteScrap* id = new CNoteScrap();
-				id->RawImage = pImage;
-				id->OriginalWidth = width;
-				id->OriginalHeight = height;
-				id->Width = width * _scale;
-				id->Height = height * _scale;
-				id->Texture.Init(width, height);
-
-				D3D11_MAPPED_SUBRESOURCE subRes;
-				ID3D11Texture2D* pTexture = id->Texture.GetTexture();
-				if (SUCCEEDED(dx.Map(pTexture, 0, D3D11_MAP_WRITE_DISCARD, 0, &subRes)))
-				{
-					int inPtr = 4;
-					int* pTex = (int*)subRes.pData;
-					for (int y = 0; y < height; y++)
-					{
-						for (int x = 0; x < width; x++)
-						{
-							int pix = pImage[inPtr++];
-							pTex[y * subRes.RowPitch / 4 + x] = (pix != 0) ? _palette[pix] : 0;
-						}
-					}
-
-					dx.Unmap(pTexture, 0);
-				}
-
-				if (i < _numberOfImages)
-				{
-					// Get position, orientation and z-order from save data
-					id->Offset = _positionOffset + i * 6;
-
-					id->X = left + (CGameController::GetData(id->Offset + 0) + CGameController::GetData(id->Offset + 1) * 256) * _scale;
-					id->Y = top + (CGameController::GetData(id->Offset + 2) + CGameController::GetData(id->Offset + 3) * 256) * _scale;
-					id->Z = CGameController::GetData(id->Offset + 4);
-					//id->Z = i;
-					id->Orientation = CGameController::GetData(id->Offset + 5);
-				}
-
-				_images[i] = id;
+				CPuzzlePiece::Add(i, _pImageData + GetInt(_pImageData, 2 + i * 4, 4), _scale, _palette, _numberOfImages, left, top, _positionOffset);
 			}
 
-			for (int z = 0; z < count; z++)
-			{
-				for (int i = 0; i < count; i++)
-				{
-					if (_images[i]->Z == z)
-					{
-						_zImages.push_back(_images[i]);
-					}
-				}
-			}
+			CPuzzlePiece::Sort();
 		}
 	}
 
@@ -280,96 +209,20 @@ void CUAKMTornNoteModule::Initialize()
 
 // TODO: Make sure pieces are visible
 
-CUAKMTornNoteModule::CNoteScrap* CUAKMTornNoteModule::HitTest(float mx, float my)
-{
-	int offset = _item == 33 ? 4 : 0;
-	std::vector<CNoteScrap*>::iterator it = _zImages.end();
-	std::vector<CNoteScrap*>::iterator start = _zImages.begin() + offset;
-
-	do
-	{
-		it--;
-		CNoteScrap* pN = *it;
-
-		float w = pN->Width;
-		float h = pN->Height;
-		// Scale, rotate, translate by correct dimension depending on rotation, translate x & y
-		float rw = (pN->Orientation == 0 || pN->Orientation == 2) ? w : h;
-		float rh = (pN->Orientation == 0 || pN->Orientation == 2) ? h : w;
-		float x = pN->X;
-		float y = pN->Y;
-
-		// Check if mouse is roughly inside rectangle
-		if (mx >= x && mx < (x + rw) && my >= y && my < (y + rh))
-		{
-			// Translate mouse coordinates, scale and orientation relative to object
-
-			int cx = static_cast<int>((mx - x) / _scale);
-			int cy = static_cast<int>((my - y) / _scale);
-			if (pN->Orientation == 2)
-			{
-				// Upside down
-				cx = pN->OriginalWidth - cx - 1;
-				cy = pN->OriginalHeight - cy - 1;
-			}
-			else if (pN->Orientation == 1)
-			{
-				// Rotated right
-				int tmp = cx;
-				cx = cy;
-				cy = pN->OriginalHeight - tmp - 1;
-			}
-			else if (pN->Orientation == 3)
-			{
-				// Rotated left
-				int tmp = cy;
-				cy = cx;
-				cx = pN->OriginalWidth - tmp - 1;
-			}
-
-			// Now check pixel
-			LPBYTE pPixels = pN->RawImage + 4;
-			if (pPixels[cy * pN->OriginalWidth + cx] != 0)
-			{
-				// All items from this point should be pushed down in z-order
-				std::vector<CNoteScrap*>::iterator fix = it + 1;
-				while (fix != _zImages.end())
-				{
-					CNoteScrap* pS = *fix++;
-					pS->Z--;
-					CGameController::SetData(pS->Offset + 4, pS->Z);
-				}
-
-				// Remove from queue and place at end
-				_zImages.erase(it);
-				_zImages.push_back(pN);
-
-				pN->Z = _numberOfImages - 1;
-				CGameController::SetData(pN->Offset + 4, pN->Z);
-
-				return pN;
-			}
-		}
-
-	} while (it != start);
-
-	return NULL;
-}
-
 BOOL CUAKMTornNoteModule::CheckCompleted()
 {
 	if (_item == 33)
 	{
 		for (int i = 0; i < (_numberOfImages - 5); i++)
 		{
-			CNoteScrap* pScrap1 = _images[i];
+			CPuzzlePiece* pScrap1 = CPuzzlePiece::Get(i);
 			if (pScrap1->Orientation != 0)
 			{
 				// Not oriented correctly
 				return FALSE;
 			}
 
-			CNoteScrap* pScrap2 = _images[i + 1];
+			CPuzzlePiece* pScrap2 = CPuzzlePiece::Get(i + 1);
 
 			int dx = static_cast<int>(abs((pScrap1->X - pScrap2->X) / _scale - TornNoteDistances[i * 2]));
 			if (dx > 5)
@@ -388,8 +241,8 @@ BOOL CUAKMTornNoteModule::CheckCompleted()
 	{
 		for (int i = 0; i < (_numberOfImages - 1); i++)
 		{
-			CNoteScrap* pScrap1 = _images[i];
-			CNoteScrap* pScrap2 = _images[i + 1];
+			CPuzzlePiece* pScrap1 = CPuzzlePiece::Get(i);
+			CPuzzlePiece* pScrap2 = CPuzzlePiece::Get(i + 1);
 			int dx = static_cast<int>((pScrap2->X - pScrap1->X) / _scale);
 			if (dx < 8 || dx > 12)
 			{
@@ -436,7 +289,7 @@ void CUAKMTornNoteModule::BeginAction()
 	{
 		if (!_completed)
 		{
-			CNoteScrap* pScrap = HitTest(_cursorPosX, _cursorPosY);
+			CPuzzlePiece* pScrap = CPuzzlePiece::HitTest(_cursorPosX, _cursorPosY, _item == 33 ? 4 : 0, _scale);
 			if (pScrap != NULL)
 			{
 				_selectedScrap = pScrap;
@@ -530,7 +383,7 @@ void CUAKMTornNoteModule::Cycle()
 		}
 		else
 		{
-			CNoteScrap* pScrap = HitTest(_cursorPosX, _cursorPosY);
+			CPuzzlePiece* pScrap = CPuzzlePiece::HitTest(_cursorPosX, _cursorPosY, _item == 33 ? 4 : 0, _scale);
 			if (pScrap != NULL)
 			{
 				// Right button, rotate selected piece

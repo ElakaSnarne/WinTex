@@ -97,6 +97,7 @@ public:
 	virtual void SetData(int offset, char* text);
 	virtual int GetWord(int offset, BOOL signExtend = FALSE);
 	virtual void SetWord(int offset, int value);
+	virtual void Copy(LPBYTE source, int destinationOffset, int length) { }
 
 	BYTE GetAskAboutState(int index);
 	void SetAskAboutState(int index, BYTE state);

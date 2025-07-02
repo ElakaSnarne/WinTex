@@ -163,8 +163,10 @@
     <ClCompile Include="AnimBase.cpp" />
     <ClCompile Include="AreaData.cpp" />
     <ClCompile Include="BIC.cpp" />
+    <ClCompile Include="PuzzlePiece.cpp" />
     <ClCompile Include="Overlay.cpp" />
     <ClCompile Include="Elevation.cpp" />
+    <ClCompile Include="PDCabinKeypadModule.cpp" />
     <ClCompile Include="PDClimbLadderOverlay.cpp" />
     <ClCompile Include="PDConvertPointsOverlay.cpp" />
     <ClCompile Include="PDCrosswordModule.cpp" />
@@ -172,6 +174,7 @@
     <ClCompile Include="Hint.cpp" />
     <ClCompile Include="HintCategory.cpp" />
     <ClCompile Include="HintModule.cpp" />
+    <ClCompile Include="PDDragDropPuzzleModule.cpp" />
     <ClCompile Include="PDElevationModOverlay.cpp" />
     <ClCompile Include="PDHintModule.cpp" />
     <ClCompile Include="PDInventoryModule.cpp" />
@@ -292,11 +295,14 @@
     <ClInclude Include="BIC.h" />
     <ClInclude Include="BinaryData.h" />
     <ClInclude Include="IntersectionInfo.h" />
+    <ClInclude Include="PuzzlePiece.h" />
     <ClInclude Include="Overlay.h" />
+    <ClInclude Include="PDCabinKeypadModule.h" />
     <ClInclude Include="PDClimbLadderOverlay.h" />
     <ClInclude Include="PDConvertPointsOverlay.h" />
     <ClInclude Include="PDCrosswordModule.h" />
     <ClInclude Include="Enums.h" />
+    <ClInclude Include="PDDragDropPuzzleModule.h" />
     <ClInclude Include="PDElevationModOverlay.h" />
     <ClInclude Include="PDHintModule.h" />
     <ClInclude Include="D3D11-NoWarn.h" />
