@@ -460,7 +460,7 @@ BOOL CPDDragDropPuzzleModule::CheckLaptopPuzzleCompleted()
 
 		CGameController::SetHintState(859, 1, _cheated ? 0 : 1);
 
-		CGameController::SetParameter(205, 1);
+		CGameController::SetParameter(205, 2);
 		CModuleController::Push(new CPDLaptopModule(_screen, _palette));
 		_screen = NULL;// Sending screen to laptop module for re-use
 		CModuleController::Pop(this);

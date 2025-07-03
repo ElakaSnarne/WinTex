@@ -165,9 +165,9 @@ void CPDSelectLevelModule::NewGame()
 
 	CGameController::SetData(PD_SAVE_HEADER_GAME_DAY, 1);
 
-	CGameController::SetData(PD_SAVE_TRAVEL + 1, 1);	// Tex' Office
-	CGameController::SetData(PD_SAVE_TRAVEL + 70, 1);	// Tex' Bedroom
-	CGameController::SetData(PD_SAVE_TRAVEL + 71, 1);	// Tex' Computer Room
+	CGameController::SetData(PD_SAVE_TRAVEL + 1, 1);				// Tex' Office
+	CGameController::SetData(PD_SAVE_TRAVEL + 70, 1);				// Tex' Bedroom
+	CGameController::SetData(PD_SAVE_TRAVEL + 71, 1);				// Tex' Computer Room
 
 	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 0, 1);	// Enable AskAbout Tex Murphy
 	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 1, 1);	// Enable AskAbout Chelsee Bando
@@ -180,18 +180,17 @@ void CPDSelectLevelModule::NewGame()
 	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 56, 1);	// Enable AskAbout Newspaper photo of Malloy
 	CGameController::SetItemState(PD_SAVE_ASK_ABOUT_BASE, 61, 1);	// Enable AskAbout Sandra
 
-	// Set Unknowns 10 and 11 to 2 and 1
-	_gameData[PD_SAVE_PARAMETERS + 251] = 2;			// Preferred CD?
-	_gameData[PD_SAVE_PARAMETERS + 250] = 1;			// Day in game
+	_gameData[PD_SAVE_PARAMETERS + 251] = 2;						// Preferred CD?
+	_gameData[PD_SAVE_PARAMETERS + 250] = 1;						// Day in game
 
 	// Parameter 0x19a, 0 = Entertainment Level, 1 = Game Player Level
 	_gameData[PD_SAVE_PARAMETERS_GAME_LEVEL] = _bGamePlayer;
 
 	CGameController::SetWord(PD_SAVE_CASH, 4000);
-	CGameController::SetItemState(PD_SAVE_ITEMS_BASE, 0, 1);		// Cash
-	CGameController::SetItemState(PD_SAVE_ITEMS_BASE, 1, 1);		// Photo of Malloy
-	CGameController::SetItemState(PD_SAVE_ITEMS_BASE, 2, 1);		// Credit card
-	CGameController::SetItemState(PD_SAVE_ITEMS_BASE, 4, 1);		// Fitzpatrick's card
+	CGameController::SetItemState(0, 1);							// Cash
+	CGameController::SetItemState(1, 1);							// Photo of Malloy
+	CGameController::SetItemState(2, 1);							// Credit card
+	CGameController::SetItemState(4, 1);							// Fitzpatrick's card
 
 	// Set hint category states 1-4
 	CGameController::SetHintCategoryState(1, 1);

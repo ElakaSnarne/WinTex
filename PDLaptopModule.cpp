@@ -89,13 +89,13 @@ void CPDLaptopModule::Render()
 				RenderButton(433, 220, 474, 244, "Exit", 9, 13);
 
 				// Limit mouse to box
-				_cursorMinX = 432;
-				_cursorMaxX = 472;
-				_cursorMinY = 220;
-				_cursorMaxY = 244;
+				_cursorMinX = _left + 432 * _scale;
+				_cursorMaxX = _left + 472 * _scale;
+				_cursorMinY = _top + 220 * _scale;
+				_cursorMaxY = _top + 244 * _scale;
 
-				_cursorPosX = 472;
-				_cursorPosY = 244;
+				_cursorPosX = _left + 472 * _scale;
+				_cursorPosY = _top + 244 * _scale;
 
 				_inputEnabled = TRUE;
 			}
@@ -203,13 +203,16 @@ void CPDLaptopModule::Cursor(float x, float y, BOOL relative)
 	{
 		CModuleBase::Cursor(x, y, relative);
 
-		int x = static_cast<int>((_cursorPosX - _left) / _scale);
-		int y = static_cast<int>((_cursorPosY - _top) / _scale);
+		if (_mode == LAPTOP_MODE_ARTICLES)
+		{
+			int x = static_cast<int>((_cursorPosX - _left) / _scale);
+			int y = static_cast<int>((_cursorPosY - _top) / _scale);
 
-		DrawRectangle(193, 248, 239, 270, (_stage != 0 && x >= 193 && x < 239 && y >= 248 && y < 270) ? 9 : 0);
-		DrawRectangle(321, 248, 368, 270, (_stage != 4 && x >= 321 && x < 368 && y >= 248 && y < 270) ? 9 : 0);
-		DrawRectangle(449, 248, 490, 270, (x >= 449 && x < 490 && y >= 248 && y < 270) ? 9 : 0);
-		UpdateTexture();
+			DrawRectangle(193, 248, 239, 270, (_stage != 0 && x >= 193 && x < 239 && y >= 248 && y < 270) ? 9 : 0);
+			DrawRectangle(321, 248, 368, 270, (_stage != 4 && x >= 321 && x < 368 && y >= 248 && y < 270) ? 9 : 0);
+			DrawRectangle(449, 248, 490, 270, (x >= 449 && x < 490 && y >= 248 && y < 270) ? 9 : 0);
+			UpdateTexture();
+		}
 	}
 }
 
