@@ -2,15 +2,19 @@
 #define STRUCTS_H_
 #pragma once
 
+#ifdef PLATFORM_WINDOWS
 #include "D3DX11-NoWarn.h"
 #include <DirectXPackedVector.h>
+#endif
 #include <list>
 #include <string>
 #include "Point.h"
 #include "Enums.h"
 
+#ifdef PLATFORM_WINDOWS
 using namespace DirectX::PackedVector;
 using namespace DirectX;
+#endif
 
 struct Line
 {
@@ -20,7 +24,7 @@ struct Line
 
 struct TLPoint
 {
-	Point* Point;
+	struct Point* Point;
 	float U;
 	float V;
 

@@ -13,6 +13,8 @@ CModuleBase::CModuleBase(ModuleType type)
 
 	Type = type;
 	_initialized = FALSE;
+	_cursorIsClipped = false;
+	_hasFocus = true;
 }
 
 void CModuleBase::SetCursorClipping()

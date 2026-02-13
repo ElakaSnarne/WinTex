@@ -24,6 +24,8 @@ public:
 
 	virtual void Resize(int width, int height);
 
+	virtual void KeyDown(WPARAM key, LPARAM lParam);
+
 	virtual void Dispose();
 	virtual void Render();
 

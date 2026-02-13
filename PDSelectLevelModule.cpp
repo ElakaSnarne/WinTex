@@ -52,15 +52,15 @@ void CPDSelectLevelModule::Dispose()
 
 void CPDSelectLevelModule::Initialize()
 {
-	Rect r1{ 0, 0, dx.GetHeight(), dx.GetWidth() };
+	Rect r1{ 0, 0, (float)dx.GetHeight(), (float)dx.GetWidth() };
 	_line1.SetColours(0xffffffff, 0, 0);
 	_line1.SetTextPD(L"Play level selection", r1);
 
-	Rect r2{ 0, 10, dx.GetHeight() - 100, dx.GetWidth() - 10 };
+	Rect r2{ 0, 10, (float)dx.GetHeight() - 100, (float)dx.GetWidth() - 10 };
 	_line2.SetColours(0xff26ff00, 0xff0096ff, 0xffffffff);
 	_line2.SetTextPD2(L"^.Do you wish to play the ^-Entertainment Level^. or the ^-Game Players Level^.?\n\nWe recommend that everyone except experienced game players select the ^-Entertainment Level^. the first time through.  There are hints available on this level as well as an option to bypass the more difficult puzzles (refer to the Hint System.)\n\nThe ^-Game Players Level^. is very challenging and should be selected only by experienced game players, or by players who have already gone through the ^-Entertainment Level^..  There are no hints available, but instead of ^?1500^. possible points, there are ^?4000^..  In addition, there are bonus locations and puzzles.\n\nNote:  Both levels have three narrative paths through the story leading to a total of seven combined endings.", r2);
 
-	Rect r3{ 0, 0, dx.GetHeight() - 100, dx.GetWidth() };
+	Rect r3{ 0, 0, (float)dx.GetHeight() - 100, (float)dx.GetWidth() };
 	_line3.SetColours(0xffffffff, 0, 0);
 	_line3.SetTextPD(L"Play level", r3);
 

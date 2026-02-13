@@ -8,8 +8,12 @@
 #include "ScriptBase.h"
 #include "DXListBox.h"
 #include "PDScriptState.h"
+#ifdef PLATFORM_WINDOWS
 #include <dsound.h>
 #include <xaudio2.h>
+#else
+#include "Win32Compat.h"
+#endif
 
 class CPDVidPhoneModule : public CFullScreenModule, public IXAudio2VoiceCallback
 {

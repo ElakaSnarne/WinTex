@@ -20,81 +20,81 @@ public:
 	CGameBase();
 	virtual ~CGameBase();
 
-	virtual void Render() = NULL;
-	virtual void MouseMove(POINT pt) = NULL;
-	virtual void MouseDown(POINT pt, int btn) = NULL;
-	virtual void KeyDown(WPARAM key, LPARAM lParam) = NULL;
-	virtual void KeyUp(WPARAM key, LPARAM lParam) = NULL;
+	virtual void Render() = 0;
+	virtual void MouseMove(POINT pt) = 0;
+	virtual void MouseDown(POINT pt, int btn) = 0;
+	virtual void KeyDown(WPARAM key, LPARAM lParam) = 0;
+	virtual void KeyUp(WPARAM key, LPARAM lParam) = 0;
 
 	virtual void LoadFromDMap(int entry);
 	virtual void LoadFromMap(int entry, int startupPosition);
 
 	virtual void Start();
 
-	virtual CScriptBase* GetScriptEngine() = NULL;
-	virtual CScriptState* GetScriptState() = NULL;
+	virtual CScriptBase* GetScriptEngine() = 0;
+	virtual CScriptState* GetScriptState() = 0;
 
-	virtual void LoadGame(LPWSTR fileName) = NULL;
-	virtual void SaveGame(LPWSTR fileName) = NULL;
-	virtual void NewGame() = NULL;
+	virtual void LoadGame(LPWSTR fileName) = 0;
+	virtual void SaveGame(LPWSTR fileName) = 0;
+	virtual void NewGame() = 0;
 
-	virtual int GetSaveCommentOffset() = NULL;
-	virtual int GetSaveCommentLength() = NULL;
+	virtual int GetSaveCommentOffset() = 0;
+	virtual int GetSaveCommentLength() = 0;
 
-	virtual BYTE GetParameter(int index) = NULL;
-	virtual void SetParameter(int index, BYTE value) = NULL;
+	virtual BYTE GetParameter(int index) = 0;
+	virtual void SetParameter(int index, BYTE value) = 0;
 
-	virtual BYTE GetData(int offset) = NULL;
-	virtual void SetData(int offset, BYTE value) = NULL;
-	virtual void SetData(int offset, char* text) = NULL;
+	virtual BYTE GetData(int offset) = 0;
+	virtual void SetData(int offset, BYTE value) = 0;
+	virtual void SetData(int offset, char* text) = 0;
 	virtual LPBYTE GetDataPointer() { return _gameData; };
-	virtual int GetWord(int offset, BOOL signExtend = FALSE) = NULL;
-	virtual void SetWord(int offset, int value) = NULL;
-	virtual void Copy(LPBYTE source, int destinationOffset, int length) = NULL;
+	virtual int GetWord(int offset, BOOL signExtend = FALSE) = 0;
+	virtual void SetWord(int offset, int value) = 0;
+	virtual void Copy(LPBYTE source, int destinationOffset, int length) = 0;
 
-	virtual BYTE GetAskAboutState(int index) = NULL;
-	virtual void SetAskAboutState(int index, BYTE value) = NULL;
-	virtual int GetAskAboutCount() = NULL;
-	virtual int GetAskAboutId(int index) = NULL;
+	virtual BYTE GetAskAboutState(int index) = 0;
+	virtual void SetAskAboutState(int index, BYTE value) = 0;
+	virtual int GetAskAboutCount() = 0;
+	virtual int GetAskAboutId(int index) = 0;
 
-	virtual int GetScore() = NULL;
-	virtual void AddScore(int value) = NULL;
+	virtual int GetScore() = 0;
+	virtual void AddScore(int value) = 0;
 
-	virtual int GetItemCount() = NULL;
-	virtual int GetItemId(int index) = NULL;
-	virtual int GetItemState(int item) = NULL;
-	virtual void SetItemState(int item, int state) = NULL;
-	virtual int GetCurrentItemId() = NULL;
-	virtual void SetCurrentItemId(int item) = NULL;
-	virtual int SelectNextItem() = NULL;
-	virtual int SelectPreviousItem() = NULL;
+	virtual int GetItemCount() = 0;
+	virtual int GetItemId(int index) = 0;
+	virtual int GetItemState(int item) = 0;
+	virtual void SetItemState(int item, int state) = 0;
+	virtual int GetCurrentItemId() = 0;
+	virtual void SetCurrentItemId(int item) = 0;
+	virtual int SelectNextItem() = 0;
+	virtual int SelectPreviousItem() = 0;
 
-	virtual int GetItemState(int base, int item) = NULL;
-	virtual void SetItemState(int base, int item, int state) = NULL;
+	virtual int GetItemState(int base, int item) = 0;
+	virtual void SetItemState(int base, int item, int state) = 0;
 
-	virtual BYTE GetHintState(int index) = NULL;
-	virtual void SetHintState(int index, BYTE state, int score) = NULL;
-	virtual BYTE GetHintCategoryState(int index) = NULL;
-	virtual void SetHintCategoryState(int index, BYTE state) = NULL;
+	virtual BYTE GetHintState(int index) = 0;
+	virtual void SetHintState(int index, BYTE state, int score) = 0;
+	virtual BYTE GetHintCategoryState(int index) = 0;
+	virtual void SetHintCategoryState(int index, BYTE state) = 0;
 
-	virtual void SetTimer(int timer, int duration) = NULL;
-	virtual int GetTimerState(int timer) = NULL;
-	virtual void ResetTimers() = NULL;
-	virtual void Tick(int ticks) = NULL;
+	virtual void SetTimer(int timer, int duration) = 0;
+	virtual int GetTimerState(int timer) = 0;
+	virtual void ResetTimers() = 0;
+	virtual void Tick(int ticks) = 0;
 
-	virtual void SetItemExamined(int itemId, int conditionalScore) = NULL;
+	virtual void SetItemExamined(int itemId, int conditionalScore) = 0;
 
 	BOOL _allowCancelVideo;
-	virtual BOOL CanCancelVideo() = NULL;
+	virtual BOOL CanCancelVideo() = 0;
 	virtual void CanCancelVideo(BOOL allow) { _allowCancelVideo = allow; }
 
-	virtual int GetLocationInitializationScriptId() = NULL;
-	virtual int GetLocationEnvironmentScriptId() = NULL;
+	virtual int GetLocationInitializationScriptId() = 0;
+	virtual int GetLocationEnvironmentScriptId() = 0;
 
 	int GetHintCategoryCount() { return _hintCategoryCount; }
 	CHintCategory* GetHintCategory(int index);
 
-	virtual CHintModule* GetHintModule() = NULL;
+	virtual CHintModule* GetHintModule() = 0;
 
 	virtual void SetSelectedItem(int item) { _selectedItem = item; }
 	virtual int GetSelectedItem(int item) { return _selectedItem; }
@@ -104,7 +104,7 @@ public:
 	virtual void SetBuyableItemState(int index, int state) { }
 
 protected:
-	virtual BOOL Init() = NULL;
+	virtual BOOL Init() = 0;
 
 	virtual BOOL LoadIcons() { return FALSE; }
 	BOOL LoadIcons(BinaryData bd);

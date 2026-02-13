@@ -1,9 +1,16 @@
 #pragma once
 
+#include "Platform.h"
+#ifdef PLATFORM_LINUX
+#include "Win32Compat.h"
+#else
 #include <xaudio2.h>
+#endif
 #include <unordered_map>
 #include "Utilities.h"
+#ifndef PLATFORM_LINUX
 #include <Windows.h>
+#endif
 #include "Map.h"
 #include "Mutex.h"
 #include <list>

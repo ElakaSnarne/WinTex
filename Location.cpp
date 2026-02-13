@@ -3,14 +3,19 @@
 #include "File.h"
 #include "Configuration.h"
 #include "DXScreen.h"
+#include "Platform.h"
+#ifdef PLATFORM_WINDOWS
 #include <DirectXCollision.h>
+#else
+#include "Win32Compat.h"
+#endif
 #include "Globals.h"
 #include "DXText.h"
 #include "GameBase.h"
 #include "AnimationController.h"
 #include "GameController.h"
 #include "Utilities.h"
-#include "Math.h"
+#include <cmath>
 #include <tuple>
 #include "LocationDataHeader.h"
 #include <algorithm>
@@ -1575,7 +1580,7 @@ double Dot(DPoint& p1, DPoint& p2)
 	return p1.X * p2.X + p1.Z * p2.Z;
 }
 
-DPoint Normal(DPoint& p)
+DPoint Normal(DPoint p)
 {
 	return { -p.Z, 0.0, p.X };
 }

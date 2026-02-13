@@ -2,8 +2,10 @@
 #include "D3DX11-NoWarn.h"
 #include "Utilities.h"
 
+#ifdef PLATFORM_WINDOWS
 using namespace DirectX::PackedVector;
 using namespace DirectX;
+#endif
 
 CDXControl::CDXControl()
 {

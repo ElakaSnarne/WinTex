@@ -1,5 +1,10 @@
 #include "Configuration.h"
+#include "Platform.h"
+#ifdef PLATFORM_WINDOWS
 #include <Windows.h>
+#else
+#include "Win32Compat.h"
+#endif
 #include "Globals.h"
 #include "Utilities.h"
 #include "GameController.h"

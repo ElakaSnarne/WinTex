@@ -1,4 +1,6 @@
 #include "Gamepad.h"
+
+#ifdef PLATFORM_WINDOWS
 #include <Windows.h>
 
 #pragma comment(lib, "dinput8.lib")
@@ -256,3 +258,24 @@ std::string CGamepad::GetName(int offset, int data)
 
 	return "Unknown";
 }
+
+#else
+
+// Linux Stub
+CGamepadController* CGamepadController::GamepadController = NULL;
+
+CGamepadController::CGamepadController(HWND hWnd) { _hWnd = hWnd; }
+CGamepadController::~CGamepadController() {}
+void CGamepadController::Init(HWND hWnd) { GamepadController = new CGamepadController(hWnd); }
+void CGamepadController::Dispose() { delete GamepadController; }
+BOOL CGamepadController::DeviceEnumCallback(const DIDEVICEINSTANCE* instance, void* context) { return FALSE; }
+void CGamepadController::AddGamepad(GUID deviceId) {}
+void CGamepadController::Update() {}
+std::string CGamepadController::GetName(int offset, int data) { return "Unknown"; }
+
+CGamepad::CGamepad(IDirectInput8* pInput, HWND hWnd, GUID deviceId) {}
+BOOL CGamepad::EnumObjectsCallback(const DIDEVICEOBJECTINSTANCE* instance, void* context) { return FALSE; }
+void CGamepad::Update() {}
+std::string CGamepad::GetName(int offset, int data) { return "Unknown"; }
+
+#endif

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Platform.h"
+
+#ifdef PLATFORM_WINDOWS
 #include <windows.h>
 #include <mmreg.h>
 #include "AnimBase.h"
@@ -238,3 +241,20 @@ private:
 	virtual HRESULT __stdcall GetParameters(DWORD* pdwFlags, DWORD* pdwQueue) override;
 	virtual HRESULT __stdcall Invoke(IMFAsyncResult* pAsyncResult) override;
 };
+#else
+#include "Win32Compat.h"
+#include "AnimBase.h"
+
+class CVideoPlayer : public CAnimBase
+{
+public:
+	CVideoPlayer();
+	~CVideoPlayer();
+
+	void Init(HWND hWnd, LPCTSTR fileName);
+	virtual BOOL Update();
+
+	virtual BOOL ShouldClearDXBuffer() { return FALSE; }
+	virtual void Skip();
+};
+#endif

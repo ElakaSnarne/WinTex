@@ -10,7 +10,7 @@ public:
 	CDXControl();
 	virtual ~CDXControl();
 
-	virtual void Render() = NULL;
+	virtual void Render() = 0;
 
 	virtual void MouseEnter() { };
 	virtual void MouseMove() { };

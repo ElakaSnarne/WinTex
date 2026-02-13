@@ -1,5 +1,10 @@
 #pragma once
+#include "Platform.h"
+#ifdef PLATFORM_WINDOWS
 #include <Windows.h>
+#else
+#include "Win32Compat.h"
+#endif
 #include <unordered_map>
 #include <string>
 
@@ -49,12 +54,7 @@ public:
 	DWORD Seek(DWORD distance, SeekMethod method = SeekMethod::Begin);
 	int Read(LPBYTE pBuffer, int length);
 	int Write(LPBYTE pBuffer, int length);
-	DWORD Size()
-	{
-		LARGE_INTEGER li;
-		::GetFileSizeEx(_handle, &li);
-		return li.LowPart;
-	}
+	DWORD Size();
 
 	static BOOL Exists(LPCWSTR fileName);
 

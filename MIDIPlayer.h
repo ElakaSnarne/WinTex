@@ -1,7 +1,12 @@
 #pragma once
 
+#include "Platform.h"
+#ifdef PLATFORM_WINDOWS
 #include <windows.h>
 #include <mmsystem.h>
+#else
+#include "Win32Compat.h"
+#endif
 #include "LZ.h"
 #include "Mutex.h"
 

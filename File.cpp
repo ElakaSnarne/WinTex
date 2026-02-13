@@ -1,4 +1,32 @@
 #include "File.h"
+#include "Platform.h"
+#include <iostream>
+#include <filesystem>
+#include <algorithm>
+#include <vector>
+#include <cstring>
+
+namespace fs = std::filesystem;
+
+// Helper to convert wstring to string
+static std::string WStrToStr(const std::wstring& wstr) {
+    if (wstr.empty()) return std::string();
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    try {
+        return converter.to_bytes(wstr);
+    } catch (...) {
+        return "";
+    }
+}
+
+static std::wstring StrToWStr(const std::string& str) {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    try {
+        return converter.from_bytes(str);
+    } catch (...) {
+        return L"";
+    }
+}
 
 std::unordered_map<std::wstring, std::wstring> CFile::FileMap;
 
@@ -14,50 +42,35 @@ CFile::~CFile()
 
 std::wstring CFile::Find(std::wstring path, std::wstring file)
 {
-	// Enumerate files, return if file is found
-	// Enumerate folders, search each one
-	std::wstring foundFile;
+    std::string sPath = ResolvePath(WStrToStr(path));
+    std::string sFile = WStrToStr(file);
+    
+    if (sPath.empty()) sPath = ".";
 
-	WIN32_FIND_DATA fd;
-	HANDLE hFF = FindFirstFile((path + L"*").c_str(), &fd);
-	do
-	{
-		std::wstring enumeratedFile = fd.cFileName;
+    try {
+        if (!fs::exists(sPath)) {
+             return L"";
+        }
 
-		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-		{
-			if ((enumeratedFile != L".") && (enumeratedFile != L".."))
-			{
-				foundFile = Find(path + enumeratedFile + L"\\", file);
-
-				if (foundFile.size() > 0)
-				{
-					break;
-				}
-			}
-		}
-		else
-		{
-			if (enumeratedFile == file)
-			{
-				foundFile = path + file;
-				break;
-			}
-		}
-	} while (FindNextFile(hFF, &fd));
-
-	FindClose(hFF);
-
-	return foundFile;
+        for (const auto& entry : fs::recursive_directory_iterator(sPath, fs::directory_options::skip_permission_denied)) {
+            if (entry.is_regular_file()) {
+                std::string filename = entry.path().filename().string();
+                if (strcasecmp(filename.c_str(), sFile.c_str()) == 0) {
+                     std::string foundPath = entry.path().string();
+                     return StrToWStr(foundPath);
+                }
+            }
+        }
+    } catch (...) {}
+    return L"";
 }
 
 BOOL CFile::Open(LPCWSTR fileName, Mode mode, Sharing share)
 {
-	// Check map to get real file path
 	std::wstring realFile = fileName;
 	if (mode == Mode::Read)
 	{
-		std::unordered_map<std::wstring, std::wstring>::iterator it = FileMap.find(fileName);
+		auto it = FileMap.find(fileName);
 		if (it != FileMap.end())
 		{
 			realFile = it->second;
@@ -66,29 +79,26 @@ BOOL CFile::Open(LPCWSTR fileName, Mode mode, Sharing share)
 		{
 			if (Exists(fileName))
 			{
-				// File exists, add to map
 				FileMap[fileName] = fileName;
 			}
 			else
 			{
-				// File does not exist in expected path, perform a recursive search
-				std::wstring path = L"";
-				std::wstring file = L"";
-				size_t lastSeparator = realFile.find_last_of('\\');
-				if (lastSeparator != -1)
-				{
-					path = realFile.substr(0, lastSeparator + 1);
-					file = realFile.substr(lastSeparator + 1);
-				}
-				else
-				{
-					path = L".\\";
-					file = realFile;
-				}
+				std::wstring path = L".";
+				std::wstring file = fileName;
+                
+                std::string sFileName = WStrToStr(fileName);
+                std::replace(sFileName.begin(), sFileName.end(), '\\', '/');
+                size_t lastSlash = sFileName.find_last_of('/');
+                if (lastSlash != std::string::npos) {
+                    file = StrToWStr(sFileName.substr(lastSlash + 1));
+                    path = StrToWStr(sFileName.substr(0, lastSlash));
+                }
 
 				realFile = Find(path, file);
-
-				FileMap[fileName] = realFile;
+                if (!realFile.empty())
+				    FileMap[fileName] = realFile;
+                else 
+                    realFile = fileName;
 			}
 		}
 	}
@@ -126,15 +136,13 @@ int CFile::Write(LPBYTE pBuffer, int length)
 	return written;
 }
 
+DWORD CFile::Size()
+{
+	return GetFileSize(_handle, NULL);
+}
+
 BOOL CFile::Exists(LPCWSTR fileName)
 {
-	WIN32_FIND_DATA findFileData;
-	HANDLE handle = FindFirstFile(fileName, &findFileData);
-	BOOL found = (handle != INVALID_HANDLE_VALUE);
-	if (found)
-	{
-		FindClose(handle);
-	}
-
-	return found;
+    std::string path = ResolvePath(WStrToStr(fileName));
+    return fs::exists(path);
 }

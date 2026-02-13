@@ -8,6 +8,7 @@
 #include "Utilities.h"
 #include "Image.h"
 #include "MediaIdentifiers.h"
+#include "StaticImage.h"
 
 CAnimBase* CAnimationController::_anim = NULL;
 CDXText* CAnimationController::_pCaption = NULL;

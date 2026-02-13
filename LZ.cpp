@@ -1,6 +1,12 @@
 #include "LZ.h"
+#include "Platform.h"
+#ifdef PLATFORM_WINDOWS
 #include <Windows.h>
+#else
+#include "Win32Compat.h"
+#endif
 #include "Utilities.h"
+#include "File.h"
 
 BinaryData CLZ::Decompress(LPBYTE pInput, int length)
 {
@@ -131,37 +137,25 @@ BinaryData CLZ::Decompress(LPWSTR pFileName)
 	BinaryData ret;
 	ZeroMemory(&ret, sizeof(ret));
 
-	// Open file
-	HANDLE hFile = CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (hFile != INVALID_HANDLE_VALUE)
+	CFile file;
+	if (file.Open(path.c_str(), CFile::Mode::Read))
 	{
-		// Get file size
-		int fileSizeHigh;
-		int fileSizeLow = GetFileSize(hFile, (LPDWORD)&fileSizeHigh);
-		if (fileSizeLow > 0)
+		int fileSize = file.Seek(0, CFile::SeekMethod::End);
+		file.Seek(0, CFile::SeekMethod::Begin);
+
+		if (fileSize > 0)
 		{
-			// Allocate memory
-			LPBYTE pInput = new byte[fileSizeLow];
+			LPBYTE pInput = new byte[fileSize];
 			if (pInput != NULL)
 			{
-				// Read file
-				int bytesRead;
-				if (ReadFile(hFile, pInput, fileSizeLow, (LPDWORD)&bytesRead, NULL))
+				if (file.Read(pInput, fileSize) == fileSize)
 				{
-					if (fileSizeLow == bytesRead)
-					{
-						// Call decompress
-						ret = Decompress(pInput, bytesRead);
-					}
+					ret = Decompress(pInput, fileSize);
 				}
-
-				// Release memory
 				delete[] pInput;
 			}
 		}
-
-		// Close file
-		CloseHandle((HANDLE)hFile);
+		file.Close();
 	}
 	else
 	{

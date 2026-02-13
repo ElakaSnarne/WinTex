@@ -5,6 +5,7 @@
 #include "GameController.h"
 #include "LocationModule.h"
 #include "ResumeGameModule.h"
+#include <string>
 
 CGameBase::CGameBase()
 {
@@ -125,6 +126,7 @@ void CGameBase::ReadGameXMLInfo(int resource)
 {
 	DWORD xmlSize = 0;
 	PBYTE xml = GetResource(resource, L"XML", &xmlSize);
+#ifdef PLATFORM_WINDOWS
 	PWCHAR wcxml = new WCHAR[xmlSize + 1];
 	if (wcxml != NULL)
 	{
@@ -300,6 +302,188 @@ void CGameBase::ReadGameXMLInfo(int resource)
 
 		delete[] wcxml;
 	}
+#else
+    if (xml == NULL || xmlSize == 0) return;
+    std::string sXml((char*)xml, xmlSize);
+    
+    // Helper to extract attribute
+    auto GetAttr = [&](const std::string& tag, const std::string& attr) {
+        std::string needle = attr + "=\"";
+        size_t start = tag.find(needle);
+        if (start == std::string::npos) return std::string("");
+        start += needle.length();
+        size_t end = tag.find("\"", start);
+        if (end == std::string::npos) return std::string("");
+        return tag.substr(start, end - start);
+    };
+
+    // Files
+    {
+        size_t start = sXml.find("<Files>");
+        size_t end = sXml.find("</Files>");
+        if (start != std::string::npos && end != std::string::npos) {
+            std::string section = sXml.substr(start, end - start);
+            size_t pos = 0;
+            long ix = 0;
+            while ((pos = section.find("<File ", pos)) != std::string::npos) {
+                size_t tagEnd = section.find("/>", pos);
+                if (tagEnd == std::string::npos) break;
+                std::string tag = section.substr(pos, tagEnd - pos);
+                std::string val = GetAttr(tag, "Name");
+                if (!val.empty()) CGameController::SetFileName(ix++, ToWString(val).c_str());
+                pos = tagEnd;
+            }
+        }
+    }
+    
+    // AskAbout
+    {
+        size_t start = sXml.find("<AskAbout>");
+        size_t end = sXml.find("</AskAbout>");
+        if (start != std::string::npos && end != std::string::npos) {
+            std::string section = sXml.substr(start, end - start);
+            size_t pos = 0;
+            long ix = 0;
+            while ((pos = section.find("<Topic ", pos)) != std::string::npos) {
+                size_t tagEnd = section.find("/>", pos);
+                if (tagEnd == std::string::npos) break;
+                std::string tag = section.substr(pos, tagEnd - pos);
+                std::string val = GetAttr(tag, "Name");
+                if (!val.empty()) CGameController::SetAskAboutName(ix++, ToWString(val).c_str());
+                pos = tagEnd;
+            }
+        }
+    }
+
+    // Items
+    {
+        size_t start = sXml.find("<Items>");
+        size_t end = sXml.find("</Items>");
+        if (start != std::string::npos && end != std::string::npos) {
+            std::string section = sXml.substr(start, end - start);
+            size_t pos = 0;
+            long ix = 0;
+            while ((pos = section.find("<Item ", pos)) != std::string::npos) {
+                size_t tagEnd = section.find("/>", pos);
+                if (tagEnd == std::string::npos) break;
+                std::string tag = section.substr(pos, tagEnd - pos);
+                std::string val = GetAttr(tag, "Name");
+                if (!val.empty()) CGameController::SetItemName(ix++, ToWString(val).c_str());
+                pos = tagEnd;
+            }
+        }
+    }
+
+    // BuyableItems
+    {
+        size_t start = sXml.find("<BuyableItems>");
+        size_t end = sXml.find("</BuyableItems>");
+        if (start != std::string::npos && end != std::string::npos) {
+            std::string section = sXml.substr(start, end - start);
+            size_t pos = 0;
+            long ix = 0;
+            while ((pos = section.find("<Item ", pos)) != std::string::npos) {
+                size_t tagEnd = section.find("/>", pos);
+                if (tagEnd == std::string::npos) break;
+                std::string tag = section.substr(pos, tagEnd - pos);
+                std::string val = GetAttr(tag, "Name");
+                if (!val.empty()) CGameController::SetBuyableItemName(ix++, ToWString(val).c_str());
+                pos = tagEnd;
+            }
+        }
+    }
+
+    // SaveSituations
+    {
+        size_t start = sXml.find("<SaveSituations>");
+        if (start != std::string::npos) {
+            size_t lStart = sXml.find("<L ", start);
+            size_t lEnd = sXml.find("</L>", lStart);
+            if (lStart != std::string::npos && lEnd != std::string::npos) {
+                std::string lSec = sXml.substr(lStart, lEnd - lStart);
+                size_t defPos = lSec.find("Default=\"");
+                if (defPos != std::string::npos) {
+                    size_t qEnd = lSec.find("\"", defPos + 9);
+                    std::string defVal = lSec.substr(defPos + 9, qEnd - (defPos + 9));
+                    CGameController::SetSituationDescriptionL(-1, ToWString(defVal).c_str());
+                }
+                size_t pos = 0;
+                long ix = 0;
+                while ((pos = lSec.find("<LD ", pos)) != std::string::npos) {
+                     size_t tagEnd = lSec.find("/>", pos);
+                     std::string tag = lSec.substr(pos, tagEnd - pos);
+                     std::string val = GetAttr(tag, "Name");
+                     if (!val.empty()) CGameController::SetSituationDescriptionL(ix++, ToWString(val).c_str());
+                     pos = tagEnd;
+                }
+            }
+            
+            size_t dStart = sXml.find("<D ", start);
+            size_t dEnd = sXml.find("</D>", dStart);
+            if (dStart != std::string::npos && dEnd != std::string::npos) {
+                std::string dSec = sXml.substr(dStart, dEnd - dStart);
+                size_t defPos = dSec.find("Default=\"");
+                if (defPos != std::string::npos) {
+                    size_t qEnd = dSec.find("\"", defPos + 9);
+                    std::string defVal = dSec.substr(defPos + 9, qEnd - (defPos + 9));
+                    CGameController::SetSituationDescriptionD(-1, ToWString(defVal).c_str());
+                }
+                size_t pos = 0;
+                long ix = 0;
+                while ((pos = dSec.find("<DD ", pos)) != std::string::npos) {
+                     size_t tagEnd = dSec.find("/>", pos);
+                     std::string tag = dSec.substr(pos, tagEnd - pos);
+                     std::string val = GetAttr(tag, "Name");
+                     if (!val.empty()) CGameController::SetSituationDescriptionD(ix++, ToWString(val).c_str());
+                     pos = tagEnd;
+                }
+            }
+        }
+    }
+
+    // Hints
+    {
+        size_t start = sXml.find("<Hints>");
+        size_t end = sXml.find("</Hints>");
+        if (start != std::string::npos && end != std::string::npos) {
+             std::string section = sXml.substr(start, end - start);
+             size_t pos = 0;
+             _hintCategoryCount = 0;
+             while ((pos = section.find("<HintCategory ", pos)) != std::string::npos) {
+                 size_t startTagEnd = section.find(">", pos);
+                 size_t endTag = section.find("</HintCategory>", startTagEnd);
+                 std::string catTag = section.substr(pos, startTagEnd - pos);
+                 std::string catContent = section.substr(startTagEnd + 1, endTag - (startTagEnd + 1));
+                 
+                 std::string idxStr = GetAttr(catTag, "Index");
+                 std::string title = GetAttr(catTag, "Title");
+                 int catIdx = 0;
+                 try { catIdx = std::stoi(idxStr); } catch(...) {}
+                 if (_hintCategoryCount < catIdx) _hintCategoryCount = catIdx;
+                 
+                 CHintCategory* pCategory = new CHintCategory(catIdx, ToWString(title));
+                 
+                 size_t hPos = 0;
+                 while ((hPos = catContent.find("<Hint ", hPos)) != std::string::npos) {
+                     size_t hStartTagEnd = catContent.find(">", hPos);
+                     size_t hEndTag = catContent.find("</Hint>", hStartTagEnd);
+                     std::string hTag = catContent.substr(hPos, hStartTagEnd - hPos);
+                     std::string hText = catContent.substr(hStartTagEnd + 1, hEndTag - (hStartTagEnd + 1));
+                     
+                     std::string hIdxStr = GetAttr(hTag, "Index");
+                     int hIdx = 0;
+                     try { hIdx = std::stoi(hIdxStr); } catch(...) {}
+                     
+                     pCategory->AddHint(hIdx, ToWString(hText));
+                     hPos = hEndTag;
+                 }
+                 
+                 _hintCategories[catIdx] = pCategory;
+                 pos = endTag;
+             }
+        }
+    }
+#endif
 }
 
 void CGameBase::Start()

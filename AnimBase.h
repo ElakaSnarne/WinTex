@@ -2,9 +2,14 @@
 
 #include "Globals.h"
 #include "D3D11-NoWarn.h"
+#include "Platform.h"
+#ifdef PLATFORM_WINDOWS
 #include <dsound.h>
-#include "LZ.h"
 #include <xaudio2.h>
+#else
+#include "Win32Compat.h"
+#endif
+#include "LZ.h"
 #include "DirectX.h"
 #include "Texture.h"
 #include "Mutex.h"

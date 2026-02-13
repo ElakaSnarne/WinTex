@@ -70,6 +70,16 @@ void CVideoModule::Initialize()
 	}
 }
 
+void CVideoModule::KeyDown(WPARAM key, LPARAM lParam)
+{
+	CModuleBase::KeyDown(key, lParam);
+
+	if (key == VK_RETURN)
+	{
+		BeginAction();
+	}
+}
+
 void CVideoModule::Dispose()
 {
 	if (_lock.Lock())

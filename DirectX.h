@@ -1,7 +1,10 @@
 #pragma once
 
 #include "DXBase.h"
+#include "Platform.h"
+#ifndef PLATFORM_LINUX
 #include <DirectXMath.h>
+#endif
 #include <list>
 #include "DXAdapter.h"
 

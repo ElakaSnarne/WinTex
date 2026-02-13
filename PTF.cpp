@@ -324,7 +324,6 @@ BOOL CPTF::DecodeFrame()
 		BOOL embeddedPalette = FALSE;
 		inPtr += 6;
 
-#pragma region Wave
 		if (frameType == 0x5657)
 		{
 			int audioBytes = chunkSize;
@@ -384,9 +383,6 @@ BOOL CPTF::DecodeFrame()
 				inPtr += 6;
 			}
 		}
-#pragma endregion
-
-#pragma region Embedded palette
 		if (chunkSize < 0)
 		{
 			// Embedded palette
@@ -409,9 +405,6 @@ BOOL CPTF::DecodeFrame()
 				_pPalette[c] = col;
 			}
 		}
-#pragma endregion
-
-#pragma region FLC
 		if (frameType == 0xf1fa)
 		{
 			// FLC
@@ -421,8 +414,6 @@ BOOL CPTF::DecodeFrame()
 			_framePointer += chunkSize;
 			if (embeddedPalette) _framePointer += 0x300;
 		}
-#pragma endregion
-#pragma region BIC
 		else if (frameType == 0x0b1c)
 		{
 			// BIC frame
@@ -433,7 +424,6 @@ BOOL CPTF::DecodeFrame()
 			_framePointer += chunkSize;
 			if (embeddedPalette) _framePointer += 0x300;
 		}
-#pragma endregion
 	}
 
 	return ret;

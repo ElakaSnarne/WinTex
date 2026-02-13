@@ -3,7 +3,12 @@
 #include "FullScreenModule.h"
 #include "AmbientAudio.h"
 #include "RawFont.h"
+#include "Platform.h"
+#ifdef PLATFORM_WINDOWS
 #include <Windows.h>
+#else
+#include "Win32Compat.h"
+#endif
 
 class CPDCabinKeypadModule : public CFullScreenModule
 {

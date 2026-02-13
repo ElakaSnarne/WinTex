@@ -1,0 +1,48 @@
+name: Build
+
+on:
+  push:
+    branches: [ "master", "main", "linux" ]
+  pull_request:
+    branches: [ "master", "main", "linux" ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libsdl2-dev libgl1-mesa-dev
+        
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+      
+    - name: Build
+      run: cmake --build build
+
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install D3DX11
+      uses: nuget/setup-nuget@v1
+    - run: nuget install Microsoft.DXSDK.D3DX -Version 9.29.952.8 -OutputDirectory dependencies
+
+    - name: List dependencies
+      shell: cmd
+      run: |
+        if exist dependencies dir /s dependencies
+
+    - name: Configure CMake
+      run: cmake -B build -A x64
+      env:
+        DXSDK_DIR: ${{ github.workspace }}\dependencies\Microsoft.DXSDK.D3DX.9.29.952.8\build\native
+      
+    - name: Build
+      run: cmake --build build --config Release

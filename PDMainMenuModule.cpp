@@ -97,9 +97,9 @@ void CPDMainMenuModule::Render()
 	CDXFont::SelectBlackFont();
 	_pScreen->Render();
 
-	if (SaveMode != SaveMode::Load && (GetTickCount64() / 500) % 2)
+	if (CurrentSaveMode != SaveMode::Load && (GetTickCount64() / 500) % 2)
 	{
-		if (SaveMode == SaveMode::Extension)
+		if (CurrentSaveMode == SaveMode::Extension)
 		{
 			// Show cursor at filename extension
 			SaveGameInfo info = _saveControl->GetInfo();
@@ -113,7 +113,7 @@ void CPDMainMenuModule::Render()
 			float y = _saveControl->GetY() + 8 * pConfig->FontScale;
 			_saveCursor.Render(x, y);
 		}
-		else if (SaveMode == SaveMode::Comment)
+		else if (CurrentSaveMode == SaveMode::Comment)
 		{
 			// Show cursor at comment
 			//SaveGameInfo info = _saveControl->GetInfo();
@@ -147,7 +147,7 @@ void CPDMainMenuModule::SetupSaveFrame()
 
 void CPDMainMenuModule::SetupSave()
 {
-	SaveMode = SaveMode::Extension;
+	CurrentSaveMode = SaveMode::Extension;
 	SaveTypedChars = 3;
 
 	memset(_commentBuffer, 0, 256);

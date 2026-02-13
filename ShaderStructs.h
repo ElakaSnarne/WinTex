@@ -1,10 +1,17 @@
 #pragma once
 
 #include "D3DX11-NoWarn.h"
+#include "Platform.h"
+#ifdef PLATFORM_WINDOWS
 #include <DirectXPackedVector.h>
+#else
+#include "Win32Compat.h"
+#endif
 
+#ifdef PLATFORM_WINDOWS
 using namespace DirectX::PackedVector;
 using namespace DirectX;
+#endif
 
 struct TEXTURED_VERTEX_ORTHO
 {

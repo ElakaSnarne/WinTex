@@ -7,5 +7,5 @@ public:
 	CDXComboBox();
 	~CDXComboBox();
 
-	virtual void Render() = NULL;
+	virtual void Render() = 0;
 };

@@ -211,7 +211,7 @@ void CInventoryModule::Initialize()
 		// TODO: PD examine structure size is 0x17 bytes
 		// PD offset = ?
 
-		CopyMemory(_examFileName, L"EXAM000.AP", 22);
+		CopyMemory(_examFileName, L"EXAM000.AP", sizeof(L"EXAM000.AP"));
 	}
 
 	if (_selectedItemId >= 0)

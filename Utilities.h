@@ -3,7 +3,12 @@
 #ifndef __UTILITIES__
 #define __UTILITIES__
 
+#include "Platform.h"
+#ifdef PLATFORM_WINDOWS
 #include <Windows.h>
+#else
+#include "Win32Compat.h"
+#endif
 #include "AnimBase.h"
 #include "BIC.h"
 #include "PTF.h"
@@ -35,7 +40,7 @@ PBYTE GetResource(int resource, LPWSTR type, PDWORD pSize);
 
 void ClearCaptions(std::list<CCaption*>* pCap);
 
-#endif __UTILITIES__
+#endif // __UTILITIES__
 
 int GetRegistryInt(HKEY key, LPCWSTR valueName, int defaultValue);
 void SetRegistryInt(HKEY key, LPCWSTR valueName, int value);
@@ -45,6 +50,7 @@ void SetRegistryFloat(HKEY key, LPCWSTR valueName, float value);
 void DebugTrace(CScriptState* pState, LPWSTR text);
 
 std::string ToString(LPCWSTR str);
+std::wstring ToWString(const std::string& str);
 
 void SwapCaptions();
 

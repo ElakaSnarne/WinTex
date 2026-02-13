@@ -1,6 +1,12 @@
 #pragma once
 
+#include "Platform.h"
+
+#ifdef PLATFORM_LINUX
+#include "Win32Compat.h"
+#else
 #include <Windows.h>
+#endif
 #include "DirectX.h"
 #include "Caption.h"
 #include "ScriptBase.h"

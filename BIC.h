@@ -1,7 +1,12 @@
 #pragma once
 
 #include "AnimBase.h"
+#include "Platform.h"
+#ifdef PLATFORM_WINDOWS
 #include <Windows.h>
+#else
+#include "Win32Compat.h"
+#endif
 
 class CBIC : public CAnimBase
 {

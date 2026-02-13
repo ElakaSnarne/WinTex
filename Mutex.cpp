@@ -1,6 +1,8 @@
 #include "Mutex.h"
 #include "Utilities.h"
 
+#if defined(PLATFORM_WINDOWS) && !defined(PLATFORM_LINUX)
+
 CMutex::CMutex()
 {
 	_hMutex = CreateMutex(NULL, FALSE, NULL);
@@ -57,3 +59,34 @@ void CMutex::Release()
 
 	ReleaseMutex(_hMutex);
 }
+
+#else
+
+#include <chrono>
+
+CMutex::CMutex()
+{
+	_currentThreadId = 0;
+	_lockCount = 0;
+}
+
+CMutex::~CMutex()
+{
+}
+
+BOOL CMutex::Lock(int timeout)
+{
+    if (_mutex.try_lock_for(std::chrono::milliseconds(timeout))) {
+        _lockCount++;
+        return TRUE;
+    }
+    return FALSE;
+}
+
+void CMutex::Release()
+{
+    _lockCount--;
+    _mutex.unlock();
+}
+
+#endif

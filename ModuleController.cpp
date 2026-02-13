@@ -165,6 +165,10 @@ void CModuleController::Pop(CModuleBase* pModule)
 				CurrentModule = Modules.front();
 				ResumeModule(CurrentModule);
 			}
+			else
+			{
+				CurrentModule = NULL;
+			}
 		}
 
 		//ModulesToDelete.push_back(pModule);

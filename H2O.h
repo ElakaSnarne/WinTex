@@ -9,7 +9,7 @@ public:
 	~CH2O();
 
 	virtual BOOL Init(LPBYTE pData, int length);
-	virtual BOOL HasVideo() { return (_videoFramePointer != NULL); }
+	virtual BOOL HasVideo() { return (_videoFramePointer != 0); }
 
 	void SetOutputBuffer(LPBYTE pBuffer, int width, int height, int offsetX, int offsetY, LPINT pPalette, int minColAllowChange, int maxColAllowChange);
 

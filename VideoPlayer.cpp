@@ -1,6 +1,8 @@
 #include "VideoPlayer.h"
 #include <string>
 
+#ifdef PLATFORM_WINDOWS
+
 #pragma comment(linker, \
     "\"/manifestdependency:type='Win32' "\
     "name='Microsoft.Windows.Common-Controls' "\
@@ -139,12 +141,13 @@ void CVideoPlayer::Init(HWND hWnd, LPCTSTR fileName)
 	}
 }
 
-void CVideoPlayer::Update()
+BOOL CVideoPlayer::Update()
 {
 	if (_pPlayer != NULL && _bHasVideo == TRUE)
 	{
 		_pPlayer->UpdateVideo();
 	}
+	return !_done;
 }
 
 void MediaPlayerCallback::OnMediaPlayerEvent(MFP_EVENT_HEADER* pEventHeader)
@@ -279,3 +282,29 @@ void CVideoPlayer::Skip()
 
 	//_done = TRUE;
 }
+
+#else
+
+CVideoPlayer::CVideoPlayer()
+{
+}
+
+CVideoPlayer::~CVideoPlayer()
+{
+}
+
+void CVideoPlayer::Init(HWND hWnd, LPCTSTR fileName)
+{
+    // Stub
+}
+
+BOOL CVideoPlayer::Update()
+{
+    return FALSE;
+}
+
+void CVideoPlayer::Skip()
+{
+}
+
+#endif

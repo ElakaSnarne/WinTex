@@ -12,10 +12,10 @@ public:
 
 	virtual void Resize(int width, int height);
 	virtual void Dispose();
-	virtual void Render() = NULL;
+	virtual void Render() = 0;
 
-protected:
-	virtual void Initialize() = NULL;
+	// Input related
+	virtual void Initialize() = 0;
 
 	int _travelDataOffset;
 

@@ -53,7 +53,7 @@ int CMainMenuModule::_loadVisibleSavesCount = 0;
 SaveGameInfo CMainMenuModule::CurrentGameInfo;
 
 CSaveGameControl* CMainMenuModule::_saveControl = NULL;
-SaveMode CMainMenuModule::SaveMode = SaveMode::Load;
+SaveMode CMainMenuModule::CurrentSaveMode = SaveMode::Load;
 int CMainMenuModule::SaveTypedChars = 0;
 CDXText CMainMenuModule::_saveCursor;
 char CMainMenuModule::_commentBuffer[256];
@@ -323,9 +323,9 @@ void CMainMenuModule::Render()
 	CDXFont::SelectBlackFont();
 	_pScreen->Render();
 
-	if (SaveMode != SaveMode::Load && (GetTickCount64() / 500) % 2)
+	if (CurrentSaveMode != SaveMode::Load && (GetTickCount64() / 500) % 2)
 	{
-		if (SaveMode == SaveMode::Extension)
+		if (CurrentSaveMode == SaveMode::Extension)
 		{
 			// Show cursor at filename extension
 			SaveGameInfo info = _saveControl->GetInfo();
@@ -339,7 +339,7 @@ void CMainMenuModule::Render()
 			float y = _saveControl->GetY() + 8 * pConfig->FontScale;
 			_saveCursor.Render(x, y);
 		}
-		else if (SaveMode == SaveMode::Comment)
+		else if (CurrentSaveMode == SaveMode::Comment)
 		{
 			// Show cursor at comment
 			float y = _saveControl->GetY() + 68 * pConfig->FontScale;
@@ -455,7 +455,7 @@ void CMainMenuModule::LoadScroll(int top)
 
 void CMainMenuModule::SaveCancel(LPVOID data)
 {
-	SaveMode = SaveMode::Load;
+	CurrentSaveMode = SaveMode::Load;
 	_pScreen->PopModal();
 }
 
@@ -475,7 +475,7 @@ void CMainMenuModule::SaveSave(LPVOID data)
 		CurrentGameInfo.FileName = info.FileName;
 	}
 
-	SaveMode = SaveMode::Load;
+	CurrentSaveMode = SaveMode::Load;
 	_pScreen->PopModal();
 }
 
@@ -507,7 +507,7 @@ void CMainMenuModule::SaveIncrementSave(LPVOID data)
 
 			CGameController::SaveGame(fn);
 
-			SaveMode = SaveMode::Load;
+			CurrentSaveMode = SaveMode::Load;
 			_pScreen->PopModal();
 		}
 	}
@@ -672,31 +672,31 @@ void CMainMenuModule::BeginAction()
 			CSaveGameControl* pSGC = (CSaveGameControl*)pHit;
 			if (pSGC != NULL)
 			{
-				if (SaveMode == SaveMode::Load)
+				if (CurrentSaveMode == SaveMode::Load)
 				{
 					// Load save game
 					pSGC->Click();
 				}
-				else if (SaveMode == SaveMode::Extension)
+				else if (CurrentSaveMode == SaveMode::Extension)
 				{
 					// Check if comment area has been clicked
 
 					float y = _cursorPosY - _saveControl->GetY();
 					if (y >= 68 * pConfig->FontScale && y <= 83 * pConfig->FontScale && SaveTypedChars == 3)
 					{
-						SaveMode = SaveMode::Comment;
+						CurrentSaveMode = SaveMode::Comment;
 						SaveGameInfo info = _saveControl->GetInfo();
 						SaveTypedChars = static_cast<int>(info.Comment.length());
 						_caretPos = static_cast<int>(_saveControl->GetColumn2() + ceil(TexFont.PixelWidth(_commentBuffer)));
 					}
 				}
-				else if (SaveMode == SaveMode::Comment)
+				else if (CurrentSaveMode == SaveMode::Comment)
 				{
 					// Check if extension area has been clicked
 					float y = _cursorPosY - _saveControl->GetY();
 					if (y >= 8 * pConfig->FontScale && y <= 22 * pConfig->FontScale && x < 350 * pConfig->FontScale)
 					{
-						SaveMode = SaveMode::Extension;
+						CurrentSaveMode = SaveMode::Extension;
 						SaveTypedChars = 3;// TODO: Check actual number of extension chars
 					}
 				}
@@ -727,7 +727,7 @@ void CMainMenuModule::Back()
 	if (_pScreen->IsModal() && _pConfiguredControl == NULL)
 	{
 		_pScreen->PopModal();
-		SaveMode = SaveMode::Load;
+		CurrentSaveMode = SaveMode::Load;
 	}
 }
 
@@ -807,7 +807,7 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 	{
 		// Check selected field (extension or comment)
 		// Return should trigger save
-		if (SaveMode == SaveMode::Extension)
+		if (CurrentSaveMode == SaveMode::Extension)
 		{
 			// Extension
 			if (key == VK_LEFT || key == VK_BACK)
@@ -833,13 +833,13 @@ void CMainMenuModule::KeyDown(WPARAM key, LPARAM lParam)
 			}
 			else if ((key == VK_TAB || key == VK_RETURN) && SaveTypedChars == 3)
 			{
-				SaveMode = SaveMode::Comment;
+				CurrentSaveMode = SaveMode::Comment;
 				SaveGameInfo info = _saveControl->GetInfo();
 				SaveTypedChars = static_cast<int>(info.Comment.length());
 				_caretPos = static_cast<int>(_saveControl->GetColumn2());
 			}
 		}
-		else if (SaveMode == SaveMode::Comment)
+		else if (CurrentSaveMode == SaveMode::Comment)
 		{
 			// Comment
 			if (key == VK_LEFT || key == VK_BACK)

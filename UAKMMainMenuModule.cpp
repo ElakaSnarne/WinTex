@@ -95,7 +95,7 @@ void CUAKMMainMenuModule::SetupScreen()
 
 void CUAKMMainMenuModule::SetupSave()
 {
-	SaveMode = SaveMode::Extension;
+	CurrentSaveMode = SaveMode::Extension;
 	SaveTypedChars = 3;
 
 	memset(_commentBuffer, 0, 256);

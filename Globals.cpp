@@ -17,6 +17,9 @@ std::list<CCaption*>* pDisplayCaptions = &captions1;
 std::list<CCaption*>* pAddCaptions = &captions2;
 
 PWSTR gamePath = NULL;
+#ifdef PLATFORM_LINUX
+std::string gDataPath = "";
+#endif
 
 float twopi = XM_PI * 2;
 HWND _hWnd = NULL;

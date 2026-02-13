@@ -9,7 +9,6 @@ CTexture CSaveGameControl::_texMouseOver;
 
 CSaveGameControl::CSaveGameControl(void(*onClick)(SaveGameInfo), bool isSave)
 {
-	ZeroMemory(&_info, sizeof(_info));
 	_clicked = onClick;
 
 	_tFileName1.SetText("Filename:");

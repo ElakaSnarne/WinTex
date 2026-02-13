@@ -1,17 +1,26 @@
 #pragma once
 
+#include "Platform.h"
+#ifdef PLATFORM_WINDOWS
 #include <Windows.h>
+#else
+#include "Win32Compat.h"
+#endif
 #include "Map.h"
 #include "D3D11-NoWarn.h"
 #include "D3DX11-NoWarn.h"
+#ifdef PLATFORM_WINDOWS
 #include <DirectXPackedVector.h>
+#endif
 #include "InputMapping.h"
 #include "Enums.h"
 
 class CControllerData;
 
+#ifdef PLATFORM_WINDOWS
 using namespace DirectX::PackedVector;
 using namespace DirectX;
+#endif
 
 class CModuleBase {
 public:
@@ -21,7 +30,7 @@ public:
 	ModuleType Type;
 
 	void Init();
-	virtual void Resize(int width, int height) = NULL;
+	virtual void Resize(int width, int height) = 0;
 	virtual void GotFocus();
 	virtual void LostFocus();
 	virtual void Pause() {}

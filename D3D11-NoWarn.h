@@ -4,6 +4,12 @@
 
 #pragma once
 
+#include "Platform.h"
+
+#ifdef PLATFORM_LINUX
+#include "Win32Compat.h"
+#else
 #pragma warning(push,0)
 #include <D3D11.h>
 #pragma warning(pop)
+#endif

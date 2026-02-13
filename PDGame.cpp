@@ -37,7 +37,7 @@ BOOL CPDGame::Init()
 		CDXButton::SetButtonColours(0, 0, -1, 0);
 		CResumeGameModule::SetTextColours(0, 0, 0xffff0000, 0);
 		CResumeGameModule::SetHeaderColours(0, 0, -1, 0);
-		CDXDialogueOption::SetColours(0, 0, 0xff000000, 0);
+		CDXDialogueOption::SetGlobalColours(0, 0, 0xff000000, 0);
 		CElevation::ElevationModifier = 0.0f;
 		CElevation::ElevationCheckModifier = 0.2f;
 
