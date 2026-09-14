@@ -3,6 +3,7 @@
 
 IXAudio2* CDXSound::XAudio2 = NULL;
 IXAudio2MasteringVoice* CDXSound::MasteringVoice = NULL;
+CDXSound* CDXSound::_deviceCallbackReceiver = NULL;
 
 CDXSound::CDXSound()
 {
@@ -20,8 +21,27 @@ CDXSound::~CDXSound()
 
 void CDXSound::Init()
 {
-	XAudio2Create(&XAudio2, 0);
-	XAudio2->CreateMasteringVoice(&MasteringVoice);
+	if (MasteringVoice == NULL)
+	{
+		Dispose();
+	}
+
+	if (XAudio2 == NULL)
+	{
+		XAudio2Create(&XAudio2, 0);
+	}
+
+	if (_deviceCallbackReceiver == NULL)
+	{
+		_deviceCallbackReceiver = new CDXSound();
+		XAudio2->RegisterForCallbacks(_deviceCallbackReceiver);
+	}
+
+	if (MasteringVoice == NULL)
+	{
+		XAudio2->CreateMasteringVoice(&MasteringVoice);
+	}
+
 	SetVolume((pConfig->Volume) / 100.0f);
 }
 
@@ -42,6 +62,12 @@ void CDXSound::Dispose()
 
 void CDXSound::Play(PBYTE pData, DWORD size)
 {
+	if (MasteringVoice == NULL)
+	{
+		_sourceVoice = NULL;
+		Init();
+	}
+
 	Stop();
 
 	char formatBuff[64];
@@ -73,14 +99,24 @@ void CDXSound::Stop()
 {
 	if (_sourceVoice != NULL)
 	{
-		_sourceVoice->Stop();
-		_sourceVoice->FlushSourceBuffers();
+		try
+		{
+			_sourceVoice->Stop();
+			_sourceVoice->FlushSourceBuffers();
+		}
+		catch (...)
+		{
+		}
 	}
 }
 
 IXAudio2SourceVoice* CDXSound::CreateSourceVoice(WAVEFORMATEX* pwfx, UINT32 Flags, float MaxFrequencyRatio, IXAudio2VoiceCallback* pCallback)
 {
 	IXAudio2SourceVoice* ret = NULL;
-	XAudio2->CreateSourceVoice(&ret, pwfx, Flags, MaxFrequencyRatio, pCallback);
+	if (MasteringVoice != NULL)
+	{
+		XAudio2->CreateSourceVoice(&ret, pwfx, Flags, MaxFrequencyRatio, pCallback);
+	}
+
 	return ret;
 }

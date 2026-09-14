@@ -227,6 +227,8 @@ CAnimBase* CAnimationController::Load(BinaryData bd, int factor)
 	}
 	//else if... Embedded palette + picture
 
+	CDXSound::Init();
+
 	if (pAnim != NULL) pAnim->Init(bd);
 
 	return pAnim;

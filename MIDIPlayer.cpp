@@ -74,7 +74,7 @@ void CMIDIPlayer::Init(BinaryData data)
 {
 	Stop();
 
-	if (_midiMutex.Lock())
+	if (_handle != INVALID_HANDLE_VALUE && _handle != NULL && _midiMutex.Lock())
 	{
 		if (_data.Data != NULL)
 		{

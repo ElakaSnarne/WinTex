@@ -2,7 +2,7 @@
 #include <xaudio2.h>
 #include <atlbase.h>
 
-class CDXSound : public IXAudio2VoiceCallback
+class CDXSound : public IXAudio2VoiceCallback, IXAudio2EngineCallback
 {
 public:
 	CDXSound();
@@ -25,8 +25,14 @@ public:
 
 	static void SetVolume(float volume) { if (MasteringVoice != NULL) { MasteringVoice->SetVolume(volume); } }
 
+	STDMETHOD_(void, OnProcessingPassStart) (void) { };
+	STDMETHOD_(void, OnProcessingPassEnd) (void) { };
+	STDMETHOD_(void, OnCriticalError) (HRESULT Error) { MasteringVoice = NULL; };
+
 protected:
 	static IXAudio2* XAudio2;
 	static IXAudio2MasteringVoice* MasteringVoice;
 	IXAudio2SourceVoice* _sourceVoice;
+
+	static CDXSound* _deviceCallbackReceiver;
 };

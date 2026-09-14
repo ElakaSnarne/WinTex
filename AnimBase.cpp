@@ -41,8 +41,15 @@ CAnimBase::~CAnimBase()
 {
 	if (_sourceVoice != NULL)
 	{
-		_sourceVoice->Stop();
-		_sourceVoice->DestroyVoice();
+		try
+		{
+			_sourceVoice->Stop();
+			_sourceVoice->DestroyVoice();
+		}
+		catch (...)
+		{
+		}
+
 		_sourceVoice = NULL;
 	}
 
