@@ -212,3 +212,23 @@ void CGameController::TransformItem(int fromId, int toId)
 	SetItemState(fromId, 2);
 	SetItemState(toId, 1);
 }
+
+std::wstring CGameController::GetPlayerFolder()
+{
+	if (CFile::Exists(L"cloud_saves"))
+	{
+		return L"cloud_saves";
+	}
+
+	return L"PLAYERS";
+}
+
+std::wstring CGameController::GetSaveGameFolder()
+{
+	if (CFile::Exists(L"cloud_saves"))
+	{
+		return L"cloud_saves";
+	}
+
+	return L"GAMES";
+}

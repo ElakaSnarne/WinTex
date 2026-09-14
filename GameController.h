@@ -91,8 +91,6 @@ public:
 	static int GetLocationInitializationScriptId() { return Game->GetLocationInitializationScriptId(); }
 	static int GetLocationEnvironmentScriptId() { return Game->GetLocationEnvironmentScriptId(); }
 
-	static void AutoSave() { SaveGame(L"GAMES\\SAVEGAME.000"); }
-
 	static int GetHintCategoryCount() { return Game->GetHintCategoryCount(); }
 	static CHintCategory* GetHintCategory(int index) { return Game->GetHintCategory(index); }
 
@@ -105,6 +103,11 @@ public:
 	static void SetBuyableItemState(int index, int state) { Game->SetBuyableItemState(index, state); }
 	static void SetBuyableItemName(int index, std::wstring name);
 	static std::wstring GetBuyableItemName(int index);
+
+	static std::wstring GetPlayerFolder();
+	static std::wstring GetSaveGameFolder();
+
+	static void AutoSave() { SaveGame((LPWSTR)(GetSaveGameFolder() + L"\\SAVEGAME.000").c_str()); }
 
 protected:
 	static CGameBase* Game;

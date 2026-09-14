@@ -254,7 +254,7 @@ void CMainMenuModule::NewGame(LPVOID data)
 void CMainMenuModule::SetPlayerNameAndEnableButtons()
 {
 	CurrentGameInfo.Player = "TEX";
-	CurrentGameInfo.FileName = L"GAMES\\TEX___00.000";
+	CurrentGameInfo.FileName = CGameController::GetSaveGameFolder() + L"\\TEX___00.000";
 	EnableSaveAndResume(TRUE);
 }
 
@@ -1175,5 +1175,5 @@ void CMainMenuModule::UpdateSaveGameData()
 	// TODO: Copy player name from savegame
 	// TODO: Find last save index for player
 	CurrentGameInfo.Player = "TEX";
-	CurrentGameInfo.FileName = L"GAMES\\TEX___00.000";
+	CurrentGameInfo.FileName = CGameController::GetSaveGameFolder() +L"\\TEX___00.000";
 }

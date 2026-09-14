@@ -120,7 +120,7 @@ void CResumeGameModule::Yes()
 {
 	// Auto load
 	CModuleController::Pop(this);
-	CGameController::LoadGame(L"GAMES\\SAVEGAME.000");
+	CGameController::LoadGame((LPWSTR)(CGameController::GetSaveGameFolder() + L"\\SAVEGAME.000").c_str());
 	CMainMenuModule::MainMenuModule->EnableSaveAndResume(TRUE);
 	CMainMenuModule::UpdateSaveGameData();
 }

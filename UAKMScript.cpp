@@ -967,7 +967,7 @@ void CUAKMScript::Function_C6(CScriptState* pState)
 			CModuleController::ClearExcept(pMMM);
 
 			// Delete the autosave (which will only reload the death scene)
-			DeleteFile(L"GAMES\\SAVEGAME.000");
+			DeleteFile((CGameController::GetSaveGameFolder() + L"\\SAVEGAME.000").c_str());
 		}
 	}
 }

@@ -306,7 +306,7 @@ void CGameBase::Start()
 {
 	Init();
 
-	if (CFile::Exists(L"GAMES\\SAVEGAME.000"))
+	if (CFile::Exists((CGameController::GetSaveGameFolder() + L"\\SAVEGAME.000").c_str()))
 	{
 		CModuleController::Push(new CResumeGameModule());
 	}

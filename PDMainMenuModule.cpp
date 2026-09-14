@@ -153,7 +153,7 @@ void CPDMainMenuModule::SetupSave()
 	memset(_commentBuffer, 0, 256);
 
 	SaveGameInfo info;
-	info.FileName = L"GAMES\\";
+	info.FileName = CGameController::GetSaveGameFolder() + L"\\";
 	auto nameLength = CurrentGameInfo.Player.length();
 	while (nameLength > 0 && CurrentGameInfo.Player.at(nameLength - 1) == ' ')
 	{
@@ -205,7 +205,7 @@ void CPDMainMenuModule::SetupLoad()
 	// Get list of current save games
 	_savedGames.clear();
 	WIN32_FIND_DATA fd;
-	HANDLE hFF = FindFirstFile(L"GAMES\\*.*", &fd);
+	HANDLE hFF = FindFirstFile((CGameController::GetSaveGameFolder() + L"\\*.*").c_str(), &fd);
 	BYTE buffer[0xd8];
 	if (hFF != INVALID_HANDLE_VALUE)
 	{
@@ -218,7 +218,7 @@ void CPDMainMenuModule::SetupLoad()
 				{
 					// Real file, load header and extract info
 					CFile file;
-					std::wstring fileName = L"GAMES\\" + name;
+					std::wstring fileName = CGameController::GetSaveGameFolder() + L"\\" + name;
 					if (file.Open((LPWSTR)fileName.c_str()))
 					{
 						if (file.Read(buffer, 0xd8) == 0xd8)

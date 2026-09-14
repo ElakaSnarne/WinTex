@@ -23,10 +23,10 @@ BOOL CUAKMGame::Init()
 	if (CModuleController::Init(new CUAKMMap(), new CUAKMDMap()) && LoadIcons() && CItems::Init())
 	{
 		// Make sure Tex player exists
-		if (!CFile::Exists(L"PLAYERS\\TEX___00.PLR"))
+		if (!CFile::Exists((CGameController::GetPlayerFolder() + L"\\TEX___00.PLR").c_str()))
 		{
 			CFile file;
-			if (file.Open(L"PLAYERS\\TEX___00.PLR", CFile::Mode::Write))
+			if (file.Open((CGameController::GetPlayerFolder() + L"\\TEX___00.PLR").c_str(), CFile::Mode::Write))
 			{
 				BYTE buffer[256];
 				ZeroMemory(buffer, 256);
