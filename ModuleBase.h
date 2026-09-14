@@ -81,6 +81,6 @@ protected:
 
 	RECT _oldClippingArea;
 	RECT _currentClippingArea;
-	bool _cursorIsClipped;
+	bool _cursorIsClipped{ false };
 	bool _hasFocus{ true };
 };
