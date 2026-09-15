@@ -117,20 +117,15 @@ float CDXFont::PixelWidth(char* text)
 
 	while (*text)
 	{
-		char ch = *(text++);
-		if (ch >= 0x20 && ch <= 0x7f)
+		int cix = ((int)*(text++)) & 0xff;
+		cix -= 0x20;
+		if (cix >= 0 && cix < 0xe0)
 		{
-			ch -= 0x20;
-			pixels += _widths[ch] * pConfig->FontScale;
+			pixels += _widths[cix] * pConfig->FontScale;
 		}
 	}
 
 	return pixels;
-}
-
-float CDXFont::PixelWidth(char ch)
-{
-	return _widths[ch] * pConfig->FontScale;
 }
 
 Size CDXFont::GetSize(char* text, float maxw)
@@ -169,9 +164,9 @@ Size CDXFont::GetSize(char* text, float maxw)
 			start = scan;
 			pixels = 0.0f;
 		}
-		else if (c > 0x20 && c <= 0x7f)
+		else //if (c > 0x20 && c <= 0x7f)
 		{
-			pixels += _widths[c - 0x20] * pConfig->FontScale;
+			pixels += _widths[((int)c) & 0xff - 0x20] * pConfig->FontScale;
 		}
 	}
 
@@ -244,14 +239,15 @@ std::list<PointUV> CDXFont::Create(LPCWSTR text, BOOL texFont)
 		{
 			x += spaceWidth;
 		}
-		else if (c > 0x20 && c <= 0x7f)
+		else// if (c > 0x20 && c <= 0x7f)
 		{
-			c -= 0x20;
+			int cix = (((int)c) & 0xff) - 0x20;
+			//c -= 0x20;
 
-			float fx = _widths[c];
+			float fx = _widths[cix];
 			float scaledFx = fx * pConfig->FontScale;
 
-			float u1 = fcw * (float)c;
+			float u1 = fcw * (float)cix;
 			float u2 = u1 + fx / (texFont ? 3584.0f : 5760.0f);
 
 			PointUV pt;

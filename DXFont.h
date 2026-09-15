@@ -17,7 +17,6 @@ public:
 	float Height();
 
 	float PixelWidth(char* text);
-	float PixelWidth(char ch);
 	Size GetSize(char* text, float maxw);
 
 	std::list<PointUV> Create(LPCWSTR text, BOOL texFont);

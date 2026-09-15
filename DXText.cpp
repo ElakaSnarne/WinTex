@@ -176,9 +176,9 @@ void CDXText::SetText(char const* text, Rect rect, Alignment alignment)
 			start = scan;
 			pixels = 0.0f;
 		}
-		else if (c > 0x20 && c <= 0xff)
+		else// if (c > 0x20 && c <= 0xff)
 		{
-			pixels += ((float)pWidths[c - 0x20]) * pConfig->FontScale;
+			pixels += ((float)pWidths[((int)c) & 0xff - 0x20]) * pConfig->FontScale;
 			_printableCharacters++;
 		}
 	}
@@ -279,8 +279,8 @@ void CDXText::SetText(char const* text, Rect rect, Alignment alignment)
 
 						for (int c = 0; c < print->Chars(); c++)
 						{
-							char ch = print->Text()[c];
-							if (ch >= 0x20 && ch <= 0x7f)
+							int ch = ((int)print->Text()[c]) & 0xff;
+							//if (ch >= 0x20 && ch <= 0x7f)
 							{
 								ch -= 0x20;
 								// Create vertices and indexes for this character...
@@ -371,7 +371,7 @@ void CDXText::SetText(LPCWSTR text, Rect rect, Alignment alignment)
 
 	while (TRUE)
 	{
-		char c = *(scan++) & 0xFF;
+		int c = ((int)*(scan++)) & 0xff;
 		if (c == 0) break;
 		else if (c == 0x20)
 		{
@@ -384,7 +384,7 @@ void CDXText::SetText(LPCWSTR text, Rect rect, Alignment alignment)
 			start = scan;
 			pixels = 0.0f;
 		}
-		else if (c > 0x20 && c <= 0x7f)
+		else// if (c > 0x20 && c <= 0x7f)
 		{
 			pixels += ((float)pWidths[c - 0x20]) * pConfig->FontScale;
 			_printableCharacters++;
@@ -474,8 +474,8 @@ void CDXText::SetText(LPCWSTR text, Rect rect, Alignment alignment)
 
 					for (int c = 0; c < print->Chars(); c++)
 					{
-						char ch = ((WCHAR*)print->Text())[c] & 0xFF;
-						if (ch >= 0x20 && ch <= 0x7f)
+						int ch = ((int)((WCHAR*)print->Text())[c]) & 0xff;
+						if (ch >= 0x20)// && ch <= 0x7f)
 						{
 							ch -= 0x20;
 							// Create vertices and indexes for this character...
@@ -569,10 +569,10 @@ void CDXText::SetTextUnmodified(char const* text)
 			float y2 = TexFont.Y2();
 			float fh = TexFont.Height() * pConfig->FontScale;
 			auto scan = text;
-			char ch;
-			while ((ch = *scan++))
+			int ch;
+			while ((ch = ((int)*scan++)) & 0xff)
 			{
-				if (ch >= 0x20 && ch <= 0x7f)
+				if (ch >= 0x20)// && ch <= 0x7f)
 				{
 					ch -= 0x20;
 					// Create vertices and indexes for this character...
@@ -655,10 +655,10 @@ void CDXText::SetTextUnmodified(WCHAR const* text)
 			float y2 = TexFont.Y2();
 			float fh = TexFont.Height() * pConfig->FontScale;
 			auto scan = text;
-			char ch;
-			while ((ch = *scan++))
+			int ch;
+			while ((ch = ((int)*scan++) & 0xff))
 			{
-				if (ch >= 0x20 && ch <= 0x7f)
+				if (ch >= 0x20)// && ch <= 0x7f)
 				{
 					ch -= 0x20;
 					// Create vertices and indexes for this character...
