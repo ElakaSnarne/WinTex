@@ -102,8 +102,7 @@ void CTravelModule::BeginAction()
 		{
 			// Load location module
 			int locationId = _resultTable[ix * 2];
-			//CGameController::SetData(UAKM_SAVE_MAP_ENTRY, locationId);
-			//CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 0);
+			PrepareSaveData(0, locationId);
 			CGameController::SetParameter(249, 0);
 			CGameController::AutoSave();
 			CModuleController::Push(new CLocationModule(locationId, 0));
@@ -112,8 +111,7 @@ void CTravelModule::BeginAction()
 		{
 			// Load video module
 			int id = _resultTable[ix * 2 + 1];
-			//CGameController::SetData(UAKM_SAVE_DMAP_ENTRY, id);
-			//CGameController::SetData(UAKM_SAVE_DMAP_FLAG, 1);
+			PrepareSaveData(1, id);
 			CGameController::AutoSave();
 			CModuleController::Push(new CVideoModule(VideoType::Scripted, id));
 		}

@@ -362,3 +362,17 @@ void CUAKMTravelModule::Render()
 		dx.EnableZBuffer();
 	}
 }
+
+void CUAKMTravelModule::PrepareSaveData(int type, int id)
+{
+	if (type == 0)
+	{
+		CGameController::SetData(UAKM_SAVE_MAP_ENTRY, id);
+	}
+	else
+	{
+		CGameController::SetData(UAKM_SAVE_DMAP_ENTRY, id);
+	}
+
+	CGameController::SetData(UAKM_SAVE_DMAP_FLAG, (BYTE)type);
+}

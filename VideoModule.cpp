@@ -22,7 +22,7 @@ CVideoModule::CVideoModule(VideoType type, int dmapIndex, int activeScript) : CM
 		_scriptState = CGameController::GetScriptState();
 		_scriptState->Init(bd.Data, bd.Length, fileName.c_str(), _scriptEngine->_mapEntry->ScriptFileEntry);
 
-		//if (activeScript < 0)
+		if (activeScript < 0)
 		{
 			activeScript = 0;
 		}

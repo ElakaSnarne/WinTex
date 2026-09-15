@@ -35,4 +35,6 @@ protected:
 	const short* _coordinates;
 	const short* _hotspots;
 	const signed char* _resultTable;
+
+	virtual void PrepareSaveData(int type, int id) = NULL;
 };

@@ -39,4 +39,6 @@ protected:
 
 	ULONGLONG _blinkTime;
 	CPDSubLocation* _pDestination;
+
+	virtual void PrepareSaveData(int type, int id);
 };

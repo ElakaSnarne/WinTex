@@ -577,3 +577,6 @@ void CPDTravelModule::RenderLocationImage(int locationId)
 // 61		Indicator?
 // 62		Location on current CD indicator
 
+void CPDTravelModule::PrepareSaveData(int type, int id)
+{
+}

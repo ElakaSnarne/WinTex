@@ -153,7 +153,7 @@ void CPDGame::LoadGame(LPWSTR fileName)
 			}
 			else
 			{
-				CModuleController::Push(new CVideoModule(VideoType::Scripted, _gameData[PD_SAVE_DMAP_ID], GetWord(PD_SAVE_SCRIPT_ID)));
+				CModuleController::Push(new CVideoModule(VideoType::Scripted, _gameData[PD_SAVE_DMAP_ID], 0));// GetWord(PD_SAVE_SCRIPT_ID)));
 			}
 		}
 	}

@@ -495,7 +495,7 @@ void CPDScript::Function_14(CScriptState* pState)
 
 	CGameController::AutoSave();
 
-	CModuleController::Push(new CVideoModule(VideoType::Scripted, ix, unknown));
+	CModuleController::Push(new CVideoModule(VideoType::Scripted, ix, 0));// unknown));
 
 	pState->ExecutionPointer = -1;
 }
